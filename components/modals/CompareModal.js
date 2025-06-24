@@ -1,92 +1,136 @@
 'use client';
 
-import { useState } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { useState, useEffect, useCallback } from 'react';
+import { searchListings, fetchSimilarListings } from '@/app/actions';
+import ComparisonTable from '../ComparisonTable';
 import Image from 'next/image';
+import { debounce } from 'lodash';
 
-export default function CompareModal({ currentProduct, onClose }) {
-    const [searchQuery, setSearchQuery] = useState('');
-    const [searchResults, setSearchResults] = useState([]);
-    const [comparisonProduct, setComparisonProduct] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const supabase = createClientComponentClient();
-
-    const handleSearch = async (e) => {
-        e.preventDefault();
-        if (!searchQuery.trim()) return;
-
-        setLoading(true);
-        setComparisonProduct(null);
-        const tables = ['regular_products', 'notes', 'rooms'];
-        let allResults = [];
-
-        for (const table of tables) {
-            const { data } = await supabase
-                .from(table)
-                .select('*')
-                .or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
-            
-            if (data) {
-                allResults = [...allResults, ...data.map(item => ({ ...item, type: table }))];
-            }
-        }
-        setSearchResults(allResults);
-        setLoading(false);
-    };
-
-    const getAttribute = (product, attr) => product?.[attr] || 'N/A';
+const SearchResultItem = ({ item, onSelect }) => {
+    const imageUrl = (Array.isArray(item.images) && item.images.length > 0 && item.images[0])
+        || (Array.isArray(item.image_urls) && item.image_urls.length > 0 && item.image_urls[0])
+        || `https://i.pravatar.cc/100?u=${item.id}`;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center" onClick={onClose}>
-            <div className="bg-white rounded-lg shadow-2xl p-8 max-w-4xl w-full" onClick={e => e.stopPropagation()}>
+        <div 
+            className="flex items-center p-2 rounded-lg hover:bg-gray-200 cursor-pointer transition-colors duration-200"
+            onClick={() => onSelect(item)}
+        >
+            <Image src={imageUrl} alt={item.title || item.name} width={40} height={40} className="rounded-md object-cover mr-4" />
+            <div className="flex-grow">
+                <p className="font-semibold text-primary truncate">{item.title || item.name}</p>
+                <p className="text-sm text-gray-500 capitalize">{item.category}</p>
+            </div>
+            <p className="text-accent font-bold">₹{item.price || item.fees}</p>
+        </div>
+    );
+};
+
+export default function CompareModal({ productA, onClose }) {
+    const [productB, setProductB] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+
+    // Fetch initial suggestions
+    useEffect(() => {
+        const getInitialSuggestions = async () => {
+            if (!productA) return;
+            setIsLoading(true);
+            const suggestions = await fetchSimilarListings({
+                category: productA.category,
+                currentId: productA.id,
+                limit: 5,
+            });
+            setSearchResults(suggestions);
+            setIsLoading(false);
+        };
+        getInitialSuggestions();
+    }, [productA]);
+
+    // Debounced search function
+    const debouncedSearch = useCallback(
+        debounce(async (query) => {
+            if (query.length > 1) {
+                setIsLoading(true);
+                const results = await searchListings({ query });
+                // Filter out the original product from search results
+                setSearchResults(results.filter(item => item.id !== productA.id));
+                setIsLoading(false);
+            } else if (query.length === 0) {
+                // If search is cleared, show initial suggestions again
+                const getInitialSuggestions = async () => {
+                    setIsLoading(true);
+                    const suggestions = await fetchSimilarListings({
+                        category: productA.category,
+                        currentId: productA.id,
+                        limit: 5,
+                    });
+                    setSearchResults(suggestions);
+                    setIsLoading(false);
+                };
+                getInitialSuggestions();
+            }
+        }, 300), // 300ms debounce delay
+        [productA]
+    );
+
+    const handleSearchChange = (e) => {
+        const query = e.target.value;
+        setSearchQuery(query);
+        debouncedSearch(query);
+    };
+
+    if (!productA) return null;
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex justify-center items-center p-4" onClick={onClose}>
+            <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
                 <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl font-bold text-primary">Compare Products</h2>
-                    <button onClick={onClose} className="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+                    <h2 className="text-3xl font-bold text-primary">Compare Products</h2>
+                    <button onClick={onClose} className="text-gray-500 hover:text-gray-800 text-3xl">&times;</button>
                 </div>
 
-                {!comparisonProduct ? (
-                    <div>
-                        <form onSubmit={handleSearch} className="flex gap-2 mb-4">
+                {productB ? (
+                    <ComparisonTable productA={productA} productB={productB} />
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {/* Product A Display */}
+                        <div className="p-4 border rounded-lg bg-gray-50">
+                            <h3 className="font-bold text-xl text-primary mb-4">Comparing</h3>
+                            <div className="flex items-center p-2 rounded-lg bg-white shadow-sm">
+                                <Image 
+                                    src={(Array.isArray(productA.images) && productA.images[0]) || (Array.isArray(productA.image_urls) && productA.image_urls[0]) || `https://i.pravatar.cc/100?u=${productA.id}`}
+                                    alt={productA.title || productA.name}
+                                    width={60}
+                                    height={60}
+                                    className="rounded-md object-cover mr-4"
+                                />
+                                <div>
+                                    <p className="font-semibold text-primary">{productA.title || productA.name}</p>
+                                    <p className="text-accent font-bold">₹{productA.price || productA.fees}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Search and Results */}
+                        <div>
+                            <h3 className="font-bold text-xl text-primary mb-4">With</h3>
                             <input 
                                 type="text"
                                 value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder="Search for a product to compare..."
-                                className="flex-grow p-2 border rounded-lg"
+                                onChange={handleSearchChange}
+                                placeholder="Search for another product..."
+                                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary focus:outline-none transition"
                             />
-                            <button type="submit" className="bg-primary text-white font-bold py-2 px-4 rounded-lg">Search</button>
-                        </form>
-                        <div className="max-h-80 overflow-y-auto">
-                            {loading && <p>Searching...</p>}
-                            {searchResults.map(item => (
-                                <div key={item.id} onClick={() => setComparisonProduct(item)} className="flex items-center space-x-4 p-2 rounded-lg hover:bg-gray-100 cursor-pointer">
-                                    <Image src={item.image_urls?.[0] || 'https://source.unsplash.com/random/100x100?item'} alt={item.title || item.hostel_name} width={50} height={50} className="rounded-md" />
-                                    <div>
-                                        <p className="font-semibold text-primary">{item.title || item.hostel_name}</p>
-                                        <p className="text-accent font-bold">₹{item.price || item.fees}</p>
-                                    </div>
-                                </div>
-                            ))}
+                            <div className="mt-4 space-y-2 max-h-64 overflow-y-auto">
+                                {isLoading && <p className="text-center text-gray-500">Searching...</p>}
+                                {!isLoading && searchResults.length === 0 && <p className="text-center text-gray-500">No products found.</p>}
+                                {!isLoading && searchResults.map(item => (
+                                    <SearchResultItem key={item.id} item={item} onSelect={setProductB} />
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                ) : (
-                    <div>
-                        <button onClick={() => setComparisonProduct(null)} className="mb-4 text-primary hover:underline">← Back to Search</button>
-                        <table className="w-full text-left table-fixed">
-                            <thead>
-                                <tr className="border-b">
-                                    <th className="w-1/3 py-2">Feature</th>
-                                    <th className="w-1/3 py-2">{currentProduct.title || currentProduct.hostel_name}</th>
-                                    <th className="w-1/3 py-2">{comparisonProduct.title || comparisonProduct.hostel_name}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr className="border-b"><td className="py-2 font-bold">Price</td><td>₹{getAttribute(currentProduct, 'price') || getAttribute(currentProduct, 'fees')}</td><td>₹{getAttribute(comparisonProduct, 'price') || getAttribute(comparisonProduct, 'fees')}</td></tr>
-                                <tr className="border-b"><td className="py-2 font-bold">Category</td><td>{currentProduct.category || 'N/A'}</td><td>{comparisonProduct.category || 'N/A'}</td></tr>
-                                <tr className="border-b"><td className="py-2 font-bold">Description</td><td className="text-sm">{getAttribute(currentProduct, 'description')}</td><td className="text-sm">{getAttribute(comparisonProduct, 'description')}</td></tr>
-                                {/* Add more specific attributes as needed */}
-                            </tbody>
-                        </table>
                     </div>
                 )}
             </div>

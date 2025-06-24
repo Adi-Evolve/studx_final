@@ -5,36 +5,7 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Image from 'next/image';
 import Link from 'next/link';
 
-export default function SellerInfoModal({ seller, sellerId, onClose }) {
-    const [listings, setListings] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const supabase = createClientComponentClient();
-
-    useEffect(() => {
-        const fetchListings = async () => {
-            if (!sellerId) return;
-
-            const tables = ['regular_products', 'notes', 'rooms'];
-            let allListings = [];
-
-            for (const table of tables) {
-                const { data, error } = await supabase
-                    .from(table)
-                    .select('*')
-                    .eq('seller_id', sellerId);
-                
-                if (data) {
-                    allListings = [...allListings, ...data];
-                }
-            }
-
-            setListings(allListings);
-            setLoading(false);
-        };
-
-        fetchListings();
-    }, [sellerId, supabase]);
-
+export default function SellerInfoModal({ seller, soldProducts, onClose, isLoading }) {
     if (!seller) return null;
 
     return (
@@ -49,35 +20,40 @@ export default function SellerInfoModal({ seller, sellerId, onClose }) {
                     <div className="relative w-16 h-16 rounded-full overflow-hidden">
                         <Image 
                             src={seller.avatar_url || '/default-avatar.png'} 
-                            alt={seller.full_name || 'User avatar'}
+                            alt={seller.name || 'User avatar'}
                             layout="fill"
                             objectFit="cover"
                         />
                     </div>
                     <div>
-                        <p className="font-bold text-xl text-primary">{seller.full_name}</p>
+                        <p className="font-bold text-xl text-primary">{seller.name}</p>
                         <p className="text-secondary">{seller.email}</p>
+                        {seller.phone && <p className="text-secondary">{seller.phone}</p>}
                         {/* Add member since and rating when available */}
                     </div>
                 </div>
 
-                <h3 className="font-bold text-lg text-primary mb-4">Other items from this seller:</h3>
-                {loading ? (
-                    <p>Loading listings...</p>
+                <h3 className="font-bold text-lg text-primary mb-4">Sold Items from this Seller:</h3>
+                {isLoading ? (
+                    <p className="text-gray-500">Loading sold items...</p>
                 ) : (
-                    <div className="space-y-4 max-h-64 overflow-y-auto">
-                        {listings.length > 0 ? listings.map(item => (
-                            <Link href={`/products/${item.id}`} key={`${item.id}-${item.title}`}>
-                                <div className="flex items-center space-x-4 p-2 rounded-lg hover:bg-gray-100 cursor-pointer">
-                                    <Image src={item.image_urls?.[0] || 'https://source.unsplash.com/random/100x100?item'} alt={item.title || item.hostel_name} width={50} height={50} className="rounded-md" />
-                                    <div>
-                                        <p className="font-semibold text-primary">{item.title || item.hostel_name}</p>
-                                        <p className="text-accent font-bold">₹{item.price || item.fees}</p>
-                                    </div>
+                    <div className="space-y-4 max-h-64 overflow-y-auto p-2 bg-gray-50 rounded-lg">
+                        {soldProducts.length > 0 ? soldProducts.map(item => (
+                            <div key={item.id} className="flex items-center space-x-4 p-2 rounded-lg bg-white shadow-sm">
+                                <Image 
+                                    src={(item.images && item.images[0]) || (item.image_urls && item.image_urls[0]) || 'https://source.unsplash.com/random/100x100?item'}
+                                    alt={item.title || item.name || 'Sold Item'}
+                                    width={50} 
+                                    height={50} 
+                                    className="rounded-md object-cover"
+                                />
+                                <div>
+                                    <p className="font-semibold text-primary">{item.title || item.name}</p>
+                                    <p className="text-accent font-bold">₹{item.price || item.fees}</p>
                                 </div>
-                            </Link>
+                            </div>
                         )) : (
-                            <p className="text-gray-500">No other listings found.</p>
+                            <p className="text-gray-500">No sold items found for this seller.</p>
                         )}
                     </div>
                 )}

@@ -1,5 +1,6 @@
 import Link from 'next/link';
-
+import ProductFeed from '@/components/ProductFeed';
+import GetStartedButton from '@/components/GetStartedButton';
 
 export default function InfoPage() {
   return (
@@ -9,9 +10,7 @@ export default function InfoPage() {
           <h1 className="text-5xl font-bold text-accent mb-4">Welcome to StudXchange</h1>
           <p className="text-xl text-secondary mb-8">The ultimate marketplace for students to buy and sell used items, find notes, and even look for accommodation.</p>
           <div className="space-x-4">
-            <Link href="/login" className="bg-accent text-white font-bold py-3 px-8 rounded-lg hover:bg-primary transition duration-300">
-              Get Started
-            </Link>
+                        <GetStartedButton />
             <Link href="/about" className="bg-secondary text-white font-bold py-3 px-8 rounded-lg hover:bg-primary transition duration-300">
               Learn More
             </Link>
@@ -20,7 +19,7 @@ export default function InfoPage() {
 
         <section className="mt-20 bg-primary py-16">
           <h2 className="text-3xl font-bold text-center text-white mb-12">Why Choose StudXchange?</h2>
-          <div className="grid md:grid-cols-3 gap-10">
+          <div className="grid md:grid-cols-3 gap-10 px-4">
             <div className="text-center p-6 bg-white rounded-lg shadow-md">
               <h3 className="text-xl font-semibold mb-2">For Students, By Students</h3>
               <p className="text-light-text">A platform tailored to the needs of student life. Find everything from textbooks to bikes from fellow students in your campus area.</p>
@@ -35,6 +34,9 @@ export default function InfoPage() {
             </div>
           </div>
         </section>
+
+        <ProductFeed />
+
       </main>
       </div>
   );

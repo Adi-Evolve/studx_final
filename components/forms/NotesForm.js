@@ -3,25 +3,25 @@
 import { useState } from 'react';
 import ImageUpload from '../ImageUpload';
 import FileUpload from '../FileUpload';
+import { colleges } from '../../lib/colleges';
 // import toast from 'react-hot-toast';
 
 // Placeholder data
-const colleges = ['IIT Bombay', 'IIT Delhi', 'VIT Vellore', 'SRM University', 'All'];
 const academicYears = ['8th', '9th', '10th', '11th', '12th', 'Undergraduate', 'Postgraduate', 'PhD'];
 const subjects = ['Physics', 'Chemistry', 'Mathematics', 'Computer Science', 'Data Structures'];
-const categories = ['Laptops', 'Project Equipment', 'Books', 'Cycle/Bike', 'Hostel Equipment', 'Notes', 'Rooms/Hostel', 'Others'];
+const categories = ['Laptops', 'Project Equipment', 'Books', 'Cycle/Bike', 'Hostel Equipment', 'Notes', 'Rooms/Hostel', 'Furniture', 'Others'];
 
-export default function NotesForm({ onFormSubmit }) {
+export default function NotesForm({ initialData = {}, onSubmit }) {
     const [formData, setFormData] = useState({
-        title: '',
-        college: '',
-        academicYear: '',
-        subject: '',
-        price: '',
-        description: '',
-        images: [],
-        pdfs: [],
-        category: 'Notes', // Default to 'Notes'
+        title: initialData.title || '',
+        college: initialData.college || '',
+        academic_year: initialData.academic_year || '',
+        subject: initialData.subject || '',
+        price: initialData.price || '',
+        description: initialData.description || '',
+        images: initialData.images || [],
+        pdfs: initialData.pdf_url ? [initialData.pdf_url] : [], // Handle existing PDF
+        category: initialData.category || 'Notes',
     });
 
     const handleChange = (e) => {
@@ -43,43 +43,40 @@ export default function NotesForm({ onFormSubmit }) {
         e.preventDefault();
         if (isSubmitting) return;
         setIsSubmitting(true);
-        // const toastId = toast.loading('Uploading your notes...');
 
         const data = new FormData();
-        data.append('formType', 'notes');
-        data.append('category', formData.category);
-        data.append('title', formData.title);
-        data.append('college', formData.college);
-        data.append('academicYear', formData.academicYear);
-        data.append('subject', formData.subject);
-        data.append('price', formData.price);
-        data.append('description', formData.description);
-
-        formData.images.forEach(image => {
-            data.append('images', image);
-        });
-        formData.pdfs.forEach(pdf => {
-            data.append('pdfs', pdf);
-        });
-
-        try {
-            const response = await fetch('/api/sell', {
-                method: 'POST',
-                body: data,
-            });
-
-            const result = await response.json();
-
-            if (!response.ok) {
-                throw new Error(result.error || 'Something went wrong');
+        for (const key in formData) {
+            if (key === 'images') {
+                formData.images.forEach(file => { if (file instanceof File) data.append('images', file); });
+            } else if (key === 'pdfs') {
+                formData.pdfs.forEach(file => { if (file instanceof File) data.append('pdf', file); });
+            } else if (formData[key] !== null) {
+                data.append(key, formData[key]);
             }
-
-            // toast.success('Notes listed successfully!', { id: toastId });
-        } catch (error) {
-            // toast.error(error.message, { id: toastId });
-        } finally {
-            setIsSubmitting(false);
         }
+
+        if (onSubmit) {
+            data.append('type', 'note');
+            await onSubmit(data);
+        } else {
+            data.append('formType', 'notes');
+            try {
+                const response = await fetch('/api/sell', {
+                    method: 'POST',
+                    body: data,
+                });
+                if (!response.ok) {
+                    const result = await response.json();
+                    throw new Error(result.error || 'Something went wrong');
+                }
+                alert('Notes listed successfully!');
+                e.target.reset();
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        setIsSubmitting(false);
     };
 
     return (
@@ -92,36 +89,36 @@ export default function NotesForm({ onFormSubmit }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label htmlFor="title" className="block text-sm font-medium text-gray-700">Title of Notes</label>
-                    <input type="text" name="title" id="title" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" onChange={handleChange} />
+                    <input type="text" name="title" id="title" required value={formData.title} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" onChange={handleChange} />
                 </div>
                 <div>
                     <label htmlFor="price" className="block text-sm font-medium text-gray-700">Price (₹)</label>
-                    <input type="number" name="price" id="price" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" onChange={handleChange} />
+                    <input type="number" name="price" id="price" required value={formData.price} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" onChange={handleChange} />
                 </div>
                 <div>
                     <label htmlFor="college" className="block text-sm font-medium text-gray-700">College</label>
-                    <select name="college" id="college" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" onChange={handleChange}>
+                    <select name="college" id="college" required value={formData.college} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" onChange={handleChange}>
                         <option value="" disabled>Select College</option>
-                        {colleges.map(c => <option key={c} value={c}>{c}</option>)}
+                        {colleges.sort((a, b) => a.name.localeCompare(b.name)).map(c => <option key={c.short} value={c.short}>{c.name}</option>)}
                     </select>
                 </div>
                 <div>
-                    <label htmlFor="academicYear" className="block text-sm font-medium text-gray-700">Academic Year</label>
-                    <select name="academicYear" id="academicYear" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" onChange={handleChange}>
+                    <label htmlFor="academic_year" className="block text-sm font-medium text-gray-700">Academic Year</label>
+                    <select name="academic_year" id="academic_year" required value={formData.academic_year} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" onChange={handleChange}>
                         <option value="" disabled>Select Year</option>
                         {academicYears.map(y => <option key={y} value={y}>{y}</option>)}
                     </select>
                 </div>
                 <div className="md:col-span-2">
                     <label htmlFor="subject" className="block text-sm font-medium text-gray-700">Course / Subject</label>
-                    <select name="subject" id="subject" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" onChange={handleChange}>
-                         <option value="" disabled>Select Subject</option>
-                         {subjects.map(s => <option key={s} value={s}>{s}</option>)}
+                    <select name="subject" id="subject" required value={formData.subject} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" onChange={handleChange}>
+                        <option value="" disabled>Select Subject</option>
+                        {subjects.map(s => <option key={s} value={s}>{s}</option>)}
                     </select>
                 </div>
                 <div className="md:col-span-2">
                     <label htmlFor="category" className="block text-sm font-medium text-gray-700">Category</label>
-                    <select name="category" id="category" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" onChange={handleChange} value={formData.category}>
+                    <select name="category" id="category" required value={formData.category} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" onChange={handleChange}>
                         {categories.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
                 </div>
@@ -139,12 +136,12 @@ export default function NotesForm({ onFormSubmit }) {
 
             <div>
                 <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
-                <textarea name="description" id="description" rows="4" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" onChange={handleChange}></textarea>
+                <textarea name="description" id="description" rows="4" value={formData.description} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" onChange={handleChange}></textarea>
             </div>
 
             <div className="flex justify-end">
-                <button type="submit" className="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 transition duration-300">
-                    List Notes
+                <button type="submit" disabled={isSubmitting} className="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 transition duration-300 disabled:bg-gray-400">
+                    {isSubmitting ? 'Submitting...' : (initialData.id ? 'Update Notes' : 'List Notes')}
                 </button>
             </div>
         </form>

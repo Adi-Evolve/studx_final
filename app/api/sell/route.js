@@ -2,20 +2,40 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
-// Helper function to upload a file to Supabase Storage
-async function uploadFile(supabase, file, bucket) {
+const IMGBB_API_KEY = '272785e1c6e6221d927bad99483ff9ed';
+
+// Helper function to upload an image to ImgBB
+async function uploadImageToImgBB(file) {
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+        method: 'POST',
+        body: formData,
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+        throw new Error(result.error?.message || 'ImgBB upload failed');
+    }
+
+    return result.data.url;
+}
+
+// Helper function to upload a file to Supabase Storage (for PDFs)
+async function uploadPdfToSupabase(supabase, file) {
     const fileName = `${Date.now()}-${file.name}`;
     const { data, error } = await supabase.storage
-        .from(bucket)
+        .from('notes_pdfs') // Assuming a 'notes_pdfs' bucket
         .upload(fileName, file);
 
     if (error) {
         throw new Error(`Storage Error: ${error.message}`);
     }
 
-    // Get public URL for the uploaded file
     const { data: { publicUrl } } = supabase.storage
-        .from(bucket)
+        .from('notes_pdfs')
         .getPublicUrl(fileName);
     
     return publicUrl;
@@ -24,7 +44,6 @@ async function uploadFile(supabase, file, bucket) {
 export async function POST(request) {
     const supabase = createRouteHandlerClient({ cookies });
 
-    // 1. Check for authenticated user
     const { data: { session }, error: sessionError } = await supabase.auth.getSession();
     if (sessionError || !session) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -34,77 +53,77 @@ export async function POST(request) {
     try {
         const formData = await request.formData();
         const formType = formData.get('formType');
-        const formCategory = formData.get('category');
 
         let dataToInsert = {};
         let tableName = '';
 
-        // 2. Upload files and get URLs
         const imageFiles = formData.getAll('images');
         const imageUrls = await Promise.all(
-            imageFiles.map(file => uploadFile(supabase, file, 'product_images'))
+            imageFiles.map(file => uploadImageToImgBB(file))
         );
 
-        // 3. Prepare data based on form type
-                if (formType === 'regular') {
-            tableName = 'regular_products';
+        if (formType === 'regular') {
+            tableName = 'product';
             dataToInsert = {
                 seller_id: userId,
                 title: formData.get('title'),
-                college: formData.get('college'),
+                description: formData.get('description'),
                 price: parseFloat(formData.get('price')),
+                category: formData.get('category'),
                 condition: formData.get('condition'),
-                description: formData.get('description'),
-                location: JSON.parse(formData.get('location')), // Location is sent as a JSON string
-                image_urls: imageUrls,
-                category: formCategory,
+                college: formData.get('college'),
+                location: JSON.parse(formData.get('location')),
+                images: imageUrls,
+                is_sold: false, // Default value
             };
-                } else if (formType === 'notes') {
+        } else if (formType === 'notes') {
             tableName = 'notes';
-            const pdfFiles = formData.getAll('pdfs');
-            const pdfUrls = await Promise.all(
-                pdfFiles.map(file => uploadFile(supabase, file, 'notes_pdfs'))
-            );
+            const pdfFile = formData.get('pdfs'); // Assuming single PDF for now
+            let pdfUrl = null;
+            if (pdfFile && pdfFile.size > 0) {
+                pdfUrl = await uploadPdfToSupabase(supabase, pdfFile);
+            }
+            
             dataToInsert = {
                 seller_id: userId,
                 title: formData.get('title'),
-                college: formData.get('college'),
-                academic_year: formData.get('academicYear'),
-                course_subject: formData.get('subject'),
-                price: parseFloat(formData.get('price')),
                 description: formData.get('description'),
-                image_urls: imageUrls,
-                pdf_urls: pdfUrls,
-                category: formCategory,
+                price: parseFloat(formData.get('price')),
+                images: imageUrls,
+                college: formData.get('college'),
+                course: formData.get('subject'), // Mapping subject to course
+                subject: formData.get('subject'),
+                category: formData.get('category'),
+                pdfUrl: pdfUrl,
+                note_year: formData.get('academicYear'),
             };
-                } else if (formType === 'rooms') {
+        } else if (formType === 'rooms') {
             tableName = 'rooms';
             dataToInsert = {
                 seller_id: userId,
-                hostel_name: formData.get('hostelName'),
-                college: formData.get('college'),
-                room_type: formData.get('roomType'),
-                deposit_amount: parseFloat(formData.get('deposit')) || null,
-                fees: parseFloat(formData.get('fees')),
-                fees_period: formData.get('feesPeriod'),
-                mess_included: formData.get('messIncluded') === 'true',
-                mess_fees: parseFloat(formData.get('messFees')) || null,
+                title: formData.get('hostelName'),
+                roomName: formData.get('hostelName'),
                 description: formData.get('description'),
-                distance_from_college: formData.get('distance'),
-                occupancy: formData.get('occupancy'),
-                owner_name: formData.get('ownerName'),
-                contact_primary: formData.get('contactPrimary'),
-                contact_secondary: formData.get('contactSecondary'),
-                amenities: formData.getAll('amenities'),
+                price: parseFloat(formData.get('fees')),
+                images: imageUrls,
+                college: formData.get('college'),
                 location: JSON.parse(formData.get('location')),
-                image_urls: imageUrls,
-                category: formCategory,
+                category: formData.get('category'),
+                amenities: formData.getAll('amenities'),
+                contact1: formData.get('contactPrimary'),
+                contact2: formData.get('contactSecondary'),
+                distance: formData.get('distance'),
+                fees: parseFloat(formData.get('fees')),
+                feesIncludeMess: formData.get('messIncluded') === 'true',
+                occupancy: formData.get('occupancy'),
+                ownerName: formData.get('ownerName'),
+                roomType: formData.get('roomType'),
+                deposit: parseFloat(formData.get('deposit')) || null,
             };
         } else {
             return NextResponse.json({ error: 'Invalid form type' }, { status: 400 });
         }
 
-        // 4. Insert data into the database
         const { error: insertError } = await supabase.from(tableName).insert(dataToInsert);
 
         if (insertError) {

@@ -17,19 +17,28 @@ export default function WishlistPage() {
             if (session) {
                 setUser(session.user);
 
-                // Fetch wishlist items for the current user
+                // Fetch wishlist items for the current user, joining with all three tables
                 const { data, error } = await supabase
                     .from('wishlist')
                     .select(`
                         id,
-                        product:regular_products (*)
+                        product:products (*),
+                        note:notes (*),
+                        room:rooms (*)
                     `)
                     .eq('user_id', session.user.id);
 
                 if (error) {
                     console.error('Error fetching wishlist:', error);
                 } else {
-                    setWishlistItems(data.map(item => item.product).filter(Boolean)); // Extract product details and filter out nulls
+                    // Merge the results from the three tables into a single array
+                    const items = data.map(item => {
+                        if (item.product) return { ...item.product, type: 'product' };
+                        if (item.note) return { ...item.note, type: 'note' };
+                        if (item.room) return { ...item.room, type: 'room' };
+                        return null;
+                    }).filter(Boolean);
+                    setWishlistItems(items);
                 }
             } else {
                 // Handle case where there is no active session
@@ -59,16 +68,18 @@ export default function WishlistPage() {
                         <div key={item.id} className="group bg-white rounded-lg shadow-md overflow-hidden">
                             <div className="relative h-56 w-full">
                                 <Image 
-                                    src={item.image_urls?.[0] || 'https://source.unsplash.com/random/400x300?placeholder'}
+                                    src={item.images?.[0] || 'https://source.unsplash.com/random/400x300?placeholder'}
                                     alt={item.title}
-                                    layout="fill"
-                                    objectFit="cover"
+                                    fill
+                                    style={{ objectFit: 'cover' }}
+                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                    priority={true} // Prioritize loading images in the viewport
                                 />
                             </div>
                             <div className="p-4">
                                 <h3 className="text-lg font-semibold text-primary mb-1 truncate">{item.title}</h3>
-                                <p className="text-xl font-bold text-secondary mb-4">₹{item.price}</p>
-                                <Link href={`/products/${item.id}`} className="w-full text-center bg-primary text-white font-bold py-2 px-4 rounded-lg hover:bg-secondary transition-colors duration-300 block">
+                                <p className="text-xl font-bold text-secondary mb-4">₹{item.price?.toLocaleString('en-IN') || 'N/A'}</p>
+                                <Link href={`/products/${item.type}/${item.id}`} className="w-full text-center bg-primary text-white font-bold py-2 px-4 rounded-lg hover:bg-secondary transition-colors duration-300 block">
                                     View Details
                                 </Link>
                             </div>

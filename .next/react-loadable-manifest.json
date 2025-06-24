@@ -1,4 +1,11 @@
 {
+  "components\\MapDisplay.js -> @/components/LocationMap": {
+    "id": "components\\MapDisplay.js -> @/components/LocationMap",
+    "files": [
+      "static/css/_app-pages-browser_components_LocationMap_js.css",
+      "static/chunks/_app-pages-browser_components_LocationMap_js.js"
+    ]
+  },
   "node_modules\\@supabase\\auth-js\\dist\\module\\lib\\helpers.js -> @supabase/node-fetch": {
     "id": "node_modules\\@supabase\\auth-js\\dist\\module\\lib\\helpers.js -> @supabase/node-fetch",
     "files": []

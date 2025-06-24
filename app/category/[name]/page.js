@@ -1,89 +1,97 @@
-'use client';
-
-import { useState, useEffect } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import Image from 'next/image';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
+import ListingCard from '@/components/ListingCard';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
 
-export default function CategoryPage() {
-    const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const supabase = createClientComponentClient();
-    const params = useParams();
+export default async function CategoryPage({ params }) {
     const categoryName = decodeURIComponent(params.name);
+        const supabase = createSupabaseServerClient();
 
-    useEffect(() => {
-        const fetchProducts = async () => {
-            if (!categoryName) return;
+    let listings = [];
+    let error = null;
 
-            setLoading(true);
+    // Helper to add a 'type' to each item for the ListingCard component
+    const augmentData = (data, type) => {
+        if (!data) return [];
+        return data.map(item => ({ ...item, type }));
+    };
 
-            // Fetch from all product tables. This can be optimized later.
-            const { data: regularProducts, error: regularError } = await supabase
-                .from('regular_products')
-                .select('*')
-                .eq('category', categoryName);
+    if (categoryName === 'Rooms/Hostel') {
+        const { data, error: queryError } = await supabase
+            .from('rooms')
+            .select('*')
+            .order('created_at', { ascending: false });
+        
+        if (queryError) {
+            error = queryError;
+        } else {
+            listings = augmentData(data, 'room');
+        }
+    } else if (categoryName === 'Lab Equipment') {
+        const { data, error: queryError } = await supabase
+            .from('products')
+            .select('*')
+            .eq('category', 'project_equipments')
+            .order('created_at', { ascending: false });
+        
+        if (queryError) {
+            error = queryError;
+        } else {
+            listings = augmentData(data, 'regular');
+        }
+    } else if (categoryName === 'Notes') {
+        const { data, error: queryError } = await supabase
+            .from('notes')
+            .select('*')
+            .order('created_at', { ascending: false });
 
-            const { data: notes, error: notesError } = await supabase
-                .from('notes')
-                .select('*')
-                .eq('category', categoryName);
+        if (queryError) {
+            error = queryError;
+        } else {
+            listings = augmentData(data, 'note');
+        }
+    } else {
+        const { data, error: queryError } = await supabase
+            .from('products')
+            .select('*')
+            .ilike('category', `%${categoryName.slice(0, -1)}%`)
+            .order('created_at', { ascending: false });
+        
+        if (queryError) {
+            error = queryError;
+        } else {
+            listings = augmentData(data, 'regular');
+        }
+    }
 
-            const { data: rooms, error: roomsError } = await supabase
-                .from('rooms')
-                .select('*')
-                .eq('category', categoryName);
-
-            if (regularError || notesError || roomsError) {
-                console.error('Error fetching products:', regularError || notesError || roomsError);
-            } else {
-                const allProducts = [
-                    ...(regularProducts || []),
-                    ...(notes || []),
-                    ...(rooms || []),
-                ];
-                setProducts(allProducts);
-            }
-
-            setLoading(false);
-        };
-
-        fetchProducts();
-    }, [supabase, categoryName]);
-
-    if (loading) {
-        return <div className="text-center py-10">Loading products for {categoryName}...</div>;
+    if (error) {
+        console.error('Error fetching category listings:', error.message);
+        return (
+            <div className="container mx-auto px-4 py-12 text-center">
+                <h1 className="text-3xl font-bold text-primary mb-8">Category: {categoryName}</h1>
+                <p className="text-red-500">Could not fetch listings: {error.message}</p>
+            </div>
+        );
     }
 
     return (
         <div className="container mx-auto px-4 py-12">
-            <h1 className="text-3xl font-bold text-primary mb-8">{categoryName}</h1>
-            {products.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {products.map(product => (
-                        <div key={product.id} className="group bg-white rounded-lg shadow-md overflow-hidden">
-                            <div className="relative h-56 w-full">
-                                <Image 
-                                    src={product.image_urls?.[0] || 'https://source.unsplash.com/random/400x300?placeholder'}
-                                    alt={product.title}
-                                    layout="fill"
-                                    objectFit="cover"
-                                />
-                            </div>
-                            <div className="p-4">
-                                <h3 className="text-lg font-semibold text-primary mb-1 truncate">{product.title || product.hostel_name}</h3>
-                                <p className="text-xl font-bold text-secondary mb-4">₹{product.price || product.fees}</p>
-                                <Link href={`/products/${product.id}`} className="w-full text-center bg-primary text-white font-bold py-2 px-4 rounded-lg hover:bg-secondary transition-colors duration-300 block">
-                                    View Details
-                                </Link>
-                            </div>
-                        </div>
+            <h1 className="text-3xl font-bold text-primary mb-8">Category: {categoryName}</h1>
+            {listings && listings.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                    {listings.map(item => (
+                        <ListingCard key={`${item.type}-${item.id}`} item={item} />
                     ))}
                 </div>
             ) : (
-                <p className="text-center text-gray-500">No products found in this category yet.</p>
+                <div className="text-center py-10">
+                    <p className="text-gray-500 text-lg">No items found in the "{categoryName}" category yet.</p>
+                    <p className="mt-4">Why not be the first to sell something in this category?</p>
+                    <Link href="/sell" className="mt-6 inline-block bg-accent text-white font-bold py-3 px-8 rounded-lg hover:bg-primary transition duration-300">
+                        Sell an Item
+                    </Link>
+                </div>
             )}
         </div>
     );
 }
+
