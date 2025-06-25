@@ -1,0 +1,9 @@
+{
+  "watch": ["."],
+  "ext": "js,mjs,json,ts,tsx",
+  "ignore": [".next/", "node_modules/"],
+  "exec": "next dev -p 1501",
+  "env": {
+    "NODE_ENV": "development"
+  }
+}
