@@ -16,11 +16,15 @@ export default function ProductFeed() {
         setIsLoading(true);
         const newLimit = 12;
         const newPage = page + 1;
-        const newlistings = await fetchListings({ page: newPage, limit: newLimit });
+        const response = await fetchListings({ page: newPage, limit: newLimit });
+        
+        // Handle the new response format with { listings, hasMore }
+        const newlistings = response.listings || response || [];
 
         if (newlistings.length > 0) {
             setListings(prev => [...prev, ...newlistings]);
             setPage(newPage);
+            setHasMore(response.hasMore !== undefined ? response.hasMore : newlistings.length === newLimit);
         } else {
             setHasMore(false);
         }
@@ -30,7 +34,9 @@ export default function ProductFeed() {
     useEffect(() => {
         const initialLoad = async () => {
             setIsLoading(true);
-            const initialListings = await fetchListings({ page: 1, limit: 12 });
+            const response = await fetchListings({ page: 1, limit: 12 });
+            // Handle the new response format with { listings, hasMore }
+            const initialListings = response.listings || response || [];
             setListings(initialListings);
             if (initialListings.length < 12) {
                 setHasMore(false);

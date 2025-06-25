@@ -5,7 +5,7 @@ import { createServerClient } from '@supabase/ssr';
 export async function GET(request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
-  const next = searchParams.get('next') ?? '/';
+  const next = searchParams.get('next') ?? '/home'; // Changed default redirect to /home
 
   if (code) {
     const cookieStore = cookies();
@@ -50,7 +50,8 @@ export async function GET(request) {
         return NextResponse.redirect(`${origin}/auth/auth-code-error?message=Could not save user profile.`);
       }
 
-      return NextResponse.redirect(`${origin}${next}`);
+      // Always redirect to /home after successful authentication
+      return NextResponse.redirect(`${origin}/home`);
     } else if (error) {
       console.error('Authentication error:', error.message);
     }

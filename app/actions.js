@@ -232,21 +232,98 @@ export async function fetchListings({ page = 1, limit = 12 } = {}) {
     const to = from + limit - 1;
 
     try {
-        const { data, error } = await supabase
-            .from('listings') // This is a database VIEW that combines products, notes, and rooms.
-            .select('*')
-            .order('created_at', { ascending: false })
-            .range(from, to);
+        // Fetch from all three tables since the 'listings' view might not exist
+        const [productsRes, notesRes, roomsRes] = await Promise.all([
+            supabase
+                .from('products')
+                .select('*')
+                .order('created_at', { ascending: false }),
+            supabase
+                .from('notes')
+                .select('*')
+                .order('created_at', { ascending: false }),
+            supabase
+                .from('rooms')
+                .select('*')
+                .order('created_at', { ascending: false })
+        ]);
 
-        if (error) {
-            console.error('[Action: fetchListings] Error fetching listings:', error.message);
-            throw error;
+        // Check for errors
+        if (productsRes.error) {
+            console.error('[Action: fetchListings] Error fetching products:', productsRes.error.message);
+        }
+        if (notesRes.error) {
+            console.error('[Action: fetchListings] Error fetching notes:', notesRes.error.message);
+        }
+        if (roomsRes.error) {
+            console.error('[Action: fetchListings] Error fetching rooms:', roomsRes.error.message);
         }
 
-        return { listings: data || [], hasMore: data && data.length === limit };
+        // Combine all listings and add type information
+        const allListings = [
+            ...(productsRes.data || []).map(item => ({ ...item, type: 'regular' })),
+            ...(notesRes.data || []).map(item => ({ ...item, type: 'note' })),
+            ...(roomsRes.data || []).map(item => ({ ...item, type: 'room' }))
+        ];
+
+        // Sort by created_at date (most recent first)
+        allListings.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+        // Apply pagination
+        const paginatedListings = allListings.slice(from, to + 1);
+
+        return { 
+            listings: paginatedListings || [], 
+            hasMore: paginatedListings.length === limit && allListings.length > to + 1
+        };
 
     } catch (error) {
         console.error('[Action: fetchListings] A critical error occurred:', error.message);
         return { listings: [], hasMore: false };
+    }
+}
+
+// Action to search listings across all tables
+export async function searchListings({ query }) {
+    if (!query || query.trim().length === 0) return [];
+
+    const supabase = createSupabaseServerClient();
+    const searchTerm = `%${query.trim()}%`;
+
+    try {
+        // Search in all three tables
+        const [productsRes, notesRes, roomsRes] = await Promise.all([
+            supabase
+                .from('products')
+                .select('*')
+                .or(`name.ilike.${searchTerm},description.ilike.${searchTerm},category.ilike.${searchTerm}`)
+                .order('created_at', { ascending: false }),
+            supabase
+                .from('notes')
+                .select('*')
+                .or(`title.ilike.${searchTerm},description.ilike.${searchTerm},category.ilike.${searchTerm}`)
+                .order('created_at', { ascending: false }),
+            supabase
+                .from('rooms')
+                .select('*')
+                .or(`title.ilike.${searchTerm},description.ilike.${searchTerm},college.ilike.${searchTerm}`)
+                .order('created_at', { ascending: false })
+        ]);
+
+        // Combine all search results and add type information
+        const allResults = [
+            ...(productsRes.data || []).map(item => ({ ...item, type: 'regular' })),
+            ...(notesRes.data || []).map(item => ({ ...item, type: 'note' })),
+            ...(roomsRes.data || []).map(item => ({ ...item, type: 'room' }))
+        ];
+
+        // Sort by created_at date (most recent first)
+        allResults.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+        return allResults;
+
+    } catch (error) {
+        console.error('[Action: searchListings] Error searching listings:', error.message);
+        return [];
     }
 }
