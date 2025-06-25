@@ -1,20 +1,30 @@
 import Link from 'next/link';
+<<<<<<< HEAD
 import HeroBanner from '@/components/HeroBanner';
+=======
+>>>>>>> 5e74f753a6aaba64b457d30a9c7c866697a4dfc7
 import ProductFeed from '@/components/ProductFeed';
 import GetStartedButton from '@/components/GetStartedButton';
 
 export default function InfoPage() {
   return (
     <div className="bg-light-bg text-light-text">
+<<<<<<< HEAD
       <div className="container mx-auto px-4 py-8">
         <HeroBanner />
       </div>
+=======
+>>>>>>> 5e74f753a6aaba64b457d30a9c7c866697a4dfc7
       <main className="flex-grow container mx-auto px-4 py-12">
         <section className="text-center">
           <h1 className="text-5xl font-bold text-accent mb-4">Welcome to StudXchange</h1>
           <p className="text-xl text-secondary mb-8">The ultimate marketplace for students to buy and sell used items, find notes, and even look for accommodation.</p>
           <div className="space-x-4">
+<<<<<<< HEAD
             <GetStartedButton />
+=======
+                        <GetStartedButton />
+>>>>>>> 5e74f753a6aaba64b457d30a9c7c866697a4dfc7
             <Link href="/about" className="bg-secondary text-white font-bold py-3 px-8 rounded-lg hover:bg-primary transition duration-300">
               Learn More
             </Link>
