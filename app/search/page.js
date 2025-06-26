@@ -1,11 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { searchListings } from '@/app/actions';
 import ListingCard from '@/components/ListingCard';
 
-export default function SearchPage() {
+// Force dynamic rendering to prevent build-time prerendering issues
+export const dynamic = 'force-dynamic';
+
+// Create a separate component for the search functionality
+function SearchContent() {
     const [searchResults, setSearchResults] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -17,9 +21,21 @@ export default function SearchPage() {
     });
     const [totalResults, setTotalResults] = useState(0);
     
-    const searchParams = useSearchParams();
     const router = useRouter();
-    const query = searchParams.get('q') || '';
+    
+    // Safely get search params with build-time error handling
+    let searchParams;
+    let query = '';
+    
+    try {
+        searchParams = useSearchParams();
+        query = searchParams?.get('q') || '';
+    } catch (error) {
+        // This handles the case when useSearchParams is called during build
+        console.log('useSearchParams not available during build');
+        searchParams = null;
+        query = '';
+    }
 
     // Search categories
     const categories = [
@@ -395,5 +411,30 @@ export default function SearchPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+// Loading fallback component
+function SearchLoading() {
+    return (
+        <div className="min-h-screen bg-gray-50 py-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="text-center">
+                    <div className="animate-pulse">
+                        <div className="h-8 bg-gray-300 rounded w-64 mx-auto mb-4"></div>
+                        <div className="h-4 bg-gray-200 rounded w-48 mx-auto"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// Main component with Suspense wrapper
+export default function SearchPage() {
+    return (
+        <Suspense fallback={<SearchLoading />}>
+            <SearchContent />
+        </Suspense>
     );
 }

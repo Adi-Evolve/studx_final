@@ -1,11 +1,29 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-export default function LoginPage() {
+// Force dynamic rendering to prevent build-time prerendering issues
+export const dynamic = 'force-dynamic';
+
+// Loading component for Suspense fallback
+function LoginLoading() {
+  return (
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="text-center">
+        <div className="w-16 h-16 bg-emerald-600 rounded-2xl flex items-center justify-center shadow-xl mx-auto mb-4 relative animate-pulse">
+          <span className="text-xl font-black text-white">SX</span>
+        </div>
+        <p className="text-slate-600">Loading...</p>
+      </div>
+    </div>
+  );
+}
+
+// Create a separate component for the login functionality
+function LoginContent() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -13,13 +31,25 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
-  const searchParams = useSearchParams();
   const supabase = createSupabaseBrowserClient();
 
+  // Safely get search params with build-time error handling
+  let searchParams;
+  
+  try {
+    searchParams = useSearchParams();
+  } catch (error) {
+    // This handles the case when useSearchParams is called during build
+    console.log('useSearchParams not available during build');
+    searchParams = null;
+  }
+
   useEffect(() => {
-    const messageParam = searchParams.get('message');
-    if (messageParam) {
-      setMessage(messageParam);
+    if (searchParams) {
+      const messageParam = searchParams.get('message');
+      if (messageParam) {
+        setMessage(messageParam);
+      }
     }
   }, [searchParams]);
 
@@ -46,7 +76,7 @@ export default function LoginPage() {
     setError('');
     setIsLoading(true);
     
-    const currentOrigin = window.location.origin;
+    const currentOrigin = typeof window !== 'undefined' ? window.location.origin : '';
     
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -257,48 +287,28 @@ export default function LoginPage() {
                 </button>
               </form>
 
-              {/* Signup Link */}
+              {/* Sign Up Link */}
               <div className="mt-8 text-center">
                 <p className="text-slate-600">
-                  Don't have an account?{' '}
-                  <Link 
-                    href="/signup" 
-                    className="font-bold text-emerald-600 hover:text-emerald-700 transition-colors"
-                  >
-                    Create Account &rarr;
+                  New to StudX?{' '}
+                  <Link href="/signup" className="text-emerald-600 hover:text-emerald-700 font-bold transition-colors">
+                    Create an account
                   </Link>
                 </p>
-              </div>
-
-              {/* Forgot Password */}
-              <div className="mt-4 text-center">
-                <Link 
-                  href="/forgot-password" 
-                  className="text-sm text-slate-500 hover:text-slate-700 transition-colors"
-                >
-                  Forgot your password?
-                </Link>
-              </div>
-            </div>
-
-            {/* Trust Indicators */}
-            <div className="mt-8 flex items-center justify-center gap-8 text-sm text-slate-500">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-emerald-500 rounded-full"></span>
-                Secure Login
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-slate-500 rounded-full"></span>
-                Student Verified
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-emerald-500 rounded-full"></span>
-                Trusted Platform
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+  );
+}
+
+// Main login page component with Suspense boundary
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<LoginLoading />}>
+      <LoginContent />
+    </Suspense>
   );
 }
