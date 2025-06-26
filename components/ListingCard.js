@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import PriceDisplay from './PriceDisplay';
 
 const getListingUrl = (item) => {
     const type = item.type;
@@ -23,67 +24,114 @@ export default function ListingCard({ item, onClick, isSelectMode = false, isSpo
 
     const url = getListingUrl(item);
     const title = item.name || item.title || item.hostel_name || 'Untitled';
+    const price = item.price || item.fees || 0;
 
     const cardContent = (
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden transform hover:-translate-y-1 transition-transform duration-300 h-full flex flex-col group">
-            {/* Sponsored Tag */}
+        <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:scale-105 h-full flex flex-col group relative border-2 border-transparent hover:border-emerald-200">
+            {/* Badges */}
             {(isSponsored || item.is_sponsored) && (
-                <div className="absolute top-2 right-2 bg-yellow-400 text-gray-800 text-xs font-bold px-2 py-1 rounded-md z-10 shadow-md">
-                    Sponsored
+                <div className="absolute top-3 right-3 z-20">
+                    <div className="bg-gradient-to-r from-emerald-400 to-teal-500 text-white px-2 py-1 rounded-full text-xs font-semibold shadow-lg">
+                        ⭐ Featured
+                    </div>
                 </div>
             )}
             {item.is_sold && (
-                <div className="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-md z-10">
-                    SOLD
+                <div className="absolute top-3 left-3 z-20">
+                    <div className="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
+                        SOLD OUT
+                    </div>
                 </div>
             )}
-            <div className="relative h-48">
-                <Image draggable="false" 
+
+            {/* Image Container */}
+            <div className="relative h-48 overflow-hidden bg-gradient-to-br from-slate-100 to-emerald-50">
+                <Image 
+                    draggable="false" 
                     src={imageUrl}
                     alt={title}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     style={{ objectFit: 'cover' }}
-                    className="transition-transform duration-500 group-hover:scale-105"
+                    className="transition-transform duration-300 group-hover:scale-110"
                 />
-                {item.is_sponsored && (
-                    <div className="absolute top-2 left-2 bg-yellow-400 text-gray-800 text-xs font-bold px-2 py-1 rounded-md z-10">
-                        SPONSORED
-                    </div>
-                )}
-                {item.is_sold && (
-                    <div className="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-md z-10">
-                        SOLD
-                    </div>
-                )}
+                
+                {/* Overlay on hover */}
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </div>
+
+            {/* Content */}
             <div className="p-4 flex-grow flex flex-col">
-                <h3 className="font-bold text-lg truncate" title={title}>{title}</h3>
-                <p className="text-gray-600 text-sm mb-2 capitalize">{item.type || 'Product'}</p>
+                {/* Type Badge */}
+                <div className="mb-2">
+                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                        item.type === 'room' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 
+                        item.type === 'note' ? 'bg-teal-50 text-teal-700 border border-teal-200' : 
+                        'bg-slate-50 text-slate-700 border border-slate-200'
+                    }`}>
+                        {item.type === 'room' ? '🏠 Room' : 
+                         item.type === 'note' ? '📚 Notes' : 
+                         '📦 Product'}
+                    </span>
+                </div>
+
+                {/* Title */}
+                <h3 className="font-semibold text-slate-900 mb-2 line-clamp-2 group-hover:text-emerald-600 transition-colors duration-200" title={title}>
+                    {title}
+                </h3>
+                
+                {/* Price and details */}
                 <div className="mt-auto">
-                    <p className="text-accent font-semibold text-xl">₹{item.price || item.fees || 0}</p>
+                    <div className="flex items-end justify-between">
+                        <div className="flex flex-col">
+                            <PriceDisplay 
+                                price={price}
+                                className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-slate-800 to-emerald-600"
+                            />
+                            {item.type === 'room' && (
+                                <span className="text-xs text-slate-500">/month</span>
+                            )}
+                        </div>
+                        
+                        {/* College info */}
+                        {item.college && (
+                            <div className="text-xs text-slate-500 truncate max-w-20" title={item.college}>
+                                📍 {item.college}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Condition */}
+                    {item.condition && item.type !== 'room' && (
+                        <div className="mt-2 flex items-center">
+                            <div className={`w-2 h-2 rounded-full mr-2 ${
+                                item.condition === 'New' ? 'bg-emerald-500' :
+                                item.condition === 'Like New' ? 'bg-emerald-400' :
+                                item.condition === 'Good' ? 'bg-teal-500' :
+                                'bg-slate-400'
+                            }`}></div>
+                            <span className="text-xs text-slate-600">{item.condition}</span>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
     );
 
     if (!asLink) {
-        // When used in a slider, the card is not a link and the parent handles clicks.
-        return <div className="h-full">{cardContent}</div>;
+        return <div className="h-full hover-lift">{cardContent}</div>;
     }
 
     if (isSelectMode) {
-        // For the admin panel's item selection UI.
         return (
-            <div onClick={() => onClick(item)} className="cursor-pointer h-full">
+            <div onClick={() => onClick(item)} className="cursor-pointer h-full hover-lift">
                 {cardContent}
             </div>
         );
     }
 
-    // Default behavior for everywhere else (e.g., the infinite feed).
     return (
-        <Link href={url} className="block h-full">
+        <Link href={url} className="block h-full hover-lift">
             {cardContent}
         </Link>
     );

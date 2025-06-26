@@ -288,27 +288,51 @@ export async function searchListings({ query }) {
     if (!query || query.trim().length === 0) return [];
 
     const supabase = createSupabaseServerClient();
-    const searchTerm = `%${query.trim()}%`;
-
+    console.log(`[searchListings] Starting search for: "${query}"`);
+    
     try {
-        // Search in all three tables
+        // Simple, direct search approach - case insensitive
+        const searchTerm = `%${query.trim()}%`;
+        
+        // Search in all three tables directly with ilike (case-insensitive)
         const [productsRes, notesRes, roomsRes] = await Promise.all([
+            // Products table - search title, description, category
             supabase
                 .from('products')
                 .select('*')
-                .or(`name.ilike.${searchTerm},description.ilike.${searchTerm},category.ilike.${searchTerm}`)
+                .or(`title.ilike.${searchTerm},description.ilike.${searchTerm},category.ilike.${searchTerm}`)
                 .order('created_at', { ascending: false }),
+            
+            // Notes table - search title, description, category, subject
             supabase
                 .from('notes')
                 .select('*')
-                .or(`title.ilike.${searchTerm},description.ilike.${searchTerm},category.ilike.${searchTerm}`)
+                .or(`title.ilike.${searchTerm},description.ilike.${searchTerm},category.ilike.${searchTerm},subject.ilike.${searchTerm}`)
                 .order('created_at', { ascending: false }),
+            
+            // Rooms table - search hostel_name, description, category, location
             supabase
                 .from('rooms')
                 .select('*')
-                .or(`title.ilike.${searchTerm},description.ilike.${searchTerm},college.ilike.${searchTerm}`)
+                .or(`hostel_name.ilike.${searchTerm},description.ilike.${searchTerm},category.ilike.${searchTerm},location.ilike.${searchTerm}`)
                 .order('created_at', { ascending: false })
         ]);
+
+        // Log search results for debugging
+        console.log(`[searchListings] Products found: ${productsRes.data?.length || 0}`);
+        console.log(`[searchListings] Notes found: ${notesRes.data?.length || 0}`);
+        console.log(`[searchListings] Rooms found: ${roomsRes.data?.length || 0}`);
+
+        // Check for errors and log them
+        if (productsRes.error) {
+            console.error('[searchListings] Products search error:', productsRes.error);
+        }
+        if (notesRes.error) {
+            console.error('[searchListings] Notes search error:', notesRes.error);
+        }
+        if (roomsRes.error) {
+            console.error('[searchListings] Rooms search error:', roomsRes.error);
+        }
 
         // Combine all search results and add type information
         const allResults = [
@@ -317,13 +341,413 @@ export async function searchListings({ query }) {
             ...(roomsRes.data || []).map(item => ({ ...item, type: 'room' }))
         ];
 
-        // Sort by created_at date (most recent first)
-        allResults.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        // Simple relevance scoring
+        const scoredResults = allResults.map(item => {
+            let score = 0;
+            const lowerQuery = query.toLowerCase().trim();
+            
+            // Get searchable text based on item type
+            const title = (item.title || item.hostel_name || '').toLowerCase();
+            const description = (item.description || '').toLowerCase();
+            const category = (item.category || '').toLowerCase();
+            
+            // Title matches get highest score
+            if (title.includes(lowerQuery)) score += 50;
+            
+            // Category matches get high score
+            if (category.includes(lowerQuery)) score += 30;
+            
+            // Description matches get medium score
+            if (description.includes(lowerQuery)) score += 20;
+            
+            // Word-by-word matching
+            const queryWords = lowerQuery.split(' ').filter(word => word.length > 1);
+            queryWords.forEach(word => {
+                if (title.includes(word)) score += 10;
+                if (category.includes(word)) score += 8;
+                if (description.includes(word)) score += 5;
+            });
+            
+            // Recency bonus
+            const daysSinceCreated = (new Date() - new Date(item.created_at)) / (1000 * 60 * 60 * 24);
+            if (daysSinceCreated < 7) score += 5;
+            
+            return { ...item, relevanceScore: score };
+        });
 
-        return allResults;
+        // Sort by relevance score first, then by created_at date
+        scoredResults.sort((a, b) => {
+            if (b.relevanceScore !== a.relevanceScore) {
+                return b.relevanceScore - a.relevanceScore;
+            }
+            return new Date(b.created_at) - new Date(a.created_at);
+        });
+
+        console.log(`[searchListings] Total results found: ${scoredResults.length} for query: "${query}"`);
+        
+        return scoredResults;
 
     } catch (error) {
-        console.error('[Action: searchListings] Error searching listings:', error.message);
+        console.error('[searchListings] Critical error:', error);
         return [];
+    }
+}
+
+// Chat System Actions
+export async function createOrGetConversation({ listingId, sellerId, listingType = 'product' }) {
+    const supabase = createSupabaseServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) throw new Error('User not authenticated');
+    
+    try {
+        // Check if conversation already exists
+        const { data: existingConversation, error: fetchError } = await supabase
+            .from('conversations')
+            .select('*')
+            .eq('listing_id', listingId)
+            .eq('buyer_id', user.id)
+            .eq('seller_id', sellerId)
+            .single();
+
+        if (existingConversation) {
+            return existingConversation;
+        }
+
+        // Create new conversation
+        const { data: newConversation, error: createError } = await supabase
+            .from('conversations')
+            .insert({
+                listing_id: listingId,
+                buyer_id: user.id,
+                seller_id: sellerId,
+                listing_type: listingType
+            })
+            .select()
+            .single();
+
+        if (createError) throw createError;
+        return newConversation;
+    } catch (error) {
+        console.error('Error creating/getting conversation:', error);
+        throw error;
+    }
+}
+
+export async function sendMessage({ conversationId, content, messageType = 'text' }) {
+    const supabase = createSupabaseServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) throw new Error('User not authenticated');
+    
+    try {
+        const { data: message, error } = await supabase
+            .from('messages')
+            .insert({
+                conversation_id: conversationId,
+                sender_id: user.id,
+                content,
+                message_type: messageType
+            })
+            .select()
+            .single();
+
+        if (error) throw error;
+        return message;
+    } catch (error) {
+        console.error('Error sending message:', error);
+        throw error;
+    }
+}
+
+export async function getConversations() {
+    const supabase = createSupabaseServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) return [];
+    
+    try {
+        const { data: conversations, error } = await supabase
+            .from('conversations')
+            .select(`
+                *,
+                messages(
+                    content,
+                    created_at,
+                    sender_id,
+                    is_read
+                )
+            `)
+            .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`)
+            .order('last_message_at', { ascending: false });
+
+        if (error) throw error;
+
+        // Get the latest message for each conversation
+        const conversationsWithLatestMessage = conversations.map(conv => {
+            const latestMessage = conv.messages
+                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
+            
+            return {
+                ...conv,
+                latest_message: latestMessage,
+                unread_count: conv.messages.filter(msg => 
+                    msg.sender_id !== user.id && !msg.is_read
+                ).length
+            };
+        });
+
+        return conversationsWithLatestMessage;
+    } catch (error) {
+        console.error('Error fetching conversations:', error);
+        return [];
+    }
+}
+
+export async function getMessages(conversationId) {
+    const supabase = createSupabaseServerClient();
+    
+    try {
+        const { data: messages, error } = await supabase
+            .from('messages')
+            .select('*')
+            .eq('conversation_id', conversationId)
+            .order('created_at', { ascending: true });
+
+        if (error) throw error;
+        return messages;
+    } catch (error) {
+        console.error('Error fetching messages:', error);
+        return [];
+    }
+}
+
+export async function markMessagesAsRead(conversationId) {
+    const supabase = createSupabaseServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) return;
+    
+    try {
+        const { error } = await supabase
+            .from('messages')
+            .update({ is_read: true })
+            .eq('conversation_id', conversationId)
+            .neq('sender_id', user.id);
+
+        if (error) throw error;
+    } catch (error) {
+        console.error('Error marking messages as read:', error);
+    }
+}
+
+export async function getUnreadMessagesCount() {
+    const supabase = createSupabaseServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) return 0;
+    
+    try {
+        const { data, error } = await supabase
+            .rpc('get_unread_messages_count', { user_uuid: user.id });
+
+        if (error) throw error;
+        return data || 0;
+    } catch (error) {
+        console.error('Error getting unread count:', error);
+        return 0;
+    }
+}
+
+// Action to fetch newest products from all tables (for homepage)
+export async function fetchNewestProducts(limit = 4) {
+    const supabase = createSupabaseServerClient();
+
+    try {
+        const [productsRes, notesRes, roomsRes] = await Promise.all([
+            supabase
+                .from('products')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(limit),
+            supabase
+                .from('notes')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(limit),
+            supabase
+                .from('rooms')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(limit)
+        ]);
+
+        // Combine all and get the newest across all tables
+        const allNewest = [
+            ...(productsRes.data || []).map(item => ({ ...item, type: 'regular' })),
+            ...(notesRes.data || []).map(item => ({ ...item, type: 'note' })),
+            ...(roomsRes.data || []).map(item => ({ ...item, type: 'room' }))
+        ];
+
+        // Sort by created_at and return the newest items
+        allNewest.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        
+        return allNewest.slice(0, limit * 3); // Return more for slider
+
+    } catch (error) {
+        console.error('[Action: fetchNewestProducts] Error:', error.message);
+        return [];
+    }
+}
+
+// Action to fetch quick stats for homepage
+export async function fetchQuickStats() {
+    const supabase = createSupabaseServerClient();
+
+    try {
+        const [productsCount, notesCount, roomsCount] = await Promise.all([
+            supabase
+                .from('products')
+                .select('id', { count: 'exact', head: true }),
+            supabase
+                .from('notes')
+                .select('id', { count: 'exact', head: true }),
+            supabase
+                .from('rooms')
+                .select('id', { count: 'exact', head: true })
+        ]);
+
+        const totalProducts = productsCount.count || 0;
+        const totalNotes = notesCount.count || 0;
+        const totalRooms = roomsCount.count || 0;
+
+        return {
+            totalListings: totalProducts + totalNotes + totalRooms,
+            totalProducts,
+            totalNotes,
+            totalRooms
+        };
+
+    } catch (error) {
+        console.error('[Action: fetchQuickStats] Error:', error.message);
+        return {
+            totalListings: 0,
+            totalProducts: 0,
+            totalNotes: 0,
+            totalRooms: 0
+        };
+    }
+}
+
+// Action to fetch recent items by category
+export async function fetchRecentByCategory(limit = 4) {
+    const supabase = createSupabaseServerClient();
+
+    try {
+        const [productsRes, notesRes, roomsRes] = await Promise.all([
+            supabase
+                .from('products')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(limit),
+            supabase
+                .from('notes')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(limit),
+            supabase
+                .from('rooms')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(limit)
+        ]);
+
+        return {
+            products: (productsRes.data || []).map(item => ({ ...item, type: 'regular' })),
+            notes: (notesRes.data || []).map(item => ({ ...item, type: 'note' })),
+            rooms: (roomsRes.data || []).map(item => ({ ...item, type: 'room' }))
+        };
+
+    } catch (error) {
+        console.error('[Action: fetchRecentByCategory] Error:', error.message);
+        return {
+            products: [],
+            notes: [],
+            rooms: []
+        };
+    }
+}
+
+// Action to fetch trending listings (based on recent activity)
+export async function fetchTrendingListings(limit = 6) {
+    const supabase = createSupabaseServerClient();
+
+    try {
+        // Get recent listings from the last 7 days
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+        const [productsRes, notesRes, roomsRes] = await Promise.all([
+            supabase
+                .from('products')
+                .select('*')
+                .gte('created_at', oneWeekAgo.toISOString())
+                .order('created_at', { ascending: false }),
+            supabase
+                .from('notes')
+                .select('*')
+                .gte('created_at', oneWeekAgo.toISOString())
+                .order('created_at', { ascending: false }),
+            supabase
+                .from('rooms')
+                .select('*')
+                .gte('created_at', oneWeekAgo.toISOString())
+                .order('created_at', { ascending: false })
+        ]);
+
+        const allTrending = [
+            ...(productsRes.data || []).map(item => ({ ...item, type: 'regular' })),
+            ...(notesRes.data || []).map(item => ({ ...item, type: 'note' })),
+            ...(roomsRes.data || []).map(item => ({ ...item, type: 'room' }))
+        ];
+
+        // Sort by created_at and return the most recent
+        allTrending.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        
+        return allTrending.slice(0, limit);
+
+    } catch (error) {
+        console.error('[Action: fetchTrendingListings] Error:', error.message);
+        return [];
+    }
+}
+
+// Action to fetch category statistics for homepage
+export async function fetchCategoryStats() {
+    const supabase = createSupabaseServerClient();
+
+    try {
+        const [productsCount, notesCount, roomsCount] = await Promise.all([
+            supabase
+                .from('products')
+                .select('id', { count: 'exact', head: true }),
+            supabase
+                .from('notes')
+                .select('id', { count: 'exact', head: true }),
+            supabase
+                .from('rooms')
+                .select('id', { count: 'exact', head: true })
+        ]);
+
+        return {
+            products: productsCount.count || 0,
+            notes: notesCount.count || 0,
+            rooms: roomsCount.count || 0,
+            total: (productsCount.count || 0) + (notesCount.count || 0) + (roomsCount.count || 0)
+        };
+
+    } catch (error) {
+        console.error('[Action: fetchCategoryStats] Error:', error.message);
+        return { products: 0, notes: 0, rooms: 0, total: 0 };
     }
 }
