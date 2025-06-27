@@ -72,6 +72,30 @@ export default function ProductPageClient({ product, seller, type }) {
         setIsCompareModalOpen(true);
     };
 
+    const handleDownload = async (fileUrl, fileName) => {
+        if (!fileUrl) {
+            alert('No file available for download');
+            return;
+        }
+
+        try {
+            // Create a temporary anchor element to trigger download
+            const link = document.createElement('a');
+            link.href = fileUrl;
+            link.download = `${fileName || 'StudXchange_Notes'}.pdf`;
+            link.target = '_blank';
+            
+            // Append to body, click, and remove
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (error) {
+            console.error('Download failed:', error);
+            // Fallback: open in new tab
+            window.open(fileUrl, '_blank');
+        }
+    };
+
     const formattedDate = product.created_at ? new Date(product.created_at).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
@@ -139,10 +163,13 @@ export default function ProductPageClient({ product, seller, type }) {
 
                             <div className="grid grid-cols-1 gap-3 mt-6">
                                 {type === 'note' ? (
-                                    <a href={product.file_url} download target="_blank" rel="noopener noreferrer" className="w-full bg-accent text-white font-bold py-3 px-4 rounded-lg hover:bg-primary transition-colors flex items-center justify-center">
+                                    <button 
+                                        onClick={() => handleDownload(product.file_url, product.title)}
+                                        className="w-full bg-gradient-to-r from-slate-800 via-slate-700 to-emerald-600 text-white font-bold py-3 px-4 rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center justify-center"
+                                    >
                                         <FontAwesomeIcon icon={faDownload} className="mr-3" />
-                                        Download Now
-                                    </a>
+                                        Download PDF
+                                    </button>
                                 ) : (
                                     seller?.phone ? (
                                         <a href={`https://wa.me/${getWhatsAppNumber(seller.phone)}?text=I'm%20interested%20in%20your%20'${encodeURIComponent(product.title)}'%20on%20StudXchange.`} target="_blank" rel="noopener noreferrer" className="w-full bg-green-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center">
