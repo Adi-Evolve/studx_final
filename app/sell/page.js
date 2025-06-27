@@ -73,28 +73,36 @@ export default function SellPage() {
 
     if (!hasPhoneNumber) {
         return (
-            <div className="container mx-auto text-center py-20 px-4">
-                <h1 className="text-2xl font-bold text-red-600 mb-4">Phone Number Required</h1>
-                <p className="mb-6 text-lg">
-                    To ensure the safety and reliability of our community, you must add a phone number to your profile before you can sell an item.
-                </p>
-                <Link href="/profile" className="bg-primary text-white font-bold py-3 px-6 rounded-lg hover:bg-secondary transition-colors duration-300">
-                    Go to Your Profile to Add a Phone Number
-                </Link>
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+                <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-6 sm:p-8 text-center">
+                    <div className="text-6xl mb-4">📱</div>
+                    <h1 className="text-xl sm:text-2xl font-bold text-red-600 mb-4">Phone Number Required</h1>
+                    <p className="mb-6 text-sm sm:text-base text-gray-600 leading-relaxed">
+                        To ensure the safety and reliability of our community, you must add a phone number to your profile before you can sell an item.
+                    </p>
+                    <Link 
+                        href="/profile" 
+                        className="block w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-300 text-sm sm:text-base"
+                    >
+                        Go to Your Profile
+                    </Link>
+                </div>
             </div>
         );
     }
 
     // If the check passes, render the original sell form
     return (
-        <div className="bg-light-bg">
-            <main className="flex-grow container mx-auto px-4 py-12">
-                <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg">
-                    <h1 className="text-3xl font-bold text-accent mb-2">List an Item for Sale</h1>
-                    <p className="text-secondary mb-8">Let's start by choosing the right category for your item.</p>
+        <div className="min-h-screen bg-gray-50 py-4 sm:py-8 lg:py-12">
+            <div className="container mx-auto px-4">
+                <div className="max-w-2xl mx-auto bg-white p-4 sm:p-6 lg:p-8 rounded-lg shadow-lg">
+                    <div className="text-center mb-6 sm:mb-8">
+                        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">List an Item for Sale</h1>
+                        <p className="text-sm sm:text-base text-gray-600">Let's start by choosing the right category for your item.</p>
+                    </div>
                     
-                    <div className="mb-6">
-                        <label htmlFor="category" className="block text-lg font-medium text-primary mb-2">
+                    <div className="mb-6 sm:mb-8">
+                        <label htmlFor="category" className="block text-base sm:text-lg font-medium text-gray-900 mb-3">
                             What are you selling?
                         </label>
                         <select
@@ -102,26 +110,26 @@ export default function SellPage() {
                             name="category"
                             value={category}
                             onChange={(e) => setCategory(e.target.value)}
-                            className="mt-1 block w-full pl-3 pr-10 py-3 text-base border-black text-black focus:outline-none focus:ring-accent focus:border-accent sm:text-sm rounded-md"
+                            className="w-full px-3 py-3 sm:py-4 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
                         >
                             <option value="" disabled className="text-gray-500">Select a category</option>
                             {categories.sort((a, b) => a.label.localeCompare(b.label)).map((cat) => (
-                                <option key={cat.label} value={cat.label} className="text-black">{cat.label}</option>
+                                <option key={cat.label} value={cat.label} className="text-gray-900">{cat.label}</option>
                             ))}
                         </select>
                     </div>
 
-                    <div className="flex justify-end">
+                    <div className="flex justify-center sm:justify-end">
                         <button
                             onClick={handleNext}
-                            className="bg-accent text-white font-bold py-3 px-8 rounded-lg hover:bg-primary transition duration-300 disabled:bg-secondary disabled:opacity-70"
+                            className="w-full sm:w-auto bg-blue-600 text-white font-bold py-3 px-6 sm:px-8 rounded-lg hover:bg-blue-700 transition duration-300 disabled:bg-gray-400 disabled:opacity-70 text-sm sm:text-base"
                             disabled={!category}
                         >
                             Next
                         </button>
                     </div>
                 </div>
-            </main>
+            </div>
         </div>
     );
 }

@@ -54,14 +54,14 @@ export default function NewestProductsSlider({ newestProducts }) {
         <section className="mb-16">
             <div className="flex justify-between items-center mb-8">
                 <div>
-                    <h2 className="text-3xl font-bold text-gray-800 flex items-center">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 flex items-center">
                         ✨ Newest Products
                     </h2>
-                    <p className="text-gray-600 mt-2">Fresh listings from your fellow students</p>
+                    <p className="text-sm sm:text-base text-gray-600 mt-2">Fresh listings from your fellow students</p>
                 </div>
                 <Link 
                     href="/search?sortBy=newest" 
-                    className="text-blue-600 hover:text-blue-800 font-semibold flex items-center"
+                    className="text-blue-600 hover:text-blue-800 font-semibold flex items-center text-sm sm:text-base"
                 >
                     View All
                     <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
