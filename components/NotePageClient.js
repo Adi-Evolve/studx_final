@@ -81,17 +81,18 @@ export default function NotePageClient({ note, seller }) {
                             </div>
 
                             <div className="grid grid-cols-1 gap-3 mt-6">
-                                {note.pdfUrl && (
+                                {note.file_url && (
                                     <a 
-                                        href={note.pdfUrl} 
+                                        href={note.file_url} 
                                         download={`${note.title || 'notes'}.pdf`}
                                         className="w-full bg-red-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center"
                                         onClick={(e) => {
                                             // Force download by creating a temporary link
                                             e.preventDefault();
                                             const link = document.createElement('a');
-                                            link.href = note.pdfUrl;
+                                            link.href = note.file_url;
                                             link.download = `${note.title || 'notes'}.pdf`;
+                                            link.target = '_blank';
                                             document.body.appendChild(link);
                                             link.click();
                                             document.body.removeChild(link);

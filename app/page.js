@@ -3,7 +3,6 @@ import FunnyAdvertisingBanner from '@/components/FunnyAdvertisingBanner';
 import NewestProductsSlider from '@/components/NewestProductsSlider';
 import FeaturedSlider from '@/components/FeaturedSlider';
 import HowItWorks from '@/components/HowItWorks';
-import ExploreListings from '@/components/ExploreListings';
 import { 
   fetchSponsoredListings, 
   fetchNewestProducts,
@@ -153,10 +152,10 @@ function HowItWorksSection() {
     <section className="mb-12 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-4 md:p-8">
       <div className="text-center mb-6 md:mb-12">
         <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2 md:mb-4">
-          🚀 How StudX Works
+          🚀 How StudXchange Works
         </h2>
         <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto">
-          Getting started is super easy! Follow these simple steps to buy or sell on StudX.
+          Getting started is super easy! Follow these simple steps to buy or sell on StudXchange.
         </p>
       </div>
       
@@ -225,43 +224,56 @@ async function ExploreListingsSection() {
       {initialListings.listings && initialListings.listings.length > 0 ? (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
-            {initialListings.listings.map((item, index) => (
-              <div key={`${item.type}-${item.id}-${index}`} className="transform hover:scale-105 transition-transform duration-200">
-                <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow">
-                  <div className="h-48 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                    {item.images && item.images[0] ? (
-                      <img 
-                        src={item.images[0]} 
-                        alt={item.title || item.name || item.hostel_name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="text-4xl text-gray-400">
-                        {item.type === 'room' ? '🏠' : item.type === 'note' ? '📚' : '📦'}
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                        item.type === 'room' ? 'bg-blue-100 text-blue-800' : 
-                        item.type === 'note' ? 'bg-green-100 text-green-800' : 
-                        'bg-orange-100 text-orange-800'
-                      }`}>
-                        {item.type === 'room' ? 'Room' : item.type === 'note' ? 'Notes' : 'Product'}
-                      </span>
+            {initialListings.listings.map((item, index) => {
+              // Determine the correct URL based on item type
+              const getItemUrl = (item) => {
+                if (item.type === 'room') return `/products/rooms/${item.id}`;
+                if (item.type === 'note') return `/products/notes/${item.id}`;
+                return `/products/regular/${item.id}`;
+              };
+
+              return (
+                <Link 
+                  key={`${item.type}-${item.id}-${index}`} 
+                  href={getItemUrl(item)}
+                  className="transform hover:scale-105 transition-transform duration-200 cursor-pointer"
+                >
+                  <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow">
+                    <div className="h-48 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                      {item.images && item.images[0] ? (
+                        <img 
+                          src={item.images[0]} 
+                          alt={item.title || item.name || item.hostel_name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="text-4xl text-gray-400">
+                          {item.type === 'room' ? '🏠' : item.type === 'note' ? '📚' : '📦'}
+                        </div>
+                      )}
                     </div>
-                    <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
-                      {item.title || item.name || item.hostel_name || 'Untitled'}
-                    </h3>
-                    <p className="text-lg font-bold text-blue-600">
-                      ₹{(item.price || item.fees || 0).toLocaleString()}
-                      {item.type === 'room' && '/month'}
-                    </p>
+                    <div className="p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                          item.type === 'room' ? 'bg-blue-100 text-blue-800' : 
+                          item.type === 'note' ? 'bg-green-100 text-green-800' : 
+                          'bg-orange-100 text-orange-800'
+                        }`}>
+                          {item.type === 'room' ? 'Room' : item.type === 'note' ? 'Notes' : 'Product'}
+                        </span>
+                      </div>
+                      <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
+                        {item.title || item.name || item.hostel_name || 'Untitled'}
+                      </h3>
+                      <p className="text-lg font-bold text-blue-600">
+                        ₹{(item.price || item.fees || 0).toLocaleString()}
+                        {item.type === 'room' && '/month'}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </div>
-            ))}
+                </Link>
+              );
+            })}
           </div>
           
           <div className="text-center">

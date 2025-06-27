@@ -652,3 +652,44 @@ body {
     @apply border-2;
   }
 }
+
+/* Map Container Fixes - Prevent hovering over other content */
+.leaflet-container-custom {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+.leaflet-container-custom .leaflet-control-container {
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+.leaflet-container-custom .leaflet-popup-pane {
+  z-index: 3 !important;
+}
+
+.leaflet-container-custom .leaflet-tooltip-pane {
+  z-index: 3 !important;
+}
+
+/* Ensure map controls don't escape container */
+.leaflet-container-custom .leaflet-control {
+  position: relative !important;
+}
+
+/* Override Leaflet's default high z-index values */
+.leaflet-container-custom .leaflet-marker-pane {
+  z-index: 2 !important;
+}
+
+.leaflet-container-custom .leaflet-tile-pane {
+  z-index: 1 !important;
+}
+
+/* Ensure the map container respects overflow hidden */
+.leaflet-container-custom,
+.leaflet-container-custom * {
+  max-width: 100% !important;
+  max-height: 100% !important;
+  box-sizing: border-box !important;
+}

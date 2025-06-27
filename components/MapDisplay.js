@@ -7,7 +7,7 @@ import dynamic from 'next/dynamic';
 const LocationMap = dynamic(
     () => import('./LocationMap'),
     { 
-        loading: () => <div style={{height: '400px', background: '#e0e0e0', borderRadius: '12px', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>Loading map...</div>,
+        loading: () => <div className="h-full bg-gray-200 rounded-lg flex justify-center items-center">Loading map...</div>,
         ssr: false // This is the key to preventing server-side rendering
     }
 );
@@ -19,9 +19,13 @@ export default function MapDisplay({ location, popupText }) {
 
     // Only render the map if we have valid coordinates
     if (typeof lat !== 'number' || typeof longitude !== 'number') {
-        return <div style={{height: '400px', background: '#f0f0f0', borderRadius: '12px', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#666'}}>Location data not available.</div>;
+        return <div className="h-full bg-gray-100 rounded-lg flex justify-center items-center text-gray-500">Location data not available.</div>;
     }
 
     // Render the dynamically loaded map with the correct props
-    return <LocationMap lat={lat} lng={longitude} popupText={popupText} />;
+    return (
+        <div className="w-full h-full">
+            <LocationMap lat={lat} lng={longitude} popupText={popupText} />
+        </div>
+    );
 }

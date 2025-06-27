@@ -14,18 +14,32 @@ export default function LocationMap({ lat, lng, popupText }) {
     const position = [lat, lng];
 
     return (
-        <MapContainer center={position} zoom={15} scrollWheelZoom={false} style={{ height: '400px', width: '100%', borderRadius: '12px' }}>
-            <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            <Marker position={position}>
-                {popupText && (
-                    <Popup>
-                        {popupText}
-                    </Popup>
-                )}
-            </Marker>
-        </MapContainer>
+        <div className="relative w-full h-full overflow-hidden rounded-lg">
+            <MapContainer 
+                center={position} 
+                zoom={15} 
+                scrollWheelZoom={false} 
+                style={{ 
+                    height: '100%', 
+                    width: '100%', 
+                    borderRadius: '12px',
+                    position: 'relative',
+                    zIndex: 1
+                }}
+                className="leaflet-container-custom"
+            >
+                <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                <Marker position={position}>
+                    {popupText && (
+                        <Popup>
+                            {popupText}
+                        </Popup>
+                    )}
+                </Marker>
+            </MapContainer>
+        </div>
     );
 }
