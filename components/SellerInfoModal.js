@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark, faUser, faEnvelope, faPhone, faBoxOpen } from '@fortawesome/free-solid-svg-icons';
 import ListingCard from './ListingCard';
@@ -48,6 +49,81 @@ const ListingsSection = ({ isLoading, error, listings }) => {
 export default function SellerInfoModal({ seller, otherListings, isLoading, error, onClose }) {
     if (!seller) return null;
 
+    // Debug logging - detailed breakdown of avatar sources
+    console.log('[SellerInfoModal] Received seller data:', {
+        sellerId: seller.id,
+        sellerName: seller.name,
+        avatarUrl: seller.avatar_url,
+        avatarType: seller.avatar_url ? (
+            seller.avatar_url.includes('googleusercontent.com') ? 'Google Profile Picture' :
+            seller.avatar_url.includes('pravatar.cc') ? 'Random Avatar' :
+            'Custom Avatar'
+        ) : 'No Avatar',
+        email: seller.email
+    });
+
+    const [imageLoading, setImageLoading] = useState(true);
+    const [imageError, setImageError] = useState(false);
+
+    // Helper function to handle image errors
+    const handleImageError = (e) => {
+        console.log('[SellerInfoModal] Image load error, will show initials instead');
+        setImageError(true);
+        setImageLoading(false);
+    };
+
+    const handleImageLoad = () => {
+        setImageLoading(false);
+    };
+
+    // Get the best available avatar URL - prioritize real Google photos
+    const getAvatarUrl = () => {
+        if (seller.avatar_url) {
+            console.log('[SellerInfoModal] Using seller avatar_url:', seller.avatar_url);
+            return seller.avatar_url;
+        }
+        console.log('[SellerInfoModal] No real avatar available for seller:', seller.id);
+        return null; // Return null instead of pravatar to show initials
+    };
+
+    // Render avatar with fallback to user initials
+    const renderAvatar = () => {
+        const avatarUrl = getAvatarUrl();
+        
+        if (avatarUrl && !imageError) {
+            return (
+                <div className="relative">
+                    {imageLoading && (
+                        <div className="w-20 h-20 rounded-full bg-gray-200 mr-6 flex items-center justify-center animate-pulse">
+                            <FontAwesomeIcon icon={faUser} className="text-gray-400" />
+                        </div>
+                    )}
+                    <img 
+                        src={avatarUrl} 
+                        alt={seller.name || 'Seller'} 
+                        className={`w-20 h-20 rounded-full object-cover mr-6 border-2 border-gray-200 shadow-md ${imageLoading ? 'hidden' : 'block'}`}
+                        onError={handleImageError}
+                        onLoad={handleImageLoad}
+                        referrerPolicy="no-referrer" // Important for Google images
+                    />
+                </div>
+            );
+        }
+        
+        // Fallback to user initials instead of random avatar
+        const initials = seller.name 
+            ? seller.name.split(' ').map(n => n.charAt(0)).join('').substring(0, 2).toUpperCase()
+            : seller.email 
+                ? seller.email.charAt(0).toUpperCase()
+                : 'U';
+                
+        return (
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white flex items-center justify-center text-2xl font-bold mr-6 shadow-md">
+                {initials}
+            </div>
+        );
+    };
+
     return (
         <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex justify-center items-center p-4" onClick={onClose}>
             <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
@@ -60,13 +136,7 @@ export default function SellerInfoModal({ seller, otherListings, isLoading, erro
 
                 <div className="overflow-y-auto p-8">
                     <div className="flex items-center mb-8">
-                        {seller.avatar_url ? (
-                            <img src={seller.avatar_url} alt={seller.name} className="w-20 h-20 rounded-full object-cover mr-6" />
-                        ) : (
-                            <div className="w-20 h-20 rounded-full bg-secondary text-white flex items-center justify-center text-3xl font-bold mr-6">
-                                {seller.name ? seller.name.charAt(0).toUpperCase() : <FontAwesomeIcon icon={faUser} />}
-                            </div>
-                        )}
+                        {renderAvatar()}
                         <div>
                             <h3 className="text-3xl font-bold text-gray-800">{seller.name || 'Anonymous Seller'}</h3>
                             <div className="text-gray-600 mt-2 space-y-2">

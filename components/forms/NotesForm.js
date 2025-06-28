@@ -20,7 +20,7 @@ export default function NotesForm({ initialData = {}, onSubmit }) {
         price: initialData.price || '',
         description: initialData.description || '',
         images: initialData.images || [],
-        pdfs: initialData.pdf_url ? [initialData.pdf_url] : [], // Handle existing PDF
+        pdfs: initialData.pdfUrl ? [initialData.pdfUrl] : [], // Handle existing PDF
         category: initialData.category || 'Notes',
     });
 
@@ -49,7 +49,7 @@ export default function NotesForm({ initialData = {}, onSubmit }) {
             if (key === 'images') {
                 formData.images.forEach(file => { if (file instanceof File) data.append('images', file); });
             } else if (key === 'pdfs') {
-                formData.pdfs.forEach(file => { if (file instanceof File) data.append('pdf', file); });
+                formData.pdfs.forEach(file => { if (file instanceof File) data.append('pdfs', file); });
             } else if (formData[key] !== null) {
                 data.append(key, formData[key]);
             }

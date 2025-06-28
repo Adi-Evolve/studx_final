@@ -29,8 +29,15 @@ BEGIN
     INSERT INTO public.users (id, name, avatar_url, phone)
     VALUES (
         new.id, 
-        new.raw_user_meta_data->>'name',
-        new.raw_user_meta_data->>'avatar_url',
+        COALESCE(
+            new.raw_user_meta_data->>'name',
+            new.raw_user_meta_data->>'full_name'
+        ),
+        COALESCE(
+            new.raw_user_meta_data->>'picture',     -- Google profile picture
+            new.raw_user_meta_data->>'avatar_url',  -- Generic OAuth avatar
+            new.raw_user_meta_data->>'photo'        -- Alternative Google field
+        ),
         new.phone -- Copy the phone number from the auth record
     );
     RETURN new;

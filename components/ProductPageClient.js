@@ -72,18 +72,39 @@ export default function ProductPageClient({ product, seller, type }) {
         setIsCompareModalOpen(true);
     };
 
-    const handleDownload = async (fileUrl, fileName) => {
-        if (!fileUrl) {
-            alert('No file available for download');
+    const handleDownload = async (pdfUrl, fileName) => {
+        if (!pdfUrl) {
+            alert('No PDF file available for download');
             return;
         }
 
         try {
+            // Import Supabase client
+            const { createSupabaseBrowserClient } = await import('@/lib/supabase/client');
+            const supabase = createSupabaseBrowserClient();
+
+            let downloadUrl = pdfUrl;
+
+            // If the pdfUrl is a path in storage, generate a signed URL
+            if (typeof pdfUrl === 'string' && !pdfUrl.startsWith('http')) {
+                const { data, error } = await supabase.storage
+                    .from('product_pdfs')
+                    .createSignedUrl(pdfUrl, 60 * 60); // 1 hour expiry
+
+                if (error) {
+                    console.error('Error creating signed URL:', error);
+                    alert('Failed to generate download link');
+                    return;
+                }
+                downloadUrl = data.signedUrl;
+            }
+
             // Create a temporary anchor element to trigger download
             const link = document.createElement('a');
-            link.href = fileUrl;
+            link.href = downloadUrl;
             link.download = `${fileName || 'StudXchange_Notes'}.pdf`;
             link.target = '_blank';
+            link.rel = 'noopener noreferrer';
             
             // Append to body, click, and remove
             document.body.appendChild(link);
@@ -91,8 +112,7 @@ export default function ProductPageClient({ product, seller, type }) {
             document.body.removeChild(link);
         } catch (error) {
             console.error('Download failed:', error);
-            // Fallback: open in new tab
-            window.open(fileUrl, '_blank');
+            alert('Failed to download PDF. Please try again.');
         }
     };
 
@@ -164,7 +184,7 @@ export default function ProductPageClient({ product, seller, type }) {
                             <div className="grid grid-cols-1 gap-3 mt-6">
                                 {type === 'note' ? (
                                     <button 
-                                        onClick={() => handleDownload(product.file_url, product.title)}
+                                        onClick={() => handleDownload(product.pdfUrl, product.title)}
                                         className="w-full bg-gradient-to-r from-slate-800 via-slate-700 to-emerald-600 text-white font-bold py-3 px-4 rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center justify-center"
                                     >
                                         <FontAwesomeIcon icon={faDownload} className="mr-3" />

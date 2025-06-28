@@ -38,13 +38,36 @@ export async function getSellerInfo(sellerId) {
             return { id: sellerId, name: 'Anonymous Seller', avatar_url: null, phone: null, email: null };
         }
 
-        return {
+        // Prioritize Google/Gmail profile picture from authentication
+        const avatarUrl = authUser?.user_metadata?.picture // Google profile picture
+            || authUser?.user_metadata?.avatar_url // Generic OAuth avatar
+            || authUser?.user_metadata?.photo // Alternative Google field
+            || profile?.avatar_url // Database stored avatar
+            || authUser?.user_metadata?.avatar  // Alternative field
+            || null;
+
+        const sellerInfo = {
             id: sellerId,
-            name: profile?.name || authUser?.user_metadata?.full_name || 'Anonymous Seller',
-            avatar_url: profile?.avatar_url || authUser?.user_metadata?.avatar_url || null,
+            name: profile?.name || authUser?.user_metadata?.full_name || authUser?.user_metadata?.name || 'Anonymous Seller',
+            avatar_url: avatarUrl,
             phone: profile?.phone || authUser?.phone || null,
             email: authUser?.email || null,
         };
+
+        // Debug logging
+        console.log('[Actions] Seller info fetched:', {
+            sellerId,
+            hasProfile: !!profile,
+            hasAuthUser: !!authUser,
+            googlePicture: authUser?.user_metadata?.picture,
+            authAvatar: authUser?.user_metadata?.avatar_url,
+            profileAvatar: profile?.avatar_url,
+            finalAvatar: avatarUrl,
+            sellerName: sellerInfo.name,
+            userMetadata: authUser?.user_metadata
+        });
+
+        return sellerInfo;
     } catch (error) {
         console.error(`[Actions] Error fetching seller info for ID ${sellerId}:`, error.message);
         return null;

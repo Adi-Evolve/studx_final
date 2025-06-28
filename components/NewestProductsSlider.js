@@ -7,31 +7,97 @@ import Link from 'next/link';
 export default function NewestProductsSlider({ newestProducts }) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+    const [isHovered, setIsHovered] = useState(false);
+    const [touchStart, setTouchStart] = useState(0);
+    const [touchEnd, setTouchEnd] = useState(0);
+    const [progress, setProgress] = useState(0);
     const sliderRef = useRef(null);
+    const progressRef = useRef(null);
     const itemsToShow = 4; // Show 4 items at once
     const maxIndex = Math.max(0, newestProducts.length - itemsToShow);
 
-    // Auto-play functionality
+    // Auto-play functionality with progress
     useEffect(() => {
-        if (!isAutoPlaying || newestProducts.length <= itemsToShow) return;
+        if (!isAutoPlaying || isHovered || newestProducts.length <= itemsToShow) {
+            setProgress(0);
+            return;
+        }
 
         const interval = setInterval(() => {
             setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
-        }, 4000);
+            setProgress(0); // Reset progress when slide changes
+        }, 4000); // 4 second slide interval
 
-        return () => clearInterval(interval);
-    }, [isAutoPlaying, maxIndex, newestProducts.length, itemsToShow]);
+        // Progress animation
+        const progressInterval = setInterval(() => {
+            setProgress((prev) => {
+                if (prev >= 100) return 0;
+                return prev + (100 / 40); // 100% in 4000ms (40 steps of 100ms)
+            });
+        }, 100);
+
+        return () => {
+            clearInterval(interval);
+            clearInterval(progressInterval);
+        };
+    }, [isAutoPlaying, isHovered, maxIndex, newestProducts.length, itemsToShow, currentIndex]);
+
+    // Keyboard navigation
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (newestProducts.length <= itemsToShow) return;
+            
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                handlePrev();
+            } else if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                handleNext();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [maxIndex, newestProducts.length, itemsToShow]);
 
     const handlePrev = () => {
         setCurrentIndex((prev) => (prev <= 0 ? maxIndex : prev - 1));
         setIsAutoPlaying(false);
-        setTimeout(() => setIsAutoPlaying(true), 10000); // Resume auto-play after 10s
+        setProgress(0);
+        // Resume auto-play after 8 seconds of user interaction
+        setTimeout(() => setIsAutoPlaying(true), 8000);
     };
 
     const handleNext = () => {
         setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
         setIsAutoPlaying(false);
-        setTimeout(() => setIsAutoPlaying(true), 10000); // Resume auto-play after 10s
+        setProgress(0);
+        // Resume auto-play after 8 seconds of user interaction
+        setTimeout(() => setIsAutoPlaying(true), 8000);
+    };
+
+    // Touch handlers for mobile swipe
+    const handleTouchStart = (e) => {
+        setTouchStart(e.targetTouches[0].clientX);
+    };
+
+    const handleTouchMove = (e) => {
+        setTouchEnd(e.targetTouches[0].clientX);
+    };
+
+    const handleTouchEnd = () => {
+        if (!touchStart || !touchEnd) return;
+        
+        const distance = touchStart - touchEnd;
+        const isLeftSwipe = distance > 50;
+        const isRightSwipe = distance < -50;
+
+        if (isLeftSwipe && newestProducts.length > itemsToShow) {
+            handleNext();
+        }
+        if (isRightSwipe && newestProducts.length > itemsToShow) {
+            handlePrev();
+        }
     };
 
     if (!newestProducts || newestProducts.length === 0) {
@@ -70,7 +136,13 @@ export default function NewestProductsSlider({ newestProducts }) {
                 </Link>
             </div>
 
-            <div className="relative group">
+            <div className="relative group" 
+                onMouseEnter={() => setIsHovered(true)} 
+                onMouseLeave={() => setIsHovered(false)}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+            >
                 {/* Main slider container */}
                 <div className="overflow-hidden rounded-xl">
                     <div 
@@ -123,7 +195,9 @@ export default function NewestProductsSlider({ newestProducts }) {
                                 onClick={() => {
                                     setCurrentIndex(index);
                                     setIsAutoPlaying(false);
-                                    setTimeout(() => setIsAutoPlaying(true), 10000);
+                                    setProgress(0);
+                                    // Resume auto-play after 8 seconds of user interaction
+                                    setTimeout(() => setIsAutoPlaying(true), 8000);
                                 }}
                                 className={`w-2 h-2 rounded-full transition-all duration-300 ${
                                     index === currentIndex 
@@ -135,19 +209,19 @@ export default function NewestProductsSlider({ newestProducts }) {
                     </div>
                 )}
 
-                {/* Auto-play indicator */}
-                {isAutoPlaying && newestProducts.length > itemsToShow && (
-                    <div className="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-medium">
-                        Auto-playing ▶
-                    </div>
-                )}
+                {/* No auto-play indicator - clean interface */}
             </div>
 
-            {/* Quick stats */}
-            <div className="mt-8 flex justify-center">
+            {/* Quick stats and controls info */}
+            <div className="mt-8 flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
                 <div className="bg-gray-50 rounded-lg px-6 py-3 text-sm text-gray-600">
                     Showing {Math.min(itemsToShow, newestProducts.length)} of {newestProducts.length} newest items
                 </div>
+                {newestProducts.length > itemsToShow && (
+                    <div className="text-xs text-gray-500 text-center">
+                        Use ← → arrow keys or swipe to navigate
+                    </div>
+                )}
             </div>
         </section>
     );

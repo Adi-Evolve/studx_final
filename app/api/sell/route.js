@@ -27,7 +27,7 @@ async function uploadImageToImgBB(file) {
 async function uploadPdfToSupabase(supabase, file) {
     const fileName = `${Date.now()}-${file.name}`;
     const { data, error } = await supabase.storage
-        .from('notes_pdfs') // Assuming a 'notes_pdfs' bucket
+        .from('product_pdfs') // Using product_pdfs bucket as specified
         .upload(fileName, file);
 
     if (error) {
@@ -35,7 +35,7 @@ async function uploadPdfToSupabase(supabase, file) {
     }
 
     const { data: { publicUrl } } = supabase.storage
-        .from('notes_pdfs')
+        .from('product_pdfs')
         .getPublicUrl(fileName);
     
     return publicUrl;
