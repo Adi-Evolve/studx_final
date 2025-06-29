@@ -65,13 +65,29 @@ export default function NotesForm({ initialData = {}, onSubmit }) {
                     method: 'POST',
                     body: data,
                 });
+                
+                const result = await response.json();
+                
                 if (!response.ok) {
-                    const result = await response.json();
-                    throw new Error(result.error || 'Something went wrong');
+                    throw new Error(result.error || `HTTP ${response.status}: ${response.statusText}`);
                 }
+                
                 alert('Notes listed successfully!');
                 e.target.reset();
+                // Reset form data state
+                setFormData({
+                    title: '',
+                    college: '',
+                    academic_year: '',
+                    subject: '',
+                    price: '',
+                    description: '',
+                    images: [],
+                    pdfs: [],
+                    category: 'Notes',
+                });
             } catch (error) {
+                console.error('Submission error:', error);
                 alert(`Error: ${error.message}`);
             }
         }

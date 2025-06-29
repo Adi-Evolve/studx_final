@@ -27,18 +27,16 @@ async function uploadImageToImgBB(file) {
 async function uploadPdfToSupabase(supabase, file) {
     const fileName = `${Date.now()}-${file.name}`;
     const { data, error } = await supabase.storage
-        .from('product_pdfs') // Using product_pdfs bucket as specified
+        .from('product_pdfs') // Using product_pdfs bucket as specified in previous requirements
         .upload(fileName, file);
 
     if (error) {
+        console.error('Storage upload error:', error);
         throw new Error(`Storage Error: ${error.message}`);
     }
 
-    const { data: { publicUrl } } = supabase.storage
-        .from('product_pdfs')
-        .getPublicUrl(fileName);
-    
-    return publicUrl;
+    // Return the file path for signed URL generation later
+    return data.path;
 }
 
 export async function POST(request) {
@@ -57,13 +55,14 @@ export async function POST(request) {
         let dataToInsert = {};
         let tableName = '';
 
+        // Upload images to ImgBB
         const imageFiles = formData.getAll('images');
         const imageUrls = await Promise.all(
             imageFiles.map(file => uploadImageToImgBB(file))
         );
 
         if (formType === 'regular') {
-            tableName = 'product';
+            tableName = 'products';
             dataToInsert = {
                 seller_id: userId,
                 title: formData.get('title'),
@@ -73,12 +72,12 @@ export async function POST(request) {
                 condition: formData.get('condition'),
                 college: formData.get('college'),
                 location: JSON.parse(formData.get('location')),
-                images: imageUrls,
-                is_sold: false, // Default value
+                images: imageUrls, // Using consistent column name
+                is_sold: false,
             };
         } else if (formType === 'notes') {
             tableName = 'notes';
-            const pdfFile = formData.get('pdfs'); // Assuming single PDF for now
+            const pdfFile = formData.get('pdfs');
             let pdfUrl = null;
             if (pdfFile && pdfFile.size > 0) {
                 pdfUrl = await uploadPdfToSupabase(supabase, pdfFile);
@@ -89,36 +88,34 @@ export async function POST(request) {
                 title: formData.get('title'),
                 description: formData.get('description'),
                 price: parseFloat(formData.get('price')),
-                images: imageUrls,
+                images: imageUrls, // Using consistent column name
                 college: formData.get('college'),
-                course: formData.get('subject'), // Mapping subject to course
-                subject: formData.get('subject'),
+                course_subject: formData.get('subject'),
+                academic_year: formData.get('academic_year'),
                 category: formData.get('category'),
-                pdfUrl: pdfUrl,
-                note_year: formData.get('academicYear'),
+                pdfUrl: pdfUrl, // Single PDF URL for signed URL generation
             };
         } else if (formType === 'rooms') {
             tableName = 'rooms';
             dataToInsert = {
                 seller_id: userId,
                 title: formData.get('hostelName'),
-                roomName: formData.get('hostelName'),
                 description: formData.get('description'),
                 price: parseFloat(formData.get('fees')),
-                images: imageUrls,
+                images: imageUrls, // Using consistent column name
                 college: formData.get('college'),
                 location: JSON.parse(formData.get('location')),
                 category: formData.get('category'),
-                amenities: formData.getAll('amenities'),
+                room_type: formData.get('roomType'),
+                occupancy: formData.get('occupancy'),
+                distance: formData.get('distance'),
+                deposit: parseFloat(formData.get('deposit')) || null,
+                fees_include_mess: formData.get('messIncluded') === 'true',
+                mess_fees: parseFloat(formData.get('messFees')) || null,
+                owner_name: formData.get('ownerName'),
                 contact1: formData.get('contactPrimary'),
                 contact2: formData.get('contactSecondary'),
-                distance: formData.get('distance'),
-                fees: parseFloat(formData.get('fees')),
-                feesIncludeMess: formData.get('messIncluded') === 'true',
-                occupancy: formData.get('occupancy'),
-                ownerName: formData.get('ownerName'),
-                roomType: formData.get('roomType'),
-                deposit: parseFloat(formData.get('deposit')) || null,
+                amenities: formData.getAll('amenities'),
             };
         } else {
             return NextResponse.json({ error: 'Invalid form type' }, { status: 400 });
@@ -127,6 +124,9 @@ export async function POST(request) {
         const { error: insertError } = await supabase.from(tableName).insert(dataToInsert);
 
         if (insertError) {
+            console.error('Database insertion error:', insertError);
+            console.error('Data being inserted:', dataToInsert);
+            console.error('Table name:', tableName);
             throw new Error(`Database Error: ${insertError.message}`);
         }
 
@@ -134,6 +134,17 @@ export async function POST(request) {
 
     } catch (error) {
         console.error('API Error:', error);
-        return NextResponse.json({ error: error.message || 'An unexpected error occurred.' }, { status: 500 });
+        console.error('Error stack:', error.stack);
+        
+        // Ensure we always return JSON
+        return NextResponse.json({ 
+            error: error.message || 'An unexpected error occurred.',
+            details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        }, { 
+            status: 500,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
     }
 }
