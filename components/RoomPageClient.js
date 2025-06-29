@@ -77,7 +77,7 @@ export default function RoomPageClient({ room, seller }) {
         day: 'numeric',
     });
 
-    const whatsAppNumber = getWhatsAppNumber(seller?.phone_number);
+    const whatsAppNumber = getWhatsAppNumber(seller?.phone);
 
     let parsedLocation = null;
     if (room.location) {

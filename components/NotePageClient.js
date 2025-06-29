@@ -96,7 +96,7 @@ export default function NotePageClient({ note, seller }) {
         day: 'numeric',
     });
 
-    const whatsAppNumber = getWhatsAppNumber(seller?.phone_number);
+    const whatsAppNumber = getWhatsAppNumber(seller?.phone);
 
     return (
         <div className="bg-gray-50">

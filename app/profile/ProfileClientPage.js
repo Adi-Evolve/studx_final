@@ -23,7 +23,7 @@ const TabButton = ({ active, onClick, children }) => (
 
 const EditProfileModal = ({ user, onClose, onSave }) => {
     const [fullName, setFullName] = useState(user.name || '');
-    const [phoneNumber, setPhoneNumber] = useState(user.phone_number || '');
+    const [phoneNumber, setPhoneNumber] = useState(user.phone || '');
     const [isSaving, setIsSaving] = useState(false);
 
     const handleSave = async () => {
@@ -91,7 +91,7 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
     const handleSaveProfile = async ({ fullName, phoneNumber }) => {
         const { data, error } = await supabase
             .from('users')
-            .update({ name: fullName, phone_number: phoneNumber })
+            .update({ name: fullName, phone: phoneNumber })
             .eq('id', user.id)
             .select()
             .single();
@@ -254,8 +254,8 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
                         <div className="text-center sm:text-left flex-1">
                             <h1 className="text-3xl font-black text-slate-900 mb-1">{user.name}</h1>
                             <p className="text-slate-600 text-lg mb-2">{user.email}</p>
-                            {user.phone_number && (
-                                <p className="text-slate-500 mb-4">📞 {user.phone_number}</p>
+                            {user.phone && (
+                                <p className="text-slate-500 mb-4">📞 {user.phone}</p>
                             )}
                             <button 
                                 onClick={() => setIsModalOpen(true)} 

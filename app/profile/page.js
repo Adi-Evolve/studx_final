@@ -33,7 +33,7 @@ export default async function ProfilePage() {
         id: user.id,
         email: user.email,
         name: profile?.name || user.user_metadata?.name || 'New User',
-        phone_number: profile?.phone_number || null,
+        phone: profile?.phone || null,
         avatar_url: profile?.avatar_url || user.user_metadata?.avatar_url || `https://i.pravatar.cc/150?u=${user.id}`,
     };
 
