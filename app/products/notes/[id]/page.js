@@ -8,12 +8,16 @@ async function getNoteData(id) {
 
     const { data: noteData, error: noteError } = await supabase
         .from('notes')
-        .select('*') // Fetch all columns, including the 'category' text column.
+        .select(`
+            id, title, description, price, category, college, 
+            academic_year, course_subject, images, pdf_urls, pdfUrl, 
+            seller_id, created_at
+        `)
         .eq('id', id)
         .single();
 
     if (noteError || !noteData) {
-        console.error('Error fetching note:', noteError);
+        // console.error('Error fetching note:', noteError);
         notFound();
     }
 

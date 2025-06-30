@@ -40,7 +40,7 @@ export default function AuthRedirectHandler({ children }) {
                 }
                 
             } catch (error) {
-                console.error('Auth check error:', error);
+                // console.error('Auth check error:', error);
                 setIsLoading(false);
             }
         };

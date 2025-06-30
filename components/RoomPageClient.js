@@ -44,7 +44,7 @@ export default function RoomPageClient({ room, seller }) {
 
     const handleShowSellerInfo = async () => {
         if (!seller) {
-            console.error("handleShowSellerInfo called but seller object is null or undefined.");
+            // console.error("handleShowSellerInfo called but seller object is null or undefined.");
             return;
         }
         try {
@@ -56,7 +56,7 @@ export default function RoomPageClient({ room, seller }) {
             setOtherListings(listings);
             setIsSellerModalOpen(true);
         } catch (error) {
-            console.error('Error fetching seller listings:', error);
+            // console.error('Error fetching seller listings:', error);
             alert('Could not load seller information.');
         }
     };
@@ -86,7 +86,7 @@ export default function RoomPageClient({ room, seller }) {
                 ? JSON.parse(room.location) 
                 : room.location;
         } catch (error) {
-            console.error('Failed to parse location JSON:', error);
+            // console.error('Failed to parse location JSON:', error);
         }
     }
 

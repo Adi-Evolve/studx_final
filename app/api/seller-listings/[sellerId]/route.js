@@ -14,11 +14,22 @@ export async function GET(request, { params }) {
     const supabase = supabaseAdmin;
 
     try {
-        // Fetch from all three tables in parallel
+        // Fetch from all three tables in parallel with specific columns
         const [productsRes, roomsRes, notesRes] = await Promise.all([
-            supabase.from('products').select('*').eq('seller_id', sellerId),
-            supabase.from('rooms').select('*').eq('seller_id', sellerId),
-            supabase.from('notes').select('*').eq('seller_id', sellerId)
+            supabase.from('products').select(`
+                id, title, description, price, category, condition, college, 
+                location, images, is_sold, seller_id, created_at
+            `).eq('seller_id', sellerId),
+            supabase.from('rooms').select(`
+                id, title, description, price, category, college, location, 
+                images, room_type, occupancy, distance, deposit, fees_include_mess, 
+                mess_fees, owner_name, contact1, contact2, amenities, seller_id, created_at
+            `).eq('seller_id', sellerId),
+            supabase.from('notes').select(`
+                id, title, description, price, category, college, 
+                academic_year, course_subject, images, pdf_urls, pdfUrl, 
+                seller_id, created_at
+            `).eq('seller_id', sellerId)
         ]);
 
         // Combine and augment data with a 'type' field
@@ -41,7 +52,7 @@ export async function GET(request, { params }) {
         return NextResponse.json(allItems);
 
     } catch (error) {
-        console.error('Error fetching seller listings:', error);
+        // console.error('Error fetching seller listings:', error);
         return NextResponse.json({ error: 'An internal error occurred' }, { status: 500 });
     }
 }

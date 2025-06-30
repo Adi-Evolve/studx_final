@@ -31,7 +31,7 @@ export default function ReviewForm({ roomId, userId, onReviewSubmitted }) {
 
         if (submissionError) {
             setError('Failed to submit review. Please try again.');
-            console.error('Submission error:', submissionError);
+            // console.error('Submission error:', submissionError);
         } else {
             setRating(0);
             setReview('');

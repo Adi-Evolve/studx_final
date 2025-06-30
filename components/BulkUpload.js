@@ -214,7 +214,7 @@ export default function BulkUpload({ onUploadComplete }) {
             }
 
         } catch (error) {
-            console.error('Upload error:', error);
+            // console.error('Upload error:', error);
             setErrors([error.message]);
             
             if (uploadSession) {

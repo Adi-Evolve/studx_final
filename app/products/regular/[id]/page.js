@@ -11,12 +11,15 @@ async function getProductData(id) {
 
     const { data: productData, error: productError } = await supabase
         .from('products')
-        .select('*') // Fetch all columns, including the 'category' text column.
+        .select(`
+            id, title, description, price, category, condition, college, 
+            location, images, is_sold, seller_id, created_at
+        `)
         .eq('id', id)
         .single();
 
     if (productError || !productData) {
-        console.error('Error fetching product:', productError);
+        // console.error('Error fetching product:', productError);
         notFound();
     }
 

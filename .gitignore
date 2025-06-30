@@ -25,6 +25,20 @@
 # Environment Variables
 .env
 .env*.local
+.env.production
+
+# Credentials and sensitive files
+*.key
+*.pem
+*.p12
+credentials.json
+secrets.json
+
+# Development and test files
+test_*.js
+debug_*.js
+*_test.js
+*_debug.js
 
 # Log files
 npm-debug.log*

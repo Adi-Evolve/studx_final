@@ -18,12 +18,17 @@ export default function ListingCard({ item, onClick, isSelectMode = false, isSpo
         return null;
     }
 
+    // Get image URL with proper fallback handling for new schema
     const imageUrl = (Array.isArray(item.images) && item.images.length > 0 && item.images[0])
-        || (Array.isArray(item.image_urls) && item.image_urls.length > 0 && item.image_urls[0])
+        || (Array.isArray(item.image_urls) && item.image_urls.length > 0 && item.image_urls[0]) // Backward compatibility
         || `https://i.pravatar.cc/300?u=${item.id}`;
 
     const url = getListingUrl(item);
-    const title = item.name || item.title || item.hostel_name || 'Untitled';
+    
+    // Handle different title fields based on item type
+    const title = item.title || item.name || item.hostel_name || 'Untitled';
+    
+    // Handle different price fields
     const price = item.price || item.fees || 0;
 
     const cardContent = (

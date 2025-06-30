@@ -55,21 +55,21 @@ export async function getSellerInfo(sellerId) {
         };
 
         // Debug logging
-        console.log('[Actions] Seller info fetched:', {
-            sellerId,
-            hasProfile: !!profile,
-            hasAuthUser: !!authUser,
-            googlePicture: authUser?.user_metadata?.picture,
-            authAvatar: authUser?.user_metadata?.avatar_url,
-            profileAvatar: profile?.avatar_url,
-            finalAvatar: avatarUrl,
-            sellerName: sellerInfo.name,
-            userMetadata: authUser?.user_metadata
-        });
+        // console.log('[Actions] Seller info fetched:', {
+        //     sellerId,
+        //     hasProfile: !!profile,
+        //     hasAuthUser: !!authUser,
+        //     googlePicture: authUser?.user_metadata?.picture,
+        //     authAvatar: authUser?.user_metadata?.avatar_url,
+        //     profileAvatar: profile?.avatar_url,
+        //     finalAvatar: avatarUrl,
+        //     sellerName: sellerInfo.name,
+        //     userMetadata: authUser?.user_metadata
+        // });
 
         return sellerInfo;
     } catch (error) {
-        console.error(`[Actions] Error fetching seller info for ID ${sellerId}:`, error.message);
+        // console.error(`[Actions] Error fetching seller info for ID ${sellerId}:`, error.message);
         return null;
     }
 }
@@ -82,9 +82,20 @@ export async function fetchSellerListings({ sellerId, excludeId, excludeType }) 
 
     try {
         const [products, notes, rooms] = await Promise.all([
-            supabase.from('products').select('*').eq('seller_id', sellerId),
-            supabase.from('notes').select('*').eq('seller_id', sellerId),
-            supabase.from('rooms').select('*').eq('seller_id', sellerId)
+            supabase.from('products').select(`
+                id, title, description, price, category, condition, college, 
+                location, images, is_sold, seller_id, created_at
+            `).eq('seller_id', sellerId),
+            supabase.from('notes').select(`
+                id, title, description, price, category, college, 
+                academic_year, course_subject, images, pdf_urls, pdfUrl, 
+                seller_id, created_at
+            `).eq('seller_id', sellerId),
+            supabase.from('rooms').select(`
+                id, title, description, price, category, college, location, 
+                images, room_type, occupancy, distance, deposit, fees_include_mess, 
+                mess_fees, owner_name, contact1, contact2, amenities, seller_id, created_at
+            `).eq('seller_id', sellerId)
         ]);
 
         const allListings = [
@@ -97,7 +108,7 @@ export async function fetchSellerListings({ sellerId, excludeId, excludeType }) 
         return allListings.filter(item => !(item.id === excludeId && item.type === excludeType));
 
     } catch (error) {
-        console.error(`[Actions] Error fetching listings for seller ID ${sellerId}:`, error.message);
+        // console.error(`[Actions] Error fetching listings for seller ID ${sellerId}:`, error.message);
         return [];
     }
 }
@@ -115,13 +126,32 @@ export async function fetchSimilarListings({ type, category, college, excludeId,
     if (type === 'product' || type === 'note') {
         if (!category) return [];
         const tableName = type === 'product' ? 'products' : 'notes';
+        
+        let selectColumns;
+        if (tableName === 'products') {
+            selectColumns = `
+                id, title, description, price, category, condition, college, 
+                location, images, is_sold, seller_id, created_at
+            `;
+        } else {
+            selectColumns = `
+                id, title, description, price, category, college, 
+                academic_year, course_subject, images, pdf_urls, pdfUrl, 
+                seller_id, created_at
+            `;
+        }
+        
         query = supabase.from(tableName)
-            .select('*')
+            .select(selectColumns)
             .eq('category', category);
     } else if (type === 'room') {
         if (!college) return [];
         query = supabase.from('rooms')
-            .select('*')
+            .select(`
+                id, title, description, price, category, college, location, 
+                images, room_type, occupancy, distance, deposit, fees_include_mess, 
+                mess_fees, owner_name, contact1, contact2, amenities, seller_id, created_at
+            `)
             .eq('college', college);
     } else {
         return []; // Invalid type
@@ -134,7 +164,7 @@ export async function fetchSimilarListings({ type, category, college, excludeId,
             .range(offset, offset + pageSize - 1);
 
         if (error) {
-            console.error(`[Actions] Supabase error fetching similar listings for type ${type}:`, error.message);
+            // console.error(`[Actions] Supabase error fetching similar listings for type ${type}:`, error.message);
             throw error;
         }
 
@@ -142,7 +172,7 @@ export async function fetchSimilarListings({ type, category, college, excludeId,
         return data.map(item => ({ ...item, type }));
 
     } catch (error) {
-        console.error(`[Actions] General error fetching similar listings for type ${type}:`, error.message);
+        // console.error(`[Actions] General error fetching similar listings for type ${type}:`, error.message);
         return [];
     }
 }
@@ -167,7 +197,7 @@ export async function updateUserProfile(formData) {
         .single();
     
     if (error) {
-        console.error('[Actions] Error updating profile:', error);
+        // console.error('[Actions] Error updating profile:', error);
         return { error };
     }
 
@@ -187,7 +217,7 @@ export async function fetchSponsoredListings() {
             .order('slot', { ascending: true });
 
         if (sequenceError) {
-            console.error('Error fetching sponsorship sequence:', sequenceError);
+            // console.error('Error fetching sponsorship sequence:', sequenceError);
             throw sequenceError;
         }
 
@@ -203,14 +233,35 @@ export async function fetchSponsoredListings() {
             // Validate the constructed table name against a list of known tables.
             const validTables = ['products', 'notes', 'rooms'];
             if (!validTables.includes(tableName)) {
-                console.warn(`Skipping sponsorship item due to invalid type. Type: '${item.item_type}', constructed table: '${tableName}'`);
+                // console.warn(`Skipping sponsorship item due to invalid type. Type: '${item.item_type}', constructed table: '${tableName}'`);
                 // Return a resolved promise with a value that can be filtered out later.
                 return Promise.resolve(null);
             }
 
+            // Create a column selection string based on the table type
+            let selectColumns;
+            if (tableName === 'products') {
+                selectColumns = `
+                    id, title, description, price, category, condition, college, 
+                    location, images, is_sold, seller_id, created_at
+                `;
+            } else if (tableName === 'notes') {
+                selectColumns = `
+                    id, title, description, price, category, college, 
+                    academic_year, course_subject, images, pdf_urls, pdfUrl, 
+                    seller_id, created_at
+                `;
+            } else if (tableName === 'rooms') {
+                selectColumns = `
+                    id, title, description, price, category, college, location, 
+                    images, room_type, occupancy, distance, deposit, fees_include_mess, 
+                    mess_fees, owner_name, contact1, contact2, amenities, seller_id, created_at
+                `;
+            }
+
             return supabase
                 .from(tableName)
-                .select('*')
+                .select(selectColumns)
                 .eq('id', item.item_id)
                 .single();
         });
@@ -228,7 +279,7 @@ export async function fetchSponsoredListings() {
                 // Now check for Supabase errors.
                 if (result.error || !result.data) {
                     if (result.error) {
-                         console.error(`Error fetching sponsored item details for item_id ${sequenceItems[index].item_id} from table ${sequenceItems[index].item_type}s:`, result.error.message);
+                         // console.error(`Error fetching sponsored item details for item_id ${sequenceItems[index].item_id} from table ${sequenceItems[index].item_type}s:`, result.error.message);
                     }
                     return null;
                 }
@@ -243,7 +294,7 @@ export async function fetchSponsoredListings() {
         return sponsoredListings;
 
     } catch (error) {
-        console.error('A critical error occurred in fetchSponsoredListings:', error.message);
+        // console.error('A critical error occurred in fetchSponsoredListings:', error.message);
         return [];
     }
 }
@@ -259,27 +310,38 @@ export async function fetchListings({ page = 1, limit = 12 } = {}) {
         const [productsRes, notesRes, roomsRes] = await Promise.all([
             supabase
                 .from('products')
-                .select('*')
+                .select(`
+                    id, title, description, price, category, condition, college, 
+                    location, images, is_sold, seller_id, created_at
+                `)
                 .order('created_at', { ascending: false }),
             supabase
                 .from('notes')
-                .select('*')
+                .select(`
+                    id, title, description, price, category, college, 
+                    academic_year, course_subject, images, pdf_urls, pdfUrl, 
+                    seller_id, created_at
+                `)
                 .order('created_at', { ascending: false }),
             supabase
                 .from('rooms')
-                .select('*')
+                .select(`
+                    id, title, description, price, category, college, location, 
+                    images, room_type, occupancy, distance, deposit, fees_include_mess, 
+                    mess_fees, owner_name, contact1, contact2, amenities, seller_id, created_at
+                `)
                 .order('created_at', { ascending: false })
         ]);
 
         // Check for errors
         if (productsRes.error) {
-            console.error('[Action: fetchListings] Error fetching products:', productsRes.error.message);
+            // console.error('[Action: fetchListings] Error fetching products:', productsRes.error.message);
         }
         if (notesRes.error) {
-            console.error('[Action: fetchListings] Error fetching notes:', notesRes.error.message);
+            // console.error('[Action: fetchListings] Error fetching notes:', notesRes.error.message);
         }
         if (roomsRes.error) {
-            console.error('[Action: fetchListings] Error fetching rooms:', roomsRes.error.message);
+            // console.error('[Action: fetchListings] Error fetching rooms:', roomsRes.error.message);
         }
 
         // Combine all listings and add type information
@@ -301,7 +363,7 @@ export async function fetchListings({ page = 1, limit = 12 } = {}) {
         };
 
     } catch (error) {
-        console.error('[Action: fetchListings] A critical error occurred:', error.message);
+        // console.error('[Action: fetchListings] A critical error occurred:', error.message);
         return { listings: [], hasMore: false };
     }
 }
@@ -311,7 +373,7 @@ export async function searchListings({ query }) {
     if (!query || query.trim().length === 0) return [];
 
     const supabase = createSupabaseServerClient();
-    console.log(`[searchListings] Starting search for: "${query}"`);
+    // console.log(`[searchListings] Starting search for: "${query}"`);
     
     try {
         // Simple, direct search approach - case insensitive
@@ -322,39 +384,50 @@ export async function searchListings({ query }) {
             // Products table - search title, description, category
             supabase
                 .from('products')
-                .select('*')
+                .select(`
+                    id, title, description, price, category, condition, college, 
+                    location, images, is_sold, seller_id, created_at
+                `)
                 .or(`title.ilike.${searchTerm},description.ilike.${searchTerm},category.ilike.${searchTerm}`)
                 .order('created_at', { ascending: false }),
             
-            // Notes table - search title, description, category, subject
+            // Notes table - search title, description, category, course_subject
             supabase
                 .from('notes')
-                .select('*')
-                .or(`title.ilike.${searchTerm},description.ilike.${searchTerm},category.ilike.${searchTerm},subject.ilike.${searchTerm}`)
+                .select(`
+                    id, title, description, price, category, college, 
+                    academic_year, course_subject, images, pdf_urls, pdfUrl, 
+                    seller_id, created_at
+                `)
+                .or(`title.ilike.${searchTerm},description.ilike.${searchTerm},category.ilike.${searchTerm},course_subject.ilike.${searchTerm}`)
                 .order('created_at', { ascending: false }),
             
-            // Rooms table - search hostel_name, description, category, location
+            // Rooms table - search title, description, category
             supabase
                 .from('rooms')
-                .select('*')
-                .or(`hostel_name.ilike.${searchTerm},description.ilike.${searchTerm},category.ilike.${searchTerm},location.ilike.${searchTerm}`)
+                .select(`
+                    id, title, description, price, category, college, location, 
+                    images, room_type, occupancy, distance, deposit, fees_include_mess, 
+                    mess_fees, owner_name, contact1, contact2, amenities, seller_id, created_at
+                `)
+                .or(`title.ilike.${searchTerm},description.ilike.${searchTerm},category.ilike.${searchTerm}`)
                 .order('created_at', { ascending: false })
         ]);
 
         // Log search results for debugging
-        console.log(`[searchListings] Products found: ${productsRes.data?.length || 0}`);
-        console.log(`[searchListings] Notes found: ${notesRes.data?.length || 0}`);
-        console.log(`[searchListings] Rooms found: ${roomsRes.data?.length || 0}`);
+        // console.log(`[searchListings] Products found: ${productsRes.data?.length || 0}`);
+        // console.log(`[searchListings] Notes found: ${notesRes.data?.length || 0}`);
+        // console.log(`[searchListings] Rooms found: ${roomsRes.data?.length || 0}`);
 
         // Check for errors and log them
         if (productsRes.error) {
-            console.error('[searchListings] Products search error:', productsRes.error);
+            // console.error('[searchListings] Products search error:', productsRes.error);
         }
         if (notesRes.error) {
-            console.error('[searchListings] Notes search error:', notesRes.error);
+            // console.error('[searchListings] Notes search error:', notesRes.error);
         }
         if (roomsRes.error) {
-            console.error('[searchListings] Rooms search error:', roomsRes.error);
+            // console.error('[searchListings] Rooms search error:', roomsRes.error);
         }
 
         // Combine all search results and add type information
@@ -406,12 +479,12 @@ export async function searchListings({ query }) {
             return new Date(b.created_at) - new Date(a.created_at);
         });
 
-        console.log(`[searchListings] Total results found: ${scoredResults.length} for query: "${query}"`);
+        // console.log(`[searchListings] Total results found: ${scoredResults.length} for query: "${query}"`);
         
         return scoredResults;
 
     } catch (error) {
-        console.error('[searchListings] Critical error:', error);
+        // console.error('[searchListings] Critical error:', error);
         return [];
     }
 }
@@ -452,7 +525,7 @@ export async function createOrGetConversation({ listingId, sellerId, listingType
         if (createError) throw createError;
         return newConversation;
     } catch (error) {
-        console.error('Error creating/getting conversation:', error);
+        // console.error('Error creating/getting conversation:', error);
         throw error;
     }
 }
@@ -478,7 +551,7 @@ export async function sendMessage({ conversationId, content, messageType = 'text
         if (error) throw error;
         return message;
     } catch (error) {
-        console.error('Error sending message:', error);
+        // console.error('Error sending message:', error);
         throw error;
     }
 }
@@ -522,7 +595,7 @@ export async function getConversations() {
 
         return conversationsWithLatestMessage;
     } catch (error) {
-        console.error('Error fetching conversations:', error);
+        // console.error('Error fetching conversations:', error);
         return [];
     }
 }
@@ -540,7 +613,7 @@ export async function getMessages(conversationId) {
         if (error) throw error;
         return messages;
     } catch (error) {
-        console.error('Error fetching messages:', error);
+        // console.error('Error fetching messages:', error);
         return [];
     }
 }
@@ -560,7 +633,7 @@ export async function markMessagesAsRead(conversationId) {
 
         if (error) throw error;
     } catch (error) {
-        console.error('Error marking messages as read:', error);
+        // console.error('Error marking messages as read:', error);
     }
 }
 
@@ -577,7 +650,7 @@ export async function getUnreadMessagesCount() {
         if (error) throw error;
         return data || 0;
     } catch (error) {
-        console.error('Error getting unread count:', error);
+        // console.error('Error getting unread count:', error);
         return 0;
     }
 }
@@ -590,17 +663,28 @@ export async function fetchNewestProducts(limit = 4) {
         const [productsRes, notesRes, roomsRes] = await Promise.all([
             supabase
                 .from('products')
-                .select('*')
+                .select(`
+                    id, title, description, price, category, condition, college, 
+                    location, images, is_sold, seller_id, created_at
+                `)
                 .order('created_at', { ascending: false })
                 .limit(limit),
             supabase
                 .from('notes')
-                .select('*')
+                .select(`
+                    id, title, description, price, category, college, 
+                    academic_year, course_subject, images, pdf_urls, pdfUrl, 
+                    seller_id, created_at
+                `)
                 .order('created_at', { ascending: false })
                 .limit(limit),
             supabase
                 .from('rooms')
-                .select('*')
+                .select(`
+                    id, title, description, price, category, college, location, 
+                    images, room_type, occupancy, distance, deposit, fees_include_mess, 
+                    mess_fees, owner_name, contact1, contact2, amenities, seller_id, created_at
+                `)
                 .order('created_at', { ascending: false })
                 .limit(limit)
         ]);
@@ -618,7 +702,7 @@ export async function fetchNewestProducts(limit = 4) {
         return allNewest.slice(0, limit * 3); // Return more for slider
 
     } catch (error) {
-        console.error('[Action: fetchNewestProducts] Error:', error.message);
+        // console.error('[Action: fetchNewestProducts] Error:', error.message);
         return [];
     }
 }
@@ -652,7 +736,7 @@ export async function fetchQuickStats() {
         };
 
     } catch (error) {
-        console.error('[Action: fetchQuickStats] Error:', error.message);
+        // console.error('[Action: fetchQuickStats] Error:', error.message);
         return {
             totalListings: 0,
             totalProducts: 0,
@@ -692,7 +776,7 @@ export async function fetchRecentByCategory(limit = 4) {
         };
 
     } catch (error) {
-        console.error('[Action: fetchRecentByCategory] Error:', error.message);
+        // console.error('[Action: fetchRecentByCategory] Error:', error.message);
         return {
             products: [],
             notes: [],
@@ -740,7 +824,7 @@ export async function fetchTrendingListings(limit = 6) {
         return allTrending.slice(0, limit);
 
     } catch (error) {
-        console.error('[Action: fetchTrendingListings] Error:', error.message);
+        // console.error('[Action: fetchTrendingListings] Error:', error.message);
         return [];
     }
 }
@@ -770,7 +854,7 @@ export async function fetchCategoryStats() {
         };
 
     } catch (error) {
-        console.error('[Action: fetchCategoryStats] Error:', error.message);
+        // console.error('[Action: fetchCategoryStats] Error:', error.message);
         return { products: 0, notes: 0, rooms: 0, total: 0 };
     }
 }

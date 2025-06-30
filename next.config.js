@@ -24,6 +24,16 @@ const nextConfig = {
       },
     ],
   },
+  experimental: {
+    serverComponentsExternalPackages: [],
+  },
+  // Increase API body size limits for file uploads (multiple 100MB PDFs)
+  api: {
+    bodyParser: {
+      sizeLimit: '500mb',
+    },
+    responseLimit: '500mb',
+  },
 };
 
 module.exports = nextConfig;

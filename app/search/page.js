@@ -32,7 +32,7 @@ function SearchContent() {
         query = searchParams?.get('q') || '';
     } catch (error) {
         // This handles the case when useSearchParams is called during build
-        console.log('useSearchParams not available during build');
+        // console.log('useSearchParams not available during build');
         searchParams = null;
         query = '';
     }
@@ -142,7 +142,7 @@ function SearchContent() {
             setSearchResults(filteredResults);
             setTotalResults(filteredResults.length);
         } catch (error) {
-            console.error('Search error:', error);
+            // console.error('Search error:', error);
             setError('Failed to search. Please try again.');
             setSearchResults([]);
             setTotalResults(0);

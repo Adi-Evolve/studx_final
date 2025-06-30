@@ -5,23 +5,43 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faImage, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 // // import toast from 'react-hot-toast';
 
-export default function ImageUpload({ onFilesChange, maxFiles = 5 }) {
+export default function ImageUpload({ onFilesChange, maxFiles = 5, maxSize = 32 * 1024 * 1024 }) { // Default 32MB (ImgBB limit)
     const [files, setFiles] = useState([]);
     const [previews, setPreviews] = useState([]);
     const fileInputRef = useRef(null);
 
     const handleFileChange = (event) => {
         const selectedFiles = Array.from(event.target.files);
+        
         if (files.length + selectedFiles.length > maxFiles) {
-            // // toast.error(`You can only upload a maximum of ${maxFiles} images.`);
+            alert(`You can only upload a maximum of ${maxFiles} images.`);
             return;
         }
 
-        const newFiles = [...files, ...selectedFiles];
+        // Validate file sizes
+        const validFiles = [];
+        const invalidFiles = [];
+        
+        selectedFiles.forEach(file => {
+            if (file.size > maxSize) {
+                invalidFiles.push(file.name);
+            } else {
+                validFiles.push(file);
+            }
+        });
+        
+        // Show error for invalid files
+        if (invalidFiles.length > 0) {
+            const maxSizeMB = Math.round(maxSize / (1024 * 1024));
+            alert(`The following images are too large (max ${maxSizeMB}MB):\n${invalidFiles.join('\n')}`);
+        }
+
+        // Add only valid files
+        const newFiles = [...files, ...validFiles];
         setFiles(newFiles);
         onFilesChange(newFiles);
 
-        const newPreviews = selectedFiles.map(file => URL.createObjectURL(file));
+        const newPreviews = validFiles.map(file => URL.createObjectURL(file));
         setPreviews(prev => [...prev, ...newPreviews]);
     };
 

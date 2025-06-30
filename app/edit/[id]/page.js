@@ -13,7 +13,7 @@ async function getItemData(supabase, id, type) {
 
     const { data, error } = await supabase.from(tableName).select('*').eq('id', id).single();
     if (error) {
-        console.error('Error fetching item:', error);
+        // console.error('Error fetching item:', error);
         return null;
     }
     return data;

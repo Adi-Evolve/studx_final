@@ -54,7 +54,7 @@ export default function ProductComparison({ initialProducts = [], onClose }) {
                     });
             }
         } catch (error) {
-            console.error('Error generating comparison:', error);
+            // console.error('Error generating comparison:', error);
         } finally {
             setLoading(false);
         }
@@ -175,7 +175,7 @@ export default function ProductComparison({ initialProducts = [], onClose }) {
                     url: window.location.href
                 });
             } catch (error) {
-                console.log('Error sharing:', error);
+                // console.log('Error sharing:', error);
             }
         } else {
             navigator.clipboard.writeText(window.location.href);

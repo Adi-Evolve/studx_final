@@ -22,7 +22,7 @@ export default function ProductActions({ product }) {
             setSellerInfo(seller);
             setSoldProducts(soldProducts);
         } catch (error) {
-            console.error('Failed to fetch seller info:', error);
+            // console.error('Failed to fetch seller info:', error);
         } finally {
             setIsLoading(false);
         }

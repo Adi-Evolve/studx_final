@@ -53,7 +53,7 @@ export async function POST(request) {
         return NextResponse.json({ message: 'Item updated successfully' });
 
     } catch (error) {
-        console.error('Update API Error:', error);
+        // console.error('Update API Error:', error);
         return NextResponse.json({ error: 'An unexpected error occurred' }, { status: 500 });
     }
 }

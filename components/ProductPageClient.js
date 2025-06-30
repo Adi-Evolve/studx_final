@@ -55,7 +55,7 @@ export default function ProductPageClient({ product, seller, type }) {
             });
             setOtherListings(listings);
         } catch (error) {
-            console.error('Error fetching seller listings:', error);
+            // console.error('Error fetching seller listings:', error);
             setListingsError('Could not load seller information.');
         } finally {
             setListingsLoading(false);
@@ -92,7 +92,7 @@ export default function ProductPageClient({ product, seller, type }) {
                     .createSignedUrl(pdfUrl, 60 * 60); // 1 hour expiry
 
                 if (error) {
-                    console.error('Error creating signed URL:', error);
+                    // console.error('Error creating signed URL:', error);
                     alert('Failed to generate download link');
                     return;
                 }
@@ -111,7 +111,7 @@ export default function ProductPageClient({ product, seller, type }) {
             link.click();
             document.body.removeChild(link);
         } catch (error) {
-            console.error('Download failed:', error);
+            // console.error('Download failed:', error);
             alert('Failed to download PDF. Please try again.');
         }
     };
@@ -127,7 +127,7 @@ export default function ProductPageClient({ product, seller, type }) {
         try {
             parsedLocation = typeof product.location === 'string' ? JSON.parse(product.location) : product.location;
         } catch (error) {
-            console.error('Failed to parse location JSON:', error);
+            // console.error('Failed to parse location JSON:', error);
         }
     }
 
@@ -154,7 +154,10 @@ export default function ProductPageClient({ product, seller, type }) {
                 </a></Link>
 
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-                    <ProductImageGallery images={product.images} title={product.title} />
+                    <ProductImageGallery 
+                        images={product.images || product.image_urls || []} 
+                        title={product.title} 
+                    />
 
                     <div className="lg:col-span-2">
                         <div className="bg-white rounded-lg shadow-md p-6 sticky top-24">
@@ -166,6 +169,12 @@ export default function ProductPageClient({ product, seller, type }) {
                                 {seller && <div className="flex items-center"><FontAwesomeIcon icon={faUser} className="w-4 mr-3 text-gray-400" /> Sold by <span className="font-semibold text-primary ml-1">{seller.name}</span></div>}
                                 <div className="flex items-center"><FontAwesomeIcon icon={faTag} className="w-4 mr-3 text-gray-400" /> Category: <span className="font-semibold text-primary ml-1">{product.category || 'N/A'}</span></div>
                                 <div className="flex items-center"><FontAwesomeIcon icon={faBuilding} className="w-4 mr-3 text-gray-400" /> College: <span className="font-semibold text-primary ml-1">{product.college}</span></div>
+                                {type === 'note' && product.academic_year && (
+                                    <div className="flex items-center"><FontAwesomeIcon icon={faCalendarAlt} className="w-4 mr-3 text-gray-400" /> Academic Year: <span className="font-semibold text-primary ml-1">{product.academic_year}</span></div>
+                                )}
+                                {type === 'note' && product.course_subject && (
+                                    <div className="flex items-center"><FontAwesomeIcon icon={faTag} className="w-4 mr-3 text-gray-400" /> Subject: <span className="font-semibold text-primary ml-1">{product.course_subject}</span></div>
+                                )}
                             </div>
 
                             {type === 'room' && (
@@ -183,13 +192,36 @@ export default function ProductPageClient({ product, seller, type }) {
 
                             <div className="grid grid-cols-1 gap-3 mt-6">
                                 {type === 'note' ? (
-                                    <button 
-                                        onClick={() => handleDownload(product.pdfUrl, product.title)}
-                                        className="w-full bg-gradient-to-r from-slate-800 via-slate-700 to-emerald-600 text-white font-bold py-3 px-4 rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center justify-center"
-                                    >
-                                        <FontAwesomeIcon icon={faDownload} className="mr-3" />
-                                        Download PDF
-                                    </button>
+                                    <div className="space-y-2">
+                                        {/* Multiple PDF downloads if pdf_urls array exists */}
+                                        {product.pdf_urls && Array.isArray(product.pdf_urls) && product.pdf_urls.length > 0 ? (
+                                            product.pdf_urls.map((pdfUrl, index) => (
+                                                <button 
+                                                    key={index}
+                                                    onClick={() => handleDownload(pdfUrl, `${product.title}_${index + 1}`)}
+                                                    className="w-full bg-gradient-to-r from-slate-800 via-slate-700 to-emerald-600 text-white font-bold py-3 px-4 rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center justify-center"
+                                                >
+                                                    <FontAwesomeIcon icon={faDownload} className="mr-3" />
+                                                    Download PDF {product.pdf_urls.length > 1 ? `(${index + 1}/${product.pdf_urls.length})` : ''}
+                                                </button>
+                                            ))
+                                        ) : product.pdfUrl ? (
+                                            /* Fallback to single PDF */
+                                            <button 
+                                                onClick={() => handleDownload(product.pdfUrl, product.title)}
+                                                className="w-full bg-gradient-to-r from-slate-800 via-slate-700 to-emerald-600 text-white font-bold py-3 px-4 rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center justify-center"
+                                            >
+                                                <FontAwesomeIcon icon={faDownload} className="mr-3" />
+                                                Download PDF
+                                            </button>
+                                        ) : (
+                                            /* No PDF available */
+                                            <div className="w-full bg-gray-300 text-gray-600 font-bold py-3 px-4 rounded-lg flex items-center justify-center cursor-not-allowed">
+                                                <FontAwesomeIcon icon={faDownload} className="mr-3" />
+                                                No PDF Available
+                                            </div>
+                                        )}
+                                    </div>
                                 ) : (
                                     seller?.phone ? (
                                         <a href={`https://wa.me/${getWhatsAppNumber(seller.phone)}?text=I'm%20interested%20in%20your%20'${encodeURIComponent(product.title)}'%20on%20StudXchange.`} target="_blank" rel="noopener noreferrer" className="w-full bg-green-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center">

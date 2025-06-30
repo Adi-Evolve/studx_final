@@ -113,7 +113,7 @@ export default function AdvancedSearch({ onClose }) {
             const searchResults = await searchListings({ query: searchQuery });
             setResults(searchResults);
         } catch (error) {
-            console.error('Search error:', error);
+            // console.error('Search error:', error);
             setResults([]);
         } finally {
             setIsLoading(false);

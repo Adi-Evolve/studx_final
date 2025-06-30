@@ -17,7 +17,7 @@ export default function NotificationSystem({ userId }) {
             <button
                 onClick={() => {
                     // TODO: Implement when notifications table is created
-                    console.log('Notifications feature coming soon!');
+                    // console.log('Notifications feature coming soon!');
                 }}
                 className="relative p-3 text-gray-600 hover:text-gray-700 transition-colors duration-200 rounded-xl hover:bg-gray-50 opacity-50 cursor-not-allowed"
                 title="Notifications feature coming soon"

@@ -34,7 +34,7 @@ export default function CompareSelectionModal({ currentItem, onItemSelected, onC
                 setRelatedProducts(products);
             }
         } catch (error) {
-            console.error('Error fetching related products:', error);
+            // console.error('Error fetching related products:', error);
         } finally {
             setIsLoading(false);
         }
@@ -57,7 +57,7 @@ export default function CompareSelectionModal({ currentItem, onItemSelected, onC
                         setSearchResults(results);
                     }
                 } catch (error) {
-                    console.error('Search error:', error);
+                    // console.error('Search error:', error);
                     setSearchResults([]);
                 } finally {
                     setIsLoading(false);

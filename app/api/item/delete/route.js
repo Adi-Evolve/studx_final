@@ -66,7 +66,7 @@ export async function POST(request) {
         return NextResponse.json({ message: 'Item deleted successfully' });
 
     } catch (error) {
-        console.error('Delete API Error:', error);
+        // console.error('Delete API Error:', error);
         return NextResponse.json({ error: 'An unexpected error occurred' }, { status: 500 });
     }
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 function LocationMarker({ position, setPosition }) {
     const map = useMap();
@@ -12,9 +12,17 @@ function LocationMarker({ position, setPosition }) {
         }
     }, [position, map]);
 
-    map.on('click', (e) => {
-        setPosition(e.latlng);
-    });
+    useEffect(() => {
+        const handleClick = (e) => {
+            setPosition([e.latlng.lat, e.latlng.lng]);
+        };
+
+        map.on('click', handleClick);
+        
+        return () => {
+            map.off('click', handleClick);
+        };
+    }, [map, setPosition]);
 
     return position === null ? null : (
         <Marker position={position}></Marker>
@@ -22,21 +30,63 @@ function LocationMarker({ position, setPosition }) {
 }
 
 export default function MapPicker({ onLocationChange, initialPosition }) {
-    const [position, setPosition] = useState(initialPosition || null);
+    const [position, setPosition] = useState(initialPosition || [20.5937, 78.9629]); // Default to India center
     const [searchQuery, setSearchQuery] = useState('');
+    const [isLocationConfirmed, setIsLocationConfirmed] = useState(false);
+    const lastNotifiedPosition = useRef(null);
 
-        useEffect(() => {
-        if (!position) {
-            // Default to a central location if no initial position is provided
-            setPosition([20.5937, 78.9629]); // Centered on India
-        }
+    // Debug logging for position changes
+    useEffect(() => {
+        // console.log('MapPicker position changed:', position);
     }, [position]);
 
+    // Initialize with default position if no initial position provided
     useEffect(() => {
-        if (position) {
-            onLocationChange({ lat: position.lat, lng: position.lng });
+        if (!initialPosition && onLocationChange && position) {
+            // console.log('MapPicker: Setting default location:', position);
+            const locationObj = { lat: position[0], lng: position[1] };
+            // console.log('MapPicker: Sending location object:', locationObj);
+            onLocationChange(locationObj);
+            lastNotifiedPosition.current = `${position[0]},${position[1]}`;
+        }
+    }, []); // Run only once on mount
+
+    // Only update position if initialPosition changes and is different
+    useEffect(() => {
+        if (initialPosition && Array.isArray(initialPosition) && initialPosition.length === 2 && (!position || 
+            position[0] !== initialPosition[0] || 
+            position[1] !== initialPosition[1])) {
+            setPosition(initialPosition);
+        }
+    }, [initialPosition]);
+
+    // Auto-confirm location when position changes
+    useEffect(() => {
+        if (position && Array.isArray(position) && position.length === 2 && 
+            typeof position[0] === 'number' && typeof position[1] === 'number') {
+            const currentPosKey = `${position[0]},${position[1]}`;
+            const lastPosKey = lastNotifiedPosition.current;
+            
+            // Only call if position actually changed
+            if (currentPosKey !== lastPosKey) {
+                const locationObj = { lat: position[0], lng: position[1] };
+                // console.log('MapPicker: Auto-confirming location:', locationObj);
+                onLocationChange(locationObj);
+                lastNotifiedPosition.current = currentPosKey;
+                setIsLocationConfirmed(true);
+            }
         }
     }, [position, onLocationChange]);
+
+    const handleConfirmLocation = () => {
+        if (position && Array.isArray(position) && position.length === 2) {
+            const locationObj = { lat: position[0], lng: position[1] };
+            // console.log('MapPicker: Manually confirming location:', locationObj);
+            onLocationChange(locationObj);
+            setIsLocationConfirmed(true);
+            lastNotifiedPosition.current = `${position[0]},${position[1]}`;
+        }
+    };
 
             const handleGetCurrentLocation = () => {
         if (navigator.geolocation) {
@@ -46,7 +96,7 @@ export default function MapPicker({ onLocationChange, initialPosition }) {
                     setPosition([latitude, longitude]);
                 },
                 (err) => {
-                    console.error("Error getting current location:", err);
+                    // console.error("Error getting current location:", err);
                     // toast.error('Could not get your location.');
                 }
             );
@@ -64,11 +114,11 @@ export default function MapPicker({ onLocationChange, initialPosition }) {
                 const { lat, lon } = data[0];
                 setPosition([parseFloat(lat), parseFloat(lon)]);
             } else {
-                console.error('Location not found.');
+                // console.error('Location not found.');
                 // toast.error('Location not found.');
             }
         } catch (error) {
-            console.error('Error fetching location:', error);
+            // console.error('Error fetching location:', error);
             // toast.error('Failed to search for location.');
         }
     };
@@ -104,7 +154,7 @@ export default function MapPicker({ onLocationChange, initialPosition }) {
                     Use Current Location
                 </button>
             </div>
-            <div className="h-96 w-full z-0">
+            <div className="h-96 w-full relative">
                 {position && (
                     <MapContainer center={position} zoom={13} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
                         <TileLayer
@@ -114,7 +164,29 @@ export default function MapPicker({ onLocationChange, initialPosition }) {
                         <LocationMarker position={position} setPosition={setPosition} />
                     </MapContainer>
                 )}
-                <p className="text-sm text-gray-600 mt-2">Click on the map to set the exact location of your item.</p>
+            </div>
+            <div className="mt-4 space-y-3">
+                <p className="text-sm text-gray-600">Click on the map to set the exact location of your item.</p>
+                {position && Array.isArray(position) && position.length === 2 && (
+                    <div className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg shadow-sm">
+                        <div className="text-sm">
+                            <span className="font-medium">Selected Location: </span>
+                            <span className="text-blue-700">
+                                {position[0].toFixed(4)}, {position[1].toFixed(4)}
+                            </span>
+                            {isLocationConfirmed && (
+                                <span className="ml-2 text-green-600 font-medium">✓ Confirmed</span>
+                            )}
+                        </div>
+                        <button
+                            type="button"
+                            onClick={handleConfirmLocation}
+                            className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition duration-200 shadow-sm"
+                        >
+                            {isLocationConfirmed ? 'Update Location' : 'Confirm Location'}
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );

@@ -119,20 +119,25 @@ CREATE TABLE IF NOT EXISTS public.notes (
     title TEXT NOT NULL,
     price NUMERIC(10, 2) NOT NULL,
     college TEXT NOT NULL,
-    academic_year TEXT NOT NULL,
-    course_subject TEXT NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Add columns that might not exist in existing table
+-- Add all columns that might not exist in existing table
 ALTER TABLE public.notes ADD COLUMN IF NOT EXISTS description TEXT;
 ALTER TABLE public.notes ADD COLUMN IF NOT EXISTS category TEXT DEFAULT 'Notes';
+ALTER TABLE public.notes ADD COLUMN IF NOT EXISTS academic_year TEXT;
+ALTER TABLE public.notes ADD COLUMN IF NOT EXISTS course_subject TEXT;
 ALTER TABLE public.notes ADD COLUMN IF NOT EXISTS images TEXT[];
 ALTER TABLE public.notes ADD COLUMN IF NOT EXISTS pdfUrl TEXT;
+ALTER TABLE public.notes ADD COLUMN IF NOT EXISTS pdf_urls TEXT[]; -- New column for multiple PDFs
 ALTER TABLE public.notes ADD COLUMN IF NOT EXISTS featured BOOLEAN DEFAULT FALSE;
 ALTER TABLE public.notes ADD COLUMN IF NOT EXISTS views_count INTEGER DEFAULT 0;
 ALTER TABLE public.notes ADD COLUMN IF NOT EXISTS download_count INTEGER DEFAULT 0;
+
+-- Ensure required columns exist and have default values for NOT NULL constraints
+UPDATE public.notes SET academic_year = 'Undergraduate' WHERE academic_year IS NULL;
+UPDATE public.notes SET course_subject = 'General' WHERE course_subject IS NULL;
 
 -- ============================================================================
 -- 5. ROOMS TABLE (Hostel/Room Rentals)
@@ -143,17 +148,17 @@ CREATE TABLE IF NOT EXISTS public.rooms (
     title TEXT NOT NULL,
     price NUMERIC(10, 2) NOT NULL,
     college TEXT NOT NULL,
-    room_type TEXT NOT NULL,
-    occupancy TEXT NOT NULL,
-    owner_name TEXT NOT NULL,
-    contact1 TEXT NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Add columns that might not exist in existing table
+-- Add all columns that might not exist in existing table
 ALTER TABLE public.rooms ADD COLUMN IF NOT EXISTS description TEXT;
 ALTER TABLE public.rooms ADD COLUMN IF NOT EXISTS category TEXT DEFAULT 'Rooms';
+ALTER TABLE public.rooms ADD COLUMN IF NOT EXISTS room_type TEXT;
+ALTER TABLE public.rooms ADD COLUMN IF NOT EXISTS occupancy TEXT;
+ALTER TABLE public.rooms ADD COLUMN IF NOT EXISTS owner_name TEXT;
+ALTER TABLE public.rooms ADD COLUMN IF NOT EXISTS contact1 TEXT;
 ALTER TABLE public.rooms ADD COLUMN IF NOT EXISTS distance TEXT;
 ALTER TABLE public.rooms ADD COLUMN IF NOT EXISTS deposit NUMERIC(10, 2);
 ALTER TABLE public.rooms ADD COLUMN IF NOT EXISTS fees_include_mess BOOLEAN DEFAULT FALSE;
@@ -164,6 +169,12 @@ ALTER TABLE public.rooms ADD COLUMN IF NOT EXISTS images TEXT[];
 ALTER TABLE public.rooms ADD COLUMN IF NOT EXISTS location JSONB;
 ALTER TABLE public.rooms ADD COLUMN IF NOT EXISTS featured BOOLEAN DEFAULT FALSE;
 ALTER TABLE public.rooms ADD COLUMN IF NOT EXISTS views_count INTEGER DEFAULT 0;
+
+-- Ensure required columns have default values for NOT NULL constraints
+UPDATE public.rooms SET room_type = 'Single' WHERE room_type IS NULL;
+UPDATE public.rooms SET occupancy = '1' WHERE occupancy IS NULL;
+UPDATE public.rooms SET owner_name = 'Unknown' WHERE owner_name IS NULL;
+UPDATE public.rooms SET contact1 = 'Contact seller' WHERE contact1 IS NULL;
 
 -- ============================================================================
 -- 6. WISHLIST TABLE

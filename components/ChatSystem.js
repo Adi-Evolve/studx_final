@@ -86,7 +86,7 @@ export default function ChatSystem({ userId, listingId, sellerId, sellerName }) 
                 .single();
 
             if (error && error.code !== 'PGRST116') {
-                console.error('Error checking existing chat:', error);
+                // console.error('Error checking existing chat:', error);
                 return;
             }
 
@@ -104,7 +104,7 @@ export default function ChatSystem({ userId, listingId, sellerId, sellerName }) 
                     .single();
 
                 if (createError) {
-                    console.error('Error creating chat:', createError);
+                    // console.error('Error creating chat:', createError);
                     return;
                 }
 
@@ -114,7 +114,7 @@ export default function ChatSystem({ userId, listingId, sellerId, sellerName }) 
             setChatId(existingChat.id);
             loadMessages(existingChat.id);
         } catch (error) {
-            console.error('Error initializing chat:', error);
+            // console.error('Error initializing chat:', error);
         }
     };
 
@@ -130,7 +130,7 @@ export default function ChatSystem({ userId, listingId, sellerId, sellerName }) 
                 setMessages(data);
             }
         } catch (error) {
-            console.error('Error loading messages:', error);
+            // console.error('Error loading messages:', error);
         }
     };
 
@@ -166,7 +166,7 @@ export default function ChatSystem({ userId, listingId, sellerId, sellerName }) 
                     .eq('id', chatId);
             }
         } catch (error) {
-            console.error('Error sending message:', error);
+            // console.error('Error sending message:', error);
         } finally {
             setIsLoading(false);
         }

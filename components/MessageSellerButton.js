@@ -27,7 +27,7 @@ export default function MessageSellerButton({ listingId, sellerId, listingType, 
             // Redirect to chat page with conversation ID
             router.push(`/messages/${conversation.id}`);
         } catch (error) {
-            console.error('Error starting conversation:', error);
+            // console.error('Error starting conversation:', error);
             if (error.message === 'User not authenticated') {
                 router.push('/login');
             } else {

@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import ImageUpload from '../ImageUpload';
 import dynamic from 'next/dynamic';
 import toast from 'react-hot-toast';
@@ -15,6 +16,7 @@ const amenitiesList = ['AC', 'WiFi', 'Washing Machine', 'Furnished', 'Refrigerat
 const categories = ['Laptops', 'Project Equipment', 'Books', 'Cycle/Bike', 'Hostel Equipment', 'Notes', 'Rooms/Hostel', 'Furniture', 'Others'];
 
 export default function RoomsForm({ initialData = {}, onSubmit }) {
+    const router = useRouter();
     const [formData, setFormData] = useState({
         hostel_name: initialData.hostel_name || '',
         college: initialData.college || '',
@@ -38,31 +40,43 @@ export default function RoomsForm({ initialData = {}, onSubmit }) {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
-        // This effect ensures the form state is updated if initialData changes after the component mounts.
-        setFormData({
-            hostel_name: initialData.hostel_name || '',
-            college: initialData.college || '',
-            room_type: initialData.room_type || '',
-            deposit: initialData.deposit || '',
-            fees: initialData.fees || '',
-            fees_period: initialData.fees_period || 'Monthly',
-            mess_included: initialData.mess_included || false,
-            mess_fees: initialData.mess_fees || '',
-            description: initialData.description || '',
-            distance: initialData.distance || '',
-            occupancy: initialData.occupancy || '',
-            owner_name: initialData.owner_name || '',
-            contact_primary: initialData.contact_primary || '',
-            contact_secondary: initialData.contact_secondary || '',
-            amenities: initialData.amenities || [],
-            images: initialData.images || [],
-            location: initialData.location || null,
-            category: initialData.category || 'Rooms/Hostel',
-        });
+        // Only update form data if initialData actually has meaningful data
+        // This prevents resetting the form when initialData is just an empty object
+        const hasInitialData = Object.keys(initialData).length > 0 && 
+                              Object.values(initialData).some(value => 
+                                  value !== null && value !== undefined && value !== ''
+                              );
+        
+        if (hasInitialData) {
+            // console.log('RoomsForm: Updating form data with initialData:', initialData);
+            setFormData({
+                hostel_name: initialData.hostel_name || '',
+                college: initialData.college || '',
+                room_type: initialData.room_type || '',
+                deposit: initialData.deposit || '',
+                fees: initialData.fees || '',
+                fees_period: initialData.fees_period || 'Monthly',
+                mess_included: initialData.mess_included || false,
+                mess_fees: initialData.mess_fees || '',
+                description: initialData.description || '',
+                distance: initialData.distance || '',
+                occupancy: initialData.occupancy || '',
+                owner_name: initialData.owner_name || '',
+                contact_primary: initialData.contact_primary || '',
+                contact_secondary: initialData.contact_secondary || '',
+                amenities: initialData.amenities || [],
+                images: initialData.images || [],
+                location: initialData.location || null,
+                category: initialData.category || 'Rooms/Hostel',
+            });
+        } else {
+            // console.log('RoomsForm: No meaningful initialData, keeping current form state');
+        }
     }, [initialData]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
+        // console.log('RoomsForm handleChange:', { name, value, type, checked }); // Debug log
         if (type === 'checkbox') {
             if (name === 'mess_included') {
                 setFormData(prev => ({ ...prev, mess_included: checked }));
@@ -77,17 +91,46 @@ export default function RoomsForm({ initialData = {}, onSubmit }) {
         }
     };
 
-    const handleImagesChange = (files) => {
+    const handleImagesChange = useCallback((files) => {
         setFormData(prev => ({ ...prev, images: files }));
-    };
+    }, []);
 
-    const handleLocationChange = (location) => {
-        setFormData(prev => ({ ...prev, location }));
-    };
+    const handleLocationChange = useCallback((location) => {
+        // console.log('RoomsForm: handleLocationChange called with:', location);
+        // console.log('RoomsForm: location type:', typeof location);
+        // console.log('RoomsForm: location.lat:', location?.lat, 'type:', typeof location?.lat);
+        // console.log('RoomsForm: location.lng:', location?.lng, 'type:', typeof location?.lng);
+        
+        // Validate that location has valid lat/lng
+        if (location && typeof location.lat === 'number' && typeof location.lng === 'number') {
+            setFormData(prev => ({ ...prev, location }));
+            // console.log('RoomsForm: Location successfully updated');
+        } else {
+            // console.error('RoomsForm: Invalid location data received:', location);
+        }
+    }, []);
 
     const handleSubmit = async (e) => {
+        // console.log('=== SUBMIT BUTTON CLICKED ===');
         e.preventDefault();
-        if (isSubmitting) return;
+        // console.log('Form submission prevented default behavior');
+        // console.log('Current isSubmitting state:', isSubmitting);
+        // console.log('Current form data location:', formData.location);
+        
+        if (isSubmitting) {
+            // console.log('⚠️ Already submitting, returning early');
+            return;
+        }
+
+        // Validate location before submission
+        if (!formData.location || !formData.location.lat || !formData.location.lng) {
+            // console.log('❌ Location validation failed:', formData.location);
+            toast.error('Please select a location on the map');
+            return;
+        }
+        
+        // console.log('✅ Location validation passed');
+        // console.log('✅ Proceeding with form submission');
         setIsSubmitting(true);
 
         const data = new FormData();
@@ -122,11 +165,55 @@ export default function RoomsForm({ initialData = {}, onSubmit }) {
                 });
                 const result = await response.json();
                 if (!response.ok) {
+                    // Handle specific error codes
+                    if (result.code === 'NOT_AUTHENTICATED') {
+                        toast.error('Please log in to list your room');
+                        setTimeout(() => {
+                            router.push('/login');
+                        }, 2000);
+                        return;
+                    } else if (result.code === 'PHONE_REQUIRED') {
+                        toast.error('Please add your phone number to your profile first');
+                        setTimeout(() => {
+                            router.push('/profile');
+                        }, 2000);
+                        return;
+                    }
                     throw new Error(result.error || 'Something went wrong');
                 }
-                toast.success('Room listed successfully!', { id: toastId });
-                e.target.reset(); // Reset form on successful submission
+                toast.success('Room listed successfully! Redirecting to homepage...', { 
+                    id: toastId,
+                    duration: 3000 
+                });
+                
+                // Reset form on successful submission
+                setFormData({
+                    hostel_name: '',
+                    college: '',
+                    room_type: '',
+                    deposit: '',
+                    fees: '',
+                    fees_period: 'Monthly',
+                    mess_included: false,
+                    mess_fees: '',
+                    description: '',
+                    distance: '',
+                    occupancy: '',
+                    owner_name: '',
+                    contact_primary: '',
+                    contact_secondary: '',
+                    amenities: [],
+                    images: [],
+                    location: null,
+                    category: 'Rooms/Hostel',
+                });
+                
+                // Redirect to homepage after successful submission
+                setTimeout(() => {
+                    router.push('/');
+                }, 2000); // Wait 2 seconds to show the success message
             } catch (error) {
+                // console.error('Room submission error:', error);
                 toast.error(error.message, { id: toastId });
             }
         }
@@ -144,55 +231,128 @@ export default function RoomsForm({ initialData = {}, onSubmit }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label htmlFor="hostel_name" className="block text-sm font-medium text-gray-700">Hostel/Building Name</label>
-                    <input type="text" name="hostel_name" id="hostel_name" required value={formData.hostel_name} onChange={handleChange} className="mt-1 block w-full rounded-md border-black text-black shadow-sm" />
+                    <input 
+                        type="text" 
+                        name="hostel_name" 
+                        id="hostel_name" 
+                        required 
+                        value={formData.hostel_name} 
+                        onChange={handleChange} 
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-black bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                    />
                 </div>
                 <div>
-                    <label htmlFor="college">Nearest College</label>
-                    <select name="college" id="college" required value={formData.college} onChange={handleChange} className="mt-1 block w-full rounded-md border-black text-black shadow-sm">
+                    <label htmlFor="college" className="block text-sm font-medium text-gray-700">Nearest College</label>
+                    <select 
+                        name="college" 
+                        id="college" 
+                        required 
+                        value={formData.college} 
+                        onChange={handleChange} 
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-black bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    >
                         <option value="" disabled>Select College</option>
                         {colleges.sort((a, b) => a.name.localeCompare(b.name)).map(c => <option key={c.short} value={c.short}>{c.name}</option>)}
                     </select>
                 </div>
                 <div>
-                    <label htmlFor="room_type">Room Type</label>
-                    <select name="room_type" id="room_type" required value={formData.room_type} onChange={handleChange} className="mt-1 block w-full rounded-md border-black text-black shadow-sm">
+                    <label htmlFor="room_type" className="block text-sm font-medium text-gray-700">Room Type</label>
+                    <select 
+                        name="room_type" 
+                        id="room_type" 
+                        required 
+                        value={formData.room_type} 
+                        onChange={handleChange} 
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-black bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    >
                         <option value="" disabled>Select Room Type</option>
                         {roomTypes.map(rt => <option key={rt} value={rt}>{rt}</option>)}
                     </select>
                 </div>
                 <div>
-                    <label htmlFor="fees">Fees (₹)</label>
+                    <label htmlFor="fees" className="block text-sm font-medium text-gray-700">Fees (₹)</label>
                     <div className="flex">
-                        <input type="number" name="fees" id="fees" required value={formData.fees} onChange={handleChange} className="mt-1 block w-full rounded-l-md border-black text-black shadow-sm" />
-                        <select name="fees_period" value={formData.fees_period} onChange={handleChange} className="mt-1 block rounded-r-md border-black text-black border-l-0 shadow-sm bg-gray-50">
+                        <input 
+                            type="number" 
+                            name="fees" 
+                            id="fees" 
+                            required 
+                            value={formData.fees} 
+                            onChange={handleChange} 
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-l-md shadow-sm text-black bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                        />
+                        <select 
+                            name="fees_period" 
+                            value={formData.fees_period} 
+                            onChange={handleChange} 
+                            className="mt-1 block px-3 py-2 border border-gray-300 border-l-0 rounded-r-md shadow-sm text-black bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        >
                             <option>Monthly</option>
                             <option>Yearly</option>
                         </select>
                     </div>
                 </div>
                 <div>
-                    <label htmlFor="deposit">Deposit Amount (₹)</label>
-                    <input type="number" name="deposit" id="deposit" required value={formData.deposit} onChange={handleChange} className="mt-1 block w-full rounded-md border-black text-black shadow-sm" />
+                    <label htmlFor="deposit" className="block text-sm font-medium text-gray-700">Deposit Amount (₹)</label>
+                    <input 
+                        type="number" 
+                        name="deposit" 
+                        id="deposit" 
+                        required 
+                        value={formData.deposit} 
+                        onChange={handleChange} 
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-black bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                    />
                 </div>
                 <div>
-                    <label htmlFor="distance">Distance from College</label>
-                    <input type="text" name="distance" id="distance" placeholder="e.g., 500m, 1km" value={formData.distance} onChange={handleChange} className="mt-1 block w-full rounded-md border-black text-black shadow-sm" />
+                    <label htmlFor="distance" className="block text-sm font-medium text-gray-700">Distance from College</label>
+                    <input 
+                        type="text" 
+                        name="distance" 
+                        id="distance" 
+                        placeholder="e.g., 500m, 1km" 
+                        value={formData.distance} 
+                        onChange={handleChange} 
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-black bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                    />
                 </div>
                 <div>
-                    <label htmlFor="occupancy">Occupancy</label>
-                    <input type="text" name="occupancy" id="occupancy" placeholder="e.g., Single, 2 people" value={formData.occupancy} onChange={handleChange} className="mt-1 block w-full rounded-md border-black text-black shadow-sm" />
+                    <label htmlFor="occupancy" className="block text-sm font-medium text-gray-700">Occupancy</label>
+                    <input 
+                        type="text" 
+                        name="occupancy" 
+                        id="occupancy" 
+                        placeholder="e.g., Single, 2 people" 
+                        value={formData.occupancy} 
+                        onChange={handleChange} 
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-black bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                    />
                 </div>
             </div>
 
             <div>
                 <div className="flex items-center">
-                    <input type="checkbox" name="mess_included" id="mess_included" checked={formData.mess_included} onChange={handleChange} className="h-4 w-4 text-blue-600 border-black rounded" />
+                    <input 
+                        type="checkbox" 
+                        name="mess_included" 
+                        id="mess_included" 
+                        checked={formData.mess_included} 
+                        onChange={handleChange} 
+                        className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" 
+                    />
                     <label htmlFor="mess_included" className="ml-2 block text-sm text-gray-900">Mess Fees Included</label>
                 </div>
                 {!formData.mess_included && (
                     <div className="mt-4">
-                        <label htmlFor="mess_fees">Mess Fees (₹ per month)</label>
-                        <input type="number" name="mess_fees" id="mess_fees" value={formData.mess_fees} onChange={handleChange} className="mt-1 block w-full rounded-md border-black text-black shadow-sm" />
+                        <label htmlFor="mess_fees" className="block text-sm font-medium text-gray-700">Mess Fees (₹ per month)</label>
+                        <input 
+                            type="number" 
+                            name="mess_fees" 
+                            id="mess_fees" 
+                            value={formData.mess_fees} 
+                            onChange={handleChange} 
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-black bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                        />
                     </div>
                 )}
             </div>
@@ -202,7 +362,15 @@ export default function RoomsForm({ initialData = {}, onSubmit }) {
                 <div className="mt-2 grid grid-cols-2 md:grid-cols-4 gap-4">
                     {amenitiesList.map(amenity => (
                         <div key={amenity} className="flex items-center">
-                            <input type="checkbox" id={amenity} name="amenities" value={amenity} checked={formData.amenities.includes(amenity)} onChange={handleChange} className="h-4 w-4 text-blue-600 border-black rounded" />
+                            <input 
+                                type="checkbox" 
+                                id={amenity} 
+                                name="amenities" 
+                                value={amenity} 
+                                checked={formData.amenities.includes(amenity)} 
+                                onChange={handleChange} 
+                                className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" 
+                            />
                             <label htmlFor={amenity} className="ml-2 block text-sm text-gray-900">{amenity}</label>
                         </div>
                     ))}
@@ -211,16 +379,39 @@ export default function RoomsForm({ initialData = {}, onSubmit }) {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label htmlFor="owner_name">Owner Name</label>
-                    <input type="text" name="owner_name" id="owner_name" required value={formData.owner_name} onChange={handleChange} className="mt-1 block w-full rounded-md border-black text-black shadow-sm" />
+                    <label htmlFor="owner_name" className="block text-sm font-medium text-gray-700">Owner Name</label>
+                    <input 
+                        type="text" 
+                        name="owner_name" 
+                        id="owner_name" 
+                        required 
+                        value={formData.owner_name} 
+                        onChange={handleChange} 
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-black bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                    />
                 </div>
                 <div>
-                    <label htmlFor="contact_primary">Contact Number</label>
-                    <input type="tel" name="contact_primary" id="contact_primary" required value={formData.contact_primary} onChange={handleChange} className="mt-1 block w-full rounded-md border-black text-black shadow-sm" />
+                    <label htmlFor="contact_primary" className="block text-sm font-medium text-gray-700">Contact Number</label>
+                    <input 
+                        type="tel" 
+                        name="contact_primary" 
+                        id="contact_primary" 
+                        required 
+                        value={formData.contact_primary} 
+                        onChange={handleChange} 
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-black bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                    />
                 </div>
                 <div>
-                    <label htmlFor="contact_secondary">Secondary Contact (Optional)</label>
-                    <input type="tel" name="contact_secondary" id="contact_secondary" value={formData.contact_secondary} onChange={handleChange} className="mt-1 block w-full rounded-md border-black text-black shadow-sm" />
+                    <label htmlFor="contact_secondary" className="block text-sm font-medium text-gray-700">Secondary Contact (Optional)</label>
+                    <input 
+                        type="tel" 
+                        name="contact_secondary" 
+                        id="contact_secondary" 
+                        value={formData.contact_secondary} 
+                        onChange={handleChange} 
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-black bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                    />
                 </div>
             </div>
 
@@ -229,14 +420,38 @@ export default function RoomsForm({ initialData = {}, onSubmit }) {
                 <ImageUpload onFilesChange={handleImagesChange} maxFiles={10} />
             </div>
 
-            <div>
+            <div className="space-y-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">Set Location</label>
-                <MapPicker onLocationChange={handleLocationChange} initialPosition={formData.location} />
+                {formData.location && typeof formData.location.lat === 'number' && typeof formData.location.lng === 'number' ? (
+                    <div className="mb-2 p-2 bg-green-100 border border-green-300 rounded text-sm text-green-700">
+                        ✓ Location selected: {formData.location.lat.toFixed(4)}, {formData.location.lng.toFixed(4)}
+                    </div>
+                ) : (
+                    <div className="mb-2 p-2 bg-yellow-100 border border-yellow-300 rounded text-sm text-yellow-700">
+                        ⚠ Please click on the map to set a location
+                        {formData.location && (
+                            <div className="text-xs mt-1">
+                                Debug: {JSON.stringify(formData.location)}
+                            </div>
+                        )}
+                    </div>
+                )}
+                <div className="mb-6">
+                    <MapPicker onLocationChange={handleLocationChange} initialPosition={formData.location} />
+                </div>
             </div>
 
-            <div>
-                <label htmlFor="description">Description</label>
-                <textarea name="description" id="description" rows="4" value={formData.description} onChange={handleChange} className="mt-1 block w-full rounded-md border-black text-black shadow-sm"></textarea>
+            <div className="mt-8">
+                <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
+                <textarea 
+                    name="description" 
+                    id="description" 
+                    rows="4" 
+                    value={formData.description} 
+                    onChange={handleChange} 
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-black bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Describe your room/hostel in detail..."
+                ></textarea>
             </div>
 
             <div className="flex justify-end">

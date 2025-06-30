@@ -64,7 +64,7 @@ export default async function CategoryPage({ params }) {
     }
 
     if (error) {
-        console.error('Error fetching category listings:', error.message);
+        // console.error('Error fetching category listings:', error.message);
         return (
             <div className="container mx-auto px-4 py-12 text-center">
                 <h1 className="text-3xl font-bold text-primary mb-8">Category: {categoryName}</h1>

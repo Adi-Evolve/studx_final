@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
 import Link from 'next/link';
@@ -81,11 +81,42 @@ const ChevronRightIcon = (props) => (
 export default function HeroBanner() {
     const [emblaRef, emblaApi] = useEmblaCarousel(
         { loop: true, align: 'start' },
-        [Autoplay({ delay: 5000, stopOnInteraction: true })]
+        [Autoplay({ delay: 4000, stopOnInteraction: false })]
     );
+
+    const [selectedIndex, setSelectedIndex] = useState(0);
+    const [isPlaying, setIsPlaying] = useState(true);
 
     const scrollPrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
     const scrollNext = useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi]);
+    const scrollTo = useCallback((index) => emblaApi && emblaApi.scrollTo(index), [emblaApi]);
+
+    const toggleAutoplay = useCallback(() => {
+        const autoplay = emblaApi?.plugins()?.autoplay;
+        if (!autoplay) return;
+
+        const playing = autoplay.isPlaying();
+        if (playing) {
+            autoplay.stop();
+            setIsPlaying(false);
+        } else {
+            autoplay.play();
+            setIsPlaying(true);
+        }
+    }, [emblaApi]);
+
+    useEffect(() => {
+        if (!emblaApi) return;
+
+        const onSelect = () => {
+            setSelectedIndex(emblaApi.selectedScrollSnap());
+        };
+
+        emblaApi.on('select', onSelect);
+        onSelect(); // Set initial index
+
+        return () => emblaApi.off('select', onSelect);
+    }, [emblaApi]);
 
     const bannerStyles = [
         'from-purple-500 to-indigo-600',
@@ -134,19 +165,53 @@ export default function HeroBanner() {
             {/* Prev Button */}
             <button
                 onClick={scrollPrev}
-                className="absolute top-1/2 left-2 md:left-4 transform -translate-y-1/2 bg-white/30 hover:bg-white/50 backdrop-blur-sm rounded-full p-2 shadow-lg transition-opacity opacity-0 group-hover:opacity-100 focus:outline-none"
+                className="absolute top-1/2 left-2 md:left-4 transform -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-sm rounded-full p-2 md:p-3 shadow-lg transition-all duration-300 opacity-70 hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-white/50 z-10"
                 aria-label="Previous slide"
             >
-                <ChevronLeftIcon className="w-6 h-6 text-white" />
+                <ChevronLeftIcon className="w-5 h-5 md:w-6 md:h-6 text-white" />
             </button>
             {/* Next Button */}
             <button
                 onClick={scrollNext}
-                className="absolute top-1/2 right-2 md:right-4 transform -translate-y-1/2 bg-white/30 hover:bg-white/50 backdrop-blur-sm rounded-full p-2 shadow-lg transition-opacity opacity-0 group-hover:opacity-100 focus:outline-none"
+                className="absolute top-1/2 right-2 md:right-4 transform -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-sm rounded-full p-2 md:p-3 shadow-lg transition-all duration-300 opacity-70 hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-white/50 z-10"
                 aria-label="Next slide"
             >
-                <ChevronRightIcon className="w-6 h-6 text-white" />
+                <ChevronRightIcon className="w-5 h-5 md:w-6 md:h-6 text-white" />
             </button>
+            
+            {/* Slide Indicators */}
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center space-x-3 z-10">
+                {/* Pause/Play Button */}
+                <button
+                    onClick={toggleAutoplay}
+                    className="bg-white/20 hover:bg-white/40 backdrop-blur-sm rounded-full p-1.5 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/50"
+                    aria-label={isPlaying ? 'Pause slideshow' : 'Play slideshow'}
+                >
+                    {isPlaying ? (
+                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+                        </svg>
+                    ) : (
+                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                    )}
+                </button>
+                
+                {/* Dot Indicators */}
+                {banners.map((_, index) => (
+                    <button
+                        key={index}
+                        onClick={() => scrollTo(index)}
+                        className={`w-2 h-2 md:w-3 md:h-3 rounded-full transition-all duration-300 ${
+                            index === selectedIndex 
+                                ? 'bg-white scale-125' 
+                                : 'bg-white/50 hover:bg-white/75'
+                        }`}
+                        aria-label={`Go to slide ${index + 1}`}
+                    />
+                ))}
+            </div>
         </div>
     );
 }

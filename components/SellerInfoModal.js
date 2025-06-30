@@ -50,24 +50,24 @@ export default function SellerInfoModal({ seller, otherListings, isLoading, erro
     if (!seller) return null;
 
     // Debug logging - detailed breakdown of avatar sources
-    console.log('[SellerInfoModal] Received seller data:', {
-        sellerId: seller.id,
-        sellerName: seller.name,
-        avatarUrl: seller.avatar_url,
-        avatarType: seller.avatar_url ? (
-            seller.avatar_url.includes('googleusercontent.com') ? 'Google Profile Picture' :
-            seller.avatar_url.includes('pravatar.cc') ? 'Random Avatar' :
-            'Custom Avatar'
-        ) : 'No Avatar',
-        email: seller.email
-    });
+    // console.log('[SellerInfoModal] Received seller data:', {
+    //     sellerId: seller.id,
+    //     sellerName: seller.name,
+    //     avatarUrl: seller.avatar_url,
+    //     avatarType: seller.avatar_url ? (
+    //         seller.avatar_url.includes('googleusercontent.com') ? 'Google Profile Picture' :
+    //         seller.avatar_url.includes('pravatar.cc') ? 'Random Avatar' :
+    //         'Custom Avatar'
+    //     ) : 'No Avatar',
+    //     email: seller.email
+    // });
 
     const [imageLoading, setImageLoading] = useState(true);
     const [imageError, setImageError] = useState(false);
 
     // Helper function to handle image errors
     const handleImageError = (e) => {
-        console.log('[SellerInfoModal] Image load error, will show initials instead');
+        // console.log('[SellerInfoModal] Image load error, will show initials instead');
         setImageError(true);
         setImageLoading(false);
     };
@@ -79,10 +79,10 @@ export default function SellerInfoModal({ seller, otherListings, isLoading, erro
     // Get the best available avatar URL - prioritize real Google photos
     const getAvatarUrl = () => {
         if (seller.avatar_url) {
-            console.log('[SellerInfoModal] Using seller avatar_url:', seller.avatar_url);
+            // console.log('[SellerInfoModal] Using seller avatar_url:', seller.avatar_url);
             return seller.avatar_url;
         }
-        console.log('[SellerInfoModal] No real avatar available for seller:', seller.id);
+        // console.log('[SellerInfoModal] No real avatar available for seller:', seller.id);
         return null; // Return null instead of pravatar to show initials
     };
 

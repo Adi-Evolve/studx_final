@@ -45,7 +45,7 @@ export async function POST(request) {
         return NextResponse.json({ message: 'Product marked as sold successfully' });
 
     } catch (error) {
-        console.error('Mark Sold API Error:', error);
+        // console.error('Mark Sold API Error:', error);
         return NextResponse.json({ error: 'An unexpected error occurred' }, { status: 500 });
     }
 }

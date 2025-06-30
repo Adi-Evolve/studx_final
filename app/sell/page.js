@@ -41,7 +41,7 @@ export default function SellPage() {
                 .single();
 
             if (error) {
-                console.error('Error fetching user profile:', error);
+                // console.error('Error fetching user profile:', error);
             }
 
             if (profile && profile.phone) {

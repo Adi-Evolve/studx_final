@@ -24,11 +24,22 @@ export default function PromoteItemPage() {
             setUser(user);
             
             try {
-                // Fetch user's listings from all tables
+                // Fetch user's listings from all tables with specific columns
                 const [productsRes, notesRes, roomsRes] = await Promise.all([
-                    supabase.from('products').select('*').eq('seller_id', user.id),
-                    supabase.from('notes').select('*').eq('seller_id', user.id),
-                    supabase.from('rooms').select('*').eq('seller_id', user.id)
+                    supabase.from('products').select(`
+                        id, title, description, price, category, condition, college, 
+                        location, images, is_sold, seller_id, created_at
+                    `).eq('seller_id', user.id),
+                    supabase.from('notes').select(`
+                        id, title, description, price, category, college, 
+                        academic_year, course_subject, images, pdf_urls, pdfUrl, 
+                        seller_id, created_at
+                    `).eq('seller_id', user.id),
+                    supabase.from('rooms').select(`
+                        id, title, description, price, category, college, location, 
+                        images, room_type, occupancy, distance, deposit, fees_include_mess, 
+                        mess_fees, owner_name, contact1, contact2, amenities, seller_id, created_at
+                    `).eq('seller_id', user.id)
                 ]);
 
                 const allListings = [
@@ -39,7 +50,7 @@ export default function PromoteItemPage() {
 
                 setUserListings(allListings);
             } catch (error) {
-                console.error('Error loading user listings:', error);
+                // console.error('Error loading user listings:', error);
             } finally {
                 setLoading(false);
             }
@@ -79,7 +90,7 @@ export default function PromoteItemPage() {
             setSelectedItem(null);
             
         } catch (error) {
-            console.error('Error promoting item:', error);
+            // console.error('Error promoting item:', error);
             alert('Error promoting item. Please try again.');
         } finally {
             setPromoting(false);

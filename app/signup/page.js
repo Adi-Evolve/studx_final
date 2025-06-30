@@ -325,12 +325,12 @@ export default function SignUpPage() {
                 </button>
 
                 {/* Email Confirmation Notice */}
-                <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
                   <div className="flex items-start gap-3">
-                    <span className="text-emerald-600 text-lg">📧</span>
+                    <span className="text-blue-600 text-lg">📧</span>
                     <div>
-                      <p className="text-sm text-emerald-800 font-medium mb-1">Email Confirmation Required</p>
-                      <p className="text-sm text-emerald-700">After signing up, check your email for a confirmation link to activate your account.</p>
+                      <p className="text-sm text-blue-800 font-medium mb-1">Important: Email Confirmation Required</p>
+                      <p className="text-sm text-blue-700">After signing up, you'll receive a confirmation email. You must click the link in that email before you can log in to your account.</p>
                     </div>
                   </div>
                 </div>

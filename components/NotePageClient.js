@@ -47,7 +47,7 @@ export default function NotePageClient({ note, seller }) {
                     .createSignedUrl(pdfUrl, 60 * 60); // 1 hour expiry
 
                 if (error) {
-                    console.error('Error creating signed URL:', error);
+                    // console.error('Error creating signed URL:', error);
                     alert('Failed to generate download link');
                     return;
                 }
@@ -66,14 +66,14 @@ export default function NotePageClient({ note, seller }) {
             link.click();
             document.body.removeChild(link);
         } catch (error) {
-            console.error('Download failed:', error);
+            // console.error('Download failed:', error);
             alert('Failed to download PDF. Please try again.');
         }
     };
 
     const handleShowSellerInfo = async () => {
         if (!seller) {
-            console.error("handleShowSellerInfo called but seller object is null or undefined.");
+            // console.error("handleShowSellerInfo called but seller object is null or undefined.");
             return;
         }
         try {
@@ -85,7 +85,7 @@ export default function NotePageClient({ note, seller }) {
             setOtherListings(listings);
             setIsSellerModalOpen(true);
         } catch (error) {
-            console.error('Error fetching seller listings:', error);
+            // console.error('Error fetching seller listings:', error);
             alert('Could not load seller information.');
         }
     };

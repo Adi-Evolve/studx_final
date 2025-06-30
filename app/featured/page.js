@@ -15,7 +15,7 @@ export default function FeaturedItemsPage() {
                 const items = await fetchSponsoredListings();
                 setFeaturedItems(items);
             } catch (error) {
-                console.error('Error loading featured items:', error);
+                // console.error('Error loading featured items:', error);
             } finally {
                 setLoading(false);
             }

@@ -41,13 +41,13 @@ export default function UserRatingSystem({
                 .single();
 
             if (error && error.code !== 'PGRST116') {
-                console.error('Error fetching user profile:', error);
+                // console.error('Error fetching user profile:', error);
                 return;
             }
 
             setUserProfile(data);
         } catch (error) {
-            console.error('Error fetching user profile:', error);
+            // console.error('Error fetching user profile:', error);
         }
     };
 
@@ -72,7 +72,7 @@ export default function UserRatingSystem({
 
             setExistingRatings(data || []);
         } catch (error) {
-            console.error('Error fetching ratings:', error);
+            // console.error('Error fetching ratings:', error);
         } finally {
             setLoading(false);
         }
@@ -102,7 +102,7 @@ export default function UserRatingSystem({
                 setCanRate(true);
             }
         } catch (error) {
-            console.error('Error checking rating permission:', error);
+            // console.error('Error checking rating permission:', error);
             setCanRate(false);
         }
     };
@@ -152,7 +152,7 @@ export default function UserRatingSystem({
                 onRatingSubmitted();
             }
         } catch (error) {
-            console.error('Error submitting rating:', error);
+            // console.error('Error submitting rating:', error);
             alert('Failed to submit rating. Please try again.');
         } finally {
             setSubmitting(false);

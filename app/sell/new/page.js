@@ -22,7 +22,7 @@ function SellForm() {
         category = searchParams?.get('category') || '';
     } catch (error) {
         // This handles the case when useSearchParams is called during build
-        console.log('useSearchParams not available during build');
+        // console.log('useSearchParams not available during build');
         searchParams = null;
     }
 

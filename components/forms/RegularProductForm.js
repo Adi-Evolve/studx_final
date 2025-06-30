@@ -1,20 +1,22 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import ImageUpload from '../ImageUpload';
 import dynamic from 'next/dynamic';
 import { colleges } from '../../lib/colleges';
-// import toast from 'react-hot-toast';
+import toast from 'react-hot-toast';
 
 // Dynamically import the MapPicker to avoid SSR issues with Leaflet
 const MapPicker = dynamic(() => import('../MapPicker'), { ssr: false });
 
 // Placeholder data - in a real app, this would come from a database
-const conditions = ['New', 'Like New', 'Used', 'Refurbished'];
+const conditions = ['New', 'Used', 'Refurbished'];
 const categories = ['Laptops', 'Project Equipment', 'Books', 'Cycle/Bike', 'Hostel Equipment', 'Notes', 'Rooms/Hostel', 'Furniture', 'Others'];
 
 export default function RegularProductForm({ initialData = {}, onSubmit }) {
-        const [formData, setFormData] = useState({
+    const router = useRouter();
+    const [formData, setFormData] = useState({
         title: initialData.title || '',
         college: initialData.college || '',
         price: initialData.price || '',
@@ -73,10 +75,43 @@ export default function RegularProductForm({ initialData = {}, onSubmit }) {
                 });
                 if (!response.ok) {
                     const result = await response.json();
+                    // Handle specific error codes
+                    if (result.code === 'NOT_AUTHENTICATED') {
+                        toast.error('Please log in to list your product');
+                        setTimeout(() => {
+                            router.push('/login');
+                        }, 2000);
+                        return;
+                    } else if (result.code === 'PHONE_REQUIRED') {
+                        toast.error('Please add your phone number to your profile first');
+                        setTimeout(() => {
+                            router.push('/profile');
+                        }, 2000);
+                        return;
+                    }
                     throw new Error(result.error || 'Something went wrong');
                 }
-                alert('Listing created successfully!');
-                e.target.reset();
+                
+                toast.success('Product listed successfully! Redirecting to homepage...', { 
+                    duration: 3000 
+                });
+                
+                // Reset form
+                setFormData({
+                    title: '',
+                    college: '',
+                    price: '',
+                    condition: '',
+                    description: '',
+                    images: [],
+                    location: null,
+                    category: '',
+                });
+                
+                // Redirect to homepage after successful submission
+                setTimeout(() => {
+                    router.push('/');
+                }, 2000);
             } catch (error) {
                 alert(`Error: ${error.message}`);
             }
@@ -96,29 +131,66 @@ export default function RegularProductForm({ initialData = {}, onSubmit }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label htmlFor="title" className="block text-sm font-medium text-gray-700">Title</label>
-                    <input type="text" name="title" id="title" required value={formData.title} className="mt-1 block w-full rounded-md border-black text-black shadow-sm focus:border-blue-500 focus:ring-blue-500" onChange={handleChange} />
+                    <input 
+                        type="text" 
+                        name="title" 
+                        id="title" 
+                        required 
+                        value={formData.title} 
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-black bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                        onChange={handleChange} 
+                    />
                 </div>
                 <div>
                     <label htmlFor="price" className="block text-sm font-medium text-gray-700">Price (₹)</label>
-                    <input type="number" name="price" id="price" required value={formData.price} className="mt-1 block w-full rounded-md border-black text-black shadow-sm focus:border-blue-500 focus:ring-blue-500" onChange={handleChange} />
+                    <input 
+                        type="number" 
+                        name="price" 
+                        id="price" 
+                        required 
+                        value={formData.price} 
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-black bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                        onChange={handleChange} 
+                    />
                 </div>
                 <div>
                     <label htmlFor="college" className="block text-sm font-medium text-gray-700">College</label>
-                    <select name="college" id="college" required value={formData.college} className="mt-1 block w-full rounded-md border-black text-black shadow-sm focus:border-blue-500 focus:ring-blue-500" onChange={handleChange}>
+                    <select 
+                        name="college" 
+                        id="college" 
+                        required 
+                        value={formData.college} 
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-black bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                        onChange={handleChange}
+                    >
                         <option value="" disabled>Select College</option>
                         {colleges.sort((a, b) => a.name.localeCompare(b.name)).map(c => <option key={c.short} value={c.short}>{c.name}</option>)}
                     </select>
                 </div>
                 <div>
                     <label htmlFor="condition" className="block text-sm font-medium text-gray-700">Condition</label>
-                    <select name="condition" id="condition" required value={formData.condition} className="mt-1 block w-full rounded-md border-black text-black shadow-sm focus:border-blue-500 focus:ring-blue-500" onChange={handleChange}>
+                    <select 
+                        name="condition" 
+                        id="condition" 
+                        required 
+                        value={formData.condition} 
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-black bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                        onChange={handleChange}
+                    >
                         <option value="" disabled>Select Condition</option>
                         {conditions.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
                 </div>
                 <div>
                     <label htmlFor="category" className="block text-sm font-medium text-gray-700">Category</label>
-                    <select name="category" id="category" required value={formData.category} className="mt-1 block w-full rounded-md border-black text-black shadow-sm focus:border-blue-500 focus:ring-blue-500" onChange={handleChange}>
+                    <select 
+                        name="category" 
+                        id="category" 
+                        required 
+                        value={formData.category} 
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-black bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                        onChange={handleChange}
+                    >
                         <option value="" disabled>Select Category</option>
                         {categories.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
@@ -137,7 +209,14 @@ export default function RegularProductForm({ initialData = {}, onSubmit }) {
 
             <div>
                 <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
-                <textarea name="description" id="description" rows="4" value={formData.description} className="mt-1 block w-full rounded-md border-black text-black shadow-sm focus:border-blue-500 focus:ring-blue-500" onChange={handleChange}></textarea>
+                <textarea 
+                    name="description" 
+                    id="description" 
+                    rows="4" 
+                    value={formData.description} 
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-black bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                    onChange={handleChange}
+                ></textarea>
             </div>
 
             <div className="flex justify-end">

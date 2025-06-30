@@ -1,5 +1,6 @@
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
+import { syncUserData } from '@/lib/syncUserData';
 import ProfileClientPage from './ProfileClientPage';
 
 // Helper to augment data with a 'type' for consistent client-side handling
@@ -17,6 +18,14 @@ export default async function ProfilePage() {
         return redirect('/login');
     }
 
+    // Sync user data to ensure all fields are populated
+    try {
+        const syncResult = await syncUserData();
+        // console.log('Profile page - User sync result:', syncResult.success ? 'success' : 'failed');
+    } catch (syncError) {
+        // console.warn('Profile page - User sync error:', syncError);
+    }
+
     // Fetch the user's profile from the 'profiles' table
     const { data: profile, error: profileError } = await supabase
         .from('users')
@@ -25,7 +34,7 @@ export default async function ProfilePage() {
         .single();
 
     if (profileError && profileError.code !== 'PGRST116') { // Ignore 'no rows' error
-        console.error('Error fetching profile:', profileError);
+        // console.error('Error fetching profile:', profileError);
     }
 
     // Combine auth user data with profile data for a complete user object
@@ -37,17 +46,28 @@ export default async function ProfilePage() {
         avatar_url: profile?.avatar_url || user.user_metadata?.avatar_url || `https://i.pravatar.cc/150?u=${user.id}`,
     };
 
-    // Fetch all listings in parallel
+    // Fetch all listings in parallel with specific column selection
     const [productsRes, notesRes, roomsRes] = await Promise.all([
-        supabase.from('products').select('*').eq('seller_id', user.id),
-        supabase.from('notes').select('*').eq('seller_id', user.id),
-        supabase.from('rooms').select('*').eq('seller_id', user.id)
+        supabase.from('products').select(`
+            id, title, description, price, category, condition, college, 
+            location, images, is_sold, seller_id, created_at
+        `).eq('seller_id', user.id),
+        supabase.from('notes').select(`
+            id, title, description, price, category, college, 
+            academic_year, course_subject, images, pdf_urls, pdfUrl, 
+            seller_id, created_at
+        `).eq('seller_id', user.id),
+        supabase.from('rooms').select(`
+            id, title, description, price, category, college, location, 
+            images, room_type, occupancy, distance, deposit, fees_include_mess, 
+            mess_fees, owner_name, contact1, contact2, amenities, seller_id, created_at
+        `).eq('seller_id', user.id)
     ]);
 
     // Consolidate error checking
     const fetchError = productsRes.error || notesRes.error || roomsRes.error;
     if (fetchError) {
-        console.error('Error fetching listings:', fetchError);
+        // console.error('Error fetching listings:', fetchError);
         return <div className="text-center text-red-500 py-10">Failed to load your listings. Please try again later.</div>;
     }
 

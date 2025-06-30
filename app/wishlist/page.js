@@ -29,7 +29,7 @@ export default function WishlistPage() {
                     .eq('user_id', session.user.id);
 
                 if (error) {
-                    console.error('Error fetching wishlist:', error);
+                    // console.error('Error fetching wishlist:', error);
                 } else {
                     // Merge the results from the three tables into a single array
                     const items = data.map(item => {

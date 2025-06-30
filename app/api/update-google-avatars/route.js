@@ -37,7 +37,7 @@ export async function POST(request) {
         const { data: authUsers, error: authError } = await supabaseAdmin.auth.admin.listUsers();
         
         if (authError) {
-            console.error('Error fetching auth users:', authError);
+            // console.error('Error fetching auth users:', authError);
             return NextResponse.json({ error: authError.message }, { status: 500 });
         }
 
@@ -56,7 +56,7 @@ export async function POST(request) {
                     
                 if (!updateError) {
                     updatedCount++;
-                    console.log(`Updated avatar for user ${authUser.id}: ${googleAvatar}`);
+                    // console.log(`Updated avatar for user ${authUser.id}: ${googleAvatar}`);
                 }
             }
         }
@@ -68,7 +68,7 @@ export async function POST(request) {
         });
         
     } catch (error) {
-        console.error('Error updating Google avatars:', error);
+        // console.error('Error updating Google avatars:', error);
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
