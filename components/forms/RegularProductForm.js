@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import ImageUpload from '../ImageUpload';
+import ImageUploadWithOptimization from '../ImageUploadWithOptimization';
 import dynamic from 'next/dynamic';
 import { colleges } from '../../lib/colleges';
 import toast from 'react-hot-toast';
@@ -206,7 +206,18 @@ export default function RegularProductForm({ initialData = {}, onSubmit }) {
 
             <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Upload Images (up to 5)</label>
-                <ImageUpload onFilesChange={handleImagesChange} maxFiles={5} />
+                <ImageUploadWithOptimization 
+                    onImagesOptimized={handleImagesChange} 
+                    maxImages={5}
+                    maxSizeInMB={10}
+                    showPreview={true}
+                    allowMultiple={true}
+                    optimizationOptions={{
+                        maxWidth: 1200,
+                        maxHeight: 800,
+                        quality: 0.8
+                    }}
+                />
             </div>
 
             <div>

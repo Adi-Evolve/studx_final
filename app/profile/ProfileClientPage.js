@@ -7,6 +7,7 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import ListingCard from '@/components/ListingCard';
 import BulkUpload from '@/components/BulkUpload';
 import UserRatingSystem from '@/components/UserRatingSystem';
+import BulkOperationsPanel from '@/components/BulkOperationsPanel';
 
 // Reusable UI Components
 const TabButton = ({ active, onClick, children }) => (
@@ -90,8 +91,7 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
 
     const handleSaveProfile = async ({ fullName, phoneNumber }) => {
         try {
-            console.log('Saving profile...', { fullName, phoneNumber });
-            
+            // PROD: console.log('Saving profile...', { fullName, phoneNumber });
             const { data, error } = await supabase
                 .from('users')
                 .update({ name: fullName, phone: phoneNumber })
@@ -106,13 +106,13 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
             }
             
             if (data) {
-                console.log('Profile updated successfully:', data);
+                // PROD: console.log('Profile updated successfully:', data);
                 setUser(prev => ({ ...prev, ...data }));
                 setIsModalOpen(false);
                 
                 // Force a small delay to ensure state update completes
                 setTimeout(() => {
-                    console.log('Profile update complete');
+                    // PROD: console.log('Profile update complete');
                 }, 100);
             }
         } catch (err) {
@@ -159,6 +159,20 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
     };
 
     const renderItems = () => {
+        if (activeTab === 'bulk') {
+            const allListings = [...products, ...notes, ...rooms];
+            return (
+                <BulkOperationsPanel 
+                    userListings={allListings}
+                    onListingsUpdate={() => {
+                        // Refresh all listings after bulk operations
+                        fetchUserListings();
+                    }}
+                    listingType="all"
+                />
+            );
+        }
+
         let items, type;
         switch (activeTab) {
             case 'notes': items = notes; type = 'note'; break;
@@ -310,6 +324,12 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
                                 onClick={() => setActiveTab('rooms')}
                             >
                                 🏠 Rooms ({rooms.length})
+                            </TabButton>
+                            <TabButton 
+                                active={activeTab === 'bulk'} 
+                                onClick={() => setActiveTab('bulk')}
+                            >
+                                ⚡ Bulk Operations
                             </TabButton>
                         </div>
                         

@@ -12,6 +12,7 @@ import SellerInfoModal from '@/components/SellerInfoModal';
 import CompareModal from '@/components/CompareModal';
 import CompareSelectionModal from '@/components/CompareSelectionModal';
 import SimilarItemsFeed from '@/components/SimilarItemsFeed';
+import UserRatingSystem from '@/components/UserRatingSystem';
 import { fetchSellerListings } from '@/app/actions';
 
 export default function ProductPageClient({ product, seller, type }) {
@@ -279,6 +280,19 @@ export default function ProductPageClient({ product, seller, type }) {
                         </div>
                     )}
                 </div>
+
+                {/* Seller Rating System */}
+                {seller && (
+                    <div className="mt-8">
+                        <UserRatingSystem 
+                            ratedUserId={seller.id}
+                            listingId={product.id}
+                            transactionType="sale"
+                            showExistingRatings={true}
+                            compact={false}
+                        />
+                    </div>
+                )}
 
                 <div className="mt-12">
                     <SimilarItemsFeed type={type} category={product.category} college={product.college} currentItemId={product.id} />

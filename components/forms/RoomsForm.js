@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import ImageUpload from '../ImageUpload';
+import ImageUploadWithOptimization from '../ImageUploadWithOptimization';
 import dynamic from 'next/dynamic';
 import toast from 'react-hot-toast';
 import { colleges } from '../../lib/colleges';
@@ -424,7 +424,18 @@ export default function RoomsForm({ initialData = {}, onSubmit }) {
 
             <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Upload Images (up to 10)</label>
-                <ImageUpload onFilesChange={handleImagesChange} maxFiles={10} />
+                <ImageUploadWithOptimization 
+                    onImagesOptimized={handleImagesChange} 
+                    maxImages={10}
+                    maxSizeInMB={10}
+                    showPreview={true}
+                    allowMultiple={true}
+                    optimizationOptions={{
+                        maxWidth: 1200,
+                        maxHeight: 800,
+                        quality: 0.8
+                    }}
+                />
             </div>
 
             <div className="space-y-4">
