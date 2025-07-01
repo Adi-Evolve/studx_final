@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
+import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 
 // The list of categories for the dropdown
@@ -19,57 +19,56 @@ const categories = [
 ];
 
 export default function SellPage() {
+    const [category, setCategory] = useState('');
     const [loading, setLoading] = useState(true);
-    const [hasEmailAndPhone, setHasEmailAndPhone] = useState(false);
-    const [missingFields, setMissingFields] = useState([]);
-    const [category, setCategory] = useState(''); // State for the selected category
-    const supabase = createSupabaseBrowserClient();
+    const [userStatus, setUserStatus] = useState('checking'); // 'checking', 'no-email', 'no-phone', 'ready'
+    const [userEmail, setUserEmail] = useState('');
     const router = useRouter();
+    const supabase = createSupabaseBrowserClient();
 
     useEffect(() => {
-        const checkUserProfile = async () => {
+        const checkUserInDatabase = async () => {
             try {
-                // Get current session to check if user is logged in
+                // Get the current session to get user email
                 const { data: { session } } = await supabase.auth.getSession();
                 
-                if (!session || !session.user) {
-                    // User is not logged in, redirect to login
-                    router.push('/login');
+                if (!session || !session.user || !session.user.email) {
+                    setUserStatus('no-email');
+                    setLoading(false);
                     return;
                 }
 
-                // Check if user has email (from auth) and phone (from profile)
-                const userEmail = session.user.email;
-                
-                const { data: profile, error } = await supabase
+                const currentUserEmail = session.user.email;
+                setUserEmail(currentUserEmail);
+
+                // Check the users table directly for this email
+                const { data: userData, error } = await supabase
                     .from('users')
-                    .select('phone')
-                    .eq('id', session.user.id)
+                    .select('email, phone')
+                    .eq('email', currentUserEmail)
                     .single();
 
-                if (error && error.code !== 'PGRST116') {
-                    console.error('Error fetching user profile:', error);
+                if (error || !userData) {
+                    // No user found in users table with this email
+                    setUserStatus('no-email');
+                } else if (!userData.phone || userData.phone.trim() === '') {
+                    // User exists but phone is null or empty
+                    setUserStatus('no-phone');
+                } else {
+                    // User exists and has phone number
+                    setUserStatus('ready');
                 }
 
-                // Check what fields are missing
-                const missing = [];
-                if (!userEmail) missing.push('email');
-                if (!profile || !profile.phone) missing.push('phone number');
-
-                setMissingFields(missing);
-                setHasEmailAndPhone(missing.length === 0);
-
             } catch (error) {
-                console.error('Error checking user profile:', error);
-                setHasEmailAndPhone(false);
-                setMissingFields(['email', 'phone number']);
+                console.error('Error checking user in database:', error);
+                setUserStatus('no-email');
             }
 
             setLoading(false);
         };
 
-        checkUserProfile();
-    }, [supabase, router]);
+        checkUserInDatabase();
+    }, [supabase]);
 
     // Handler for the 'Next' button
     const handleNext = () => {
@@ -85,38 +84,60 @@ export default function SellPage() {
     };
 
     if (loading) {
-        return <div className="text-center py-20">Verifying your profile...</div>;
+        return (
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                    <p className="text-gray-600 dark:text-gray-300">Checking your profile...</p>
+                </div>
+            </div>
+        );
     }
 
-    if (!hasEmailAndPhone) {
+    if (userStatus === 'no-email') {
         return (
             <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center px-4">
                 <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 sm:p-8 text-center">
-                    <div className="text-6xl mb-4">�</div>
-                    <h1 className="text-xl sm:text-2xl font-bold text-red-600 dark:text-red-400 mb-4">Profile Information Required</h1>
-                    <p className="mb-4 text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed">
-                        To sell items on our platform, you need to have both email and phone number in your profile.
+                    <div className="text-6xl mb-4">🔐</div>
+                    <h1 className="text-xl sm:text-2xl font-bold text-red-600 dark:text-red-400 mb-4">Sign In Required</h1>
+                    <p className="mb-6 text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed">
+                        You need to sign in to sell items on our platform. Please sign in with your account.
                     </p>
-                    <div className="mb-6 text-sm text-gray-700 dark:text-gray-300">
-                        <p className="font-medium mb-2">Missing information:</p>
-                        <ul className="list-disc list-inside text-left">
-                            {missingFields.map((field, index) => (
-                                <li key={index} className="capitalize">{field}</li>
-                            ))}
-                        </ul>
-                    </div>
                     <Link 
-                        href="/profile" 
+                        href="/login" 
                         className="block w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-300 text-sm sm:text-base"
                     >
-                        Complete Your Profile
+                        Sign In
                     </Link>
                 </div>
             </div>
         );
     }
 
-    // If the check passes, render the original sell form
+    if (userStatus === 'no-phone') {
+        return (
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center px-4">
+                <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 sm:p-8 text-center">
+                    <div className="text-6xl mb-4">📱</div>
+                    <h1 className="text-xl sm:text-2xl font-bold text-orange-600 dark:text-orange-400 mb-4">Phone Number Required</h1>
+                    <p className="mb-4 text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed">
+                        To sell items on our platform, you need to add your phone number to your profile.
+                    </p>
+                    <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
+                        Email: {userEmail}
+                    </p>
+                    <Link 
+                        href="/profile" 
+                        className="block w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-300 text-sm sm:text-base"
+                    >
+                        Add Phone Number in Profile
+                    </Link>
+                </div>
+            </div>
+        );
+    }
+
+    // If user status is 'ready', show the category selection
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-4 sm:py-8 lg:py-12">
             <div className="container mx-auto px-4">

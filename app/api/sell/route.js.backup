@@ -81,26 +81,16 @@ export async function POST(request) {
     try {
         const supabase = createRouteHandlerClient({ cookies });
 
-        // Try multiple ways to get the authenticated user
+        // Try to get authenticated user, but don't require it
         const { data: { user }, error: userError } = await supabase.auth.getUser();
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
-        // Enhanced debugging for auth issues
-        // console.log('Comprehensive Auth Debug:', {
-        //     hasUser: !!user,
-        //     hasSession: !!session,
-        //     userError: userError,
-        //     sessionError: sessionError,
-        //     userId: user?.id || session?.user?.id,
-        //     userEmail: user?.email || session?.user?.email,
-        //     userProvider: user?.app_metadata?.provider || session?.user?.app_metadata?.provider
-        // });
-        
         let userId;
-        let userEmail;
+        let userEmail = 'anonymous@studx.com'; // Default for anonymous users
+        let isAnonymous = false;
         
         if (user && user.id) {
-            // User found via getUser() - this works better with OAuth
+            // User is authenticated via getUser()
             userId = user.id;
             userEmail = user.email;
             // console.log('✅ User authenticated via getUser():', user.email);
@@ -117,21 +107,20 @@ export async function POST(request) {
                 // console.warn('⚠️ User sync error but continuing:', syncError);
             }
         } else if (session && session.user && session.user.id) {
-            // User found via session
+            // User is authenticated via session
             userId = session.user.id;
             userEmail = session.user.email;
             // console.log('✅ User authenticated via session:', session.user.email);
         } else {
-            // No authenticated user found - allow anonymous submission
+            // No authenticated user - allow anonymous submission
             // console.log('ℹ️ Anonymous user detected, allowing submission');
-            userId = '00000000-0000-0000-0000-000000000000'; // Special anonymous user UUID
-            userEmail = 'anonymous@studx.com';
+            isAnonymous = true;
+            userId = 'anonymous'; // Will be handled specially in the database logic
         }
         
-        // Only verify user profile for authenticated users (not anonymous)
+        // For authenticated users, verify they exist in public.users table
         let publicUser = null;
-        if (userId && userId !== '00000000-0000-0000-0000-000000000000') {
-            // Verify the user exists in public.users table and has required information
+        if (!isAnonymous) {
             const { data: userData, error: publicUserError } = await supabase
                 .from('users')
                 .select('id, email, name, phone')
@@ -141,7 +130,7 @@ export async function POST(request) {
             if (publicUserError || !userData) {
                 // console.error('User not found in public.users table:', publicUserError);
                 // Try to create the user in public.users if they don't exist
-                if (userEmail && userEmail !== 'anonymous@studx.com') {
+                if (userEmail) {
                     const { error: insertError } = await supabase
                         .from('users')
                         .insert({
@@ -161,8 +150,53 @@ export async function POST(request) {
                 }
             } else {
                 publicUser = userData;
-                // console.log('✅ User verified in public.users:', publicUser.email);
             }
+        }
+            // Try to create the user in public.users if they don't exist
+            if (userEmail) {
+                const { error: insertError } = await supabase
+                    .from('users')
+                    .insert({
+                        id: userId,
+                        email: userEmail,
+                        name: userEmail.split('@')[0]
+                    });
+                
+                if (insertError) {
+                    // console.error('Failed to create user in public.users:', insertError);
+                    return NextResponse.json({ 
+                        error: 'User profile creation failed. Please contact support.',
+                        details: insertError.message
+                    }, { status: 500 });
+                }
+                // console.log('✅ Created user in public.users table:', userEmail);
+                
+                // Check again for email and phone number after creation
+                return NextResponse.json({ 
+                    error: 'Please add your email and phone number to your profile before listing items.',
+                    code: 'PROFILE_INCOMPLETE',
+                    missingFields: ['email', 'phone number'],
+                    redirectTo: '/profile'
+                }, { status: 400 });
+            }
+        } else {
+            // console.log('✅ User verified in public.users:', publicUser.email);
+            
+        // Check if user has both email and phone number
+        if (!publicUser.email || publicUser.email.trim() === '' || !publicUser.phone || publicUser.phone.trim() === '') {
+            const missingFields = [];
+            if (!publicUser.email || publicUser.email.trim() === '') missingFields.push('email');
+            if (!publicUser.phone || publicUser.phone.trim() === '') missingFields.push('phone number');
+            
+            return NextResponse.json({ 
+                error: `Please add your ${missingFields.join(' and ')} to your profile before listing items.`,
+                code: 'PROFILE_INCOMPLETE',
+                missingFields: missingFields,
+                redirectTo: '/profile'
+            }, { status: 400 });
+        }
+            
+            // console.log('✅ User has phone number, allowing to proceed');
         }
 
         // Check content length before processing (allow for multiple 100MB PDFs + images)
