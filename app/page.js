@@ -3,6 +3,7 @@ import FunnyAdvertisingBanner from '@/components/FunnyAdvertisingBanner';
 import NewestProductsSlider from '@/components/NewestProductsSlider';
 import FeaturedSlider from '@/components/FeaturedSlider';
 import HowItWorks from '@/components/HowItWorks';
+import CategoryCard from '@/components/CategoryCard';
 import { 
   fetchSponsoredListings, 
   fetchNewestProducts,
@@ -79,68 +80,15 @@ function CategoriesSection() {
       </div>
       
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
-        <Link href="/category/Laptop" className="group">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl dark:hover:shadow-gray-700 transition-all duration-300 transform hover:scale-105 p-4 md:p-6 text-center border dark:border-gray-700">
-            <div className="text-3xl md:text-4xl mb-2 group-hover:scale-110 transition-transform duration-300">💻</div>
-            <h3 className="font-semibold text-gray-800 dark:text-gray-200 text-sm md:text-base">Laptops</h3>
-          </div>
-        </Link>
-        
-        <Link href="/category/Textbook" className="group">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl dark:hover:shadow-gray-700 transition-all duration-300 transform hover:scale-105 p-4 md:p-6 text-center border dark:border-gray-700">
-            <div className="text-3xl md:text-4xl mb-2 group-hover:scale-110 transition-transform duration-300">📚</div>
-            <h3 className="font-semibold text-gray-800 dark:text-gray-200 text-sm md:text-base">Textbooks</h3>
-          </div>
-        </Link>
-        
-        <Link href="/category/Electronics" className="group">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl dark:hover:shadow-gray-700 transition-all duration-300 transform hover:scale-105 p-4 md:p-6 text-center border dark:border-gray-700">
-            <div className="text-3xl md:text-4xl mb-2 group-hover:scale-110 transition-transform duration-300">🔌</div>
-            <h3 className="font-semibold text-gray-800 dark:text-gray-200 text-sm md:text-base">Electronics</h3>
-          </div>
-        </Link>
-        
-        <Link href="/category/Bike" className="group">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl dark:hover:shadow-gray-700 transition-all duration-300 transform hover:scale-105 p-4 md:p-6 text-center border dark:border-gray-700">
-            <div className="text-3xl md:text-4xl mb-2 group-hover:scale-110 transition-transform duration-300">🚲</div>
-            <h3 className="font-semibold text-gray-800 dark:text-gray-200 text-sm md:text-base">Bikes</h3>
-          </div>
-        </Link>
-        
-        <Link href="/category/Notes" className="group">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl dark:hover:shadow-gray-700 transition-all duration-300 transform hover:scale-105 p-4 md:p-6 text-center border dark:border-gray-700">
-            <div className="text-3xl md:text-4xl mb-2 group-hover:scale-110 transition-transform duration-300">📝</div>
-            <h3 className="font-semibold text-gray-800 dark:text-gray-200 text-sm md:text-base">Notes</h3>
-          </div>
-        </Link>
-        
-        <Link href="/category/Rooms" className="group">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl dark:hover:shadow-gray-700 transition-all duration-300 transform hover:scale-105 p-4 md:p-6 text-center border dark:border-gray-700">
-            <div className="text-3xl md:text-4xl mb-2 group-hover:scale-110 transition-transform duration-300">🏠</div>
-            <h3 className="font-semibold text-gray-800 dark:text-gray-200 text-sm md:text-base">Rooms</h3>
-          </div>
-        </Link>
-        
-        <Link href="/category/Furniture" className="group">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl dark:hover:shadow-gray-700 transition-all duration-300 transform hover:scale-105 p-4 md:p-6 text-center border dark:border-gray-700">
-            <div className="text-3xl md:text-4xl mb-2 group-hover:scale-110 transition-transform duration-300">🪑</div>
-            <h3 className="font-semibold text-gray-800 dark:text-gray-200 text-sm md:text-base">Furniture</h3>
-          </div>
-        </Link>
-        
-        <Link href="/category/Dorm" className="group">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl dark:hover:shadow-gray-700 transition-all duration-300 transform hover:scale-105 p-4 md:p-6 text-center border dark:border-gray-700">
-            <div className="text-3xl md:text-4xl mb-2 group-hover:scale-110 transition-transform duration-300">🎒</div>
-            <h3 className="font-semibold text-gray-800 dark:text-gray-200 text-sm md:text-base">Dorm Items</h3>
-          </div>
-        </Link>
-        
-        <Link href="/category/Other" className="group">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl dark:hover:shadow-gray-700 transition-all duration-300 transform hover:scale-105 p-4 md:p-6 text-center border dark:border-gray-700">
-            <div className="text-3xl md:text-4xl mb-2 group-hover:scale-110 transition-transform duration-300">📦</div>
-            <h3 className="font-semibold text-gray-800 dark:text-gray-200 text-sm md:text-base">Other</h3>
-          </div>
-        </Link>
+        <CategoryCard href="/category/Laptop" icon="💻" title="Laptops" />
+        <CategoryCard href="/category/Textbook" icon="📚" title="Textbooks" />
+        <CategoryCard href="/category/Electronics" icon="🔌" title="Electronics" />
+        <CategoryCard href="/category/Bike" icon="🚲" title="Bikes" />
+        <CategoryCard href="/category/Notes" icon="📝" title="Notes" />
+        <CategoryCard href="/category/Rooms" icon="🏠" title="Rooms" />
+        <CategoryCard href="/category/Furniture" icon="🪑" title="Furniture" />
+        <CategoryCard href="/category/Dorm" icon="🎒" title="Dorm Items" />
+        <CategoryCard href="/category/Other" icon="📦" title="Other" />
       </div>
     </section>
   );
