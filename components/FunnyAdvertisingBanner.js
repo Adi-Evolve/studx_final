@@ -192,7 +192,7 @@ export default function FunnyAdvertisingBanner() {
                         {/* CTA Button */}
                         <Link
                             href={banner.buttonLink}
-                            className="inline-flex items-center px-6 md:px-8 py-3 md:py-4 bg-white text-gray-900 font-bold text-sm md:text-lg rounded-full hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                            className="inline-flex items-center px-6 md:px-8 py-3 md:py-4 bg-white dark:bg-gray-100 text-gray-900 dark:text-gray-800 font-bold text-sm md:text-lg rounded-full hover:bg-gray-100 dark:hover:bg-gray-200 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
                         >
                             {banner.buttonText}
                             <svg className="w-4 h-4 md:w-5 md:h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -210,8 +210,8 @@ export default function FunnyAdvertisingBanner() {
                             onClick={() => setCurrentBanner(index)}
                             className={`w-2 h-2 rounded-full transition-all duration-300 ${
                                 index === currentBanner 
-                                    ? 'bg-white w-8' 
-                                    : 'bg-white/50 hover:bg-white/75'
+                                    ? 'bg-white dark:bg-gray-200 w-8' 
+                                    : 'bg-white/50 dark:bg-gray-300/50 hover:bg-white/75 dark:hover:bg-gray-300/75'
                             }`}
                         />
                     ))}

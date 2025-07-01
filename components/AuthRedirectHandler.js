@@ -25,7 +25,7 @@ export default function AuthRedirectHandler({ children }) {
                 
                 // If user is authenticated, redirect to home regardless of visit status
                 if (user) {
-                    router.replace('/home');
+                    router.replace('/');
                     return;
                 }
                 
@@ -52,7 +52,7 @@ export default function AuthRedirectHandler({ children }) {
             async (event, session) => {
                 if (event === 'SIGNED_IN' && session?.user) {
                     // User just signed in, redirect to home
-                    router.replace('/home');
+                    router.replace('/');
                 } else if (event === 'SIGNED_OUT') {
                     // User signed out, they can stay on landing page
                     setUser(null);

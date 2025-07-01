@@ -32,18 +32,18 @@ export default function ListingCard({ item, onClick, isSelectMode = false, isSpo
     const price = item.price || item.fees || 0;
 
     const cardContent = (
-        <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:scale-105 h-full flex flex-col group relative border-2 border-transparent hover:border-emerald-200">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-900 overflow-hidden hover:shadow-xl dark:hover:shadow-gray-700 transition-all duration-300 transform hover:scale-105 h-full flex flex-col group relative border-2 border-transparent hover:border-emerald-200 dark:hover:border-emerald-600 dark:border-gray-700">
             {/* Badges */}
             {(isSponsored || item.is_sponsored) && (
                 <div className="absolute top-3 right-3 z-20">
-                    <div className="bg-gradient-to-r from-emerald-400 to-teal-500 text-white px-2 py-1 rounded-full text-xs font-semibold shadow-lg">
+                    <div className="bg-gradient-to-r from-emerald-400 to-teal-500 dark:from-emerald-500 dark:to-teal-600 text-white px-2 py-1 rounded-full text-xs font-semibold shadow-lg">
                         ⭐ Featured
                     </div>
                 </div>
             )}
             {item.is_sold && (
                 <div className="absolute top-3 left-3 z-20">
-                    <div className="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
+                    <div className="bg-red-500 dark:bg-red-600 text-white px-2 py-1 rounded-full text-xs font-semibold">
                         SOLD OUT
                     </div>
                 </div>
@@ -70,9 +70,9 @@ export default function ListingCard({ item, onClick, isSelectMode = false, isSpo
                 {/* Type Badge */}
                 <div className="mb-2">
                     <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                        item.type === 'room' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 
-                        item.type === 'note' ? 'bg-teal-50 text-teal-700 border border-teal-200' : 
-                        'bg-slate-50 text-slate-700 border border-slate-200'
+                        item.type === 'room' ? 'bg-emerald-50 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700' : 
+                        item.type === 'note' ? 'bg-teal-50 dark:bg-teal-900 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-700' : 
+                        'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600'
                     }`}>
                         {item.type === 'room' ? '🏠 Room' : 
                          item.type === 'note' ? '📚 Notes' : 
@@ -81,7 +81,7 @@ export default function ListingCard({ item, onClick, isSelectMode = false, isSpo
                 </div>
 
                 {/* Title */}
-                <h3 className="font-semibold text-slate-900 mb-2 line-clamp-2 group-hover:text-emerald-600 transition-colors duration-200" title={title}>
+                <h3 className="font-semibold text-slate-900 dark:text-gray-100 mb-2 line-clamp-2 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-200" title={title}>
                     {title}
                 </h3>
                 
@@ -91,16 +91,16 @@ export default function ListingCard({ item, onClick, isSelectMode = false, isSpo
                         <div className="flex flex-col">
                             <PriceDisplay 
                                 price={price}
-                                className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-slate-800 to-emerald-600"
+                                className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-slate-800 to-emerald-600 dark:from-slate-200 dark:to-emerald-400"
                             />
                             {item.type === 'room' && (
-                                <span className="text-xs text-slate-500">/month</span>
+                                <span className="text-xs text-slate-500 dark:text-slate-400">/month</span>
                             )}
                         </div>
                         
                         {/* College info */}
                         {item.college && (
-                            <div className="text-xs text-slate-500 truncate max-w-20" title={item.college}>
+                            <div className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-20" title={item.college}>
                                 📍 {item.college}
                             </div>
                         )}
@@ -115,7 +115,7 @@ export default function ListingCard({ item, onClick, isSelectMode = false, isSpo
                                 item.condition === 'Good' ? 'bg-teal-500' :
                                 'bg-slate-400'
                             }`}></div>
-                            <span className="text-xs text-slate-600">{item.condition}</span>
+                            <span className="text-xs text-slate-600 dark:text-slate-400">{item.condition}</span>
                         </div>
                     )}
                 </div>

@@ -60,7 +60,7 @@ const FeaturedProductCard = ({ item, onClick }) => {
             className="featured-card-container cursor-pointer h-full"
             onClick={() => onClick(item)}
         >
-            <div className="relative bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 overflow-hidden h-full border border-gray-100 hover:border-gray-200">
+            <div className="relative bg-white dark:bg-gray-800 rounded-3xl shadow-xl hover:shadow-2xl dark:hover:shadow-gray-700 transition-all duration-500 hover:-translate-y-3 overflow-hidden h-full border border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600">
                 {/* Animated Background Gradient */}
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 via-purple-50/20 to-pink-50/30 opacity-0 featured-card-container:hover:opacity-100 transition-opacity duration-700"></div>
                 
@@ -100,8 +100,8 @@ const FeaturedProductCard = ({ item, onClick }) => {
                     
                     {/* Quick View Button */}
                     <div className="absolute inset-0 flex items-center justify-center opacity-0 featured-card-container:hover:opacity-100 transition-all duration-300 transform translate-y-4 featured-card-container:hover:translate-y-0">
-                        <div className="bg-white/90 backdrop-blur-md rounded-2xl px-6 py-3 shadow-2xl border border-white/50">
-                            <span className="text-slate-800 font-bold text-sm flex items-center gap-2">
+                        <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-2xl px-6 py-3 shadow-2xl border border-white/50 dark:border-gray-700/50">
+                            <span className="text-slate-800 dark:text-white font-bold text-sm flex items-center gap-2">
                                 <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
                                 Quick View
                             </span>
@@ -110,13 +110,13 @@ const FeaturedProductCard = ({ item, onClick }) => {
 
                     {/* Price Badge - Floating */}
                     <div className="absolute top-2 right-2 md:top-4 md:right-4 z-20">
-                        <div className="bg-white/95 backdrop-blur-sm rounded-xl md:rounded-2xl px-2 py-1 md:px-4 md:py-2 shadow-xl border border-white/50">
+                        <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-xl md:rounded-2xl px-2 py-1 md:px-4 md:py-2 shadow-xl border border-white/50 dark:border-gray-700/50">
                             <PriceDisplay 
                                 price={price}
-                                className="text-sm md:text-lg font-black text-slate-900"
+                                className="text-sm md:text-lg font-black text-slate-900 dark:text-white"
                             />
                             {item.type === 'room' && (
-                                <span className="text-xs text-slate-600 font-medium">/mo</span>
+                                <span className="text-xs text-slate-600 dark:text-gray-300 font-medium">/mo</span>
                             )}
                         </div>
                     </div>
@@ -126,14 +126,14 @@ const FeaturedProductCard = ({ item, onClick }) => {
                 <div className="p-3 md:p-6 relative">
                     {/* Type Badge */}
                     <div className="mb-2 md:mb-4">
-                        <div className={`inline-flex items-center gap-1 md:gap-2 px-2 py-1 md:px-3 md:py-1 ${typeInfo.bg} rounded-full border border-gray-200/50`}>
+                        <div className={`inline-flex items-center gap-1 md:gap-2 px-2 py-1 md:px-3 md:py-1 ${typeInfo.bg} dark:bg-gray-700 rounded-full border border-gray-200/50 dark:border-gray-600/50`}>
                             <span className="text-xs md:text-sm">{typeInfo.icon}</span>
-                            <span className="text-xs font-bold text-slate-700">{typeInfo.label}</span>
+                            <span className="text-xs font-bold text-slate-700 dark:text-gray-200">{typeInfo.label}</span>
                         </div>
                     </div>
 
                     {/* Title */}
-                    <h3 className="text-sm md:text-xl font-black text-slate-900 mb-2 md:mb-3 leading-tight featured-card-container:hover:text-blue-600 transition-colors duration-300" title={title}>
+                    <h3 className="text-sm md:text-xl font-black text-slate-900 dark:text-white mb-2 md:mb-3 leading-tight featured-card-container:hover:text-blue-600 dark:featured-card-container:hover:text-blue-400 transition-colors duration-300" title={title}>
                         {title.length > 30 ? title.substring(0, 30) + '...' : title}
                     </h3>
 
@@ -144,12 +144,12 @@ const FeaturedProductCard = ({ item, onClick }) => {
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-1 md:gap-2">
                                     <div className={`w-2 h-2 md:w-3 md:h-3 rounded-full ${
-                                        item.condition === 'New' ? 'bg-emerald-500 shadow-lg shadow-emerald-200' :
-                                        item.condition === 'Like New' ? 'bg-green-500 shadow-lg shadow-green-200' :
-                                        item.condition === 'Good' ? 'bg-yellow-500 shadow-lg shadow-yellow-200' :
-                                        'bg-gray-400 shadow-lg shadow-gray-200'
+                                        item.condition === 'New' ? 'bg-emerald-500 shadow-lg shadow-emerald-200 dark:shadow-emerald-500/30' :
+                                        item.condition === 'Like New' ? 'bg-green-500 shadow-lg shadow-green-200 dark:shadow-green-500/30' :
+                                        item.condition === 'Good' ? 'bg-yellow-500 shadow-lg shadow-yellow-200 dark:shadow-yellow-500/30' :
+                                        'bg-gray-400 shadow-lg shadow-gray-200 dark:shadow-gray-500/30'
                                     }`}></div>
-                                    <span className="text-xs md:text-sm font-semibold text-slate-700">{item.condition}</span>
+                                    <span className="text-xs md:text-sm font-semibold text-slate-700 dark:text-gray-300">{item.condition}</span>
                                 </div>
                                 {(item.condition === 'New' || item.condition === 'Like New') && (
                                     <span className="text-emerald-500 text-xs md:text-sm">✨</span>
@@ -161,7 +161,7 @@ const FeaturedProductCard = ({ item, onClick }) => {
                         {item.college && (
                             <div className="flex items-center gap-1 md:gap-2">
                                 <span className="text-blue-500 text-xs md:text-base">📍</span>
-                                <span className="text-xs md:text-sm font-medium text-slate-600 truncate" title={item.college}>
+                                <span className="text-xs md:text-sm font-medium text-slate-600 dark:text-gray-400 truncate" title={item.college}>
                                     {item.college.length > 15 ? item.college.substring(0, 15) + '...' : item.college}
                                 </span>
                             </div>
@@ -210,8 +210,8 @@ export default function FeaturedSlider({ listings }) {
         return (
             <div className="text-center py-12">
                 <div className="text-6xl mb-4">🔍</div>
-                <h3 className="text-xl font-bold text-slate-700 mb-2">No Featured Items Yet</h3>
-                <p className="text-slate-500">Check back soon for amazing featured products!</p>
+                <h3 className="text-xl font-bold text-slate-700 dark:text-gray-300 mb-2">No Featured Items Yet</h3>
+                <p className="text-slate-500 dark:text-gray-400">Check back soon for amazing featured products!</p>
             </div>
         );
     }
@@ -237,18 +237,18 @@ export default function FeaturedSlider({ listings }) {
             {/* Enhanced Navigation Buttons */}
             <button
                 onClick={scrollPrev}
-                className="absolute top-1/2 -left-6 transform -translate-y-1/2 w-12 h-12 bg-white/95 backdrop-blur-md hover:bg-white rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 opacity-0 group-hover:opacity-100 focus:outline-none border border-gray-200/50 hover:scale-110"
+                className="absolute top-1/2 -left-6 transform -translate-y-1/2 w-12 h-12 bg-white/95 dark:bg-gray-800/95 backdrop-blur-md hover:bg-white dark:hover:bg-gray-700 rounded-full shadow-xl hover:shadow-2xl dark:hover:shadow-gray-700 transition-all duration-300 opacity-0 group-hover:opacity-100 focus:outline-none border border-gray-200/50 dark:border-gray-700/50 hover:scale-110"
                 aria-label="Previous slide"
             >
-                <ChevronLeftIcon className="w-6 h-6 text-slate-700 mx-auto" />
+                <ChevronLeftIcon className="w-6 h-6 text-slate-700 dark:text-gray-300 mx-auto" />
             </button>
             
             <button
                 onClick={scrollNext}
-                className="absolute top-1/2 -right-6 transform -translate-y-1/2 w-12 h-12 bg-white/95 backdrop-blur-md hover:bg-white rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 opacity-0 group-hover:opacity-100 focus:outline-none border border-gray-200/50 hover:scale-110"
+                className="absolute top-1/2 -right-6 transform -translate-y-1/2 w-12 h-12 bg-white/95 dark:bg-gray-800/95 backdrop-blur-md hover:bg-white dark:hover:bg-gray-700 rounded-full shadow-xl hover:shadow-2xl dark:hover:shadow-gray-700 transition-all duration-300 opacity-0 group-hover:opacity-100 focus:outline-none border border-gray-200/50 dark:border-gray-700/50 hover:scale-110"
                 aria-label="Next slide"
             >
-                <ChevronRightIcon className="w-6 h-6 text-slate-700 mx-auto" />
+                <ChevronRightIcon className="w-6 h-6 text-slate-700 dark:text-gray-300 mx-auto" />
             </button>
 
             {/* Slide Indicators */}
@@ -256,7 +256,7 @@ export default function FeaturedSlider({ listings }) {
                 {listings.map((_, index) => (
                     <button
                         key={index}
-                        className="w-2 h-2 rounded-full bg-slate-300 hover:bg-slate-400 transition-colors duration-200"
+                        className="w-2 h-2 rounded-full bg-slate-300 dark:bg-gray-600 hover:bg-slate-400 dark:hover:bg-gray-500 transition-colors duration-200"
                         onClick={() => emblaApi && emblaApi.scrollTo(index)}
                     />
                 ))}

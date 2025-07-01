@@ -18,7 +18,7 @@ export default function GetStartedButton() {
   }, [supabase.auth]);
 
   return (
-    <Link href={user ? '/home' : '/login'} className="bg-accent text-white font-bold py-3 px-8 rounded-lg hover:bg-primary transition duration-300">
+    <Link href={user ? '/' : '/login'} className="bg-accent text-white font-bold py-3 px-8 rounded-lg hover:bg-primary transition duration-300">
       Get Started
     </Link>
   );

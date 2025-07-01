@@ -169,11 +169,11 @@ function SearchContent() {
 
     if (!query) {
         return (
-            <div className="min-h-screen bg-gray-50 py-8">
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center">
-                        <h1 className="text-3xl font-bold text-gray-900 mb-4">Search Results</h1>
-                        <p className="text-gray-600">Enter a search term to find products, notes, and rooms.</p>
+                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Search Results</h1>
+                        <p className="text-gray-600 dark:text-gray-400">Enter a search term to find products, notes, and rooms.</p>
                     </div>
                 </div>
             </div>
@@ -181,15 +181,15 @@ function SearchContent() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 py-8">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Search Header */}
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
                         Search Results for "{query}"
                     </h1>
                     {!loading && (
-                        <p className="text-gray-600">
+                        <p className="text-gray-600 dark:text-gray-400">
                             {totalResults} {totalResults === 1 ? 'result' : 'results'} found
                         </p>
                     )}
@@ -200,12 +200,12 @@ function SearchContent() {
                     <div className="lg:w-64 flex-shrink-0">
                         {/* Mobile Horizontal Filters */}
                         <div className="lg:hidden mb-6">
-                            <div className="bg-white rounded-xl shadow-md p-4">
+                            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4">
                                 <div className="flex items-center justify-between mb-3">
-                                    <h3 className="text-sm font-semibold text-gray-900">Filters</h3>
+                                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Filters</h3>
                                     <button
                                         onClick={clearFilters}
-                                        className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                                        className="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
                                     >
                                         Clear
                                     </button>
@@ -218,7 +218,7 @@ function SearchContent() {
                                         <select
                                             value={filters.category}
                                             onChange={(e) => handleFilterChange('category', e.target.value)}
-                                            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 bg-white min-w-[120px]"
+                                            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white min-w-[120px]"
                                         >
                                             {categories.map(cat => (
                                                 <option key={cat.value} value={cat.value}>
@@ -233,7 +233,7 @@ function SearchContent() {
                                         <select
                                             value={filters.priceRange}
                                             onChange={(e) => handleFilterChange('priceRange', e.target.value)}
-                                            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 bg-white min-w-[120px]"
+                                            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white min-w-[120px]"
                                         >
                                             {priceRanges.map(range => (
                                                 <option key={range.value} value={range.value}>
@@ -248,7 +248,7 @@ function SearchContent() {
                                         <select
                                             value={filters.condition}
                                             onChange={(e) => handleFilterChange('condition', e.target.value)}
-                                            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 bg-white min-w-[120px]"
+                                            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white min-w-[120px]"
                                         >
                                             {conditions.map(condition => (
                                                 <option key={condition.value} value={condition.value}>
@@ -263,7 +263,7 @@ function SearchContent() {
                                         <select
                                             value={filters.sortBy}
                                             onChange={(e) => handleFilterChange('sortBy', e.target.value)}
-                                            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 bg-white min-w-[120px]"
+                                            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white min-w-[120px]"
                                         >
                                             {sortOptions.map(option => (
                                                 <option key={option.value} value={option.value}>
@@ -277,12 +277,12 @@ function SearchContent() {
                         </div>
 
                         {/* Desktop Sidebar Filters */}
-                        <div className="hidden lg:block bg-white rounded-lg shadow p-6 sticky top-24">
+                        <div className="hidden lg:block bg-white dark:bg-gray-800 rounded-lg shadow p-6 sticky top-24">
                             <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Filters</h3>
                                 <button
                                     onClick={clearFilters}
-                                    className="text-sm text-blue-600 hover:text-blue-800"
+                                    className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                                 >
                                     Clear All
                                 </button>
@@ -290,13 +290,13 @@ function SearchContent() {
 
                             {/* Category Filter */}
                             <div className="mb-6">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                     Category
                                 </label>
                                 <select
                                     value={filters.category}
                                     onChange={(e) => handleFilterChange('category', e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 dark:text-white"
                                 >
                                     {categories.map(cat => (
                                         <option key={cat.value} value={cat.value}>
@@ -308,13 +308,13 @@ function SearchContent() {
 
                             {/* Price Range Filter */}
                             <div className="mb-6">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                     Price Range
                                 </label>
                                 <select
                                     value={filters.priceRange}
                                     onChange={(e) => handleFilterChange('priceRange', e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 dark:text-white"
                                 >
                                     {priceRanges.map(range => (
                                         <option key={range.value} value={range.value}>
@@ -326,13 +326,13 @@ function SearchContent() {
 
                             {/* Condition Filter */}
                             <div className="mb-6">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                     Condition
                                 </label>
                                 <select
                                     value={filters.condition}
                                     onChange={(e) => handleFilterChange('condition', e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 dark:text-white"
                                 >
                                     {conditions.map(condition => (
                                         <option key={condition.value} value={condition.value}>
@@ -344,13 +344,13 @@ function SearchContent() {
 
                             {/* Sort By */}
                             <div className="mb-6">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                     Sort By
                                 </label>
                                 <select
                                     value={filters.sortBy}
                                     onChange={(e) => handleFilterChange('sortBy', e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 dark:text-white"
                                 >
                                     {sortOptions.map(option => (
                                         <option key={option.value} value={option.value}>
@@ -370,7 +370,7 @@ function SearchContent() {
                             </div>
                         ) : error ? (
                             <div className="text-center py-12">
-                                <div className="text-red-600 mb-4">{error}</div>
+                                <div className="text-red-600 dark:text-red-400 mb-4">{error}</div>
                                 <button
                                     onClick={performSearch}
                                     className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
@@ -381,15 +381,15 @@ function SearchContent() {
                         ) : searchResults.length === 0 ? (
                             <div className="text-center py-12">
                                 <div className="text-6xl mb-4">🔍</div>
-                                <div className="text-gray-500 mb-4 text-xl font-semibold">
+                                <div className="text-gray-500 dark:text-gray-400 mb-4 text-xl font-semibold">
                                     No results found for "{query}"
                                 </div>
-                                <p className="text-gray-400 text-sm mb-6">
+                                <p className="text-gray-400 dark:text-gray-500 text-sm mb-6">
                                     Try adjusting your search terms or filters
                                 </p>
-                                <div className="bg-blue-50 rounded-lg p-4 max-w-md mx-auto">
-                                    <p className="text-sm text-blue-800 mb-2">💡 Search Tips:</p>
-                                    <ul className="text-xs text-blue-700 space-y-1">
+                                <div className="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-4 max-w-md mx-auto">
+                                    <p className="text-sm text-blue-800 dark:text-blue-300 mb-2">💡 Search Tips:</p>
+                                    <ul className="text-xs text-blue-700 dark:text-blue-400 space-y-1">
                                         <li>• Try broader keywords</li>
                                         <li>• Check your spelling</li>
                                         <li>• Remove filters to see more results</li>
@@ -417,12 +417,12 @@ function SearchContent() {
 // Loading fallback component
 function SearchLoading() {
     return (
-        <div className="min-h-screen bg-gray-50 py-8">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center">
                     <div className="animate-pulse">
-                        <div className="h-8 bg-gray-300 rounded w-64 mx-auto mb-4"></div>
-                        <div className="h-4 bg-gray-200 rounded w-48 mx-auto"></div>
+                        <div className="h-8 bg-gray-300 dark:bg-gray-600 rounded w-64 mx-auto mb-4"></div>
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-48 mx-auto"></div>
                     </div>
                 </div>
             </div>

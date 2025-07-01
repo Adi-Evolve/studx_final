@@ -10,10 +10,10 @@ export default function SellerInfoModal({ seller, soldProducts, onClose, isLoadi
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center" onClick={onClose}>
-            <div className="bg-white rounded-lg shadow-2xl p-8 max-w-2xl w-full" onClick={e => e.stopPropagation()}>
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-8 max-w-2xl w-full" onClick={e => e.stopPropagation()}>
                 <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl font-bold text-primary">Seller Information</h2>
-                    <button onClick={onClose} className="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+                    <h2 className="text-2xl font-bold text-primary dark:text-white">Seller Information</h2>
+                    <button onClick={onClose} className="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 text-2xl">&times;</button>
                 </div>
 
                 <div className="flex items-center space-x-4 mb-6">
@@ -26,20 +26,20 @@ export default function SellerInfoModal({ seller, soldProducts, onClose, isLoadi
                         />
                     </div>
                     <div>
-                        <p className="font-bold text-xl text-primary">{seller.name}</p>
-                        <p className="text-secondary">{seller.email}</p>
-                        {seller.phone && <p className="text-secondary">{seller.phone}</p>}
+                        <p className="font-bold text-xl text-primary dark:text-white">{seller.name}</p>
+                        <p className="text-secondary dark:text-gray-300">{seller.email}</p>
+                        {seller.phone && <p className="text-secondary dark:text-gray-300">{seller.phone}</p>}
                         {/* Add member since and rating when available */}
                     </div>
                 </div>
 
-                <h3 className="font-bold text-lg text-primary mb-4">Sold Items from this Seller:</h3>
+                <h3 className="font-bold text-lg text-primary dark:text-white mb-4">Sold Items from this Seller:</h3>
                 {isLoading ? (
-                    <p className="text-gray-500">Loading sold items...</p>
+                    <p className="text-gray-500 dark:text-gray-400">Loading sold items...</p>
                 ) : (
-                    <div className="space-y-4 max-h-64 overflow-y-auto p-2 bg-gray-50 rounded-lg">
+                    <div className="space-y-4 max-h-64 overflow-y-auto p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
                         {soldProducts.length > 0 ? soldProducts.map(item => (
-                            <div key={item.id} className="flex items-center space-x-4 p-2 rounded-lg bg-white shadow-sm">
+                            <div key={item.id} className="flex items-center space-x-4 p-2 rounded-lg bg-white dark:bg-gray-600 shadow-sm">
                                 <Image 
                                     src={(item.images && item.images[0]) || (item.image_urls && item.image_urls[0]) || 'https://source.unsplash.com/random/100x100?item'}
                                     alt={item.title || item.name || 'Sold Item'}

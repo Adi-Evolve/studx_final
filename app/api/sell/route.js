@@ -158,25 +158,30 @@ export async function POST(request) {
                 }
                 // console.log('✅ Created user in public.users table:', userEmail);
                 
-                // Check again for phone number after creation
+                // Check again for email and phone number after creation
                 return NextResponse.json({ 
-                    error: 'Please add your phone number to your profile before listing items.',
-                    code: 'PHONE_REQUIRED',
+                    error: 'Please add your email and phone number to your profile before listing items.',
+                    code: 'PROFILE_INCOMPLETE',
+                    missingFields: ['email', 'phone number'],
                     redirectTo: '/profile'
                 }, { status: 400 });
             }
         } else {
             // console.log('✅ User verified in public.users:', publicUser.email);
             
-            // Check if user has a phone number
-            if (!publicUser.phone || publicUser.phone.trim() === '') {
-                // console.log('❌ User missing phone number:', publicUser.email);
-                return NextResponse.json({ 
-                    error: 'Please add your phone number to your profile before listing items.',
-                    code: 'PHONE_REQUIRED',
-                    redirectTo: '/profile'
-                }, { status: 400 });
-            }
+        // Check if user has both email and phone number
+        if (!publicUser.email || publicUser.email.trim() === '' || !publicUser.phone || publicUser.phone.trim() === '') {
+            const missingFields = [];
+            if (!publicUser.email || publicUser.email.trim() === '') missingFields.push('email');
+            if (!publicUser.phone || publicUser.phone.trim() === '') missingFields.push('phone number');
+            
+            return NextResponse.json({ 
+                error: `Please add your ${missingFields.join(' and ')} to your profile before listing items.`,
+                code: 'PROFILE_INCOMPLETE',
+                missingFields: missingFields,
+                redirectTo: '/profile'
+            }, { status: 400 });
+        }
             
             // console.log('✅ User has phone number, allowing to proceed');
         }

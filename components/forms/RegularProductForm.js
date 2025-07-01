@@ -82,6 +82,13 @@ export default function RegularProductForm({ initialData = {}, onSubmit }) {
                             router.push('/login');
                         }, 2000);
                         return;
+                    } else if (result.code === 'PROFILE_INCOMPLETE') {
+                        const missingFields = result.missingFields || ['profile information'];
+                        toast.error(`Please add your ${missingFields.join(' and ')} to your profile first`);
+                        setTimeout(() => {
+                            router.push('/profile');
+                        }, 2000);
+                        return;
                     } else if (result.code === 'PHONE_REQUIRED') {
                         toast.error('Please add your phone number to your profile first');
                         setTimeout(() => {
@@ -123,44 +130,44 @@ export default function RegularProductForm({ initialData = {}, onSubmit }) {
     return (
         <form onSubmit={handleSubmit} className="space-y-8">
             <div>
-                <h2 className="text-2xl font-semibold text-gray-800">List a Regular Product</h2>
-                <p className="text-gray-600">Please fill out the details below.</p>
+                <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200">List a Regular Product</h2>
+                <p className="text-gray-600 dark:text-gray-400">Please fill out the details below.</p>
             </div>
 
             {/* Form Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label htmlFor="title" className="block text-sm font-medium text-gray-700">Title</label>
+                    <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Title</label>
                     <input 
                         type="text" 
                         name="title" 
                         id="title" 
                         required 
                         value={formData.title} 
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-black bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-black dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
                         onChange={handleChange} 
                     />
                 </div>
                 <div>
-                    <label htmlFor="price" className="block text-sm font-medium text-gray-700">Price (₹)</label>
+                    <label htmlFor="price" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Price (₹)</label>
                     <input 
                         type="number" 
                         name="price" 
                         id="price" 
                         required 
                         value={formData.price} 
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-black bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-black dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
                         onChange={handleChange} 
                     />
                 </div>
                 <div>
-                    <label htmlFor="college" className="block text-sm font-medium text-gray-700">College</label>
+                    <label htmlFor="college" className="block text-sm font-medium text-gray-700 dark:text-gray-300">College</label>
                     <select 
                         name="college" 
                         id="college" 
                         required 
                         value={formData.college} 
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-black bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-black dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
                         onChange={handleChange}
                     >
                         <option value="" disabled>Select College</option>
@@ -168,13 +175,13 @@ export default function RegularProductForm({ initialData = {}, onSubmit }) {
                     </select>
                 </div>
                 <div>
-                    <label htmlFor="condition" className="block text-sm font-medium text-gray-700">Condition</label>
+                    <label htmlFor="condition" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Condition</label>
                     <select 
                         name="condition" 
                         id="condition" 
                         required 
                         value={formData.condition} 
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-black bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-black dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
                         onChange={handleChange}
                     >
                         <option value="" disabled>Select Condition</option>
@@ -182,13 +189,13 @@ export default function RegularProductForm({ initialData = {}, onSubmit }) {
                     </select>
                 </div>
                 <div>
-                    <label htmlFor="category" className="block text-sm font-medium text-gray-700">Category</label>
+                    <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
                     <select 
                         name="category" 
                         id="category" 
                         required 
                         value={formData.category} 
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-black bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-black dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
                         onChange={handleChange}
                     >
                         <option value="" disabled>Select Category</option>
@@ -198,23 +205,23 @@ export default function RegularProductForm({ initialData = {}, onSubmit }) {
             </div>
 
             <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Upload Images (up to 5)</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Upload Images (up to 5)</label>
                 <ImageUpload onFilesChange={handleImagesChange} maxFiles={5} />
             </div>
 
             <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Set Location</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Set Location</label>
                 <MapPicker onLocationChange={handleLocationChange} initialLocation={formData.location} />
             </div>
 
             <div>
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
+                <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
                 <textarea 
                     name="description" 
                     id="description" 
                     rows="4" 
                     value={formData.description} 
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-black bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-black dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
                     onChange={handleChange}
                 ></textarea>
             </div>

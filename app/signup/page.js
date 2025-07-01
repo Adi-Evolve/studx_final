@@ -29,7 +29,7 @@ export default function SignUpPage() {
           data: {
             name: fullName,
           },
-          emailRedirectTo: `${window.location.origin}/auth/callback?next=/home`
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=/`
         },
       });
 
@@ -42,7 +42,7 @@ export default function SignUpPage() {
           setConfirmationSent(true);
         } else {
           // User is already confirmed, redirect to home
-          router.push('/home');
+          router.push('/');
         }
         setIsLoading(false);
       }
@@ -61,7 +61,7 @@ export default function SignUpPage() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${currentOrigin}/auth/callback?next=/home`,
+        redirectTo: `${currentOrigin}/auth/callback?next=/`,
         queryParams: {
           access_type: 'offline',
           prompt: 'consent',
@@ -79,31 +79,31 @@ export default function SignUpPage() {
   // Email confirmation success screen
   if (confirmationSent) {
     return (
-      <div className="min-h-screen bg-slate-50 relative overflow-hidden flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 dark:bg-gray-900 relative overflow-hidden flex items-center justify-center">
         <div className="absolute inset-0">
-          <div className="absolute top-20 left-20 w-64 h-64 bg-emerald-100/40 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-20 right-20 w-80 h-80 bg-slate-100/60 rounded-full blur-3xl"></div>
+          <div className="absolute top-20 left-20 w-64 h-64 bg-emerald-100/40 dark:bg-emerald-900/40 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-20 right-20 w-80 h-80 bg-slate-100/60 dark:bg-slate-800/60 rounded-full blur-3xl"></div>
         </div>
 
         <div className="relative z-10 max-w-md mx-auto p-8">
-          <div className="bg-white rounded-3xl p-8 shadow-xl border border-slate-200 text-center">
+          <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 shadow-xl border border-slate-200 dark:border-gray-700 text-center">
             <div className="w-20 h-20 bg-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
               <span className="text-3xl">📧</span>
             </div>
             
-            <h1 className="text-3xl font-black text-slate-900 mb-4">Check Your Email!</h1>
+            <h1 className="text-3xl font-black text-slate-900 dark:text-white mb-4">Check Your Email!</h1>
             
-            <p className="text-slate-600 mb-6 leading-relaxed">
+            <p className="text-slate-600 dark:text-gray-300 mb-6 leading-relaxed">
               We've sent a confirmation link to <strong>{email}</strong>. 
               Click the link in the email to activate your account and start using StudX.
             </p>
 
-            <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 mb-6">
+            <div className="bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-700 rounded-xl p-4 mb-6">
               <div className="flex items-start gap-3">
                 <span className="text-emerald-600 text-lg">💡</span>
                 <div className="text-left">
-                  <p className="text-sm text-emerald-800 font-medium mb-1">Pro Tip:</p>
-                  <p className="text-sm text-emerald-700">Check your spam folder if you don't see the email within a few minutes.</p>
+                  <p className="text-sm text-emerald-800 dark:text-emerald-300 font-medium mb-1">Pro Tip:</p>
+                  <p className="text-sm text-emerald-700 dark:text-emerald-400">Check your spam folder if you don't see the email within a few minutes.</p>
                 </div>
               </div>
             </div>
@@ -130,16 +130,16 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 relative overflow-hidden">
+    <div className="min-h-screen bg-slate-50 dark:bg-gray-900 relative overflow-hidden">
       {/* Subtle Background Elements */}
       <div className="absolute inset-0">
-        <div className="absolute top-20 left-20 w-64 h-64 bg-emerald-100/40 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-20 w-80 h-80 bg-slate-100/60 rounded-full blur-3xl"></div>
+        <div className="absolute top-20 left-20 w-64 h-64 bg-emerald-100/40 dark:bg-emerald-900/40 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-20 w-80 h-80 bg-slate-100/60 dark:bg-slate-800/60 rounded-full blur-3xl"></div>
       </div>
 
       <div className="relative z-10 min-h-screen flex">
         {/* Left Side - Branding */}
-        <div className="hidden lg:flex lg:w-1/2 bg-slate-900 relative overflow-hidden">
+        <div className="hidden lg:flex lg:w-1/2 bg-slate-900 dark:bg-gray-950 relative overflow-hidden">
           {/* Subtle Background Accent */}
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-0 left-0 w-72 h-72 bg-emerald-500 rounded-full blur-3xl"></div>
@@ -192,22 +192,22 @@ export default function SignUpPage() {
                 <span className="text-xl font-black text-white">SX</span>
                 <div className="absolute -top-1 -right-1 w-2 h-2 bg-emerald-400 rounded-full"></div>
               </div>
-              <h1 className="text-3xl font-black text-slate-900">StudX</h1>
+              <h1 className="text-3xl font-black text-slate-900 dark:text-white">StudX</h1>
             </div>
 
             {/* Form Card */}
-            <div className="bg-white rounded-3xl p-8 shadow-xl border border-slate-200">
+            <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 shadow-xl border border-slate-200 dark:border-gray-700">
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-black text-slate-900 mb-2">Create Account</h2>
-                <p className="text-slate-600">Join thousands of students already on StudX</p>
+                <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-2">Create Account</h2>
+                <p className="text-slate-600 dark:text-gray-300">Join thousands of students already on StudX</p>
               </div>
 
               {/* Error Message */}
               {error && (
-                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+                <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-xl">
                   <div className="flex items-center gap-2">
                     <span className="text-red-500">⚠️</span>
-                    <p className="text-red-700 text-sm font-medium">{error}</p>
+                    <p className="text-red-700 dark:text-red-400 text-sm font-medium">{error}</p>
                   </div>
                 </div>
               )}
@@ -215,7 +215,7 @@ export default function SignUpPage() {
               <form onSubmit={handleSignUp} className="space-y-6">
                 {/* Full Name */}
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">
+                  <label className="block text-sm font-bold text-slate-700 dark:text-gray-300 mb-2">
                     Full Name
                   </label>
                   <div className="relative">
@@ -235,7 +235,7 @@ export default function SignUpPage() {
 
                 {/* Email */}
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">
+                  <label className="block text-sm font-bold text-slate-700 dark:text-gray-300 mb-2">
                     Email Address
                   </label>
                   <div className="relative">
@@ -255,7 +255,7 @@ export default function SignUpPage() {
 
                 {/* Password */}
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">
+                  <label className="block text-sm font-bold text-slate-700 dark:text-gray-300 mb-2">
                     Password
                   </label>
                   <div className="relative">
@@ -275,12 +275,12 @@ export default function SignUpPage() {
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute inset-y-0 right-0 pr-4 flex items-center"
                     >
-                      <span className="text-slate-400 hover:text-slate-600 transition-colors">
+                      <span className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
                         {showPassword ? "🙈" : "👁️"}
                       </span>
                     </button>
                   </div>
-                  <p className="text-xs text-slate-500 mt-2">Password must be at least 6 characters long</p>
+                  <p className="text-xs text-slate-500 dark:text-gray-400 mt-2">Password must be at least 6 characters long</p>
                 </div>
 
                 {/* Submit Button */}
@@ -303,9 +303,9 @@ export default function SignUpPage() {
 
                 {/* Divider */}
                 <div className="flex items-center gap-4">
-                  <div className="flex-1 h-px bg-slate-200"></div>
-                  <span className="text-slate-500 text-sm font-medium">OR</span>
-                  <div className="flex-1 h-px bg-slate-200"></div>
+                  <div className="flex-1 h-px bg-slate-200 dark:bg-gray-600"></div>
+                  <span className="text-slate-500 dark:text-gray-400 text-sm font-medium">OR</span>
+                  <div className="flex-1 h-px bg-slate-200 dark:bg-gray-600"></div>
                 </div>
 
                 {/* Google Sign Up */}
@@ -325,24 +325,24 @@ export default function SignUpPage() {
                 </button>
 
                 {/* Email Confirmation Notice */}
-                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-xl p-4">
                   <div className="flex items-start gap-3">
                     <span className="text-blue-600 text-lg">📧</span>
                     <div>
-                      <p className="text-sm text-blue-800 font-medium mb-1">Important: Email Confirmation Required</p>
-                      <p className="text-sm text-blue-700">After signing up, you'll receive a confirmation email. You must click the link in that email before you can log in to your account.</p>
+                      <p className="text-sm text-blue-800 dark:text-blue-300 font-medium mb-1">Important: Email Confirmation Required</p>
+                      <p className="text-sm text-blue-700 dark:text-blue-400">After signing up, you'll receive a confirmation email. You must click the link in that email before you can log in to your account.</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Terms */}
-                <p className="text-xs text-slate-500 text-center leading-relaxed">
+                <p className="text-xs text-slate-500 dark:text-gray-400 text-center leading-relaxed">
                   By creating an account, you agree to our{' '}
-                  <Link href="/terms" className="text-emerald-600 hover:text-emerald-700 font-medium">
+                  <Link href="/terms" className="text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 font-medium">
                     Terms of Service
                   </Link>{' '}
                   and{' '}
-                  <Link href="/privacy" className="text-emerald-600 hover:text-emerald-700 font-medium">
+                  <Link href="/privacy" className="text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 font-medium">
                     Privacy Policy
                   </Link>
                 </p>
@@ -350,11 +350,11 @@ export default function SignUpPage() {
 
               {/* Login Link */}
               <div className="mt-8 text-center">
-                <p className="text-slate-600">
+                <p className="text-slate-600 dark:text-gray-300">
                   Already have an account?{' '}
                   <Link
                     href="/login"
-                    className="font-bold text-emerald-600 hover:text-emerald-700 transition-colors"
+                    className="font-bold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
                   >
                     Sign In →
                   </Link>
@@ -363,7 +363,7 @@ export default function SignUpPage() {
             </div>
 
             {/* Trust Indicators */}
-            <div className="mt-8 flex items-center justify-center gap-8 text-sm text-slate-500">
+            <div className="mt-8 flex items-center justify-center gap-8 text-sm text-slate-500 dark:text-gray-400">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 bg-emerald-500 rounded-full"></span>
                 Free Forever

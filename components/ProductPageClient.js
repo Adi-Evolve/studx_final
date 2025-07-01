@@ -146,9 +146,9 @@ export default function ProductPageClient({ product, seller, type }) {
     };
 
     return (
-        <div className="bg-gray-50">
+        <div className="bg-gray-50 dark:bg-gray-900">
             <div className="container mx-auto px-4 py-8">
-                <Link href="/home" legacyBehavior><a className="text-accent hover:text-primary mb-6 inline-flex items-center transition-colors">
+                <Link href="/" legacyBehavior><a className="text-accent hover:text-primary dark:text-blue-400 dark:hover:text-blue-300 mb-6 inline-flex items-center transition-colors">
                     <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
                     Back to Home
                 </a></Link>
@@ -160,32 +160,32 @@ export default function ProductPageClient({ product, seller, type }) {
                     />
 
                     <div className="lg:col-span-2">
-                        <div className="bg-white rounded-lg shadow-md p-6 sticky top-24">
-                            <h1 className="text-3xl font-bold text-primary mb-2 leading-tight">{product.title}</h1>
-                            <p className="text-3xl font-bold text-accent mb-4">₹{product.price ? product.price.toLocaleString() : 'N/A'}</p>
+                        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 sticky top-24">
+                            <h1 className="text-3xl font-bold text-primary dark:text-white mb-2 leading-tight">{product.title}</h1>
+                            <p className="text-3xl font-bold text-accent dark:text-blue-400 mb-4">₹{product.price ? product.price.toLocaleString() : 'N/A'}</p>
                             
-                            <div className="space-y-3 text-sm text-gray-600 border-t pt-4 mb-4">
-                                {formattedDate && <div className="flex items-center"><FontAwesomeIcon icon={faCalendarAlt} className="w-4 mr-3 text-gray-400" /> Listed on: <span className="font-semibold text-primary ml-1">{formattedDate}</span></div>}
-                                {seller && <div className="flex items-center"><FontAwesomeIcon icon={faUser} className="w-4 mr-3 text-gray-400" /> Sold by <span className="font-semibold text-primary ml-1">{seller.name}</span></div>}
-                                <div className="flex items-center"><FontAwesomeIcon icon={faTag} className="w-4 mr-3 text-gray-400" /> Category: <span className="font-semibold text-primary ml-1">{product.category || 'N/A'}</span></div>
-                                <div className="flex items-center"><FontAwesomeIcon icon={faBuilding} className="w-4 mr-3 text-gray-400" /> College: <span className="font-semibold text-primary ml-1">{product.college}</span></div>
+                            <div className="space-y-3 text-sm text-gray-600 dark:text-gray-300 border-t dark:border-gray-700 pt-4 mb-4">
+                                {formattedDate && <div className="flex items-center"><FontAwesomeIcon icon={faCalendarAlt} className="w-4 mr-3 text-gray-400" /> Listed on: <span className="font-semibold text-primary dark:text-white ml-1">{formattedDate}</span></div>}
+                                {seller && <div className="flex items-center"><FontAwesomeIcon icon={faUser} className="w-4 mr-3 text-gray-400" /> Sold by <span className="font-semibold text-primary dark:text-white ml-1">{seller.name}</span></div>}
+                                <div className="flex items-center"><FontAwesomeIcon icon={faTag} className="w-4 mr-3 text-gray-400" /> Category: <span className="font-semibold text-primary dark:text-white ml-1">{product.category || 'N/A'}</span></div>
+                                <div className="flex items-center"><FontAwesomeIcon icon={faBuilding} className="w-4 mr-3 text-gray-400" /> College: <span className="font-semibold text-primary dark:text-white ml-1">{product.college}</span></div>
                                 {type === 'note' && product.academic_year && (
-                                    <div className="flex items-center"><FontAwesomeIcon icon={faCalendarAlt} className="w-4 mr-3 text-gray-400" /> Academic Year: <span className="font-semibold text-primary ml-1">{product.academic_year}</span></div>
+                                    <div className="flex items-center"><FontAwesomeIcon icon={faCalendarAlt} className="w-4 mr-3 text-gray-400" /> Academic Year: <span className="font-semibold text-primary dark:text-white ml-1">{product.academic_year}</span></div>
                                 )}
                                 {type === 'note' && product.course_subject && (
-                                    <div className="flex items-center"><FontAwesomeIcon icon={faTag} className="w-4 mr-3 text-gray-400" /> Subject: <span className="font-semibold text-primary ml-1">{product.course_subject}</span></div>
+                                    <div className="flex items-center"><FontAwesomeIcon icon={faTag} className="w-4 mr-3 text-gray-400" /> Subject: <span className="font-semibold text-primary dark:text-white ml-1">{product.course_subject}</span></div>
                                 )}
                             </div>
 
                             {type === 'room' && (
-                                <div className="border-t pt-4 mt-4">
-                                    <h3 className="text-lg font-semibold text-primary mb-3">Room Details</h3>
-                                    <div className="space-y-3 text-sm text-gray-600">
-                                        <div className="flex items-center"><FontAwesomeIcon icon={faBed} className="w-4 mr-3 text-gray-400" />Room Type: <span className="font-semibold text-primary ml-1">{product.roomType || 'N/A'}</span></div>
-                                        <div className="flex items-center"><FontAwesomeIcon icon={faUsers} className="w-4 mr-3 text-gray-400" />Occupancy: <span className="font-semibold text-primary ml-1">{product.occupancy || 'N/A'}</span></div>
-                                        <div className="flex items-center"><FontAwesomeIcon icon={faRoute} className="w-4 mr-3 text-gray-400" />Distance: <span className="font-semibold text-primary ml-1">{product.distance} km from college</span></div>
-                                        <div className="flex items-center"><FontAwesomeIcon icon={faShieldAlt} className="w-4 mr-3 text-gray-400" />Deposit: <span className="font-semibold text-primary ml-1">₹{product.deposit ? product.deposit.toLocaleString() : 'N/A'}</span></div>
-                                        <div className="flex items-center"><FontAwesomeIcon icon={faUtensils} className="w-4 mr-3 text-gray-400" /><span className="font-semibold text-primary ml-1">{product.feesIncludeMess ? 'Mess Fees Included' : 'Mess Fees Not Included'}</span></div>
+                                <div className="border-t dark:border-gray-700 pt-4 mt-4">
+                                    <h3 className="text-lg font-semibold text-primary dark:text-white mb-3">Room Details</h3>
+                                    <div className="space-y-3 text-sm text-gray-600 dark:text-gray-300">
+                                        <div className="flex items-center"><FontAwesomeIcon icon={faBed} className="w-4 mr-3 text-gray-400" />Room Type: <span className="font-semibold text-primary dark:text-white ml-1">{product.roomType || 'N/A'}</span></div>
+                                        <div className="flex items-center"><FontAwesomeIcon icon={faUsers} className="w-4 mr-3 text-gray-400" />Occupancy: <span className="font-semibold text-primary dark:text-white ml-1">{product.occupancy || 'N/A'}</span></div>
+                                        <div className="flex items-center"><FontAwesomeIcon icon={faRoute} className="w-4 mr-3 text-gray-400" />Distance: <span className="font-semibold text-primary dark:text-white ml-1">{product.distance} km from college</span></div>
+                                        <div className="flex items-center"><FontAwesomeIcon icon={faShieldAlt} className="w-4 mr-3 text-gray-400" />Deposit: <span className="font-semibold text-primary dark:text-white ml-1">₹{product.deposit ? product.deposit.toLocaleString() : 'N/A'}</span></div>
+                                        <div className="flex items-center"><FontAwesomeIcon icon={faUtensils} className="w-4 mr-3 text-gray-400" /><span className="font-semibold text-primary dark:text-white ml-1">{product.feesIncludeMess ? 'Mess Fees Included' : 'Mess Fees Not Included'}</span></div>
                                     </div>
                                 </div>
                             )}
@@ -235,12 +235,12 @@ export default function ProductPageClient({ product, seller, type }) {
                                         </button>
                                     )
                                 )}
-                                <button onClick={handleShowSellerInfo} className="w-full bg-blue-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center">
+                                <button onClick={handleShowSellerInfo} className="w-full bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center">
                                     <FontAwesomeIcon icon={faInfoCircle} className="mr-3" />
                                     Seller Info
                                 </button>
                                 {type !== 'note' && (
-                                    <button onClick={handleCompareClick} className="w-full bg-gray-200 text-primary font-bold py-3 px-4 rounded-lg hover:bg-gray-300 transition-colors flex items-center justify-center">
+                                    <button onClick={handleCompareClick} className="w-full bg-gray-200 dark:bg-gray-700 text-primary dark:text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors flex items-center justify-center">
                                         <FontAwesomeIcon icon={faBalanceScale} className="mr-3" />
                                         Compare
                                     </button>
@@ -251,16 +251,16 @@ export default function ProductPageClient({ product, seller, type }) {
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 mt-8">
-                    <div className={`bg-white rounded-lg shadow-md p-8 ${type === 'note' ? 'lg:col-span-5' : 'lg:col-span-3'}`}>
-                        <h2 className="text-2xl font-bold text-primary mb-4">Description</h2>
-                        <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{product.description}</p>
+                    <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 ${type === 'note' ? 'lg:col-span-5' : 'lg:col-span-3'}`}>
+                        <h2 className="text-2xl font-bold text-primary dark:text-white mb-4">Description</h2>
+                        <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">{product.description}</p>
 
                         {type === 'room' && product.amenities && product.amenities.length > 0 && (
-                            <div className="mt-8 border-t pt-6">
-                                <h3 className="text-xl font-bold text-primary mb-4">Amenities</h3>
+                            <div className="mt-8 border-t dark:border-gray-700 pt-6">
+                                <h3 className="text-xl font-bold text-primary dark:text-white mb-4">Amenities</h3>
                                 <ul className="grid grid-cols-2 md:grid-cols-3 gap-4">
                                     {product.amenities.map(amenity => (
-                                        <li key={amenity} className="flex items-center text-gray-700">
+                                        <li key={amenity} className="flex items-center text-gray-700 dark:text-gray-300">
                                             <FontAwesomeIcon icon={getAmenityIcon(amenity)} className="w-5 h-5 mr-3 text-green-500" />
                                             <span>{amenity}</span>
                                         </li>
@@ -271,10 +271,10 @@ export default function ProductPageClient({ product, seller, type }) {
                     </div>
 
                     {type !== 'note' && (
-                        <div className="lg:col-span-2 bg-white rounded-lg shadow-md p-4">
-                            <h3 className="text-xl font-bold text-primary mb-4 px-4">Location</h3>
+                        <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-lg shadow-md p-4">
+                            <h3 className="text-xl font-bold text-primary dark:text-white mb-4 px-4">Location</h3>
                             <div className="h-80 rounded-lg overflow-hidden">
-                                {parsedLocation ? <MapDisplay location={parsedLocation} /> : <div className='text-center p-10 text-gray-500'>Location not provided.</div>}
+                                {parsedLocation ? <MapDisplay location={parsedLocation} /> : <div className='text-center p-10 text-gray-500 dark:text-gray-400'>Location not provided.</div>}
                             </div>
                         </div>
                     )}

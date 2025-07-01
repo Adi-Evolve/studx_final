@@ -117,6 +117,13 @@ export default function NotesForm({ initialData = {}, onSubmit }) {
                             router.push('/login');
                         }, 2000);
                         return;
+                    } else if (result.code === 'PROFILE_INCOMPLETE') {
+                        const missingFields = result.missingFields || ['profile information'];
+                        toast.error(`Please add your ${missingFields.join(' and ')} to your profile first`);
+                        setTimeout(() => {
+                            router.push('/profile');
+                        }, 2000);
+                        return;
                     } else if (result.code === 'PHONE_REQUIRED') {
                         toast.error('Please add your phone number to your profile first');
                         setTimeout(() => {
@@ -146,7 +153,7 @@ export default function NotesForm({ initialData = {}, onSubmit }) {
                 
                 // Redirect to homepage after successful submission
                 setTimeout(() => {
-                    router.push('/home');
+                    router.push('/');
                 }, 2000);
             } catch (error) {
                 // console.error('Submission error:', error);
@@ -160,13 +167,13 @@ export default function NotesForm({ initialData = {}, onSubmit }) {
     return (
         <form onSubmit={handleSubmit} className="space-y-8">
             <div>
-                <h2 className="text-2xl font-semibold text-gray-800">List Notes</h2>
-                <p className="text-gray-600">Share your knowledge with fellow students.</p>
+                <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200">List Notes</h2>
+                <p className="text-gray-600 dark:text-gray-400">Share your knowledge with fellow students.</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label htmlFor="title" className="block text-sm font-medium text-gray-700">Title of Notes</label>
+                    <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Title of Notes</label>
                     <input 
                         type="text" 
                         id="title" 
@@ -174,12 +181,12 @@ export default function NotesForm({ initialData = {}, onSubmit }) {
                         required 
                         value={formData.title} 
                         onChange={handleChange} 
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-black bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-black dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
                         placeholder="Enter descriptive title"
                     />
                 </div>
                 <div>
-                    <label htmlFor="price" className="block text-sm font-medium text-gray-700">Price (₹)</label>
+                    <label htmlFor="price" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Price (₹)</label>
                     <input 
                         type="number" 
                         id="price" 
@@ -187,32 +194,32 @@ export default function NotesForm({ initialData = {}, onSubmit }) {
                         required 
                         value={formData.price} 
                         onChange={handleChange} 
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-black bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-black dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
                         placeholder="0"
                     />
                 </div>
                 <div>
-                    <label htmlFor="college" className="block text-sm font-medium text-gray-700">College</label>
+                    <label htmlFor="college" className="block text-sm font-medium text-gray-700 dark:text-gray-300">College</label>
                     <select 
                         name="college" 
                         id="college" 
                         required 
                         value={formData.college} 
                         onChange={handleChange}
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-black bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-black dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     >
                         <option value="" disabled>Select College</option>
                         {colleges.sort((a, b) => a.name.localeCompare(b.name)).map(c => <option key={c.short} value={c.short}>{c.name}</option>)}
                     </select>
                 </div>
                 <div>
-                    <label htmlFor="academic_year" className="block text-sm font-medium text-gray-700">Academic Year</label>
+                    <label htmlFor="academic_year" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Academic Year</label>
                     <select 
                         name="academic_year" 
                         id="academic_year" 
                         required 
                         value={formData.academic_year} 
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-black bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-black dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
                         onChange={handleChange}
                     >
                         <option value="" disabled>Select Year</option>
@@ -220,13 +227,13 @@ export default function NotesForm({ initialData = {}, onSubmit }) {
                     </select>
                 </div>
                 <div className="md:col-span-2">
-                    <label htmlFor="subject" className="block text-sm font-medium text-gray-700">Course / Subject</label>
+                    <label htmlFor="subject" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Course / Subject</label>
                     <select 
                         name="subject" 
                         id="subject" 
                         required 
                         value={formData.subject} 
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-black bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-black dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
                         onChange={handleChange}
                     >
                         <option value="" disabled>Select Subject</option>
@@ -234,13 +241,13 @@ export default function NotesForm({ initialData = {}, onSubmit }) {
                     </select>
                 </div>
                 <div className="md:col-span-2">
-                    <label htmlFor="category" className="block text-sm font-medium text-gray-700">Category</label>
+                    <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
                     <select 
                         name="category" 
                         id="category" 
                         required 
                         value={formData.category} 
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-black bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-black dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
                         onChange={handleChange}
                     >
                         {categories.map(c => <option key={c} value={c}>{c}</option>)}
@@ -249,24 +256,24 @@ export default function NotesForm({ initialData = {}, onSubmit }) {
             </div>
 
             <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Upload Preview Images (up to 5)</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Upload Preview Images (up to 5)</label>
                 <ImageUpload onFilesChange={handleImagesChange} maxFiles={5} />
             </div>
 
             <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Upload PDF Files (up to 10)</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Upload PDF Files (up to 10)</label>
                 <FileUpload onFilesChange={handlePdfsChange} maxFiles={10} accept=".pdf" fileType="PDF" />
             </div>
 
             <div className="md:col-span-2">
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
+                <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
                 <textarea 
                     id="description" 
                     name="description" 
                     rows={4} 
                     value={formData.description} 
                     onChange={handleChange} 
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-black bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-black dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
                     placeholder="Describe your notes in detail..."
                 />
             </div>
@@ -274,7 +281,7 @@ export default function NotesForm({ initialData = {}, onSubmit }) {
             <button 
                 type="submit" 
                 disabled={isSubmitting}
-                className="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white py-3 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
                 {isSubmitting ? 'Uploading...' : 'Upload Notes'}
             </button>
