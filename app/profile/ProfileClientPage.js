@@ -89,18 +89,35 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
     const supabase = createSupabaseBrowserClient();
 
     const handleSaveProfile = async ({ fullName, phoneNumber }) => {
-        const { data, error } = await supabase
-            .from('users')
-            .update({ name: fullName, phone: phoneNumber })
-            .eq('id', user.id)
-            .select()
-            .single();
+        try {
+            console.log('Saving profile...', { fullName, phoneNumber });
+            
+            const { data, error } = await supabase
+                .from('users')
+                .update({ name: fullName, phone: phoneNumber })
+                .eq('id', user.id)
+                .select()
+                .single();
 
-        if (error) {
-            alert('Error updating profile: ' + error.message);
-        } else if (data) {
-            setUser(prev => ({ ...prev, ...data }));
-            setIsModalOpen(false);
+            if (error) {
+                console.error('Profile update error:', error);
+                alert('Error updating profile: ' + error.message);
+                return;
+            }
+            
+            if (data) {
+                console.log('Profile updated successfully:', data);
+                setUser(prev => ({ ...prev, ...data }));
+                setIsModalOpen(false);
+                
+                // Force a small delay to ensure state update completes
+                setTimeout(() => {
+                    console.log('Profile update complete');
+                }, 100);
+            }
+        } catch (err) {
+            console.error('Unexpected error in handleSaveProfile:', err);
+            alert('An unexpected error occurred while updating your profile.');
         }
     };
 

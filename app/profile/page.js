@@ -2,6 +2,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { syncUserData } from '@/lib/syncUserData';
 import ProfileClientPage from './ProfileClientPage';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 // Helper to augment data with a 'type' for consistent client-side handling
 const augmentData = (data, type) => {
@@ -77,12 +78,14 @@ export default async function ProfilePage() {
     const rooms = augmentData(roomsRes.data, 'room');
 
     return (
-        <ProfileClientPage 
-            serverUser={fullUser}
-            serverProducts={products} 
-            serverNotes={notes} 
-            serverRooms={rooms} 
-        />
+        <ErrorBoundary>
+            <ProfileClientPage 
+                serverUser={fullUser}
+                serverProducts={products} 
+                serverNotes={notes} 
+                serverRooms={rooms} 
+            />
+        </ErrorBoundary>
     );
 }
 
