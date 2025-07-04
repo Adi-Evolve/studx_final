@@ -32,7 +32,8 @@ export default function ListingCard({ item, onClick, isSelectMode = false, isSpo
     const price = item.price || item.fees || 0;
 
     const cardContent = (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-900 overflow-hidden hover:shadow-xl dark:hover:shadow-gray-700 transition-all duration-300 transform hover:scale-105 h-full flex flex-col group relative border-2 border-transparent hover:border-emerald-200 dark:hover:border-emerald-600 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-900 overflow-hidden hover:shadow-xl dark:hover:shadow-gray-700 transition-all duration-300 transform hover:scale-105 h-full flex flex-col group relative border-2 border-transparent hover:border-emerald-200 dark:hover:border-emerald-600 dark:border-gray-700 card-item"
+        >
             {/* Badges */}
             {(isSponsored || item.is_sponsored) && (
                 <div className="absolute top-3 right-3 z-20">

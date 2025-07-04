@@ -153,7 +153,8 @@ export default function NewestProductsSlider({ newestProducts }) {
                         {newestProducts.map((item, index) => (
                             <div 
                                 key={`${item.type}-${item.id}`} 
-                                className="w-1/2 md:w-1/4 flex-shrink-0 px-2 md:px-3"
+                                className="w-1/2 md:w-1/4 flex-shrink-0 px-2 md:px-3 isolated-card"
+                                style={{ isolation: 'isolate' }}
                             >
                                 <ListingCard item={item} />
                             </div>
