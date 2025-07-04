@@ -121,7 +121,7 @@ export default function NewestProductsSlider({ newestProducts }) {
             <div className="flex justify-between items-center mb-8">
                 <div>
                     <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white flex items-center">
-                        ✨ Newest Products
+                        Newest Products
                     </h2>
                     <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 mt-2">Fresh listings from your fellow students</p>
                 </div>
@@ -129,7 +129,7 @@ export default function NewestProductsSlider({ newestProducts }) {
                     href="/search?sortBy=newest" 
                     className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-semibold flex items-center text-sm sm:text-base"
                 >
-                    View All
+                    Explore more
                     <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
@@ -217,11 +217,6 @@ export default function NewestProductsSlider({ newestProducts }) {
                 <div className="bg-gray-50 dark:bg-gray-800 rounded-lg px-6 py-3 text-sm text-gray-600 dark:text-gray-300">
                     Showing {Math.min(itemsToShow, newestProducts.length)} of {newestProducts.length} newest items
                 </div>
-                {newestProducts.length > itemsToShow && (
-                    <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
-                        Use ← → arrow keys or swipe to navigate
-                    </div>
-                )}
             </div>
         </section>
     );

@@ -6,122 +6,38 @@ import Link from 'next/link';
 const funnyBanners = [
     {
         id: 1,
-        title: "💸 Your Parents: \"Money doesn't grow on trees\"",
-        subtitle: "Us: \"But it does grow from selling stuff you don't use anymore!\" Turn your clutter into cash on StudXchange.",
-        buttonText: "Start Your Side Hustle",
-        buttonLink: "/sell",
-        emoji: "�",
-        bgGradient: "from-emerald-500 via-green-600 to-teal-700",
+        title: "Buy and Sell Student Essentials",
+        subtitle: "Connect with fellow students to find textbooks, electronics, and more at affordable prices.",
+        buttonText: "Start Shopping",
+        buttonLink: "/",
+        bgGradient: "from-slate-800 to-slate-600",
         textColor: "text-white"
     },
     {
         id: 2,
-        title: "🤔 \"Should I skip class or skip meals?\"",
-        subtitle: "Plot twist: Skip neither! Sell your unused stuff and buy cheap textbooks. Genius level: Unlocked.",
-        buttonText: "Feed Your Brain & Stomach",
-        buttonLink: "/category/Books",
-        emoji: "🧠",
-        bgGradient: "from-blue-500 via-indigo-600 to-purple-700",
+        title: "Sell Your Unused Items",
+        subtitle: "Turn your unused books, electronics, and equipment into cash. List items quickly and reach student buyers.",
+        buttonText: "Start Selling",
+        buttonLink: "/sell",
+        bgGradient: "from-gray-700 to-gray-500",
         textColor: "text-white"
     },
     {
         id: 3,
-        title: "📝 \"Wait, we had to take notes?\"",
-        subtitle: "Don't panic. Someone else was awake during those 8 AM lectures. Buy their notes and pretend you were there.",
-        buttonText: "Buy Academic Redemption",
+        title: "Find Academic Resources",
+        subtitle: "Access notes, study materials, and textbooks shared by students from your institution.",
+        buttonText: "Browse Notes",
         buttonLink: "/category/Notes",
-        emoji: "�",
-        bgGradient: "from-orange-500 via-red-600 to-pink-700",
+        bgGradient: "from-zinc-800 to-zinc-600",
         textColor: "text-white"
     },
     {
         id: 4,
-        title: "💻 \"My laptop is older than some freshmen\"",
-        subtitle: "Time for an upgrade! Sell your vintage tech and buy something from this decade. Your productivity will thank you.",
-        buttonText: "Escape the Stone Age",
-        buttonLink: "/category/Laptops",
-        emoji: "🦕",
-        bgGradient: "from-cyan-500 via-blue-600 to-indigo-700",
-        textColor: "text-white"
-    },
-    {
-        id: 5,
-        title: "🚲 \"Walking to class builds character\"",
-        subtitle: "Sure, but arriving on time builds better grades. Find a bike and glide to success (or at least to the cafeteria faster).",
-        buttonText: "Upgrade Your Commute",
-        buttonLink: "/category/Cycle/Bike",
-        emoji: "⚡",
-        bgGradient: "from-green-500 via-emerald-600 to-teal-700",
-        textColor: "text-white"
-    },
-    {
-        id: 6,
-        title: "🛏️ \"My dorm room looks like a crime scene\"",
-        subtitle: "The only crime here is your furniture situation. Find decent stuff from students who've escaped the plastic chair life.",
-        buttonText: "Furnish Like a Human",
-        buttonLink: "/category/Hostel Equipment",
-        emoji: "🪑",
-        bgGradient: "from-purple-500 via-pink-600 to-red-700",
-        textColor: "text-white"
-    },
-    {
-        id: 7,
-        title: "🎓 \"College: Where dreams go to accumulate debt\"",
-        subtitle: "But hey, at least you can buy and sell stuff without going broke! StudXchange: Making college slightly less painful.",
-        buttonText: "Join the Survival Squad",
-        buttonLink: "/about",
-        emoji: "😤",
-        bgGradient: "from-indigo-500 via-purple-600 to-pink-700",
-        textColor: "text-white"
-    },
-    {
-        id: 8,
-        title: "🍕 \"Instant noodles again? Really?\"",
-        subtitle: "Break the cycle! Try Cantiffin for actual food that won't make your parents worry about your life choices.",
-        buttonText: "Eat Like an Adult",
-        buttonLink: "https://cantiffin.vercel.app",
-        emoji: "🍽️",
-        bgGradient: "from-amber-500 via-orange-600 to-red-600",
-        textColor: "text-white"
-    },
-    {
-        id: 9,
-        title: "📱 \"My phone has more cracks than my GPA\"",
-        subtitle: "Fix at least one of those problems. Find phone accessories and protective gear before it's too late.",
-        buttonText: "Save Your Screen & Dignity",
-        buttonLink: "/category/Electronics",
-        emoji: "�",
-        bgGradient: "from-slate-500 via-gray-600 to-zinc-700",
-        textColor: "text-white"
-    },
-    {
-        id: 10,
-        title: "🏠 \"Hostel life: Where privacy goes to die\"",
-        subtitle: "Find a room that doesn't sound like a construction site. Your sanity (and sleep schedule) will thank you.",
-        buttonText: "Escape the Chaos",
+        title: "Discover Student Accommodation",
+        subtitle: "Find rooms, hostels, and shared accommodations near your campus with verified listings.",
+        buttonText: "Find Rooms",
         buttonLink: "/category/Rooms/Hostel",
-        emoji: "🤫",
-        bgGradient: "from-teal-500 via-cyan-600 to-blue-700",
-        textColor: "text-white"
-    },
-    {
-        id: 11,
-        title: "📚 \"This textbook costs more than my rent\"",
-        subtitle: "Welcome to college economics 101. Find cheaper books here, or sell yours to recover from financial trauma.",
-        buttonText: "Recover Your Wallet",
-        buttonLink: "/category/Textbook",
-        emoji: "�",
-        bgGradient: "from-red-500 via-pink-600 to-purple-700",
-        textColor: "text-white"
-    },
-    {
-        id: 12,
-        title: "🧘 \"I need to study but Netflix exists\"",
-        subtitle: "The eternal struggle. At least buy some decent study materials so you can procrastinate with style.",
-        buttonText: "Procrastinate Professionally",
-        buttonLink: "/search",
-        emoji: "�",
-        bgGradient: "from-violet-500 via-purple-600 to-indigo-700",
+        bgGradient: "from-stone-800 to-stone-600",
         textColor: "text-white"
     }
 ];
@@ -172,10 +88,10 @@ export default function FunnyAdvertisingBanner() {
 
     return (
         <div className="relative overflow-hidden group">
-            {/* Mobile swipe indicator */}
+            {/* Mobile navigation indicator */}
             {isMobile && (
                 <div className="absolute top-4 right-4 z-20 bg-black/30 text-white text-xs px-2 py-1 rounded-full backdrop-blur-sm">
-                    👆 Tap arrows or dots
+                    Tap arrows
                 </div>
             )}
 
@@ -203,11 +119,6 @@ export default function FunnyAdvertisingBanner() {
 
                 <div className="max-w-7xl mx-auto">
                     <div className="text-center">
-                        {/* Emoji with animation */}
-                        <div className="text-4xl md:text-6xl mb-4 animate-bounce">
-                            {banner.emoji}
-                        </div>
-                        
                         {/* Title */}
                         <h1 className={`text-xl md:text-4xl font-bold ${banner.textColor} mb-4 leading-tight animate-fade-in-down`}>
                             {banner.title}

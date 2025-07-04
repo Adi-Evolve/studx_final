@@ -40,10 +40,9 @@ async function FeaturedItemsSection() {
     return (
       <section className="mb-16">
         <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-8 flex items-center">
-          ⭐ Featured Items
+          Featured Items
         </h2>
         <div className="text-center py-12">
-          <div className="text-6xl mb-4">🌟</div>
           <h3 className="text-xl font-bold text-gray-700 dark:text-gray-300 mb-2">No Featured Items Yet</h3>
           <p className="text-gray-500 dark:text-gray-400">Check back soon for amazing featured products!</p>
         </div>
@@ -56,7 +55,7 @@ async function FeaturedItemsSection() {
       <div className="flex justify-between items-center mb-8">
         <div>
           <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-200 flex items-center">
-            ⭐ Featured Items
+            Featured Items
           </h2>
           <p className="text-gray-600 dark:text-gray-400 mt-2">Hand-picked premium listings from our community</p>
         </div>
@@ -100,7 +99,7 @@ function HowItWorksSection() {
     <section className="mb-12 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-800 dark:via-slate-800 dark:to-gray-700 rounded-2xl p-4 md:p-8 transition-colors duration-300 border border-blue-100 dark:border-gray-600">
       <div className="text-center mb-6 md:mb-12">
         <h2 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white mb-2 md:mb-4">
-          🚀 How StudXchange Works
+          How StudXchange Works
         </h2>
         <p className="text-sm md:text-base text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
           Getting started is super easy! Follow these simple steps to buy or sell on StudXchange.
@@ -110,9 +109,9 @@ function HowItWorksSection() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
         <div className="text-center">
           <div className="w-12 h-12 md:w-16 md:h-16 bg-blue-500 dark:bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-2 md:mb-4 shadow-lg dark:shadow-blue-500/20">
-            <span className="text-lg md:text-2xl text-white">📝</span>
+            <span className="text-lg md:text-2xl text-white font-bold">1</span>
           </div>
-          <h3 className="text-lg md:text-xl font-bold text-gray-800 dark:text-white mb-1 md:mb-2">1. Sign Up</h3>
+          <h3 className="text-lg md:text-xl font-bold text-gray-800 dark:text-white mb-1 md:mb-2">Sign Up</h3>
           <p className="text-sm md:text-base text-gray-600 dark:text-gray-300">
             Create your account with your college email. It's quick, free, and secure!
           </p>
@@ -120,9 +119,9 @@ function HowItWorksSection() {
         
         <div className="text-center">
           <div className="w-12 h-12 md:w-16 md:h-16 bg-green-500 dark:bg-green-600 rounded-full flex items-center justify-center mx-auto mb-2 md:mb-4 shadow-lg dark:shadow-green-500/20">
-            <span className="text-lg md:text-2xl text-white">📱</span>
+            <span className="text-lg md:text-2xl text-white font-bold">2</span>
           </div>
-          <h3 className="text-lg md:text-xl font-bold text-gray-800 dark:text-white mb-1 md:mb-2">2. List or Browse</h3>
+          <h3 className="text-lg md:text-xl font-bold text-gray-800 dark:text-white mb-1 md:mb-2">List or Browse</h3>
           <p className="text-sm md:text-base text-gray-600 dark:text-gray-300">
             Post your items for sale or browse through thousands of student listings.
           </p>
@@ -130,9 +129,9 @@ function HowItWorksSection() {
         
         <div className="text-center">
           <div className="w-12 h-12 md:w-16 md:h-16 bg-purple-500 dark:bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-2 md:mb-4 shadow-lg dark:shadow-purple-500/20">
-            <span className="text-lg md:text-2xl text-white">🤝</span>
+            <span className="text-lg md:text-2xl text-white font-bold">3</span>
           </div>
-          <h3 className="text-lg md:text-xl font-bold text-gray-800 dark:text-white mb-1 md:mb-2">3. Connect & Deal</h3>
+          <h3 className="text-lg md:text-xl font-bold text-gray-800 dark:text-white mb-1 md:mb-2">Connect & Deal</h3>
           <p className="text-sm md:text-base text-gray-600 dark:text-gray-300">
             Chat with sellers, negotiate prices, and meet up safely on campus.
           </p>

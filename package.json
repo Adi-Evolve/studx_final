@@ -7,7 +7,9 @@
     "dev:watch": "nodemon --watch . --ignore .next/ --ignore node_modules/ --exec \"npm run dev\"",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "verify-env": "node verify_deployment_env.js",
+    "deploy-check": "npm run verify-env && npm run build"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
