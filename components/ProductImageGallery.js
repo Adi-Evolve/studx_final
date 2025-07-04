@@ -4,6 +4,9 @@ import { useState } from 'react';
 import Image from 'next/image';
 
 export default function ProductImageGallery({ images, title }) {
+    // Always call hooks at the top level
+    const [currentImage, setCurrentImage] = useState(images?.[0] || '');
+
     if (!images || images.length === 0) {
         // Fallback for when there are no images
         return (
@@ -16,8 +19,6 @@ export default function ProductImageGallery({ images, title }) {
             </div>
         );
     }
-
-    const [currentImage, setCurrentImage] = useState(images[0]);
 
     return (
         <div className="lg:col-span-3">

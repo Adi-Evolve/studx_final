@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase/server';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
 
 export async function GET(request, { params }) {
     const { sellerId } = params;
@@ -11,7 +11,7 @@ export async function GET(request, { params }) {
         return NextResponse.json({ error: 'Seller ID is required' }, { status: 400 });
     }
 
-    const supabase = supabaseAdmin;
+    const supabase = createSupabaseServerClient();
 
     try {
         // Fetch from all three tables in parallel with specific columns

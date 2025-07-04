@@ -12,8 +12,8 @@ import {
     faClone, 
     faDownload, 
     faSpinner,
-    faSelectAll,
-    faDeselectAll,
+    faCheckSquare,
+    faSquare,
     faFilter
 } from '@fortawesome/free-solid-svg-icons';
 
@@ -273,7 +273,7 @@ export default function BulkOperationsPanel({
                             className="btn-secondary btn-sm"
                         >
                             <FontAwesomeIcon 
-                                icon={selectedItems.size === filteredListings.length ? faDeselectAll : faSelectAll} 
+                                icon={selectedItems.size === filteredListings.length ? faSquare : faCheckSquare} 
                                 className="mr-1" 
                             />
                             {selectedItems.size === filteredListings.length ? 'Deselect All' : 'Select All'}

@@ -47,23 +47,11 @@ const ListingsSection = ({ isLoading, error, listings }) => {
 };
 
 export default function SellerInfoModal({ seller, otherListings, isLoading, error, onClose }) {
-    if (!seller) return null;
-
-    // Debug logging - detailed breakdown of avatar sources
-    // console.log('[SellerInfoModal] Received seller data:', {
-    //     sellerId: seller.id,
-    //     sellerName: seller.name,
-    //     avatarUrl: seller.avatar_url,
-    //     avatarType: seller.avatar_url ? (
-    //         seller.avatar_url.includes('googleusercontent.com') ? 'Google Profile Picture' :
-    //         seller.avatar_url.includes('pravatar.cc') ? 'Random Avatar' :
-    //         'Custom Avatar'
-    //     ) : 'No Avatar',
-    //     email: seller.email
-    // });
-
+    // Always call hooks at the top level
     const [imageLoading, setImageLoading] = useState(true);
     const [imageError, setImageError] = useState(false);
+
+    if (!seller) return null;
 
     // Helper function to handle image errors
     const handleImageError = (e) => {

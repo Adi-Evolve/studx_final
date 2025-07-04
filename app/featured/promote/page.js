@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { createSupabaseClient } from '@/lib/supabase/client';
+import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 
 export default function PromoteItemPage() {
     const [userListings, setUserListings] = useState([]);
@@ -13,7 +13,7 @@ export default function PromoteItemPage() {
 
     useEffect(() => {
         async function loadUserData() {
-            const supabase = createSupabaseClient();
+            const supabase = createSupabaseBrowserClient();
             const { data: { user } } = await supabase.auth.getUser();
             
             if (!user) {
@@ -63,7 +63,7 @@ export default function PromoteItemPage() {
         if (!selectedItem || !user) return;
         
         setPromoting(true);
-        const supabase = createSupabaseClient();
+        const supabase = createSupabaseBrowserClient();
         
         try {
             // Get next available slot
