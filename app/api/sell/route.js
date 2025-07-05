@@ -281,18 +281,51 @@ export async function POST(request) {
                 }, { status: 400 });
             }
             
+            // Validate and parse location
+            let locationData;
+            try {
+                locationData = JSON.parse(formData.get('location'));
+                if (!locationData || !locationData.lat || !locationData.lng) {
+                    return NextResponse.json({ 
+                        error: 'Invalid location data: Missing coordinates' 
+                    }, { status: 400 });
+                }
+            } catch (error) {
+                return NextResponse.json({ 
+                    error: 'Invalid location data: Cannot parse location JSON' 
+                }, { status: 400 });
+            }
+            
+            // Validate price
+            const priceValue = parseFloat(formData.get('price'));
+            if (isNaN(priceValue) || priceValue < 0) {
+                return NextResponse.json({ 
+                    error: 'Invalid price: Must be a valid positive number' 
+                }, { status: 400 });
+            }
+            
             // console.log('Products form validation passed. Required fields:', requiredFields);
+            
+            // Prepare data for database insertion
+            // Handle images based on database schema (JSONB vs TEXT[])
+            let imagesForDb;
+            if (cleanImageUrls.length === 0) {
+                imagesForDb = null; // or [] - depends on your schema
+            } else {
+                // Try JSONB format first (current schema), fallback to TEXT[] if needed
+                imagesForDb = cleanImageUrls;
+            }
             
             dataToInsert = {
                 seller_id: userId,
                 title: formData.get('title').trim(),
                 description: formData.get('description') || '',
-                price: parseFloat(formData.get('price')),
+                price: priceValue,
                 category: formData.get('category').trim(),
                 condition: formData.get('condition').trim(),
                 college: formData.get('college').trim(),
-                location: JSON.parse(formData.get('location')),
-                images: cleanImageUrls, // Clean array - using consistent column name
+                location: locationData, // Should work with JSONB
+                images: imagesForDb,
                 is_sold: false,
             };
             
@@ -657,6 +690,8 @@ export async function POST(request) {
             }
         } else {
             // For other tables, use normal insert
+            console.log(`Inserting data into ${tableName}:`, JSON.stringify(dataToInsert, null, 2));
+            
             const insertResult = await supabase
                 .from(tableName)
                 .insert(dataToInsert)
@@ -665,12 +700,31 @@ export async function POST(request) {
             
             insertedData = insertResult.data;
             insertError = insertResult.error;
+            
+            // Log detailed error information
+            if (insertError) {
+                console.error('Detailed database error:', {
+                    message: insertError.message,
+                    code: insertError.code,
+                    details: insertError.details,
+                    hint: insertError.hint,
+                    tableName: tableName,
+                    dataToInsert: dataToInsert
+                });
+            }
         }
 
         if (insertError) {
             // console.error('Database insertion error:', insertError);
             // console.error('Data being inserted:', JSON.stringify(dataToInsert, null, 2));
             // console.error('Table name:', tableName);
+            
+            // Log to console for debugging (visible in Vercel logs)
+            console.error('DATABASE ERROR:', {
+                table: tableName,
+                error: insertError,
+                data: dataToInsert
+            });
             
             // Provide more specific error messages
             if (insertError.message.includes('note_year') || insertError.message.includes('null value in column "note_year"')) {
@@ -691,12 +745,28 @@ export async function POST(request) {
                     details: insertError.message,
                     suggestion: `Please provide a value for the ${columnName} field`
                 }, { status: 400 });
+            } else if (insertError.message.includes('column') && insertError.message.includes('does not exist')) {
+                const match = insertError.message.match(/column "([^"]+)"/);
+                const columnName = match ? match[1] : 'unknown';
+                
+                return NextResponse.json({ 
+                    error: `Database schema issue: Missing column ${columnName}`,
+                    details: insertError.message,
+                    suggestion: 'The database schema needs to be updated. Please run the schema fix script.'
+                }, { status: 500 });
+            } else if (insertError.message.includes('invalid input syntax for type')) {
+                return NextResponse.json({ 
+                    error: 'Data format error: Invalid data type provided',
+                    details: insertError.message,
+                    suggestion: 'Please check that all numeric fields contain valid numbers and arrays are properly formatted.'
+                }, { status: 400 });
             } else {
-                // Generic database error
+                // Generic database error with more details
                 return NextResponse.json({ 
                     error: 'Database error occurred while saving your listing.',
                     details: insertError.message,
-                    code: insertError.code
+                    code: insertError.code,
+                    table: tableName
                 }, { status: 500 });
             }
         }

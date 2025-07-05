@@ -124,12 +124,12 @@ export default function MapPicker({ onLocationChange, initialPosition }) {
     };
 
         return (
-        <div>
+        <div className="relative" style={{ zIndex: 1 }}>
             <div className="flex flex-wrap items-center gap-2 mb-4">
                 <input 
                     type="text" 
                     placeholder="Search for a location..." 
-                    className="flex-grow block w-full sm:w-auto rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className="flex-grow block w-full sm:w-auto rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyDown={(e) => {
@@ -142,21 +142,28 @@ export default function MapPicker({ onLocationChange, initialPosition }) {
                 <button
                     type="button"
                     onClick={handleSearch}
-                    className="bg-accent text-white font-bold py-2 px-4 rounded-lg hover:bg-primary transition duration-300"
+                    className="bg-blue-600 dark:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition duration-300"
                 >
                     Search
                 </button>
                 <button 
                     type="button"
                     onClick={handleGetCurrentLocation}
-                    className="bg-secondary text-white font-bold py-2 px-4 rounded-lg hover:bg-primary transition duration-300 whitespace-nowrap"
+                    className="bg-green-600 dark:bg-green-700 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition duration-300 whitespace-nowrap"
                 >
                     Use Current Location
                 </button>
             </div>
-            <div className="h-96 w-full relative">
+            <div className="h-96 w-full relative overflow-hidden rounded-lg border border-gray-300 dark:border-gray-600" style={{ zIndex: 1 }}>
                 {position && (
-                    <MapContainer center={position} zoom={13} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
+                    <MapContainer 
+                        center={position} 
+                        zoom={13} 
+                        scrollWheelZoom={false} 
+                        style={{ height: '100%', width: '100%', zIndex: 1 }}
+                        zoomControl={true}
+                        className="leaflet-container-custom"
+                    >
                         <TileLayer
                             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -166,22 +173,22 @@ export default function MapPicker({ onLocationChange, initialPosition }) {
                 )}
             </div>
             <div className="mt-4 space-y-3">
-                <p className="text-sm text-gray-600">Click on the map to set the exact location of your item.</p>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Click on the map to set the exact location of your item.</p>
                 {position && Array.isArray(position) && position.length === 2 && (
-                    <div className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg shadow-sm">
+                    <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-lg shadow-sm">
                         <div className="text-sm">
-                            <span className="font-medium">Selected Location: </span>
-                            <span className="text-blue-700">
+                            <span className="font-medium text-gray-900 dark:text-gray-100">Selected Location: </span>
+                            <span className="text-blue-700 dark:text-blue-300">
                                 {position[0].toFixed(4)}, {position[1].toFixed(4)}
                             </span>
                             {isLocationConfirmed && (
-                                <span className="ml-2 text-green-600 font-medium">✓ Confirmed</span>
+                                <span className="ml-2 text-green-600 dark:text-green-400 font-medium">✓ Confirmed</span>
                             )}
                         </div>
                         <button
                             type="button"
                             onClick={handleConfirmLocation}
-                            className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition duration-200 shadow-sm"
+                            className="bg-blue-600 dark:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 dark:hover:bg-blue-600 transition duration-200 shadow-sm"
                         >
                             {isLocationConfirmed ? 'Update Location' : 'Confirm Location'}
                         </button>

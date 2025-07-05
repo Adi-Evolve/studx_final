@@ -49,12 +49,12 @@ export default function FileUpload({ onFilesChange, accept = 'application/pdf', 
     return (
         <div>
             <div 
-                className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-blue-500 transition-colors"
+                className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center cursor-pointer hover:border-blue-500 dark:hover:border-blue-400 transition-colors bg-white dark:bg-gray-800"
                 onClick={() => fileInputRef.current.click()}
             >
-                <FontAwesomeIcon icon={faFilePdf} className="text-4xl text-gray-400 mb-2" />
-                <p className="text-gray-600">Drag & drop PDFs here, or click to select files</p>
-                <p className="text-sm text-gray-500">Multiple PDFs allowed • Max 100MB per file</p>
+                <FontAwesomeIcon icon={faFilePdf} className="text-4xl text-gray-400 dark:text-gray-500 mb-2" />
+                <p className="text-gray-600 dark:text-gray-300">Drag & drop PDFs here, or click to select files</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Multiple PDFs allowed • Max 100MB per file</p>
                 <input
                     type="file"
                     multiple
@@ -67,17 +67,17 @@ export default function FileUpload({ onFilesChange, accept = 'application/pdf', 
             {files.length > 0 && (
                 <div className="mt-4 space-y-2">
                     {files.map((file, index) => (
-                        <div key={index} className="flex items-center justify-between bg-gray-100 p-2 rounded-lg">
+                        <div key={index} className="flex items-center justify-between bg-gray-100 dark:bg-gray-700 p-2 rounded-lg">
                             <div className="flex-1 truncate">
-                                <span className="text-sm text-gray-700 truncate">{file.name}</span>
-                                <div className="text-xs text-gray-500">
+                                <span className="text-sm text-gray-700 dark:text-gray-200 truncate">{file.name}</span>
+                                <div className="text-xs text-gray-500 dark:text-gray-400">
                                     {(file.size / (1024 * 1024)).toFixed(1)} MB
                                 </div>
                             </div>
                             <button 
                                 type="button"
                                 onClick={() => removeFile(index)} 
-                                className="text-red-500 hover:text-red-700 ml-2"
+                                className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 ml-2"
                             >
                                 <FontAwesomeIcon icon={faTimesCircle} />
                             </button>
