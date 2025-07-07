@@ -2,6 +2,7 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { syncUserData } from '@/lib/syncUserData';
+import { uploadPdfToGoogleDrive } from '@/lib/googleDrivePdfService';
 
 // Get API key from environment variables for security
 const IMGBB_API_KEY = process.env.IMGBB_API_KEY;
@@ -34,46 +35,6 @@ async function uploadImageToImgBB(file) {
     }
 
     return result.data.url;
-}
-
-// Helper function to upload a file to Supabase Storage (for PDFs)
-async function uploadPdfToSupabase(supabase, file) {
-    // Check file size (50MB per PDF file - Supabase free tier limit)
-    const maxPdfSize = 50 * 1024 * 1024; // 50MB per file
-    if (file.size > maxPdfSize) {
-        throw new Error(`PDF file "${file.name}" is too large. Maximum size is 50MB per file. Current size: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
-    }
-
-    // Sanitize filename to avoid special characters that might cause issues
-    const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const fileName = `${Date.now()}-${sanitizedFileName}`;
-    
-    // console.log(`Uploading PDF to Supabase storage: ${fileName} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
-    
-    const { data, error } = await supabase.storage
-        .from('product_pdfs') // Using product_pdfs bucket
-        .upload(fileName, file);
-
-    if (error) {
-        // console.error('Storage upload error:', error);
-        // console.error('File details:', { name: file.name, size: file.size, type: file.type });
-        
-        if (error.message.includes('exceeded the maximum allowed size')) {
-            throw new Error(`PDF file is too large. Maximum allowed size is 50MB. Your file: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
-        } else if (error.message.includes('not allowed')) {
-            throw new Error(`PDF file type not allowed. Only PDF files are permitted.`);
-        } else {
-            throw new Error(`Storage Error: ${error.message}`);
-        }
-    }
-
-    // Get the public URL for the uploaded file
-    const { data: { publicUrl } } = supabase.storage
-        .from('product_pdfs')
-        .getPublicUrl(data.path);
-
-    // console.log(`✅ PDF uploaded successfully: ${publicUrl}`);
-    return publicUrl; // Return the full URL, not just the path
 }
 
 export async function POST(request) {
@@ -342,26 +303,27 @@ export async function POST(request) {
         } else if (formType === 'notes') {
             tableName = 'notes';
             
-            // Handle multiple PDF files
+            // Handle multiple PDF files using Google Drive
             const pdfFiles = formData.getAll('pdfs').filter(file => file.size > 0);
             let pdfUrls = [];
             
-            // console.log(`Processing ${pdfFiles.length} PDF files for upload...`);
+            // console.log(`Processing ${pdfFiles.length} PDF files for Google Drive upload...`);
             
             if (pdfFiles.length > 0) {
                 try {
-                    // console.log(`Uploading ${pdfFiles.length} PDF files...`);
-                    pdfUrls = await Promise.all(
+                    // console.log(`Uploading ${pdfFiles.length} PDF files to Google Drive...`);
+                    const uploadResults = await Promise.all(
                         pdfFiles.map(async (file, index) => {
                             // console.log(`Uploading PDF ${index + 1}: ${file.name} (${file.size} bytes)`);
-                            const url = await uploadPdfToSupabase(supabase, file);
-                            // console.log(`✅ PDF ${index + 1} uploaded successfully: ${url}`);
-                            return url;
+                            const result = await uploadPdfToGoogleDrive(file);
+                            // console.log(`✅ PDF ${index + 1} uploaded successfully: ${result.url}`);
+                            return result.url; // Extract just the URL for compatibility
                         })
                     );
-                    // console.log('All PDFs uploaded successfully:', pdfUrls);
+                    pdfUrls = uploadResults;
+                    // console.log('All PDFs uploaded successfully to Google Drive:', pdfUrls);
                 } catch (error) {
-                    // console.error('PDF upload error:', error);
+                    // console.error('Google Drive PDF upload error:', error);
                     return NextResponse.json({ 
                         error: `PDF upload failed: ${error.message}` 
                     }, { status: 400 });
