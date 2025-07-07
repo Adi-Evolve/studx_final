@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faTag, faBuilding, faUser, faCalendarAlt, faInfoCircle, faBalanceScale, faDownload, faBed, faUsers, faRoute, faShieldAlt, faUtensils, faCheckCircle, faWifi, faSnowflake, faCarBattery, faHotTub, faParking, faVideo, faCouch } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faTag, faBuilding, faUser, faCalendarAlt, faInfoCircle, faBalanceScale, faDownload, faBed, faUsers, faRoute, faShieldAlt, faUtensils, faCheckCircle, faWifi, faSnowflake, faCarBattery, faHotTub, faParking, faVideo, faCouch, faCreditCard } from '@fortawesome/free-solid-svg-icons';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 
 import MapDisplay from '@/components/MapDisplay';
@@ -13,6 +13,7 @@ import CompareModal from '@/components/CompareModal';
 import CompareSelectionModal from '@/components/CompareSelectionModal';
 import SimilarItemsFeed from '@/components/SimilarItemsFeed';
 import UserRatingSystem from '@/components/UserRatingSystem';
+import PaymentModal from '@/components/PaymentModal';
 import { fetchSellerListings } from '@/app/actions';
 
 export default function ProductPageClient({ product, seller, type }) {
@@ -24,6 +25,18 @@ export default function ProductPageClient({ product, seller, type }) {
     const [listingsError, setListingsError] = useState(null);
     const [isCompareSelectionOpen, setIsCompareSelectionOpen] = useState(false);
     const [itemToCompare, setItemToCompare] = useState(null);
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+    const [hasPurchased, setHasPurchased] = useState(false);
+    const [purchaseLoading, setPurchaseLoading] = useState(false);
+
+    // Check if user has already purchased this product
+    useEffect(() => {
+        if (type === 'note' && product?.id) {
+            const purchases = JSON.parse(localStorage.getItem('studx_purchases') || '[]');
+            const hasBought = purchases.some(purchase => purchase.productId === product.id);
+            setHasPurchased(hasBought);
+        }
+    }, [product?.id, type]);
 
     // The guard clause MUST come after all hooks to follow React rules.
     if (!product) {
@@ -71,6 +84,30 @@ export default function ProductPageClient({ product, seller, type }) {
         setItemToCompare(selectedItem);
         setIsCompareSelectionOpen(false);
         setIsCompareModalOpen(true);
+    };
+
+    const handleBuyNow = () => {
+        setPurchaseLoading(true);
+        setIsPaymentModalOpen(true);
+    };
+
+    const handlePaymentSuccess = (transaction) => {
+        setHasPurchased(true);
+        setIsPaymentModalOpen(false);
+        alert(`Payment successful! Transaction ID: ${transaction.id}. You can now download your notes.`);
+        // TODO: Store purchase status in localStorage or backend
+        // TODO: Mark item as sold in backend
+        // TODO: Notify seller
+        
+        // Store purchase in localStorage for now (temporary solution)
+        const purchases = JSON.parse(localStorage.getItem('studx_purchases') || '[]');
+        purchases.push({
+            productId: product.id,
+            transactionId: transaction.id,
+            purchaseDate: new Date().toISOString(),
+            productTitle: product.title
+        });
+        localStorage.setItem('studx_purchases', JSON.stringify(purchases));
     };
 
     const handleDownload = async (pdfUrl, fileName) => {
@@ -193,48 +230,74 @@ export default function ProductPageClient({ product, seller, type }) {
 
                             <div className="grid grid-cols-1 gap-3 mt-6">
                                 {type === 'note' ? (
-                                    <div className="space-y-2">
-                                        {/* Multiple PDF downloads if pdf_urls array exists */}
-                                        {product.pdf_urls && Array.isArray(product.pdf_urls) && product.pdf_urls.length > 0 ? (
-                                            product.pdf_urls.map((pdfUrl, index) => (
-                                                <button 
-                                                    key={index}
-                                                    onClick={() => handleDownload(pdfUrl, `${product.title}_${index + 1}`)}
-                                                    className="w-full bg-gradient-to-r from-slate-800 via-slate-700 to-emerald-600 text-white font-bold py-3 px-4 rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center justify-center"
-                                                >
-                                                    <FontAwesomeIcon icon={faDownload} className="mr-3" />
-                                                    Download PDF {product.pdf_urls.length > 1 ? `(${index + 1}/${product.pdf_urls.length})` : ''}
-                                                </button>
-                                            ))
-                                        ) : product.pdfUrl ? (
-                                            /* Fallback to single PDF */
-                                            <button 
-                                                onClick={() => handleDownload(product.pdfUrl, product.title)}
-                                                className="w-full bg-gradient-to-r from-slate-800 via-slate-700 to-emerald-600 text-white font-bold py-3 px-4 rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center justify-center"
-                                            >
-                                                <FontAwesomeIcon icon={faDownload} className="mr-3" />
-                                                Download PDF
-                                            </button>
-                                        ) : (
-                                            /* No PDF available */
-                                            <div className="w-full bg-gray-300 text-gray-600 font-bold py-3 px-4 rounded-lg flex items-center justify-center cursor-not-allowed">
-                                                <FontAwesomeIcon icon={faDownload} className="mr-3" />
-                                                No PDF Available
+                                    <div className="space-y-3">
+                                        {hasPurchased ? (
+                                            /* Show Download Buttons After Purchase */
+                                            <div className="space-y-2">
+                                                <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-3">
+                                                    <div className="flex items-center">
+                                                        <FontAwesomeIcon icon={faCheckCircle} className="mr-2" />
+                                                        <span className="font-semibold">Purchase Complete!</span>
+                                                    </div>
+                                                    <p className="text-sm mt-1">You can now download your notes.</p>
+                                                </div>
+                                                
+                                                {/* Multiple PDF downloads if pdf_urls array exists */}
+                                                {product.pdf_urls && Array.isArray(product.pdf_urls) && product.pdf_urls.length > 0 ? (
+                                                    product.pdf_urls.map((pdfUrl, index) => (
+                                                        <button 
+                                                            key={index}
+                                                            onClick={() => handleDownload(pdfUrl, `${product.title}_${index + 1}`)}
+                                                            className="w-full bg-gradient-to-r from-slate-800 via-slate-700 to-emerald-600 text-white font-bold py-3 px-4 rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center justify-center"
+                                                        >
+                                                            <FontAwesomeIcon icon={faDownload} className="mr-3" />
+                                                            Download PDF {product.pdf_urls.length > 1 ? `(${index + 1}/${product.pdf_urls.length})` : ''}
+                                                        </button>
+                                                    ))
+                                                ) : product.pdfUrl ? (
+                                                    /* Fallback to single PDF */
+                                                    <button 
+                                                        onClick={() => handleDownload(product.pdfUrl, product.title)}
+                                                        className="w-full bg-gradient-to-r from-slate-800 via-slate-700 to-emerald-600 text-white font-bold py-3 px-4 rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center justify-center"
+                                                    >
+                                                        <FontAwesomeIcon icon={faDownload} className="mr-3" />
+                                                        Download PDF
+                                                    </button>
+                                                ) : (
+                                                    /* No PDF available */
+                                                    <div className="w-full bg-gray-300 text-gray-600 font-bold py-3 px-4 rounded-lg flex items-center justify-center cursor-not-allowed">
+                                                        <FontAwesomeIcon icon={faDownload} className="mr-3" />
+                                                        No PDF Available
+                                                    </div>
+                                                )}
                                             </div>
+                                        ) : (
+                                            /* Show Buy Now Button Before Purchase */
+                                            <button 
+                                                onClick={handleBuyNow}
+                                                disabled={purchaseLoading}
+                                                className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold py-3 px-4 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-200 flex items-center justify-center shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                                <FontAwesomeIcon icon={faCreditCard} className="mr-3" />
+                                                {purchaseLoading ? 'Processing...' : `💳 Buy Now - ₹${product.price}`}
+                                            </button>
                                         )}
                                     </div>
                                 ) : (
-                                    seller?.phone ? (
-                                        <a href={`https://wa.me/${getWhatsAppNumber(seller.phone)}?text=I'm%20interested%20in%20your%20'${encodeURIComponent(product.title)}'%20on%20StudXchange.`} target="_blank" rel="noopener noreferrer" className="w-full bg-green-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center">
-                                            <FontAwesomeIcon icon={faWhatsapp} className="mr-3" size="lg" />
-                                            Contact Seller
-                                        </a>
-                                    ) : (
-                                        <button disabled title="Seller has not provided a contact number" className="w-full bg-gray-400 text-white font-bold py-3 px-4 rounded-lg cursor-not-allowed flex items-center justify-center">
-                                            <FontAwesomeIcon icon={faWhatsapp} className="mr-3" size="lg" />
-                                            Contact Seller
-                                        </button>
-                                    )
+                                    <div className="space-y-3">
+                                        {/* Contact Seller Button for Physical Products */}
+                                        {seller?.phone ? (
+                                            <a href={`https://wa.me/${getWhatsAppNumber(seller.phone)}?text=I'm%20interested%20in%20your%20'${encodeURIComponent(product.title)}'%20on%20StudXchange.`} target="_blank" rel="noopener noreferrer" className="w-full bg-green-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center">
+                                                <FontAwesomeIcon icon={faWhatsapp} className="mr-3" size="lg" />
+                                                Contact Seller
+                                            </a>
+                                        ) : (
+                                            <button disabled title="Seller has not provided a contact number" className="w-full bg-gray-400 text-white font-bold py-3 px-4 rounded-lg cursor-not-allowed flex items-center justify-center">
+                                                <FontAwesomeIcon icon={faWhatsapp} className="mr-3" size="lg" />
+                                                Contact Seller
+                                            </button>
+                                        )}
+                                    </div>
                                 )}
                                 <button onClick={handleShowSellerInfo} className="w-full bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center">
                                     <FontAwesomeIcon icon={faInfoCircle} className="mr-3" />
@@ -321,6 +384,19 @@ export default function ProductPageClient({ product, seller, type }) {
                     compareItem={itemToCompare} 
                     onClose={() => setIsCompareModalOpen(false)} 
                 />}
+
+            {/* Payment Modal - Only for Notes */}
+            {type === 'note' && (
+                <PaymentModal
+                    listing={{ ...product, type }}
+                    isOpen={isPaymentModalOpen}
+                    onClose={() => {
+                        setIsPaymentModalOpen(false);
+                        setPurchaseLoading(false);
+                    }}
+                    onPaymentSuccess={handlePaymentSuccess}
+                />
+            )}
         </div>
     );
 }

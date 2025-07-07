@@ -9,7 +9,9 @@
     "start": "next start",
     "lint": "next lint",
     "verify-env": "node verify_deployment_env.js",
-    "deploy-check": "npm run verify-env && npm run build"
+    "deploy-check": "npm run verify-env && npm run build",
+    "test-transactions": "node test_transaction_system.js",
+    "deploy-transactions": "node deploy_transaction_system.js"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.7.2",

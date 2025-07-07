@@ -376,8 +376,27 @@ export async function searchListings({ query }) {
     // console.log(`[searchListings] Starting search for: "${query}"`);
     
     try {
-        // Simple, direct search approach - case insensitive
+        // 1. Get featured items that match the search
+        const featuredItems = await fetchSponsoredListings();
         const searchTerm = `%${query.trim()}%`;
+        const lowerQuery = query.toLowerCase().trim();
+        
+        // Filter featured items that match the search query
+        const matchingFeatured = featuredItems.filter(item => {
+            const title = (item.title || '').toLowerCase();
+            const description = (item.description || '').toLowerCase();
+            const category = (item.category || '').toLowerCase();
+            const courseSubject = (item.course_subject || '').toLowerCase();
+            
+            return title.includes(lowerQuery) || 
+                   description.includes(lowerQuery) || 
+                   category.includes(lowerQuery) ||
+                   courseSubject.includes(lowerQuery);
+        });
+
+        // 2. Regular search in all three tables
+        // Simple, direct search approach - case insensitive
+        // (searchTerm already defined above)
         
         // Search in all three tables directly with ilike (case-insensitive)
         const [productsRes, notesRes, roomsRes] = await Promise.all([
@@ -437,8 +456,14 @@ export async function searchListings({ query }) {
             ...(roomsRes.data || []).map(item => ({ ...item, type: 'room' }))
         ];
 
-        // Simple relevance scoring
-        const scoredResults = allResults.map(item => {
+        // Remove featured items from regular results to avoid duplicates
+        const featuredIds = new Set(matchingFeatured.map(item => `${item.type}-${item.id}`));
+        const regularResults = allResults.filter(item => 
+            !featuredIds.has(`${item.type}-${item.id}`)
+        );
+
+        // Simple relevance scoring for regular results
+        const scoredResults = regularResults.map(item => {
             let score = 0;
             const lowerQuery = query.toLowerCase().trim();
             
@@ -479,9 +504,21 @@ export async function searchListings({ query }) {
             return new Date(b.created_at) - new Date(a.created_at);
         });
 
-        // console.log(`[searchListings] Total results found: ${scoredResults.length} for query: "${query}"`);
-        
-        return scoredResults;
+        // Add featured flag to matching featured items and give them top priority
+        const featuredWithFlag = matchingFeatured.map(item => ({
+            ...item,
+            isFeatured: true,
+            relevanceScore: 1000 // Featured items always get top relevance
+        }));
+
+        // Combine: Featured items first, then regular results
+        const finalResults = [
+            ...featuredWithFlag,
+            ...scoredResults
+        ];
+
+        // console.log(`[searchListings] Total results: ${finalResults.length} (${featuredWithFlag.length} featured, ${scoredResults.length} regular)`);
+        return finalResults;
 
     } catch (error) {
         // console.error('[searchListings] Critical error:', error);

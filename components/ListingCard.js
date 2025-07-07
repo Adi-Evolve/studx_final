@@ -32,13 +32,17 @@ export default function ListingCard({ item, onClick, isSelectMode = false, isSpo
     const price = item.price || item.fees || 0;
 
     const cardContent = (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-900 overflow-hidden hover:shadow-xl dark:hover:shadow-gray-700 transition-all duration-300 transform hover:scale-105 h-full flex flex-col group relative border-2 border-transparent hover:border-emerald-200 dark:hover:border-emerald-600 dark:border-gray-700 card-item"
+        <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-900 overflow-hidden hover:shadow-xl dark:hover:shadow-gray-700 transition-all duration-300 transform hover:scale-105 h-full flex flex-col group relative border-2 dark:border-gray-700 card-item ${
+            (isSponsored || item.is_sponsored || item.isFeatured) 
+                ? 'border-gradient-to-r from-orange-300 to-yellow-300 dark:from-orange-400 dark:to-yellow-400 hover:border-orange-400 dark:hover:border-orange-500 shadow-lg ring-2 ring-orange-200 dark:ring-orange-500/30' 
+                : 'border-transparent hover:border-emerald-200 dark:hover:border-emerald-600'
+        }`}
         >
-            {/* Badges */}
-            {(isSponsored || item.is_sponsored) && (
+            {/* Enhanced Featured Badge */}
+            {(isSponsored || item.is_sponsored || item.isFeatured) && (
                 <div className="absolute top-3 right-3 z-20">
-                    <div className="bg-gradient-to-r from-emerald-400 to-teal-500 dark:from-emerald-500 dark:to-teal-600 text-white px-2 py-1 rounded-full text-xs font-semibold shadow-lg">
-                        ⭐ Featured
+                    <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg animate-pulse">
+                        ⭐ FEATURED
                     </div>
                 </div>
             )}
