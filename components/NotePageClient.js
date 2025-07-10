@@ -34,20 +34,24 @@ export default function NotePageClient({ note, seller }) {
         }
 
         try {
-            // Import Supabase client
-            const { createSupabaseBrowserClient } = await import('@/lib/supabase/client');
-            const supabase = createSupabaseBrowserClient();
-
             let downloadUrl = pdfUrl;
 
-            // If the pdfUrl is a path in storage, generate a signed URL
-            if (typeof pdfUrl === 'string' && !pdfUrl.startsWith('http')) {
+            // If the pdfUrl is a Google Drive URL, use it directly
+            if (typeof pdfUrl === 'string' && pdfUrl.startsWith('https://drive.google.com/')) {
+                downloadUrl = pdfUrl;
+            }
+            // If the pdfUrl is a legacy Supabase storage path, generate a signed URL
+            else if (typeof pdfUrl === 'string' && !pdfUrl.startsWith('http')) {
+                // Import Supabase client
+                const { createSupabaseBrowserClient } = await import('@/lib/supabase/client');
+                const supabase = createSupabaseBrowserClient();
+
                 const { data, error } = await supabase.storage
                     .from('product_pdfs')
                     .createSignedUrl(pdfUrl, 60 * 60); // 1 hour expiry
 
                 if (error) {
-                    // console.error('Error creating signed URL:', error);
+                    console.error('Error creating signed URL:', error);
                     alert('Failed to generate download link');
                     return;
                 }
@@ -125,9 +129,9 @@ export default function NotePageClient({ note, seller }) {
                             </div>
 
                             <div className="grid grid-cols-1 gap-3 mt-6">
-                                {note.pdfUrl && (
+                                {note.pdfurl && (
                                     <button
-                                        onClick={() => handleDownload(note.pdfUrl, note.title)}
+                                        onClick={() => handleDownload(note.pdfurl, note.title)}
                                         className="w-full bg-gradient-to-r from-slate-800 via-slate-700 to-emerald-600 text-white font-bold py-3 px-4 rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center justify-center"
                                     >
                                         <FontAwesomeIcon icon={faFilePdf} className="mr-3" size="lg" />

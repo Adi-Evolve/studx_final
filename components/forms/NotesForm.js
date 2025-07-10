@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import ImageUploadWithOptimization from '../ImageUploadWithOptimization';
 import FileUpload from '../FileUpload';
 import { colleges } from '../../lib/colleges';
@@ -14,6 +15,10 @@ const categories = ['Laptops', 'Project Equipment', 'Books', 'Cycle/Bike', 'Host
 
 export default function NotesForm({ initialData = {}, onSubmit }) {
     const router = useRouter();
+    const supabase = createSupabaseBrowserClient();
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [authLoading, setAuthLoading] = useState(true);
+    
     const [formData, setFormData] = useState({
         title: initialData.title || '',
         college: initialData.college || '',
@@ -22,9 +27,80 @@ export default function NotesForm({ initialData = {}, onSubmit }) {
         price: initialData.price || '',
         description: initialData.description || '',
         images: initialData.images || [],
-        pdfs: initialData.pdfUrl ? [initialData.pdfUrl] : [], // Handle existing PDF
+        pdfs: initialData.pdfurl ? [initialData.pdfurl] : [], // Handle existing PDF
         category: initialData.category || 'Notes',
     });
+
+    // Check authentication status
+    useEffect(() => {
+        const checkAuth = async () => {
+            console.log('🔍 [NotesForm] Checking authentication...');
+            try {
+                const { data: { session }, error } = await supabase.auth.getSession();
+                
+                if (error) {
+                    console.error('❌ [NotesForm] Auth error:', error);
+                    setIsAuthenticated(false);
+                    setAuthLoading(false);
+                    return;
+                }
+                
+                console.log('🔍 [NotesForm] Session data:', {
+                    hasSession: !!session,
+                    hasUser: !!session?.user,
+                    userEmail: session?.user?.email,
+                    userId: session?.user?.id
+                });
+
+                // Only check for email presence in auth
+                if (session?.user?.email) {
+                    setIsAuthenticated(true);
+                    console.log('✅ [NotesForm] User authenticated with email:', session.user.email);
+                    
+                    // Pre-fill user data if available
+                    try {
+                        const { data: userData } = await supabase
+                            .from('users')
+                            .select('name, college')
+                            .eq('email', session.user.email)
+                            .single();
+                        
+                        if (userData) {
+                            setFormData(prev => ({
+                                ...prev,
+                                college: prev.college || userData.college || ''
+                            }));
+                        }
+                    } catch (profileError) {
+                        console.log('ℹ️ [NotesForm] Could not load user profile:', profileError);
+                    }
+                } else {
+                    console.log('❌ [NotesForm] No email found in session');
+                    setIsAuthenticated(false);
+                }
+                
+                setAuthLoading(false);
+            } catch (authError) {
+                console.error('❌ [NotesForm] Auth check exception:', authError);
+                setIsAuthenticated(false);
+                setAuthLoading(false);
+            }
+        };
+
+        checkAuth();
+
+        // Listen for auth changes
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            console.log('🔄 [NotesForm] Auth state changed:', event, !!session?.user?.email);
+            if (session?.user?.email) {
+                setIsAuthenticated(true);
+            } else {
+                setIsAuthenticated(false);
+            }
+        });
+
+        return () => subscription.unsubscribe();
+    }, [supabase.auth]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -44,125 +120,237 @@ export default function NotesForm({ initialData = {}, onSubmit }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (isSubmitting) return;
-        setIsSubmitting(true);
 
-        // Let the API handle authentication - no frontend check needed
-        // console.log('✅ Proceeding with upload - letting API handle authentication');
+        console.log('📝 [NotesForm] Starting submission...');
+
+        // ============================================================================
+        // 1. ENHANCED EMAIL-BASED AUTHENTICATION CHECK
+        // ============================================================================
+        
+        if (!isAuthenticated) {
+            console.log('❌ [NotesForm] Not authenticated, redirecting to login');
+            toast.error('Please log in to submit your notes');
+            router.push('/login');
+            return;
+        }
+
+        // Get current session and verify email
+        let currentUser = null;
+        try {
+            const { data: { session }, error } = await supabase.auth.getSession();
+            
+            if (error) {
+                console.error('❌ [NotesForm] Session error:', error);
+                toast.error('Authentication error. Please try logging in again.');
+                return;
+            }
+
+            console.log('🔍 [NotesForm] Session check:', {
+                hasSession: !!session,
+                hasUser: !!session?.user,
+                userEmail: session?.user?.email,
+                userId: session?.user?.id
+            });
+            
+            if (!session?.user?.email) {
+                console.log('❌ [NotesForm] No email found in session');
+                toast.error('Invalid authentication. Please log in with a valid email.');
+                router.push('/login');
+                return;
+            }
+            
+            currentUser = {
+                id: session.user.id,
+                email: session.user.email,
+                name: session.user.user_metadata?.name || session.user.user_metadata?.full_name || session.user.email.split('@')[0],
+                avatar_url: session.user.user_metadata?.avatar_url,
+                college: formData.college
+            };
+
+            console.log('✅ [NotesForm] User data prepared:', currentUser);
+        } catch (sessionError) {
+            console.error('❌ [NotesForm] Session check failed:', sessionError);
+            toast.error('Failed to verify authentication. Please try again.');
+            return;
+        }
+
+        // ============================================================================
+        // 2. FORM VALIDATION
+        // ============================================================================
+        
+        if (!formData.title || !formData.price || !formData.college || !formData.subject) {
+            toast.error('Please fill in all required fields');
+            return;
+        }
+
+        if (isNaN(parseFloat(formData.price)) || parseFloat(formData.price) <= 0) {
+            toast.error('Please enter a valid price');
+            return;
+        }
+
+        console.log('✅ [NotesForm] Form validation passed');
+        setIsSubmitting(true);
 
         const toastId = toast.loading('Uploading your notes...');
 
-        if (onSubmit) {
-            // Handle editing mode
-            const data = new FormData();
+        try {
+            // ============================================================================
+            // 3. PREPARE SUBMISSION DATA
+            // ============================================================================
             
-            // Add all the form fields
-            Object.keys(formData).forEach(key => {
-                const value = formData[key];
-                if (key === 'images') {
-                    value.forEach(file => {
-                        if (file instanceof File) {
-                            data.append('images', file);
-                        }
-                    });
-                } else if (key === 'pdfs') {
-                    value.forEach(file => {
-                        if (file instanceof File) {
-                            data.append('pdfs', file);
-                        }
-                    });
-                } else if (value !== null && value !== undefined) {
-                    data.append(key, value);
-                }
-            });
-
-            data.append('type', 'notes'); // Add type for the update API
-            await onSubmit(data);
-        } else {
-            // Handle new note submission
-            const data = new FormData();
+            // ============================================================================
+            // 4. SUBMIT TO API
+            // ============================================================================
             
-            // Add all the form fields
-            Object.keys(formData).forEach(key => {
-                const value = formData[key];
-                if (key === 'images') {
-                    value.forEach(file => {
-                        if (file instanceof File) {
-                            data.append('images', file);
-                        }
-                    });
-                } else if (key === 'pdfs') {
-                    value.forEach(file => {
-                        if (file instanceof File) {
-                            data.append('pdfs', file);
-                        }
-                    });
-                } else if (value !== null && value !== undefined) {
-                    data.append(key, value);
-                }
-            });
-
-            data.append('formType', 'notes'); // For the original sell API
-
-            try {
-                const response = await fetch('/api/sell', {
-                    method: 'POST',
-                    body: data,
+            // Create FormData to handle File uploads
+            const formDataToSend = new FormData();
+            
+            // Add basic data
+            formDataToSend.append('type', 'notes');
+            formDataToSend.append('user', JSON.stringify(currentUser));
+            formDataToSend.append('title', formData.title);
+            formDataToSend.append('description', formData.description);
+            formDataToSend.append('price', parseFloat(formData.price));
+            formDataToSend.append('college', formData.college);
+            formDataToSend.append('course', formData.course || 'General');
+            formDataToSend.append('subject', formData.subject);
+            formDataToSend.append('academicYear', formData.academic_year);
+            
+            // Add images as File objects
+            if (formData.images && formData.images.length > 0) {
+                formData.images.forEach((image, index) => {
+                    formDataToSend.append(`images`, image);
                 });
-                const result = await response.json();
-                if (!response.ok) {
-                    // Handle specific error codes
-                    if (result.code === 'NOT_AUTHENTICATED') {
-                        toast.error('Please log in to list your notes');
-                        setTimeout(() => {
-                            router.push('/login');
-                        }, 2000);
-                        return;
-                    } else if (result.code === 'PROFILE_INCOMPLETE') {
-                        const missingFields = result.missingFields || ['profile information'];
-                        toast.error(`Please add your ${missingFields.join(' and ')} to your profile first`);
-                        setTimeout(() => {
-                            router.push('/profile');
-                        }, 2000);
-                        return;
-                    } else if (result.code === 'PHONE_REQUIRED') {
-                        toast.error('Please add your phone number to your profile first');
-                        setTimeout(() => {
-                            router.push('/profile');
-                        }, 2000);
-                        return;
-                    }
-                    throw new Error(result.error || 'Something went wrong');
-                }
-                toast.success('Notes uploaded successfully! Redirecting to homepage...', { 
-                    id: toastId,
-                    duration: 3000 
-                });
-                
-                // Reset form on successful submission
-                setFormData({
-                    title: '',
-                    college: '',
-                    academic_year: '',
-                    subject: '',
-                    price: '',
-                    description: '',
-                    images: [],
-                    pdfs: [],
-                    category: 'Notes',
-                });
-                
-                // Redirect to homepage after successful submission
-                setTimeout(() => {
-                    router.push('/');
-                }, 2000);
-            } catch (error) {
-                // console.error('Submission error:', error);
-                toast.error(error.message || 'Failed to upload notes', { id: toastId });
             }
-        }
+            
+            // Add PDFs as File objects
+            if (formData.pdfs && formData.pdfs.length > 0) {
+                formData.pdfs.forEach((pdf, index) => {
+                    formDataToSend.append(`pdfs`, pdf);
+                });
+            }
 
-        setIsSubmitting(false);
+            console.log('📤 [NotesForm] Sending FormData to API with', formData.images?.length || 0, 'images and', formData.pdfs?.length || 0, 'PDFs');
+            
+            const response = await fetch('/api/sell', {
+                method: 'POST',
+                body: formDataToSend, // Send FormData instead of JSON
+            });
+
+            const result = await response.json();
+
+            console.log('📥 [NotesForm] API response:', {
+                status: response.status,
+                ok: response.ok,
+                result: result
+            });
+
+            if (!response.ok) {
+                console.error('❌ [NotesForm] API error:', result);
+                
+                // Handle specific error codes
+                if (result.code === 'AUTH_MISSING_EMAIL' || result.code === 'AUTH_EMAIL_NOT_FOUND') {
+                    toast.error('Authentication required. Please sign in first.');
+                    router.push('/login');
+                    return;
+                }
+                
+                if (result.code === 'AUTH_EMAIL_UNREGISTERED') {
+                    toast.error('Email not registered. Please create an account first.');
+                    router.push('/signup');
+                    return;
+                }
+                
+                if (result.code === 'DATABASE_RLS_ERROR') {
+                    toast.error('Database security error. Please contact support.');
+                    return;
+                }
+                
+                // Generic error message
+                toast.error(result.error || 'Failed to submit notes. Please try again.');
+                return;
+            }
+
+            // ============================================================================
+            // 5. SUCCESS HANDLING
+            // ============================================================================
+            
+            console.log('✅ [NotesForm] Notes submitted successfully:', result.data);
+            
+            // Show success message
+            toast.success(
+                `📚 ${result.message || 'Notes submitted successfully!'}\nYour ${result.data?.title || 'notes'} are now live!`,
+                {
+                    duration: 4000,
+                    style: {
+                        background: '#10b981',
+                        color: '#ffffff',
+                        fontWeight: '500',
+                    },
+                }
+            );
+            
+            // Reset form
+            setFormData({
+                title: '',
+                college: formData.college, // Keep college for next submission
+                academic_year: '',
+                subject: '',
+                price: '',
+                description: '',
+                images: [],
+                pdfs: [],
+                category: 'Notes',
+            });
+
+            // Redirect to homepage after showing success message
+            setTimeout(() => {
+                router.push('/');
+            }, 2000);
+
+        } catch (fetchError) {
+            console.error('❌ [NotesForm] Fetch error:', fetchError);
+            toast.error('Network error. Please check your connection and try again.');
+        } finally {
+            setIsSubmitting(false);
+            toast.dismiss(toastId);
+        }
     };
+
+    // Show loading state while checking authentication
+    if (authLoading) {
+        return (
+            <div className="space-y-8">
+                <div className="animate-pulse">
+                    <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-48 mb-4"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-64"></div>
+                </div>
+                <div className="text-center py-8">
+                    <div className="text-gray-600 dark:text-gray-400">Checking authentication...</div>
+                </div>
+            </div>
+        );
+    }
+
+    // Show login prompt if not authenticated
+    if (!isAuthenticated) {
+        return (
+            <div className="space-y-8">
+                <div>
+                    <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200">Authentication Required</h2>
+                    <p className="text-gray-600 dark:text-gray-400">Please log in to list your notes.</p>
+                </div>
+                <div className="text-center py-8">
+                    <button
+                        onClick={() => router.push('/login')}
+                        className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                    >
+                        Log In to Continue
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <form onSubmit={handleSubmit} className="space-y-8">

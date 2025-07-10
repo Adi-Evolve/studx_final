@@ -17,16 +17,10 @@ export async function GET(request) {
                 const { data: { user }, error: userError } = await supabase.auth.getUser();
                 
                 if (user && !userError) {
-                    // console.log('Auth callback: User authenticated:', user.email);
+                    console.log('🔐 Auth callback: User authenticated:', user.email);
                     
                     // Sync user data to public.users table
                     try {
-                        const { data: existingUser, error: fetchError } = await supabase
-                            .from('users')
-                            .select('*')
-                            .eq('id', user.id)
-                            .single();
-                        
                         const userData = {
                             id: user.id,
                             email: user.email,
@@ -39,41 +33,54 @@ export async function GET(request) {
                                        user.user_metadata?.photo || 
                                        user.user_metadata?.image,
                             phone: user.phone,
+                            created_at: new Date().toISOString(),
                             updated_at: new Date().toISOString()
                         };
                         
-                        if (existingUser) {
-                            // Update existing user
-                            const { error: updateError } = await supabase
-                                .from('users')
-                                .update({
-                                    email: userData.email,
-                                    name: userData.name || existingUser.name,
-                                    avatar_url: userData.avatar_url || existingUser.avatar_url,
-                                    phone: userData.phone || existingUser.phone,
-                                    updated_at: userData.updated_at
-                                })
-                                .eq('id', user.id);
+                        console.log('📝 Syncing user data:', { id: userData.id, email: userData.email, name: userData.name });
+                        
+                        // Use upsert to insert or update
+                        const { data: syncResult, error: syncError } = await supabase
+                            .from('users')
+                            .upsert(userData, { 
+                                onConflict: 'id',
+                                ignoreDuplicates: false 
+                            })
+                            .select();
                             
-                            if (updateError) {
-                                // console.error('Error updating user:', updateError);
-                            } else {
-                                // console.log('✅ User data updated successfully for:', user.email);
-                            }
-                        } else {
-                            // Insert new user
+                        if (syncError) {
+                            console.error('❌ User sync error:', syncError);
+                            console.log('🔍 User data that failed:', userData);
+                            
+                            // Try a direct insert as fallback
                             const { error: insertError } = await supabase
                                 .from('users')
                                 .insert(userData);
-                            
+                                
                             if (insertError) {
-                                // console.error('Error inserting user:', insertError);
+                                console.error('❌ Fallback insert also failed:', insertError);
                             } else {
-                                // console.log('✅ New user created successfully for:', user.email);
+                                console.log('✅ Fallback insert successful');
                             }
+                        } else {
+                            console.log('✅ User sync successful:', syncResult?.[0]?.email);
                         }
+                        
+                        // Verify the user exists in the table
+                        const { data: verifyUser, error: verifyError } = await supabase
+                            .from('users')
+                            .select('id, email, name')
+                            .eq('id', user.id)
+                            .single();
+                            
+                        if (verifyError) {
+                            console.error('❌ User verification failed:', verifyError);
+                        } else {
+                            console.log('✅ User verified in database:', verifyUser.email);
+                        }
+                        
                     } catch (syncError) {
-                        // console.error('Error syncing user data:', syncError);
+                        console.error('❌ Exception during user sync:', syncError);
                         // Don't fail auth if sync fails
                     }
                 }

@@ -1,8 +1,12 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
-import { syncUserData } from '@/lib/syncUserData';
-import { uploadPdfToGoogleDrive } from '@/lib/googleDrivePdfService';
+import { uploadPdfToGoogleDrive } from '@/lib/googleDriveOAuthService';
+
+// Initialize Supabase clients
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SECRET_KEY
+);
 
 // Get API key from environment variables for security
 const IMGBB_API_KEY = process.env.IMGBB_API_KEY;
@@ -38,766 +42,465 @@ async function uploadImageToImgBB(file) {
 }
 
 export async function POST(request) {
-    // console.log('=== API /sell POST request received ===');
-    try {
-        const supabase = createRouteHandlerClient({ cookies });
+  try {
+    // Parse FormData instead of JSON
+    const formData = await request.formData();
+    
+    console.log('📥 [SELL API] Received FormData request');
 
-        // Try multiple ways to get the authenticated user
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
-        // Enhanced debugging for auth issues
-        // console.log('Comprehensive Auth Debug:', {
-        //     hasUser: !!user,
-        //     hasSession: !!session,
-        //     userError: userError,
-        //     sessionError: sessionError,
-        //     userId: user?.id || session?.user?.id,
-        //     userEmail: user?.email || session?.user?.email,
-        //     userProvider: user?.app_metadata?.provider || session?.user?.app_metadata?.provider
-        // });
-        
-        let userId;
-        let userEmail;
-        
-        if (user && user.id) {
-            // User found via getUser() - this works better with OAuth
-            userId = user.id;
-            userEmail = user.email;
-            // console.log('✅ User authenticated via getUser():', user.email);
-            
-            // Sync user data to ensure all fields are populated
-            try {
-                const syncResult = await syncUserData();
-                if (syncResult.success) {
-                    // console.log('✅ User data synced successfully:', syncResult.action);
-                } else {
-                    // console.warn('⚠️ User sync failed but continuing:', syncResult.error);
-                }
-            } catch (syncError) {
-                // console.warn('⚠️ User sync error but continuing:', syncError);
-            }
-        } else if (session && session.user && session.user.id) {
-            // User found via session
-            userId = session.user.id;
-            userEmail = session.user.email;
-            // console.log('✅ User authenticated via session:', session.user.email);
-        } else {
-            // No authenticated user found - allow anonymous submission
-            // console.log('ℹ️ Anonymous user detected, allowing submission');
-            userId = '00000000-0000-0000-0000-000000000000'; // Special anonymous user UUID
-            userEmail = 'anonymous@studx.com';
-        }
-        
-        // Only verify user profile for authenticated users (not anonymous)
-        let publicUser = null;
-        if (userId && userId !== '00000000-0000-0000-0000-000000000000') {
-            // Verify the user exists in public.users table and has required information
-            const { data: userData, error: publicUserError } = await supabase
-                .from('users')
-                .select('id, email, name, phone')
-                .eq('id', userId)
-                .single();
-            
-            if (publicUserError || !userData) {
-                // console.error('User not found in public.users table:', publicUserError);
-                // Try to create the user in public.users if they don't exist
-                if (userEmail && userEmail !== 'anonymous@studx.com') {
-                    const { error: insertError } = await supabase
-                        .from('users')
-                        .insert({
-                            id: userId,
-                            email: userEmail,
-                            name: userEmail.split('@')[0]
-                        });
-                    
-                    if (insertError) {
-                        // console.error('Failed to create user in public.users:', insertError);
-                        return NextResponse.json({ 
-                            error: 'User profile creation failed. Please contact support.',
-                            details: insertError.message
-                        }, { status: 500 });
-                    }
-                    // console.log('✅ Created user in public.users table:', userEmail);
-                }
-            } else {
-                publicUser = userData;
-                // console.log('✅ User verified in public.users:', publicUser.email);
-            }
-        }
+    // Extract data from FormData
+    const type = formData.get('type');
+    const user = JSON.parse(formData.get('user') || '{}');
+    
+    // Extract other fields based on type
+    const data = {
+      title: formData.get('title'),
+      description: formData.get('description'),
+      price: formData.get('price'),
+      category: formData.get('category'),
+      condition: formData.get('condition'),
+      college: formData.get('college'),
+      location: formData.get('location') ? JSON.parse(formData.get('location')) : null,
+      images: formData.getAll('images'), // Get all image files
+      pdfs: formData.getAll('pdfs'), // Get all PDF files
+      // Add other fields as needed for rooms/notes
+      roomType: formData.get('roomType'),
+      occupancy: formData.get('occupancy'),
+      ownerName: formData.get('ownerName'),
+      contact1: formData.get('contact1'),
+      contact2: formData.get('contact2'),
+      distance: formData.get('distance'),
+      deposit: formData.get('deposit'),
+      feesIncludeMess: formData.get('feesIncludeMess') === 'true',
+      messType: formData.get('messType'),
+      amenities: formData.getAll('amenities'),
+      course: formData.get('course'),
+      subject: formData.get('subject'),
+      academicYear: formData.get('academicYear'),
+      pdfUrls: formData.getAll('pdfUrls'),
+      pdfUrl: formData.get('pdfUrl'),
+    };
 
-        // Check content length before processing (allow for multiple 100MB PDFs + images)
-        const contentLength = request.headers.get('content-length');
-        const maxSize = 500 * 1024 * 1024; // 500MB total request size
-        
-        if (contentLength && parseInt(contentLength) > maxSize) {
-            return NextResponse.json({ 
-                error: 'Total upload size too large. Maximum allowed is 500MB.' 
-            }, { status: 413 });
-        }
+    console.log('📥 [SELL API] Parsed data:', {
+      type,
+      user: user.email,
+      title: data.title,
+      imagesCount: data.images?.length || 0
+    });
 
-        let formData;
-        try {
-            // console.log('=== Attempting to parse form data ===');
-            formData = await request.formData();
-            // console.log('✅ Form data parsed successfully');
-            
-            // Log all form fields for debugging
-            // console.log('Form fields received:');
-            for (const [key, value] of formData.entries()) {
-                if (value instanceof File) {
-                    // console.log(`  ${key}: [File] ${value.name} (${value.size} bytes, ${value.type})`);
-                } else {
-                    // console.log(`  ${key}: ${value}`);
-                }
-            }
-        } catch (error) {
-            // console.error('❌ Failed to parse form data:', error);
-            if (error.message.includes('size')) {
-                return NextResponse.json({ 
-                    error: 'Files are too large. Please reduce file sizes and try again.' 
-                }, { status: 413 });
-            }
-            return NextResponse.json({ 
-                error: 'Failed to parse form data. Please try again.',
-                details: error.message 
-            }, { status: 400 });
-        }
-
-        const formType = formData.get('formType');
-        // console.log(`=== Processing form type: ${formType} ===`);
-
-        if (!formType) {
-            // console.error('❌ No formType provided');
-            return NextResponse.json({ 
-                error: 'Form type is required' 
-            }, { status: 400 });
-        }
-
-        if (!['regular', 'notes', 'rooms'].includes(formType)) {
-            // console.error(`❌ Invalid formType: ${formType}`);
-            return NextResponse.json({ 
-                error: 'Invalid form type. Must be: regular, notes, or rooms' 
-            }, { status: 400 });
-        }
-
-        let dataToInsert = {};
-        let tableName = '';
-
-        // Upload images to ImgBB (filter out empty files)
-        const imageFiles = formData.getAll('images').filter(file => file.size > 0);
-        let imageUrls = [];
-        
-        // console.log(`Processing ${imageFiles.length} image files for upload...`);
-        
-        if (imageFiles.length > 0) {
-            try {
-                imageUrls = await Promise.all(
-                    imageFiles.map(async (file, index) => {
-                        // console.log(`Uploading image ${index + 1}: ${file.name} (${file.size} bytes)`);
-                        const url = await uploadImageToImgBB(file);
-                        // console.log(`✅ Image ${index + 1} uploaded successfully: ${url}`);
-                        return url;
-                    })
-                );
-                // console.log('All images uploaded successfully:', imageUrls);
-            } catch (error) {
-                // console.error('Image upload failed:', error);
-                return NextResponse.json({ 
-                    error: `Image upload failed: ${error.message}` 
-                }, { status: 400 });
-            }
-        } else {
-            // console.log('No image files to upload');
-        }
-
-        if (formType === 'regular') {
-            tableName = 'products';
-            
-            // Clean and validate URLs for PostgreSQL arrays
-            const cleanImageUrls = imageUrls.filter(url => url && typeof url === 'string' && url.trim());
-            
-            // console.log('Clean URLs for products insertion:', {
-            //     originalImages: imageUrls,
-            //     cleanImages: cleanImageUrls
-            // });
-            
-            // Validate required fields for products
-            const requiredFields = {
-                title: formData.get('title'),
-                college: formData.get('college'),
-                category: formData.get('category'),
-                condition: formData.get('condition'),
-                price: formData.get('price'),
-                location: formData.get('location')
-            };
-            
-            const missingFields = Object.entries(requiredFields)
-                .filter(([key, value]) => !value || value.toString().trim() === '')
-                .map(([key]) => key);
-            
-            if (missingFields.length > 0) {
-                return NextResponse.json({ 
-                    error: `Missing required fields: ${missingFields.join(', ')}` 
-                }, { status: 400 });
-            }
-            
-            // Validate and parse location
-            let locationData;
-            try {
-                locationData = JSON.parse(formData.get('location'));
-                if (!locationData || !locationData.lat || !locationData.lng) {
-                    return NextResponse.json({ 
-                        error: 'Invalid location data: Missing coordinates' 
-                    }, { status: 400 });
-                }
-            } catch (error) {
-                return NextResponse.json({ 
-                    error: 'Invalid location data: Cannot parse location JSON' 
-                }, { status: 400 });
-            }
-            
-            // Validate price
-            const priceValue = parseFloat(formData.get('price'));
-            if (isNaN(priceValue) || priceValue < 0) {
-                return NextResponse.json({ 
-                    error: 'Invalid price: Must be a valid positive number' 
-                }, { status: 400 });
-            }
-            
-            // console.log('Products form validation passed. Required fields:', requiredFields);
-            
-            // Prepare data for database insertion
-            // Handle images based on database schema (JSONB vs TEXT[])
-            let imagesForDb;
-            if (cleanImageUrls.length === 0) {
-                imagesForDb = null; // or [] - depends on your schema
-            } else {
-                // Try JSONB format first (current schema), fallback to TEXT[] if needed
-                imagesForDb = cleanImageUrls;
-            }
-            
-            dataToInsert = {
-                seller_id: userId,
-                title: formData.get('title').trim(),
-                description: formData.get('description') || '',
-                price: priceValue,
-                category: formData.get('category').trim(),
-                condition: formData.get('condition').trim(),
-                college: formData.get('college').trim(),
-                location: locationData, // Should work with JSONB
-                images: imagesForDb,
-                is_sold: false,
-            };
-            
-            // console.log('Final products data structure before insertion:', {
-            //     seller_id: dataToInsert.seller_id,
-            //     title: dataToInsert.title,
-            //     images_type: typeof dataToInsert.images,
-            //     images_isArray: Array.isArray(dataToInsert.images),
-            //     images_length: dataToInsert.images ? dataToInsert.images.length : 0,
-            //     images_content: dataToInsert.images,
-            //     category: dataToInsert.category,
-            //     price: dataToInsert.price
-            // });
-        } else if (formType === 'notes') {
-            tableName = 'notes';
-            
-            // Handle multiple PDF files using Google Drive
-            const pdfFiles = formData.getAll('pdfs').filter(file => file.size > 0);
-            let pdfUrls = [];
-            
-            // console.log(`Processing ${pdfFiles.length} PDF files for Google Drive upload...`);
-            
-            if (pdfFiles.length > 0) {
-                try {
-                    // console.log(`Uploading ${pdfFiles.length} PDF files to Google Drive...`);
-                    const uploadResults = await Promise.all(
-                        pdfFiles.map(async (file, index) => {
-                            // console.log(`Uploading PDF ${index + 1}: ${file.name} (${file.size} bytes)`);
-                            const result = await uploadPdfToGoogleDrive(file);
-                            // console.log(`✅ PDF ${index + 1} uploaded successfully: ${result.url}`);
-                            return result.url; // Extract just the URL for compatibility
-                        })
-                    );
-                    pdfUrls = uploadResults;
-                    // console.log('All PDFs uploaded successfully to Google Drive:', pdfUrls);
-                } catch (error) {
-                    // console.error('Google Drive PDF upload error:', error);
-                    return NextResponse.json({ 
-                        error: `PDF upload failed: ${error.message}` 
-                    }, { status: 400 });
-                }
-            } else {
-                // console.log('No PDF files to upload');
-            }
-            
-            // Clean and validate URLs for PostgreSQL arrays - more robust approach
-            const cleanImageUrls = imageUrls
-                .filter(url => url && typeof url === 'string' && url.trim())
-                .map(url => url.trim())
-                .filter(url => url.startsWith('http')); // Ensure valid URLs
-            
-            const cleanPdfUrls = pdfUrls
-                .filter(url => url && typeof url === 'string' && url.trim())
-                .map(url => url.trim())
-                .filter(url => url.startsWith('http')); // Ensure valid URLs
-            
-            // console.log('Clean URLs for insertion:', {
-            //     originalImages: imageUrls,
-            //     cleanImages: cleanImageUrls,
-            //     originalPdfs: pdfUrls,
-            //     cleanPdfs: cleanPdfUrls
-            // });
-            
-            // Validate that we have at least some content if files were uploaded
-            if (imageFiles.length > 0 && cleanImageUrls.length === 0) {
-                // console.error('Image files were uploaded but no valid URLs generated');
-                return NextResponse.json({ 
-                    error: 'Image upload succeeded but URLs are invalid. Please try again.' 
-                }, { status: 400 });
-            }
-            
-            if (pdfFiles.length > 0 && cleanPdfUrls.length === 0) {
-                // console.error('PDF files were uploaded but no valid URLs generated');
-                return NextResponse.json({ 
-                    error: 'PDF upload succeeded but URLs are invalid. Please try again.' 
-                }, { status: 400 });
-            }
-            
-            // Validate required fields for notes
-            const requiredFields = {
-                title: formData.get('title'),
-                college: formData.get('college'),
-                academic_year: formData.get('academic_year'),
-                subject: formData.get('subject'),
-                category: formData.get('category'),
-                price: formData.get('price')
-            };
-            
-            // console.log('=== Notes field validation ===');
-            // console.log('Required fields received:', requiredFields);
-            
-            const missingFields = Object.entries(requiredFields)
-                .filter(([key, value]) => {
-                    const isEmpty = !value || value.toString().trim() === '';
-                    if (isEmpty) {
-                        // console.log(`❌ Missing or empty field: ${key} = "${value}"`);
-                    }
-                    return isEmpty;
-                })
-                .map(([key]) => key);
-            
-            if (missingFields.length > 0) {
-                // console.error(`❌ Missing required fields: ${missingFields.join(', ')}`);
-                return NextResponse.json({ 
-                    error: `Missing required fields: ${missingFields.join(', ')}`,
-                    debug: {
-                        receivedFields: requiredFields,
-                        missingFields: missingFields
-                    }
-                }, { status: 400 });
-            }
-            
-            // console.log('✅ Notes form validation passed');
-            
-            dataToInsert = {
-                seller_id: userId,
-                title: formData.get('title').trim(),
-                description: formData.get('description') || '',
-                price: parseFloat(formData.get('price')),
-                // DO NOT include ANY URL fields in the initial insert - test with minimal data
-                college: formData.get('college').trim(),
-                course_subject: formData.get('subject').trim(),
-                academic_year: formData.get('academic_year').trim(),
-                category: formData.get('category').trim(),
-            };
-            
-            // Store ALL URL-related data separately for the update step
-            dataToInsert._images_for_update = cleanImageUrls;
-            dataToInsert._pdf_urls_for_update = cleanPdfUrls;
-            dataToInsert._pdfUrl_for_update = cleanPdfUrls.length > 0 ? cleanPdfUrls[0] : null;
-            
-            // console.log('Final notes data structure before insertion:', {
-            //     seller_id: dataToInsert.seller_id,
-            //     title: dataToInsert.title,
-            //     images_type: typeof dataToInsert.images,
-            //     images_isArray: Array.isArray(dataToInsert.images),
-            //     images_length: dataToInsert.images ? dataToInsert.images.length : 0,
-            //     images_content: dataToInsert.images,
-            //     pdf_urls_type: typeof dataToInsert.pdf_urls,
-            //     pdf_urls_isArray: Array.isArray(dataToInsert.pdf_urls),
-            //     pdf_urls_length: dataToInsert.pdf_urls ? dataToInsert.pdf_urls.length : 0,
-            //     pdf_urls_content: dataToInsert.pdf_urls,
-            //     pdfUrl: dataToInsert.pdfUrl
-            // });
-        } else if (formType === 'rooms') {
-            tableName = 'rooms';
-            
-            // Clean and validate URLs for PostgreSQL arrays
-            const cleanImageUrls = imageUrls.filter(url => url && typeof url === 'string' && url.trim());
-            
-            // console.log('Clean URLs for rooms insertion:', {
-            //     originalImages: imageUrls,
-            //     cleanImages: cleanImageUrls
-            // });
-            
-            // Validate required fields for rooms - using actual form field names
-            const requiredFields = {
-                hostel_name: formData.get('hostel_name'),
-                college: formData.get('college'),
-                fees: formData.get('fees'),
-                owner_name: formData.get('owner_name'),
-                contact_primary: formData.get('contact_primary')
-            };
-            
-            // Check if location exists and is valid JSON
-            const locationStr = formData.get('location');
-            let locationData = null;
-            if (locationStr && locationStr !== '{}') {
-                try {
-                    locationData = JSON.parse(locationStr);
-                    if (!locationData.lat || !locationData.lng) {
-                        // console.error('❌ Location is missing lat/lng coordinates');
-                        return NextResponse.json({ 
-                            error: 'Please select a location on the map' 
-                        }, { status: 400 });
-                    }
-                } catch (e) {
-                    // console.error('❌ Invalid location JSON:', locationStr);
-                    return NextResponse.json({ 
-                        error: 'Invalid location data' 
-                    }, { status: 400 });
-                }
-            } else {
-                // console.error('❌ No location provided');
-                return NextResponse.json({ 
-                    error: 'Please select a location on the map' 
-                }, { status: 400 });
-            }
-            
-            const missingFields = Object.entries(requiredFields)
-                .filter(([key, value]) => !value || value.toString().trim() === '')
-                .map(([key]) => key);
-            
-            if (missingFields.length > 0) {
-                // console.error(`❌ Missing required fields: ${missingFields.join(', ')}`);
-                return NextResponse.json({ 
-                    error: `Missing required fields: ${missingFields.join(', ')}` 
-                }, { status: 400 });
-            }
-            
-            // console.log('✅ Rooms form validation passed. Required fields:', requiredFields);
-            
-            dataToInsert = {
-                seller_id: userId,
-                title: formData.get('hostel_name').trim(),
-                description: formData.get('description') || '',
-                price: parseFloat(formData.get('fees')),
-                images: cleanImageUrls, // Clean array - using consistent column name
-                college: formData.get('college').trim(),
-                location: locationData,
-                category: formData.get('category') || 'Rooms/Hostel',
-                room_type: formData.get('room_type') || '',
-                occupancy: formData.get('occupancy') || '',
-                distance: formData.get('distance') || '',
-                deposit: parseFloat(formData.get('deposit')) || null,
-                fees_include_mess: formData.get('mess_included') === 'true',
-                mess_fees: parseFloat(formData.get('mess_fees')) || null,
-                owner_name: formData.get('owner_name').trim(),
-                contact1: formData.get('contact_primary').trim(),
-                contact2: formData.get('contact_secondary') || '',
-                amenities: formData.getAll('amenities'),
-            };
-            
-            // console.log('Final rooms data structure before insertion:', {
-            //     seller_id: dataToInsert.seller_id,
-            //     title: dataToInsert.title,
-            //     images_type: typeof dataToInsert.images,
-            //     images_isArray: Array.isArray(dataToInsert.images),
-            //     images_length: dataToInsert.images ? dataToInsert.images.length : 0,
-            //     images_content: dataToInsert.images,
-            //     price: dataToInsert.price,
-            //     owner_name: dataToInsert.owner_name,
-            //     contact1: dataToInsert.contact1
-            // });
-        } else {
-            return NextResponse.json({ error: 'Invalid form type' }, { status: 400 });
-        }
-
-        // console.log('Final data to insert:', {
-        //     tableName,
-        //     dataToInsert: JSON.stringify(dataToInsert, null, 2)
-        // });
-
-        // Insert data into database - use different approach for notes to avoid array issues
-        // console.log(`Attempting to insert into ${tableName}...`);
-        
-        let insertedData, insertError;
-        
-        if (tableName === 'notes') {
-            // For notes, ALWAYS use two-step approach to avoid array literal issues
-            // console.log('Inserting notes data using two-step approach...');
-            
-            // Step 1: Extract arrays and URL fields, insert base data without any URL/array fields
-            const { _images_for_update, _pdf_urls_for_update, _pdfUrl_for_update, ...baseData } = dataToInsert;
-            
-            // console.log('Step 1: Inserting base data without arrays...');
-            // console.log('Base data:', baseData);
-            
-            const { data: baseInsertData, error: baseInsertError } = await supabase
-                .from(tableName)
-                .insert(baseData)
-                .select('id')
-                .single();
-            
-            if (baseInsertError) {
-                // console.error('Base insertion failed:', baseInsertError);
-                insertedData = null;
-                insertError = baseInsertError;
-            } else {
-                // console.log('✅ Step 1 successful, ID:', baseInsertData.id);
-                insertedData = baseInsertData;
-                
-                // Step 2: Update with arrays if they exist
-                if ((_images_for_update && _images_for_update.length > 0) || (_pdf_urls_for_update && _pdf_urls_for_update.length > 0) || _pdfUrl_for_update) {
-                    // console.log('Step 2: Updating with arrays and URLs using individual field updates...');
-                    
-                    // Try updating arrays one field at a time to isolate the issue
-                    let updateSuccess = true;
-                    
-                    // Update pdfUrl first (simple text field)
-                    if (_pdfUrl_for_update) {
-                        // console.log('Updating pdfUrl field:', _pdfUrl_for_update);
-                        
-                        const { error: pdfUrlError } = await supabase
-                            .from('notes')
-                            .update({ pdfUrl: _pdfUrl_for_update })
-                            .eq('id', baseInsertData.id);
-                        
-                        if (pdfUrlError) {
-                            // console.error('pdfUrl update failed:', pdfUrlError);
-                            updateSuccess = false;
-                        } else {
-                            // console.log('✅ pdfUrl updated successfully');
-                        }
-                    }
-                    
-                    if (_images_for_update && _images_for_update.length > 0) {
-                        // console.log('Updating images array:', _images_for_update);
-                        
-                        // Clean the URLs and ensure they're proper strings
-                        const cleanImages = _images_for_update
-                            .map(url => String(url).trim())
-                            .filter(url => url.length > 0);
-                        
-                        // console.log('Clean images for update:', cleanImages);
-                        
-                        const { error: imgError } = await supabase
-                            .from('notes')
-                            .update({ images: cleanImages })
-                            .eq('id', baseInsertData.id);
-                        
-                        if (imgError) {
-                            // console.error('Images update failed:', imgError);
-                            updateSuccess = false;
-                        } else {
-                            // console.log('✅ Images updated successfully');
-                        }
-                    }
-                    
-                    if (_pdf_urls_for_update && _pdf_urls_for_update.length > 0) {
-                        // console.log('Updating pdf_urls array:', _pdf_urls_for_update);
-                        
-                        // Clean the URLs and ensure they're proper strings
-                        const cleanPdfs = _pdf_urls_for_update
-                            .map(url => String(url).trim())
-                            .filter(url => url.length > 0);
-                        
-                        // console.log('Clean PDFs for update:', cleanPdfs);
-                        
-                        const { error: pdfError } = await supabase
-                            .from('notes')
-                            .update({ pdf_urls: cleanPdfs })
-                            .eq('id', baseInsertData.id);
-                        
-                        if (pdfError) {
-                            // console.error('PDFs update failed:', pdfError);
-                            // console.error('Detailed PDF error:', {
-                            //     message: pdfError.message,
-                            //     code: pdfError.code,
-                            //     details: pdfError.details,
-                            //     hint: pdfError.hint,
-                            //     cleanPdfs: cleanPdfs,
-                            //     cleanPdfsLength: cleanPdfs.length,
-                            //     originalPdfs: _pdf_urls_for_update
-                            // });
-                            updateSuccess = false;
-                        } else {
-                            // console.log('✅ PDF URLs updated successfully');
-                        }
-                    }
-                    
-                    if (updateSuccess) {
-                        // console.log('✅ Step 2 successful - all fields updated!');
-                        insertError = null;
-                    } else {
-                        // console.warn('Some field updates failed, but base record was created');
-                        insertError = null; // Don't fail the whole operation
-                    }
-                } else {
-                    // console.log('No arrays to update');
-                    insertError = null;
-                }
-            }
-        } else {
-            // For other tables, use normal insert
-            console.log(`Inserting data into ${tableName}:`, JSON.stringify(dataToInsert, null, 2));
-            
-            const insertResult = await supabase
-                .from(tableName)
-                .insert(dataToInsert)
-                .select('id')
-                .single();
-            
-            insertedData = insertResult.data;
-            insertError = insertResult.error;
-            
-            // Log detailed error information
-            if (insertError) {
-                console.error('Detailed database error:', {
-                    message: insertError.message,
-                    code: insertError.code,
-                    details: insertError.details,
-                    hint: insertError.hint,
-                    tableName: tableName,
-                    dataToInsert: dataToInsert
-                });
-            }
-        }
-
-        if (insertError) {
-            // console.error('Database insertion error:', insertError);
-            // console.error('Data being inserted:', JSON.stringify(dataToInsert, null, 2));
-            // console.error('Table name:', tableName);
-            
-            // Log to console for debugging (visible in Vercel logs)
-            console.error('DATABASE ERROR:', {
-                table: tableName,
-                error: insertError,
-                data: dataToInsert
-            });
-            
-            // Provide more specific error messages
-            if (insertError.message.includes('note_year') || insertError.message.includes('null value in column "note_year"')) {
-                // console.error('note_year column error detected!');
-                // console.error('This suggests the database has a note_year column with NOT NULL constraint');
-                
-                return NextResponse.json({ 
-                    error: 'Database schema mismatch: note_year column issue. Please run the database fix script.',
-                    details: insertError.message,
-                    suggestion: 'Run the safe_schema_fix.sql script in your Supabase SQL editor'
-                }, { status: 500 });
-            } else if (insertError.message.includes('violates not-null constraint')) {
-                const match = insertError.message.match(/column "([^"]+)"/);
-                const columnName = match ? match[1] : 'unknown';
-                
-                return NextResponse.json({ 
-                    error: `Missing required field: ${columnName}`,
-                    details: insertError.message,
-                    suggestion: `Please provide a value for the ${columnName} field`
-                }, { status: 400 });
-            } else if (insertError.message.includes('column') && insertError.message.includes('does not exist')) {
-                const match = insertError.message.match(/column "([^"]+)"/);
-                const columnName = match ? match[1] : 'unknown';
-                
-                return NextResponse.json({ 
-                    error: `Database schema issue: Missing column ${columnName}`,
-                    details: insertError.message,
-                    suggestion: 'The database schema needs to be updated. Please run the schema fix script.'
-                }, { status: 500 });
-            } else if (insertError.message.includes('invalid input syntax for type')) {
-                return NextResponse.json({ 
-                    error: 'Data format error: Invalid data type provided',
-                    details: insertError.message,
-                    suggestion: 'Please check that all numeric fields contain valid numbers and arrays are properly formatted.'
-                }, { status: 400 });
-            } else {
-                // Generic database error with more details
-                return NextResponse.json({ 
-                    error: 'Database error occurred while saving your listing.',
-                    details: insertError.message,
-                    code: insertError.code,
-                    table: tableName
-                }, { status: 500 });
-            }
-        }
-        
-        // console.log('✅ Successfully inserted record with ID:', insertedData?.id);
-        
-        // Verify that the data was actually saved correctly
-        if (insertedData?.id) {
-            // console.log(`🔍 Verifying saved data in ${tableName} table...`);
-            
-            let selectColumns;
-            if (tableName === 'notes') {
-                selectColumns = 'id, title, images, pdf_urls, pdfUrl';
-            } else if (tableName === 'products') {
-                selectColumns = 'id, title, images, category, price, is_sold';
-            } else if (tableName === 'rooms') {
-                selectColumns = 'id, title, images, price, owner_name, contact1';
-            } else {
-                selectColumns = 'id, title';
-            }
-            
-            const { data: savedRecord, error: verifyError } = await supabase
-                .from(tableName)
-                .select(selectColumns)
-                .eq('id', insertedData.id)
-                .single();
-            
-            if (verifyError) {
-                // console.error(`❌ Failed to verify saved ${tableName} record:`, verifyError);
-            } else {
-                // console.log(`✅ Verified saved ${tableName} data:`, savedRecord);
-                
-                // Check if images array is saved correctly for all types
-                if (!savedRecord.images || savedRecord.images.length === 0) {
-                    // console.warn(`⚠️ WARNING: Images array is empty in ${tableName} table!`);
-                } else {
-                    // console.log(`✅ Images successfully saved in ${tableName}:`, savedRecord.images);
-                }
-                
-                // Additional checks for notes
-                if (tableName === 'notes') {
-                    if (!savedRecord.pdf_urls || savedRecord.pdf_urls.length === 0) {
-                        // console.warn('⚠️ WARNING: PDF URLs array is empty in notes table!');
-                    }
-                    if (!savedRecord.pdfUrl) {
-                        // console.warn('⚠️ WARNING: pdfUrl field is empty in notes table!');
-                    }
-                }
-            }
-        }
-        
-        return NextResponse.json({ 
-            message: 'Listing created successfully!',
-            id: insertedData?.id
-        }, { status: 201 });
-
-    } catch (error) {
-        // console.error('API Error:', error);
-        // console.error('Error stack:', error.stack);
-        
-        // Ensure we always return JSON
-        return NextResponse.json({ 
-            error: error.message || 'An unexpected error occurred.',
-            details: process.env.NODE_ENV === 'development' ? error.stack : undefined
-        }, { 
-            status: 500,
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
+    // ============================================================================
+    // 1. AUTHENTICATION VALIDATION (EMAIL-BASED)
+    // ============================================================================
+    
+    if (!user || !user.email) {
+      console.error('❌ [AUTH ERROR] No user or email provided');
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Authentication required. Please sign in with a valid email.',
+        code: 'AUTH_MISSING_EMAIL'
+      }, { status: 401 });
     }
+
+    console.log('🔍 [AUTH] Checking user authentication for email:', user.email);
+
+    // Check if email exists in Supabase Auth by checking the public.users table
+    // Since we have RLS enabled, this also validates the user exists in auth
+    let authUser;
+    try {
+      // First, try to find the user in our public.users table
+      const { data: existingUser, error: userCheckError } = await supabaseAdmin
+        .from('users')
+        .select('id, email, name, avatar_url, college, phone')
+        .eq('email', user.email)
+        .single();
+
+      if (userCheckError && userCheckError.code !== 'PGRST116') {
+        console.error('❌ [AUTH ERROR] Database error during user check:', userCheckError);
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Authentication system error. Please try again.',
+          code: 'AUTH_SYSTEM_ERROR',
+          details: userCheckError.message
+        }, { status: 500 });
+      }
+
+      if (!existingUser) {
+        console.error('❌ [AUTH ERROR] No user found for email:', user.email);
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Email not registered. Please create an account first.',
+          code: 'AUTH_EMAIL_UNREGISTERED'
+        }, { status: 403 });
+      }
+
+      // Create auth user object from existing user data
+      authUser = {
+        id: existingUser.id,
+        email: existingUser.email,
+        user_metadata: {
+          name: existingUser.name,
+          avatar_url: existingUser.avatar_url
+        }
+      };
+      
+      console.log('✅ [AUTH] User authenticated successfully:', authUser.id);
+    } catch (authCheckError) {
+      console.error('❌ [AUTH ERROR] Exception during auth check:', authCheckError);
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Authentication system error. Please try again.',
+        code: 'AUTH_SYSTEM_ERROR',
+        details: authCheckError.message
+      }, { status: 500 });
+    }
+
+    // ============================================================================
+    // 2. USER SYNC AND UPSERT
+    // ============================================================================
+    
+    console.log('👤 [USER SYNC] Upserting user to public.users table');
+    try {
+      const userData = {
+        id: authUser.id,
+        email: user.email,
+        name: user.name || authUser.user_metadata?.name || authUser.user_metadata?.full_name || user.email.split('@')[0],
+        avatar_url: user.avatar_url || authUser.user_metadata?.avatar_url || null,
+        college: user.college || data.college || null,
+        phone: user.phone || null,
+        updated_at: new Date().toISOString(),
+      };
+
+      const { data: upsertedUser, error: upsertError } = await supabaseAdmin
+        .from('users')
+        .upsert(userData, { onConflict: 'email' })
+        .select()
+        .single();
+
+      if (upsertError) {
+        console.error('❌ [USER SYNC ERROR] Failed to upsert user:', upsertError);
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Failed to sync user profile. Please try again.',
+          code: 'USER_SYNC_ERROR',
+          details: upsertError.message
+        }, { status: 500 });
+      }
+
+      console.log('✅ [USER SYNC] User upserted successfully:', upsertedUser.id);
+    } catch (syncError) {
+      console.error('❌ [USER SYNC ERROR] Exception during user sync:', syncError);
+      return NextResponse.json({ 
+        success: false, 
+        error: 'User synchronization failed. Please try again.',
+        code: 'USER_SYNC_EXCEPTION',
+        details: syncError.message
+      }, { status: 500 });
+    }
+
+    // ============================================================================
+    // 3. VALIDATE REQUEST TYPE
+    // ============================================================================
+    
+    if (!type || !['rooms', 'products', 'notes'].includes(type)) {
+      console.error('❌ [VALIDATION ERROR] Invalid or missing type:', type);
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Invalid submission type. Must be rooms, products, or notes.',
+        code: 'INVALID_TYPE'
+      }, { status: 400 });
+    }
+
+    console.log(`📝 [${type.toUpperCase()}] Processing ${type} submission`);
+
+    // ============================================================================
+    // 4. IMAGE UPLOAD PROCESSING
+    // ============================================================================
+    
+    let imageUrls = [];
+    if (data.images && Array.isArray(data.images) && data.images.length > 0) {
+      console.log(`🖼️ [IMAGE UPLOAD] Processing ${data.images.length} images for ${type}`);
+      
+      try {
+        for (let i = 0; i < data.images.length; i++) {
+          const imageItem = data.images[i];
+          
+          // Skip if it's already a URL string
+          if (typeof imageItem === 'string' && imageItem.trim() !== '') {
+            imageUrls.push(imageItem);
+            continue;
+          }
+          
+          // Skip if it's an invalid object or empty
+          if (!imageItem || typeof imageItem !== 'object') {
+            console.warn(`⚠️ [IMAGE UPLOAD] Skipping invalid image item at index ${i}:`, imageItem);
+            continue;
+          }
+          
+          // If it's a File object or has file-like properties, we need to upload it
+          if (imageItem.name && imageItem.type && imageItem.size) {
+            console.log(`📤 [IMAGE UPLOAD] Uploading image ${i + 1}: ${imageItem.name} (${(imageItem.size / 1024).toFixed(1)}KB)`);
+            
+            try {
+              const uploadedUrl = await uploadImageToImgBB(imageItem);
+              imageUrls.push(uploadedUrl);
+              console.log(`✅ [IMAGE UPLOAD] Image ${i + 1} uploaded successfully: ${uploadedUrl.substring(0, 50)}...`);
+            } catch (uploadError) {
+              console.error(`❌ [IMAGE UPLOAD] Failed to upload image ${i + 1}:`, uploadError);
+              return NextResponse.json({ 
+                success: false, 
+                error: `Failed to upload image "${imageItem.name}": ${uploadError.message}`,
+                code: 'IMAGE_UPLOAD_ERROR',
+                details: uploadError.message
+              }, { status: 400 });
+            }
+          }
+        }
+        
+        console.log(`✅ [IMAGE UPLOAD] Successfully processed ${imageUrls.length} images`);
+      } catch (imageProcessError) {
+        console.error('❌ [IMAGE UPLOAD] Exception during image processing:', imageProcessError);
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Failed to process images. Please try again.',
+          code: 'IMAGE_PROCESSING_ERROR',
+          details: imageProcessError.message
+        }, { status: 500 });
+      }
+    }
+
+    // ============================================================================
+    // 4B. PDF UPLOAD PROCESSING (for notes)
+    // ============================================================================
+    
+    let pdfUrls = [];
+    if (type === 'notes' && data.pdfs && Array.isArray(data.pdfs) && data.pdfs.length > 0) {
+      console.log(`📄 [PDF UPLOAD] Processing ${data.pdfs.length} PDFs for notes`);
+      
+      try {
+        for (let i = 0; i < data.pdfs.length; i++) {
+          const pdfFile = data.pdfs[i];
+          
+          // Skip if it's already a URL string
+          if (typeof pdfFile === 'string' && pdfFile.trim() !== '') {
+            pdfUrls.push(pdfFile);
+            continue;
+          }
+          
+          // Skip if it's an invalid object or empty
+          if (!pdfFile || typeof pdfFile !== 'object') {
+            console.warn(`⚠️ [PDF UPLOAD] Skipping invalid PDF item at index ${i}:`, pdfFile);
+            continue;
+          }
+          
+          // If it's a File object, upload it
+          if (pdfFile.name && pdfFile.type && pdfFile.size) {
+            console.log(`📤 [PDF UPLOAD] Uploading PDF ${i + 1}: ${pdfFile.name} (${(pdfFile.size / 1024 / 1024).toFixed(1)}MB)`);
+            
+            try {
+              const uploadedUrl = await uploadPdfToGoogleDrive(pdfFile);
+              pdfUrls.push(uploadedUrl);
+              console.log(`✅ [PDF UPLOAD] PDF ${i + 1} uploaded successfully`);
+            } catch (uploadError) {
+              console.error(`❌ [PDF UPLOAD] Failed to upload PDF ${i + 1}:`, uploadError);
+              return NextResponse.json({ 
+                success: false, 
+                error: `Failed to upload PDF "${pdfFile.name}": ${uploadError.message}`,
+                code: 'PDF_UPLOAD_ERROR',
+                details: uploadError.message
+              }, { status: 400 });
+            }
+          }
+        }
+        
+        console.log(`✅ [PDF UPLOAD] Successfully processed ${pdfUrls.length} PDFs`);
+      } catch (pdfProcessError) {
+        console.error('❌ [PDF UPLOAD] Exception during PDF processing:', pdfProcessError);
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Failed to process PDFs. Please try again.',
+          code: 'PDF_PROCESSING_ERROR',
+          details: pdfProcessError.message
+        }, { status: 500 });
+      }
+    }
+
+    // ============================================================================
+    // 5. PREPARE DATA FOR INSERTION
+    // ============================================================================
+    
+    const baseData = {
+      seller_id: authUser.id,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    let insertData;
+    let tableName;
+
+    try {
+      switch (type) {
+        case 'rooms':
+          tableName = 'rooms';
+          insertData = {
+            ...baseData,
+            title: data.title,
+            description: data.description,
+            price: parseFloat(data.price),
+            college: data.college,
+            location: data.location ? JSON.stringify(data.location) : null,
+            images: imageUrls,
+            room_type: data.roomType,
+            occupancy: data.occupancy,
+            owner_name: data.ownerName,
+            contact1: data.contact1,
+            contact2: data.contact2 || null,
+            distance: data.distance || null,
+            deposit: data.deposit ? parseFloat(data.deposit) : null,
+            fees_include_mess: data.feesIncludeMess || false,
+            mess_fees: data.messType && data.messType !== 'no-mess' ? parseFloat(data.messType) : null,
+            amenities: data.amenities || [],
+            category: 'rooms',
+          };
+          break;
+
+        case 'products':
+          tableName = 'products';
+          insertData = {
+            ...baseData,
+            title: data.title,
+            description: data.description,
+            price: parseFloat(data.price),
+            category: data.category,
+            condition: data.condition,
+            college: data.college,
+            location: data.location ? JSON.stringify(data.location) : null,
+            images: imageUrls,
+            pdf_url: data.pdfUrl || null,
+          };
+          break;
+
+        case 'notes':
+          tableName = 'notes';
+          insertData = {
+            ...baseData,
+            title: data.title,
+            description: data.description,
+            price: parseFloat(data.price),
+            college: data.college,
+            course: data.course,
+            subject: data.subject,
+            academic_year: data.academicYear,
+            course_subject: `${data.course} - ${data.subject}`,
+            images: imageUrls,
+            pdf_urls: pdfUrls,
+            pdf_url: pdfUrls.length > 0 ? pdfUrls[0] : null,
+            category: 'notes',
+          };
+          break;
+
+        default:
+          throw new Error(`Unsupported type: ${type}`);
+      }
+
+      console.log(`📊 [${type.toUpperCase()}] Prepared data:`, JSON.stringify(insertData, null, 2));
+    } catch (dataError) {
+      console.error(`❌ [DATA ERROR] Failed to prepare ${type} data:`, dataError);
+      return NextResponse.json({ 
+        success: false, 
+        error: `Failed to prepare ${type} data. Check required fields.`,
+        code: 'DATA_PREPARATION_ERROR',
+        details: dataError.message
+      }, { status: 400 });
+    }
+
+    // ============================================================================
+    // 6. INSERT DATA TO DATABASE
+    // ============================================================================
+    
+    try {
+      console.log(`💾 [DATABASE] Inserting ${type} to ${tableName} table`);
+      
+      const { data: insertedData, error: insertError } = await supabaseAdmin
+        .from(tableName)
+        .insert(insertData)
+        .select()
+        .single();
+
+      if (insertError) {
+        console.error(`❌ [DATABASE ERROR] Failed to insert ${type}:`, insertError);
+        
+        // Handle specific database errors
+        if (insertError.code === 'PGRST116') {
+          return NextResponse.json({ 
+            success: false, 
+            error: 'Database configuration error. RLS policies may be blocking access.',
+            code: 'DATABASE_RLS_ERROR',
+            details: insertError.message
+          }, { status: 500 });
+        }
+        
+        if (insertError.code === '42501') {
+          return NextResponse.json({ 
+            success: false, 
+            error: 'Insufficient permissions. Please check your authentication.',
+            code: 'DATABASE_PERMISSION_ERROR',
+            details: insertError.message
+          }, { status: 403 });
+        }
+
+        return NextResponse.json({ 
+          success: false, 
+          error: `Failed to save ${type}. Please check your data and try again.`,
+          code: 'DATABASE_INSERT_ERROR',
+          details: insertError.message
+        }, { status: 500 });
+      }
+
+      console.log(`✅ [SUCCESS] ${type} inserted successfully:`, insertedData.id);
+
+      // ============================================================================
+      // 7. SUCCESS RESPONSE
+      // ============================================================================
+      
+      return NextResponse.json({
+        success: true,
+        message: `${type.charAt(0).toUpperCase() + type.slice(1)} submitted successfully!`,
+        data: {
+          id: insertedData.id,
+          type: type,
+          title: insertedData.title,
+          created_at: insertedData.created_at
+        }
+      }, { status: 201 });
+
+    } catch (insertException) {
+      console.error(`❌ [DATABASE EXCEPTION] Exception during ${type} insertion:`, insertException);
+      return NextResponse.json({ 
+        success: false, 
+        error: `Database error while saving ${type}. Please try again.`,
+        code: 'DATABASE_EXCEPTION',
+        details: insertException.message
+      }, { status: 500 });
+    }
+
+  } catch (error) {
+    console.error('❌ [FATAL ERROR] Unhandled exception in sell API:', error);
+    return NextResponse.json({
+      success: false,
+      error: 'Internal server error. Please try again later.',
+      code: 'INTERNAL_SERVER_ERROR',
+      details: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    }, { status: 500 });
+  }
+}
+
+export async function GET(request) {
+  return NextResponse.json({
+    message: 'StudX Sell API - Production Mode',
+    status: 'active',
+    authentication: 'email-based',
+    security: 'RLS enabled',
+    timestamp: new Date().toISOString()
+  });
 }

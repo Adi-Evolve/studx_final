@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
@@ -81,17 +81,76 @@ const EditProfileModal = ({ user, onClose, onSave }) => {
 
 export default function ProfileClientPage({ serverUser, serverProducts, serverNotes, serverRooms }) {
     const [user, setUser] = useState(serverUser);
-    const [products, setProducts] = useState(serverProducts);
-    const [notes, setNotes] = useState(serverNotes);
-    const [rooms, setRooms] = useState(serverRooms);
+    const [products, setProducts] = useState(serverProducts || []);
+    const [notes, setNotes] = useState(serverNotes || []);
+    const [rooms, setRooms] = useState(serverRooms || []);
     const [activeTab, setActiveTab] = useState('products');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [showBulkUpload, setShowBulkUpload] = useState(false);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const [lastRefresh, setLastRefresh] = useState(Date.now());
     const supabase = createSupabaseBrowserClient();
+
+    // Client-side data refresh function
+    const refreshListings = async () => {
+        if (!user?.id) return;
+        
+        setIsRefreshing(true);
+        console.log('🔄 Refreshing listings for user:', user.id);
+        
+        try {
+            const [productsRes, notesRes, roomsRes] = await Promise.all([
+                supabase.from('products').select(`
+                    id, title, description, price, category, condition, college, 
+                    location, images, is_sold, seller_id, created_at
+                `).eq('seller_id', user.id),
+                supabase.from('notes').select(`
+                    id, title, description, price, category, college, 
+                    academic_year, course_subject, images, pdf_urls, pdfurl, 
+                    seller_id, created_at
+                `).eq('seller_id', user.id),
+                supabase.from('rooms').select(`
+                    id, title, description, price, category, college, location, 
+                    images, room_type, occupancy, distance, deposit, fees_include_mess, 
+                    mess_fees, owner_name, contact1, contact2, amenities, seller_id, created_at
+                `).eq('seller_id', user.id)
+            ]);
+
+            // Log results
+            console.log('📦 Refreshed products:', productsRes.data?.length || 0, productsRes.error?.message || 'No error');
+            console.log('📝 Refreshed notes:', notesRes.data?.length || 0, notesRes.error?.message || 'No error');
+            console.log('🏠 Refreshed rooms:', roomsRes.data?.length || 0, roomsRes.error?.message || 'No error');
+
+            // Update state with new data (or empty arrays if errors)
+            setProducts((productsRes.data || []).map(item => ({ ...item, type: 'product' })));
+            setNotes((notesRes.data || []).map(item => ({ ...item, type: 'note' })));
+            setRooms((roomsRes.data || []).map(item => ({ ...item, type: 'room' })));
+            
+            setLastRefresh(Date.now());
+            
+        } catch (error) {
+            console.error('❌ Error refreshing listings:', error);
+        } finally {
+            setIsRefreshing(false);
+        }
+    };
+
+    // Auto-refresh if server data seems incomplete
+    useEffect(() => {
+        const hasNoData = (!products || products.length === 0) && 
+                         (!notes || notes.length === 0) && 
+                         (!rooms || rooms.length === 0);
+        
+        if (hasNoData && user?.id) {
+            console.log('🔄 No server data found, attempting client-side refresh...');
+            setTimeout(refreshListings, 1000); // Small delay to let component mount
+        }
+    }, [user?.id]); // Only run when user ID changes
 
     const handleSaveProfile = async ({ fullName, phoneNumber }) => {
         try {
-            // PROD: console.log('Saving profile...', { fullName, phoneNumber });
+            console.log('Saving profile...', { fullName, phoneNumber });
+            
             const { data, error } = await supabase
                 .from('users')
                 .update({ name: fullName, phone: phoneNumber })
@@ -106,13 +165,13 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
             }
             
             if (data) {
-                // PROD: console.log('Profile updated successfully:', data);
+                console.log('Profile updated successfully:', data);
                 setUser(prev => ({ ...prev, ...data }));
                 setIsModalOpen(false);
                 
                 // Force a small delay to ensure state update completes
                 setTimeout(() => {
-                    // PROD: console.log('Profile update complete');
+                    console.log('Profile update complete');
                 }, 100);
             }
         } catch (err) {
@@ -333,14 +392,25 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
                             </TabButton>
                         </div>
                         
-                        {activeTab === 'products' && (
+                        <div className="flex gap-2">
                             <button 
-                                onClick={() => setShowBulkUpload(true)}
-                                className="btn-secondary text-sm"
+                                onClick={refreshListings}
+                                disabled={isRefreshing}
+                                className={`btn-secondary text-sm ${isRefreshing ? 'opacity-60 cursor-not-allowed' : ''}`}
+                                title="Refresh your listings"
                             >
-                                📤 Bulk Upload
+                                {isRefreshing ? '🔄' : '🔄'} Refresh
                             </button>
-                        )}
+                            
+                            {activeTab === 'products' && (
+                                <button 
+                                    onClick={() => setShowBulkUpload(true)}
+                                    className="btn-secondary text-sm"
+                                >
+                                    📤 Bulk Upload
+                                </button>
+                            )}
+                        </div>
                     </div>
                     
                     {/* Tab Content */}

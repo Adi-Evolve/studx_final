@@ -29,38 +29,97 @@ export default function SellPage() {
     useEffect(() => {
         const checkUserInDatabase = async () => {
             try {
-                // Get the current session to get user email
+                // Get the current session to get user details
                 const { data: { session } } = await supabase.auth.getSession();
                 
                 if (!session || !session.user || !session.user.email) {
+                    console.log('❌ No valid session found');
                     setUserStatus('no-email');
                     setLoading(false);
                     return;
                 }
 
-                const currentUserEmail = session.user.email;
+                const currentUser = session.user;
+                const currentUserEmail = currentUser.email;
                 setUserEmail(currentUserEmail);
+                
+                console.log('🔍 Checking user in database:', currentUserEmail);
 
-                // Check the users table directly for this email
-                const { data: userData, error } = await supabase
+                // First check by user ID (more reliable)
+                const { data: userDataById, error: errorById } = await supabase
                     .from('users')
-                    .select('email, phone')
-                    .eq('email', currentUserEmail)
+                    .select('id, email, phone, name')
+                    .eq('id', currentUser.id)
                     .single();
 
+                let userData = userDataById;
+                let error = errorById;
+
+                // If not found by ID, check by email as fallback
                 if (error || !userData) {
-                    // No user found in users table with this email
-                    setUserStatus('no-email');
-                } else if (!userData.phone || userData.phone.trim() === '') {
-                    // User exists but phone is null or empty
-                    setUserStatus('no-phone');
+                    console.log('🔍 User not found by ID, checking by email...');
+                    const { data: userDataByEmail, error: errorByEmail } = await supabase
+                        .from('users')
+                        .select('id, email, phone, name')
+                        .eq('email', currentUserEmail)
+                        .single();
+                    
+                    userData = userDataByEmail;
+                    error = errorByEmail;
+                }
+
+                if (error || !userData) {
+                    console.log('❌ User not found in users table, attempting to sync...');
+                    
+                    // Attempt to create the user record
+                    const newUserData = {
+                        id: currentUser.id,
+                        email: currentUser.email,
+                        name: currentUser.user_metadata?.name || 
+                              currentUser.user_metadata?.full_name || 
+                              currentUser.user_metadata?.display_name || 
+                              currentUser.email?.split('@')[0],
+                        avatar_url: currentUser.user_metadata?.picture || 
+                                   currentUser.user_metadata?.avatar_url || 
+                                   currentUser.user_metadata?.photo || 
+                                   currentUser.user_metadata?.image,
+                        phone: currentUser.phone,
+                        created_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString()
+                    };
+
+                    console.log('📝 Creating user record:', newUserData);
+
+                    const { data: createdUser, error: createError } = await supabase
+                        .from('users')
+                        .upsert(newUserData, { onConflict: 'id' })
+                        .select()
+                        .single();
+
+                    if (createError) {
+                        console.error('❌ Failed to create user record:', createError);
+                        setUserStatus('no-email');
+                    } else {
+                        console.log('✅ User record created successfully');
+                        userData = createdUser;
+                    }
+                }
+
+                if (userData) {
+                    console.log('✅ User found:', userData);
+                    if (!userData.phone || userData.phone.trim() === '') {
+                        // User exists but phone is null or empty
+                        setUserStatus('no-phone');
+                    } else {
+                        // User exists and has phone number
+                        setUserStatus('ready');
+                    }
                 } else {
-                    // User exists and has phone number
-                    setUserStatus('ready');
+                    setUserStatus('no-email');
                 }
 
             } catch (error) {
-                console.error('Error checking user in database:', error);
+                console.error('❌ Error checking user in database:', error);
                 setUserStatus('no-email');
             }
 
