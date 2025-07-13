@@ -58,10 +58,21 @@ export default function SignUpPage() {
     
     const currentOrigin = typeof window !== 'undefined' ? window.location.origin : '';
     
+    // Determine the correct redirect URL based on environment
+    const redirectUrl = currentOrigin.includes('localhost') || 
+                       currentOrigin.includes('127.0.0.1') || 
+                       currentOrigin.includes('192.168.') ||
+                       currentOrigin.startsWith('http://10.') ||
+                       currentOrigin.includes('dev')
+      ? `${currentOrigin}/auth/callback?next=/`
+      : `https://studxchnage.vercel.app/auth/callback?next=/`;
+    
+    console.log('🔗 Google OAuth signup redirect URL:', redirectUrl);
+    
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${currentOrigin}/auth/callback?next=/`,
+        redirectTo: redirectUrl,
         queryParams: {
           access_type: 'offline',
           prompt: 'consent',

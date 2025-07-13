@@ -233,6 +233,95 @@ function serializeDataForClient(data) {
     return String(data);
 }
 
+// Fetch sponsored/featured listings from sponsorship_sequences table
+export async function fetchSponsoredListings() {
+    const supabase = createSupabaseServerClient();
+    
+    try {
+        // Get the sequence of sponsored items
+        const { data: sequenceItems, error: sequenceError } = await supabase
+            .from('sponsorship_sequences')
+            .select('item_id, item_type, slot')
+            .order('slot', { ascending: true });
+
+        if (sequenceError) {
+            console.error('Error fetching sponsorship sequence:', sequenceError);
+            return [];
+        }
+
+        if (!sequenceItems || sequenceItems.length === 0) {
+            return [];
+        }
+
+        // Group items by type for efficient fetching
+        const productIds = sequenceItems.filter(item => item.item_type === 'product').map(item => item.item_id);
+        const noteIds = sequenceItems.filter(item => item.item_type === 'note').map(item => item.item_id);
+        const roomIds = sequenceItems.filter(item => item.item_type === 'room').map(item => item.item_id);
+
+        // Fetch all items in parallel
+        const [productsRes, notesRes, roomsRes] = await Promise.all([
+            productIds.length > 0 ? supabase
+                .from('products')
+                .select(`
+                    id, title, description, price, category, condition, college, 
+                    location, images, is_sold, seller_id, created_at
+                `)
+                .in('id', productIds) : { data: [], error: null },
+            
+            noteIds.length > 0 ? supabase
+                .from('notes')
+                .select(`
+                    id, title, description, price, category, college, 
+                    academic_year, course_subject, images, pdf_urls, 
+                    seller_id, created_at
+                `)
+                .in('id', noteIds) : { data: [], error: null },
+            
+            roomIds.length > 0 ? supabase
+                .from('rooms')
+                .select(`
+                    id, title, description, price, category, college, location, 
+                    images, room_type, occupancy, distance, deposit, fees_include_mess, 
+                    mess_fees, owner_name, contact1, contact2, amenities, seller_id, created_at
+                `)
+                .in('id', roomIds) : { data: [], error: null }
+        ]);
+
+        // Check for errors
+        if (productsRes.error) console.error('Error fetching products:', productsRes.error);
+        if (notesRes.error) console.error('Error fetching notes:', notesRes.error);
+        if (roomsRes.error) console.error('Error fetching rooms:', roomsRes.error);
+
+        // Create maps for quick lookup
+        const productsMap = new Map((productsRes.data || []).map(item => [item.id, { ...item, type: 'regular' }]));
+        const notesMap = new Map((notesRes.data || []).map(item => [item.id, { ...item, type: 'note' }]));
+        const roomsMap = new Map((roomsRes.data || []).map(item => [item.id, { ...item, type: 'room' }]));
+
+        // Build the final ordered array
+        const sponsoredItems = [];
+        for (const sequenceItem of sequenceItems) {
+            let item = null;
+            
+            if (sequenceItem.item_type === 'product') {
+                item = productsMap.get(sequenceItem.item_id);
+            } else if (sequenceItem.item_type === 'note') {
+                item = notesMap.get(sequenceItem.item_id);
+            } else if (sequenceItem.item_type === 'room') {
+                item = roomsMap.get(sequenceItem.item_id);
+            }
+
+            if (item) {
+                sponsoredItems.push(serializeDataForClient(item));
+            }
+        }
+
+        return sponsoredItems;
+    } catch (error) {
+        console.error('Error in fetchSponsoredListings:', error);
+        return [];
+    }
+}
+
 // Re-implemented to fix home page crash.
 export async function fetchListings({ page = 1, limit = 12 } = {}) {
     const supabase = createSupabaseServerClient();
@@ -349,7 +438,7 @@ export async function searchListings({ query }) {
                 .from('notes')
                 .select(`
                     id, title, description, price, category, college, 
-                    academic_year, course_subject, images, pdf_urls, pdfUrl, 
+                    academic_year, course_subject, images, pdf_urls, 
                     seller_id, created_at
                 `)
                 .or(`title.ilike.${searchTerm},description.ilike.${searchTerm},category.ilike.${searchTerm},course_subject.ilike.${searchTerm}`)

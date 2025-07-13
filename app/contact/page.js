@@ -27,7 +27,7 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <p className="font-medium text-gray-900 dark:text-white">Email</p>
-                      <p className="text-gray-700 dark:text-gray-300">support@studxchange.com</p>
+                      <p className="text-gray-700 dark:text-gray-300">adiinamdar888@gmail.com</p>
                     </div>
                   </div>
                   
@@ -51,7 +51,7 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <p className="font-medium text-gray-900 dark:text-white">Phone</p>
-                      <p className="text-gray-700 dark:text-gray-300">(555) 123-STUD</p>
+                      <p className="text-gray-700 dark:text-gray-300">+91 8857053541</p>
                     </div>
                   </div>
                 </div>
@@ -61,20 +61,12 @@ export default function ContactPage() {
                 <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-4">Support Hours</h3>
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-gray-700 dark:text-gray-300">Monday - Friday</span>
-                    <span className="text-gray-900 dark:text-white font-medium">9:00 AM - 6:00 PM</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-700 dark:text-gray-300">Saturday</span>
-                    <span className="text-gray-900 dark:text-white font-medium">10:00 AM - 4:00 PM</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-700 dark:text-gray-300">Sunday</span>
-                    <span className="text-gray-900 dark:text-white font-medium">Closed</span>
+                    <span className="text-gray-700 dark:text-gray-300">Monday - Sunday</span>
+                    <span className="text-gray-900 dark:text-white font-medium">Any Time</span>
                   </div>
                 </div>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-4">
-                  * All times are in Eastern Standard Time (EST)
+                  * We're available 24/7 to assist you with any questions or concerns
                 </p>
               </section>
             </div>

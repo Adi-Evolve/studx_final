@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { searchListings } from '@/app/actions';
+import { searchListings, fetchListings } from '@/app/actions';
 import ListingCard from '@/components/ListingCard';
 
 // Force dynamic rendering to prevent build-time prerendering issues
@@ -13,29 +13,32 @@ function SearchContent() {
     const [searchResults, setSearchResults] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [filters, setFilters] = useState({
-        category: 'all',
-        priceRange: 'all',
-        condition: 'all',
-        sortBy: 'newest'
-    });
-    const [totalResults, setTotalResults] = useState(0);
-    
-    const router = useRouter();
-    
     // Safely get search params with build-time error handling
     let searchParams;
     let query = '';
+    let sortBy = '';
     
     try {
         searchParams = useSearchParams();
         query = searchParams?.get('q') || '';
+        sortBy = searchParams?.get('sortBy') || 'newest';
     } catch (error) {
         // This handles the case when useSearchParams is called during build
         // console.log('useSearchParams not available during build');
         searchParams = null;
         query = '';
+        sortBy = 'newest';
     }
+
+    const [filters, setFilters] = useState({
+        category: 'all',
+        priceRange: 'all',
+        condition: 'all',
+        sortBy: sortBy
+    });
+    const [totalResults, setTotalResults] = useState(0);
+    
+    const router = useRouter();
 
     // Search categories
     const categories = [
@@ -76,8 +79,11 @@ function SearchContent() {
     useEffect(() => {
         if (query) {
             performSearch();
+        } else if (sortBy) {
+            // If no query but sortBy is specified, fetch all listings
+            performListingsFetch();
         }
-    }, [query, filters]);
+    }, [query, sortBy, filters]);
 
     const performSearch = async () => {
         if (!query.trim()) return;
@@ -89,66 +95,94 @@ function SearchContent() {
             // Use the server action for search
             const results = await searchListings({ query: query.trim() });
             
-            // Apply client-side filters
-            let filteredResults = results;
-
-            // Apply category filter
-            if (filters.category !== 'all') {
-                filteredResults = filteredResults.filter(item => 
-                    item.category?.toLowerCase() === filters.category.toLowerCase()
-                );
-            }
-
-            // Apply price range filter
-            if (filters.priceRange !== 'all') {
-                const [min, max] = filters.priceRange.split('-');
-                filteredResults = filteredResults.filter(item => {
-                    const price = item.price || item.fees || 0;
-                    if (max === '+') {
-                        return price >= parseInt(min);
-                    } else {
-                        return price >= parseInt(min) && price <= parseInt(max);
-                    }
-                });
-            }
-
-            // Apply condition filter
-            if (filters.condition !== 'all') {
-                filteredResults = filteredResults.filter(item => 
-                    item.condition === filters.condition
-                );
-            }
-
-            // Apply sorting
-            switch (filters.sortBy) {
-                case 'newest':
-                    filteredResults.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-                    break;
-                case 'oldest':
-                    filteredResults.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-                    break;
-                case 'price-low':
-                    filteredResults.sort((a, b) => (a.price || a.fees || 0) - (b.price || b.fees || 0));
-                    break;
-                case 'price-high':
-                    filteredResults.sort((a, b) => (b.price || b.fees || 0) - (a.price || a.fees || 0));
-                    break;
-                case 'relevance':
-                default:
-                    // Keep the original relevance order from server
-                    break;
-            }
-
+            // Apply client-side filters and sorting
+            let filteredResults = applyFiltersAndSorting(results);
+            
             setSearchResults(filteredResults);
             setTotalResults(filteredResults.length);
-        } catch (error) {
-            // console.error('Search error:', error);
-            setError('Failed to search. Please try again.');
-            setSearchResults([]);
-            setTotalResults(0);
+        } catch (err) {
+            setError('Search failed. Please try again.');
+            console.error('Search error:', err);
         } finally {
             setLoading(false);
         }
+    };
+
+    const performListingsFetch = async () => {
+        setLoading(true);
+        setError(null);
+
+        try {
+            // Fetch all listings when no search query
+            const response = await fetchListings({ page: 1, limit: 100 }); // Get more items for browsing
+            const results = response.listings || [];
+            
+            // Apply client-side filters and sorting
+            let filteredResults = applyFiltersAndSorting(results);
+            
+            setSearchResults(filteredResults);
+            setTotalResults(filteredResults.length);
+        } catch (err) {
+            setError('Failed to load listings. Please try again.');
+            console.error('Listings fetch error:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const applyFiltersAndSorting = (results) => {
+        let filteredResults = results;
+
+        // Apply category filter
+        if (filters.category !== 'all') {
+            filteredResults = filteredResults.filter(item => 
+                item.category?.toLowerCase() === filters.category.toLowerCase()
+            );
+        }
+
+        // Apply price range filter
+        if (filters.priceRange !== 'all') {
+            filteredResults = filteredResults.filter(item => {
+                const price = item.price || item.fees || 0;
+                switch (filters.priceRange) {
+                    case '0-100': return price >= 0 && price <= 100;
+                    case '100-500': return price > 100 && price <= 500;
+                    case '500-1000': return price > 500 && price <= 1000;
+                    case '1000-5000': return price > 1000 && price <= 5000;
+                    case '5000+': return price > 5000;
+                    default: return true;
+                }
+            });
+        }
+
+        // Apply condition filter
+        if (filters.condition !== 'all') {
+            filteredResults = filteredResults.filter(item => 
+                item.condition?.toLowerCase() === filters.condition.toLowerCase()
+            );
+        }
+
+        // Apply sorting
+        filteredResults.sort((a, b) => {
+            const priceA = a.price || a.fees || 0;
+            const priceB = b.price || b.fees || 0;
+            const dateA = new Date(a.created_at);
+            const dateB = new Date(b.created_at);
+
+            switch (filters.sortBy) {
+                case 'oldest':
+                    return dateA - dateB;
+                case 'price-low':
+                    return priceA - priceB;
+                case 'price-high':
+                    return priceB - priceA;
+                case 'newest':
+                default:
+                    return dateB - dateA;
+            }
+        });
+
+        return filteredResults;
     };
 
     const handleFilterChange = (filterType, value) => {

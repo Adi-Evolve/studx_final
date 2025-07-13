@@ -151,10 +151,22 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={async () => {
+                  // Determine the correct redirect URL based on environment
+                  const currentOrigin = window.location.origin;
+                  const redirectUrl = currentOrigin.includes('localhost') || 
+                                    currentOrigin.includes('127.0.0.1') || 
+                                    currentOrigin.includes('192.168.') ||
+                                    currentOrigin.startsWith('http://10.') ||
+                                    currentOrigin.includes('dev')
+                    ? `${currentOrigin}/auth/callback`
+                    : `https://studxchnage.vercel.app/auth/callback`;
+                  
+                  console.log('🔗 Google OAuth redirect URL:', redirectUrl);
+                  
                   const { error } = await supabase.auth.signInWithOAuth({
                     provider: 'google',
                     options: {
-                      redirectTo: `${window.location.origin}/auth/callback`,
+                      redirectTo: redirectUrl,
                     },
                   });
                   if (error) {

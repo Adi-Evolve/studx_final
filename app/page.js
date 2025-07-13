@@ -1,9 +1,11 @@
 import { Suspense } from 'react';
 import FunnyAdvertisingBanner from '@/components/FunnyAdvertisingBanner';
+import FeaturedSlider from '@/components/FeaturedSlider';
 import NewestProductsSlider from '@/components/NewestProductsSlider';
 import HowItWorks from '@/components/HowItWorks';
 import CategoryCard from '@/components/CategoryCard';
 import { 
+  fetchSponsoredListings,
   fetchNewestProducts,
   fetchListings
 } from './actions';
@@ -21,6 +23,13 @@ function SectionSkeleton() {
       </div>
     </div>
   );
+}
+
+// Featured Items Section Component
+async function FeaturedItemsSection() {
+  const featuredItems = await fetchSponsoredListings();
+  
+  return <FeaturedSlider featuredItems={featuredItems} />;
 }
 
 // Newest Products Section Component
@@ -227,6 +236,11 @@ export default async function HomePage() {
         {/* Newest Products Section */}
         <Suspense fallback={<SectionSkeleton />}>
           <NewestProductsSection />
+        </Suspense>
+
+        {/* Featured Items Section */}
+        <Suspense fallback={<SectionSkeleton />}>
+          <FeaturedItemsSection />
         </Suspense>
 
         {/* Categories Section */}

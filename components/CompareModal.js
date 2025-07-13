@@ -31,18 +31,18 @@ export default function CompareModal({ currentItem, compareItem, onClose }) {
         const better = getBetterValue(value1, value2, type);
         
         return (
-            <tr className="border-b border-gray-100 hover:bg-gray-50">
-                <td className="py-4 px-4 font-semibold text-gray-700 bg-gray-50 border-r">{label}</td>
-                <td className={`py-4 px-4 ${better === 'left' ? 'bg-green-50 text-green-700 font-semibold' : ''}`}>
+            <tr className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
+                <td className="py-4 px-4 font-semibold text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-600">{label}</td>
+                <td className={`py-4 px-4 ${better === 'left' ? 'bg-green-50 dark:bg-green-900 text-green-700 dark:text-green-300 font-semibold' : 'dark:text-gray-300'}`}>
                     <div className="flex items-center justify-between">
                         <span>{value1 || 'N/A'}</span>
-                        {better === 'left' && <FontAwesomeIcon icon={faCheck} className="w-4 h-4 text-green-600" />}
+                        {better === 'left' && <FontAwesomeIcon icon={faCheck} className="w-4 h-4 text-green-600 dark:text-green-400" />}
                     </div>
                 </td>
-                <td className={`py-4 px-4 ${better === 'right' ? 'bg-green-50 text-green-700 font-semibold' : ''}`}>
+                <td className={`py-4 px-4 ${better === 'right' ? 'bg-green-50 dark:bg-green-900 text-green-700 dark:text-green-300 font-semibold' : 'dark:text-gray-300'}`}>
                     <div className="flex items-center justify-between">
                         <span>{value2 || 'N/A'}</span>
-                        {better === 'right' && <FontAwesomeIcon icon={faCheck} className="w-4 h-4 text-green-600" />}
+                        {better === 'right' && <FontAwesomeIcon icon={faCheck} className="w-4 h-4 text-green-600 dark:text-green-400" />}
                     </div>
                 </td>
             </tr>
@@ -51,15 +51,15 @@ export default function CompareModal({ currentItem, compareItem, onClose }) {
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex justify-center items-center p-4" onClick={onClose}>
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden relative" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden relative" onClick={(e) => e.stopPropagation()}>
                 {/* Header */}
-                <div className="sticky top-0 bg-white border-b px-6 py-4 z-10">
+                <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 z-10">
                     <div className="flex justify-between items-center">
                         <div className="flex items-center gap-3">
-                            <FontAwesomeIcon icon={faExchangeAlt} className="w-6 h-6 text-blue-600" />
-                            <h2 className="text-2xl font-bold text-gray-900">Product Comparison</h2>
+                            <FontAwesomeIcon icon={faExchangeAlt} className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Product Comparison</h2>
                         </div>
-                        <button onClick={onClose} className="text-gray-500 hover:text-red-600 transition-colors">
+                        <button onClick={onClose} className="text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors">
                             <FontAwesomeIcon icon={faXmark} size="lg" />
                         </button>
                     </div>
@@ -68,7 +68,7 @@ export default function CompareModal({ currentItem, compareItem, onClose }) {
                 {/* Content */}
                 <div className="overflow-y-auto max-h-[80vh]">
                     {/* Product Images and Basic Info */}
-                    <div className="grid grid-cols-2 gap-6 p-6 bg-gray-50">
+                    <div className="grid grid-cols-2 gap-6 p-6 bg-gray-50 dark:bg-gray-900">
                         <div className="text-center">
                             <div className="relative w-full h-48 mb-4 rounded-lg overflow-hidden">
                                 <Image
@@ -78,10 +78,10 @@ export default function CompareModal({ currentItem, compareItem, onClose }) {
                                     className="object-cover"
                                 />
                             </div>
-                            <h3 className="text-lg font-bold text-gray-900 mb-2">
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
                                 {currentItem.title || currentItem.name}
                             </h3>
-                            <p className="text-2xl font-bold text-blue-600">
+                            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                                 {formatPrice(currentItem.price || currentItem.fees)}
                             </p>
                         </div>
@@ -95,10 +95,10 @@ export default function CompareModal({ currentItem, compareItem, onClose }) {
                                     className="object-cover"
                                 />
                             </div>
-                            <h3 className="text-lg font-bold text-gray-900 mb-2">
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
                                 {compareItem.title || compareItem.name}
                             </h3>
-                            <p className="text-2xl font-bold text-blue-600">
+                            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                                 {formatPrice(compareItem.price || compareItem.fees)}
                             </p>
                         </div>
@@ -107,14 +107,14 @@ export default function CompareModal({ currentItem, compareItem, onClose }) {
                     {/* Comparison Table */}
                     <div className="p-6">
                         <div className="overflow-x-auto">
-                            <table className="w-full bg-white rounded-lg shadow-sm border border-gray-200">
+                            <table className="w-full bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
                                 <thead>
-                                    <tr className="bg-gray-100">
-                                        <th className="py-3 px-4 text-left font-bold text-gray-900 border-r">Features</th>
-                                        <th className="py-3 px-4 text-center font-bold text-gray-900">
+                                    <tr className="bg-gray-100 dark:bg-gray-700">
+                                        <th className="py-3 px-4 text-left font-bold text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-600">Features</th>
+                                        <th className="py-3 px-4 text-center font-bold text-gray-900 dark:text-gray-100">
                                             {currentItem.title || currentItem.name}
                                         </th>
-                                        <th className="py-3 px-4 text-center font-bold text-gray-900">
+                                        <th className="py-3 px-4 text-center font-bold text-gray-900 dark:text-gray-100">
                                             {compareItem.title || compareItem.name}
                                         </th>
                                     </tr>
