@@ -15,7 +15,8 @@ export default async function CategoryPage({ params }) {
         return data.map(item => ({ ...item, type }));
     };
 
-    if (categoryName === 'Rooms/Hostel') {
+    if (categoryName === 'Rooms') {
+        // Fetch all rooms
         const { data, error: queryError } = await supabase
             .from('rooms')
             .select('*')
@@ -27,10 +28,11 @@ export default async function CategoryPage({ params }) {
             listings = augmentData(data, 'room');
         }
     } else if (categoryName === 'Lab Equipment') {
+        // Fetch lab equipment from products table
         const { data, error: queryError } = await supabase
             .from('products')
             .select('*')
-            .eq('category', 'project_equipments')
+            .ilike('category', '%Lab Equipment%')
             .order('created_at', { ascending: false });
         
         if (queryError) {
@@ -39,6 +41,7 @@ export default async function CategoryPage({ params }) {
             listings = augmentData(data, 'regular');
         }
     } else if (categoryName === 'Notes') {
+        // Fetch all notes
         const { data, error: queryError } = await supabase
             .from('notes')
             .select('*')
@@ -49,11 +52,51 @@ export default async function CategoryPage({ params }) {
         } else {
             listings = augmentData(data, 'note');
         }
-    } else {
+    } else if (categoryName === 'Books' || categoryName === 'Textbook') {
+        // Fetch books from products table
         const { data, error: queryError } = await supabase
             .from('products')
             .select('*')
-            .ilike('category', `%${categoryName.slice(0, -1)}%`)
+            .ilike('category', '%Book%')
+            .order('created_at', { ascending: false });
+        
+        if (queryError) {
+            error = queryError;
+        } else {
+            listings = augmentData(data, 'regular');
+        }
+    } else if (categoryName === 'Laptop') {
+        // Fetch laptops from products table
+        const { data, error: queryError } = await supabase
+            .from('products')
+            .select('*')
+            .ilike('category', '%Laptop%')
+            .order('created_at', { ascending: false });
+        
+        if (queryError) {
+            error = queryError;
+        } else {
+            listings = augmentData(data, 'regular');
+        }
+    } else if (categoryName === 'Bike') {
+        // Fetch bikes from products table
+        const { data, error: queryError } = await supabase
+            .from('products')
+            .select('*')
+            .ilike('category', '%Bike%')
+            .order('created_at', { ascending: false });
+        
+        if (queryError) {
+            error = queryError;
+        } else {
+            listings = augmentData(data, 'regular');
+        }
+    } else {
+        // For other categories, search in products table
+        const { data, error: queryError } = await supabase
+            .from('products')
+            .select('*')
+            .ilike('category', `%${categoryName}%`)
             .order('created_at', { ascending: false });
         
         if (queryError) {

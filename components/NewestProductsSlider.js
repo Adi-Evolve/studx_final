@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import ListingCard from './ListingCard';
 import Link from 'next/link';
 
-export default function NewestProductsSlider({ newestProducts }) {
+export default function NewestProductsSlider({ newestProducts, showDistance = false }) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isAutoPlaying, setIsAutoPlaying] = useState(true);
     const [isHovered, setIsHovered] = useState(false);
@@ -156,7 +156,7 @@ export default function NewestProductsSlider({ newestProducts }) {
                                 className="w-1/2 md:w-1/4 flex-shrink-0 px-2 md:px-3 isolated-card"
                                 style={{ isolation: 'isolate' }}
                             >
-                                <ListingCard item={item} />
+                                <ListingCard item={item} showDistance={showDistance} />
                             </div>
                         ))}
                     </div>

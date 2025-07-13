@@ -3,6 +3,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { calculateDistance, isValidLocation } from '@/lib/locationUtils';
 
 // Centralized function to create an admin client for privileged operations
 function createSupabaseAdminClient() {
@@ -767,6 +768,94 @@ export async function fetchNewestProducts(limit = 4) {
     }
 }
 
+// Action to fetch newest products with location-based sorting
+export async function fetchNewestProductsWithLocation(userLat, userLng, limit = 4) {
+    const supabase = createSupabaseServerClient();
+
+    try {
+        const [productsRes, notesRes, roomsRes] = await Promise.all([
+            supabase
+                .from('products')
+                .select(`
+                    id, title, description, price, category, condition, college, 
+                    location, images, is_sold, seller_id, created_at
+                `)
+                .order('created_at', { ascending: false })
+                .limit(limit * 2), // Get more to filter and sort by distance
+            supabase
+                .from('notes')
+                .select(`
+                    id, title, description, price, category, college, 
+                    academic_year, course_subject, images, pdf_urls, pdfUrl, 
+                    seller_id, created_at
+                `)
+                .order('created_at', { ascending: false })
+                .limit(limit * 2),
+            supabase
+                .from('rooms')
+                .select(`
+                    id, title, description, price, category, college, location, 
+                    images, room_type, occupancy, distance, deposit, fees_include_mess, 
+                    mess_fees, owner_name, contact1, contact2, amenities, seller_id, created_at
+                `)
+                .order('created_at', { ascending: false })
+                .limit(limit * 2)
+        ]);
+
+        // Combine all and get the newest across all tables
+        const allNewest = [
+            ...(productsRes.data || []).map(item => serializeDataForClient({ ...item, type: 'regular' })),
+            ...(notesRes.data || []).map(item => serializeDataForClient({ ...item, type: 'note' })),
+            ...(roomsRes.data || []).map(item => serializeDataForClient({ ...item, type: 'room' }))
+        ];
+
+        // Add distance calculations
+        const { calculateDistance } = await import('@/lib/locationUtils');
+        const itemsWithDistance = allNewest.map(item => {
+            let distance = null;
+            
+            // Try to parse location for distance calculation
+            if (item.location && userLat && userLng) {
+                try {
+                    const coords = parseLocationString(item.location);
+                    if (coords) {
+                        distance = calculateDistance(userLat, userLng, coords.lat, coords.lng);
+                    }
+                } catch (e) {
+                    // If parsing fails, distance remains null
+                }
+            }
+            
+            return { ...item, distance };
+        });
+
+        // Sort by creation date first, then by distance (closer items get priority among recent ones)
+        itemsWithDistance.sort((a, b) => {
+            const dateA = new Date(a.created_at);
+            const dateB = new Date(b.created_at);
+            const timeDiff = dateB - dateA;
+            
+            // If items are created within 24 hours of each other, prioritize by distance
+            if (Math.abs(timeDiff) < 24 * 60 * 60 * 1000) {
+                if (a.distance !== null && b.distance !== null) {
+                    return a.distance - b.distance;
+                }
+                if (a.distance !== null) return -1;
+                if (b.distance !== null) return 1;
+            }
+            
+            return timeDiff;
+        });
+        
+        return itemsWithDistance.slice(0, limit * 3); // Return more for slider
+
+    } catch (error) {
+        // console.error('[Action: fetchNewestProductsWithLocation] Error:', error.message);
+        // Fallback to regular newest products
+        return await fetchNewestProducts(limit);
+    }
+}
+
 // Action to fetch quick stats for homepage
 export async function fetchQuickStats() {
     const supabase = createSupabaseServerClient();
@@ -917,4 +1006,180 @@ export async function fetchCategoryStats() {
         // console.error('[Action: fetchCategoryStats] Error:', error.message);
         return { products: 0, notes: 0, rooms: 0, total: 0 };
     }
+}
+
+// ============================================================================
+// LOCATION-BASED FUNCTIONS
+// ============================================================================
+
+/**
+ * Fetch listings with location-based sorting
+ * @param {Object} params - Parameters object
+ * @param {number} params.userLat - User's latitude
+ * @param {number} params.userLng - User's longitude  
+ * @param {number} params.maxDistance - Maximum distance in km (optional)
+ * @param {number} params.page - Page number
+ * @param {number} params.limit - Items per page
+ * @returns {Object} Listings with distance information
+ */
+export async function fetchListingsWithLocation({ 
+    userLat, 
+    userLng, 
+    maxDistance = null, 
+    page = 1, 
+    limit = 12 
+} = {}) {
+    // If no user location provided, fall back to regular fetch
+    if (!userLat || !userLng) {
+        return await fetchListings({ page, limit });
+    }
+
+    const { listings } = await fetchListings({ page: 1, limit: 1000 }); // Get more items for distance calculation
+    
+    // Calculate distances and filter
+    const listingsWithDistance = listings
+        .map(item => {
+            if (!isValidLocation(item.location)) {
+                return { ...item, distance: null };
+            }
+            
+            const distance = calculateDistance(
+                userLat,
+                userLng,
+                item.location.lat,
+                item.location.lng
+            );
+            
+            return { ...item, distance };
+        })
+        .filter(item => {
+            // Keep items without location or within distance
+            if (item.distance === null) return true;
+            if (maxDistance === null) return true;
+            return item.distance <= maxDistance;
+        })
+        .sort((a, b) => {
+            // Sort by distance (items without location go to end)
+            if (a.distance === null && b.distance === null) return 0;
+            if (a.distance === null) return 1;
+            if (b.distance === null) return -1;
+            return a.distance - b.distance;
+        });
+
+    // Apply pagination
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+    const paginatedListings = listingsWithDistance.slice(from, to + 1);
+
+    return { 
+        listings: paginatedListings, 
+        hasMore: paginatedListings.length === limit && listingsWithDistance.length > to + 1
+    };
+}
+
+/**
+ * Fetch sponsored listings with location-based sorting
+ * @param {Object} params - Parameters object
+ * @param {number} params.userLat - User's latitude
+ * @param {number} params.userLng - User's longitude
+ * @returns {Array} Featured items with distance information
+ */
+export async function fetchSponsoredListingsWithLocation({ userLat, userLng } = {}) {
+    // If no user location provided, fall back to regular fetch
+    if (!userLat || !userLng) {
+        return await fetchSponsoredListings();
+    }
+
+    const featuredItems = await fetchSponsoredListings();
+    
+    // Add distance information to featured items
+    const featuredWithDistance = featuredItems.map(item => {
+        if (!isValidLocation(item.location)) {
+            return { ...item, distance: null };
+        }
+        
+        const distance = calculateDistance(
+            userLat,
+            userLng,
+            item.location.lat,
+            item.location.lng
+        );
+        
+        return { ...item, distance };
+    });
+
+    // Sort by distance but keep featured items prioritized
+    featuredWithDistance.sort((a, b) => {
+        // Both have distances - sort by distance
+        if (a.distance !== null && b.distance !== null) {
+            return a.distance - b.distance;
+        }
+        // Items without location go to end
+        if (a.distance === null && b.distance === null) return 0;
+        if (a.distance === null) return 1;
+        if (b.distance === null) return -1;
+        return 0;
+    });
+
+    return featuredWithDistance;
+}
+
+/**
+ * Search listings with location-based sorting
+ * @param {Object} params - Parameters object
+ * @param {string} params.query - Search query
+ * @param {number} params.userLat - User's latitude
+ * @param {number} params.userLng - User's longitude
+ * @param {number} params.maxDistance - Maximum distance in km (optional)
+ * @returns {Array} Search results with distance information
+ */
+export async function searchListingsWithLocation({ 
+    query, 
+    userLat, 
+    userLng, 
+    maxDistance = null 
+} = {}) {
+    // If no user location provided, fall back to regular search
+    if (!userLat || !userLng) {
+        return await searchListings({ query });
+    }
+
+    const searchResults = await searchListings({ query });
+    
+    // Add distance information and filter by distance
+    const resultsWithDistance = searchResults
+        .map(item => {
+            if (!isValidLocation(item.location)) {
+                return { ...item, distance: null };
+            }
+            
+            const distance = calculateDistance(
+                userLat,
+                userLng,
+                item.location.lat,
+                item.location.lng
+            );
+            
+            return { ...item, distance };
+        })
+        .filter(item => {
+            // Keep items without location or within distance
+            if (item.distance === null) return true;
+            if (maxDistance === null) return true;
+            return item.distance <= maxDistance;
+        })
+        .sort((a, b) => {
+            // First sort by relevance score (if exists), then by distance
+            if (a.score !== b.score) {
+                return (b.score || 0) - (a.score || 0);
+            }
+            
+            // Then sort by distance
+            if (a.distance === null && b.distance === null) return 0;
+            if (a.distance === null) return 1;
+            if (b.distance === null) return -1;
+            return a.distance - b.distance;
+        });
+
+    return resultsWithDistance;
 }

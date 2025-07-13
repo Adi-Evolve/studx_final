@@ -2,11 +2,14 @@ import { Suspense } from 'react';
 import FunnyAdvertisingBanner from '@/components/FunnyAdvertisingBanner';
 import FeaturedSlider from '@/components/FeaturedSlider';
 import NewestProductsSlider from '@/components/NewestProductsSlider';
+import NewestProductsSection from '@/components/NewestProductsSection';
 import HowItWorks from '@/components/HowItWorks';
 import CategoryCard from '@/components/CategoryCard';
+import LocationPermissionBanner from '@/components/LocationPermissionBanner';
 import { 
   fetchSponsoredListings,
   fetchNewestProducts,
+  fetchNewestProductsWithLocation,
   fetchListings
 } from './actions';
 import Link from 'next/link';
@@ -33,10 +36,10 @@ async function FeaturedItemsSection() {
 }
 
 // Newest Products Section Component
-async function NewestProductsSection() {
+async function NewestProductsSectionWrapper() {
   const newestProducts = await fetchNewestProducts(12); // Get 12 items for slider
   
-  return <NewestProductsSlider newestProducts={newestProducts} />;
+  return <NewestProductsSection initialProducts={newestProducts} />;
 }
 
 // Categories Section Component
@@ -60,8 +63,8 @@ function CategoriesSection() {
         <CategoryCard href="/category/Notes" icon="📝" title="Notes" />
         <CategoryCard href="/category/Rooms" icon="🏠" title="Rooms" />
         <CategoryCard href="/category/Furniture" icon="🪑" title="Furniture" />
-        <CategoryCard href="/category/Dorm" icon="🎒" title="Dorm Items" />
-        <CategoryCard href="/category/Other" icon="📦" title="Other" />
+        <CategoryCard href="/category/Lab Equipment" icon="🔬" title="Lab Equipment" />
+        <CategoryCard href="/category/Books" icon="�" title="Books" />
       </div>
     </section>
   );
@@ -233,9 +236,12 @@ export default async function HomePage() {
       <FunnyAdvertisingBanner />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Location Permission Banner */}
+        <LocationPermissionBanner />
+
         {/* Newest Products Section */}
         <Suspense fallback={<SectionSkeleton />}>
-          <NewestProductsSection />
+          <NewestProductsSectionWrapper />
         </Suspense>
 
         {/* Featured Items Section */}

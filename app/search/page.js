@@ -2,8 +2,9 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { searchListings, fetchListings } from '@/app/actions';
+import { searchListings, fetchListings, searchListingsWithLocation, fetchListingsWithLocation } from '@/app/actions';
 import ListingCard from '@/components/ListingCard';
+import { useUserLocation } from '@/hooks/useUserLocation';
 
 // Force dynamic rendering to prevent build-time prerendering issues
 export const dynamic = 'force-dynamic';
@@ -13,6 +14,8 @@ function SearchContent() {
     const [searchResults, setSearchResults] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const { location, error: locationError } = useUserLocation();
+    
     // Safely get search params with build-time error handling
     let searchParams;
     let query = '';
@@ -92,8 +95,19 @@ function SearchContent() {
         setError(null);
 
         try {
-            // Use the server action for search
-            const results = await searchListings({ query: query.trim() });
+            let results;
+            
+            // Use location-aware search if location is available
+            if (location && location.latitude && location.longitude) {
+                results = await searchListingsWithLocation({ 
+                    query: query.trim(),
+                    userLat: location.latitude,
+                    userLng: location.longitude
+                });
+            } else {
+                // Fallback to regular search
+                results = await searchListings({ query: query.trim() });
+            }
             
             // Apply client-side filters and sorting
             let filteredResults = applyFiltersAndSorting(results);
@@ -113,9 +127,22 @@ function SearchContent() {
         setError(null);
 
         try {
-            // Fetch all listings when no search query
-            const response = await fetchListings({ page: 1, limit: 100 }); // Get more items for browsing
-            const results = response.listings || [];
+            let results;
+            
+            // Use location-aware fetch if location is available
+            if (location && location.latitude && location.longitude) {
+                const response = await fetchListingsWithLocation({ 
+                    page: 1, 
+                    limit: 100,
+                    userLat: location.latitude,
+                    userLng: location.longitude
+                });
+                results = response.listings || [];
+            } else {
+                // Fallback to regular fetch
+                const response = await fetchListings({ page: 1, limit: 100 });
+                results = response.listings || [];
+            }
             
             // Apply client-side filters and sorting
             let filteredResults = applyFiltersAndSorting(results);
@@ -437,6 +464,7 @@ function SearchContent() {
                                     <ListingCard
                                         key={`${item.type}-${item.id}-${index}`}
                                         item={item}
+                                        showDistance={!!location && !locationError}
                                     />
                                 ))}
                             </div>
