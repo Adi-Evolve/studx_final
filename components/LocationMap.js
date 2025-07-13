@@ -6,7 +6,7 @@ import 'leaflet-defaulticon-compatibility';
 
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 
-export default function LocationMap({ lat, lng, popupText }) {
+function LocationMap({ lat, lng, popupText }) {
     if (typeof window === 'undefined') {
         return null; // Don't render on the server
     }
@@ -43,3 +43,5 @@ export default function LocationMap({ lat, lng, popupText }) {
         </div>
     );
 }
+
+export default LocationMap;

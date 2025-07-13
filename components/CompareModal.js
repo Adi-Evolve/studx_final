@@ -31,15 +31,15 @@ export default function CompareModal({ currentItem, compareItem, onClose }) {
         const better = getBetterValue(value1, value2, type);
         
         return (
-            <tr className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
+            <tr className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 bg-white dark:bg-gray-900">
                 <td className="py-4 px-4 font-semibold text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-600">{label}</td>
-                <td className={`py-4 px-4 ${better === 'left' ? 'bg-green-50 dark:bg-green-900 text-green-700 dark:text-green-300 font-semibold' : 'dark:text-gray-300'}`}>
+                <td className={`py-4 px-4 text-gray-900 dark:text-gray-100 ${better === 'left' ? 'bg-green-50 dark:bg-green-900 text-green-700 dark:text-green-300 font-semibold' : 'bg-white dark:bg-gray-900'}`}>
                     <div className="flex items-center justify-between">
                         <span>{value1 || 'N/A'}</span>
                         {better === 'left' && <FontAwesomeIcon icon={faCheck} className="w-4 h-4 text-green-600 dark:text-green-400" />}
                     </div>
                 </td>
-                <td className={`py-4 px-4 ${better === 'right' ? 'bg-green-50 dark:bg-green-900 text-green-700 dark:text-green-300 font-semibold' : 'dark:text-gray-300'}`}>
+                <td className={`py-4 px-4 text-gray-900 dark:text-gray-100 ${better === 'right' ? 'bg-green-50 dark:bg-green-900 text-green-700 dark:text-green-300 font-semibold' : 'bg-white dark:bg-gray-900'}`}>
                     <div className="flex items-center justify-between">
                         <span>{value2 || 'N/A'}</span>
                         {better === 'right' && <FontAwesomeIcon icon={faCheck} className="w-4 h-4 text-green-600 dark:text-green-400" />}
@@ -50,10 +50,10 @@ export default function CompareModal({ currentItem, compareItem, onClose }) {
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex justify-center items-center p-4" onClick={onClose}>
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden relative" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black bg-opacity-60 dark:bg-black dark:bg-opacity-80 z-50 flex justify-center items-center p-4" onClick={onClose}>
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden relative border border-gray-200 dark:border-gray-700" onClick={(e) => e.stopPropagation()}>
                 {/* Header */}
-                <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 z-10">
+                <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4 z-10">
                     <div className="flex justify-between items-center">
                         <div className="flex items-center gap-3">
                             <FontAwesomeIcon icon={faExchangeAlt} className="w-6 h-6 text-blue-600 dark:text-blue-400" />
@@ -107,9 +107,9 @@ export default function CompareModal({ currentItem, compareItem, onClose }) {
                     {/* Comparison Table */}
                     <div className="p-6">
                         <div className="overflow-x-auto">
-                            <table className="w-full bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                            <table className="w-full bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
                                 <thead>
-                                    <tr className="bg-gray-100 dark:bg-gray-700">
+                                    <tr className="bg-gray-100 dark:bg-gray-800">
                                         <th className="py-3 px-4 text-left font-bold text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-600">Features</th>
                                         <th className="py-3 px-4 text-center font-bold text-gray-900 dark:text-gray-100">
                                             {currentItem.title || currentItem.name}
@@ -178,7 +178,7 @@ export default function CompareModal({ currentItem, compareItem, onClose }) {
                         <div className="flex justify-center gap-4 mt-6">
                             <a
                                 href={`/products/${currentItem.type || 'regular'}/${currentItem.id}`}
-                                className="btn-primary"
+                                className="inline-flex items-center justify-center px-6 py-3 bg-blue-600 dark:bg-blue-700 text-white rounded-lg font-semibold hover:bg-blue-700 dark:hover:bg-blue-800 transition-colors shadow-lg hover:shadow-xl transform hover:scale-105"
                                 target="_blank"
                                 rel="noopener noreferrer"
                             >
@@ -186,7 +186,7 @@ export default function CompareModal({ currentItem, compareItem, onClose }) {
                             </a>
                             <a
                                 href={`/products/${compareItem.type || 'regular'}/${compareItem.id}`}
-                                className="btn-primary"
+                                className="inline-flex items-center justify-center px-6 py-3 bg-green-600 dark:bg-green-700 text-white rounded-lg font-semibold hover:bg-green-700 dark:hover:bg-green-800 transition-colors shadow-lg hover:shadow-xl transform hover:scale-105"
                                 target="_blank"
                                 rel="noopener noreferrer"
                             >
