@@ -1,9 +1,11 @@
 import { Suspense } from 'react';
 import FunnyAdvertisingBanner from '@/components/FunnyAdvertisingBanner';
 import NewestProductsSlider from '@/components/NewestProductsSlider';
+import FeaturedSlider from '@/components/FeaturedSlider';
 import HowItWorks from '@/components/HowItWorks';
 import CategoryCard from '@/components/CategoryCard';
 import { 
+  fetchSponsoredListings, 
   fetchNewestProducts,
   fetchListings
 } from './actions';
@@ -28,6 +30,39 @@ async function NewestProductsSection() {
   const newestProducts = await fetchNewestProducts(12); // Get 12 items for slider
   
   return <NewestProductsSlider newestProducts={newestProducts} />;
+}
+
+// Featured Items Section Component
+async function FeaturedItemsSection() {
+  const featuredItems = await fetchSponsoredListings();
+  
+  if (!featuredItems || featuredItems.length === 0) {
+    return (
+      <section className="mb-16">
+        <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-8 flex items-center">
+          Featured Items
+        </h2>
+        <div className="text-center py-12">
+          <h3 className="text-xl font-bold text-gray-700 dark:text-gray-300 mb-2">No Featured Items Yet</h3>
+          <p className="text-gray-500 dark:text-gray-400">Check back soon for amazing featured products!</p>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="mb-16">
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-200 flex items-center">
+            Featured Items
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">Hand-picked premium listings from our community</p>
+        </div>
+      </div>
+      <FeaturedSlider listings={featuredItems} />
+    </section>
+  );
 }
 
 // Categories Section Component
@@ -227,6 +262,11 @@ export default async function HomePage() {
         {/* Newest Products Section */}
         <Suspense fallback={<SectionSkeleton />}>
           <NewestProductsSection />
+        </Suspense>
+
+        {/* Featured Items Section */}
+        <Suspense fallback={<SectionSkeleton />}>
+          <FeaturedItemsSection />
         </Suspense>
 
         {/* Categories Section */}

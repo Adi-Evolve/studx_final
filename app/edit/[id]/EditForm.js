@@ -41,11 +41,11 @@ export default function EditForm({ item, type }) {
     const renderForm = () => {
         switch (type) {
             case 'product':
-                return <RegularProductForm initialData={item} onSubmit={handleSubmit} />;
+                return <RegularProductForm initialData={item} onSubmit={handleSubmit} category={item.category} />;
             case 'note':
-                return <NotesForm initialData={item} onSubmit={handleSubmit} />;
+                return <NotesForm initialData={item} onSubmit={handleSubmit} category={item.category} />;
             case 'room':
-                return <RoomsForm initialData={item} onSubmit={handleSubmit} />;
+                return <RoomsForm initialData={item} onSubmit={handleSubmit} category={item.category} />;
             default:
                 return <p>Invalid item type.</p>;
         }

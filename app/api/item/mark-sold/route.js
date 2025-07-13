@@ -19,7 +19,7 @@ export async function POST(request) {
     try {
         // First, verify the user owns the product
         const { data: product, error: fetchError } = await supabase
-            .from('product')
+            .from('products')
             .select('seller_id')
             .eq('id', id)
             .single();
@@ -34,7 +34,7 @@ export async function POST(request) {
 
         // Update the is_sold status
         const { error: updateError } = await supabase
-            .from('product')
+            .from('products')
             .update({ is_sold: true })
             .eq('id', id);
 

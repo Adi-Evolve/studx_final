@@ -19,7 +19,7 @@ export async function POST(request) {
     let tableName;
     switch (type) {
         case 'product':
-            tableName = 'product';
+            tableName = 'products';
             break;
         case 'note':
             tableName = 'notes';
@@ -35,7 +35,7 @@ export async function POST(request) {
         // First, verify the user owns the item
         const { data: item, error: fetchError } = await supabase
             .from(tableName)
-            .select('seller_id, pdfUrl') // Also select pdfUrl for notes
+            .select('seller_id, pdf_url') // Also select pdf_url for notes
             .eq('id', id)
             .single();
 
@@ -48,8 +48,8 @@ export async function POST(request) {
         }
 
         // If it's a note with a PDF, delete the PDF from storage
-        if (type === 'note' && item.pdfUrl) {
-            const fileName = item.pdfUrl.split('/').pop();
+        if (type === 'note' && item.pdf_url) {
+            const fileName = item.pdf_url.split('/').pop();
             await supabase.storage.from('notes_pdfs').remove([fileName]);
         }
 

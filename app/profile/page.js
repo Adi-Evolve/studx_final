@@ -36,6 +36,12 @@ export default async function ProfilePage() {
         .eq('id', user.id)
         .single();
 
+    console.log('📊 Profile query result:', { 
+        profile: profile, 
+        error: profileError?.message,
+        hasPhone: !!profile?.phone 
+    });
+
     // If user doesn't exist in users table, try to create them
     if (profileError && profileError.code === 'PGRST116') {
         console.log('📝 User not found, creating missing user record...');
@@ -85,7 +91,13 @@ export default async function ProfilePage() {
         avatar_url: profile?.avatar_url || user.user_metadata?.avatar_url || `https://i.pravatar.cc/150?u=${user.id}`,
     };
 
-    console.log('👤 Full user profile:', { id: fullUser.id, email: fullUser.email, name: fullUser.name });
+    console.log('👤 Full user profile:', { 
+        id: fullUser.id, 
+        email: fullUser.email, 
+        name: fullUser.name,
+        phone: fullUser.phone,
+        hasPhone: !!fullUser.phone 
+    });
 
     // Fetch all listings in parallel with specific column selection
     console.log('📋 Fetching listings for user:', user.id);
@@ -97,7 +109,7 @@ export default async function ProfilePage() {
         `).eq('seller_id', user.id),
         supabase.from('notes').select(`
             id, title, description, price, category, college, 
-            academic_year, course_subject, images, pdf_urls, pdfUrl, 
+            academic_year, course_subject, images, pdf_urls, pdf_url, 
             seller_id, created_at
         `).eq('seller_id', user.id),
         supabase.from('rooms').select(`

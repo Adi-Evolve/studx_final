@@ -13,7 +13,7 @@ const academicYears = ['8th', '9th', '10th', '11th', '12th', 'Undergraduate', 'P
 const subjects = ['Physics', 'Chemistry', 'Mathematics', 'Computer Science', 'Data Structures'];
 const categories = ['Laptops', 'Project Equipment', 'Books', 'Cycle/Bike', 'Hostel Equipment', 'Notes', 'Rooms/Hostel', 'Furniture', 'Others'];
 
-export default function NotesForm({ initialData = {}, onSubmit }) {
+export default function NotesForm({ initialData = {}, onSubmit, category = 'Notes' }) {
     const router = useRouter();
     const supabase = createSupabaseBrowserClient();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -28,7 +28,7 @@ export default function NotesForm({ initialData = {}, onSubmit }) {
         description: initialData.description || '',
         images: initialData.images || [],
         pdfs: initialData.pdfurl ? [initialData.pdfurl] : [], // Handle existing PDF
-        category: initialData.category || 'Notes',
+        category: category || initialData.category || 'Notes',
     });
 
     // Check authentication status
@@ -158,13 +158,27 @@ export default function NotesForm({ initialData = {}, onSubmit }) {
                 router.push('/login');
                 return;
             }
+
+            // Fetch current user data to include phone number
+            let userProfile = null;
+            try {
+                const { data: profile } = await supabase
+                    .from('users')
+                    .select('phone')
+                    .eq('id', session.user.id)
+                    .single();
+                userProfile = profile;
+            } catch (err) {
+                console.log('ℹ️ [NotesForm] Could not fetch user profile phone:', err);
+            }
             
             currentUser = {
                 id: session.user.id,
                 email: session.user.email,
                 name: session.user.user_metadata?.name || session.user.user_metadata?.full_name || session.user.email.split('@')[0],
                 avatar_url: session.user.user_metadata?.avatar_url,
-                college: formData.college
+                college: formData.college,
+                phone: userProfile?.phone || null // Include phone to preserve it in API upsert
             };
 
             console.log('✅ [NotesForm] User data prepared:', currentUser);
@@ -300,7 +314,7 @@ export default function NotesForm({ initialData = {}, onSubmit }) {
                 description: '',
                 images: [],
                 pdfs: [],
-                category: 'Notes',
+                category: category || 'Notes',
             });
 
             // Redirect to homepage after showing success message
@@ -426,19 +440,6 @@ export default function NotesForm({ initialData = {}, onSubmit }) {
                     >
                         <option value="" disabled>Select Subject</option>
                         {subjects.map(s => <option key={s} value={s}>{s}</option>)}
-                    </select>
-                </div>
-                <div className="md:col-span-2">
-                    <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
-                    <select 
-                        name="category" 
-                        id="category" 
-                        required 
-                        value={formData.category} 
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-black dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
-                        onChange={handleChange}
-                    >
-                        {categories.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
                 </div>
             </div>

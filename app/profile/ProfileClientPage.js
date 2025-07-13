@@ -27,6 +27,13 @@ const EditProfileModal = ({ user, onClose, onSave }) => {
     const [phoneNumber, setPhoneNumber] = useState(user.phone || '');
     const [isSaving, setIsSaving] = useState(false);
 
+    // Auto-update phone number when user prop changes (e.g., when fetched from database)
+    useEffect(() => {
+        if (user.phone) {
+            setPhoneNumber(user.phone);
+        }
+    }, [user.phone]);
+
     const handleSave = async () => {
         setIsSaving(true);
         await onSave({ fullName, phoneNumber });
@@ -278,40 +285,59 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
 
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {items.map(item => (
-                    <div key={item.id} className={`bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-slate-200 dark:border-gray-700 overflow-hidden group hover:shadow-md transition-all duration-300 ${item.is_sold ? 'opacity-60' : ''}`}>
+                {items.map(item => {
+                    return (
+                    <div key={item.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-slate-200 dark:border-gray-700 overflow-hidden">
                         <ListingCard item={item} />
-                        <div className="p-4 border-t border-slate-100 dark:border-gray-700">
-                            <div className="flex space-x-2">
+                        {/* Button area with forced visibility */}
+                        <div className="p-4 bg-gray-100 dark:bg-gray-700 border-t-2 border-red-500" style={{minHeight: '80px'}}>
+                            <div className="mb-2 text-sm text-gray-600">
+                                ID: {item.id} | Type: {type} | Title: {item.title}
+                            </div>
+                            <div className="flex gap-2">
                                 <Link 
                                     href={`/edit/${item.id}?type=${type}`} 
-                                    className="flex-1 bg-emerald-600 text-white font-medium py-2 px-3 rounded-lg hover:bg-emerald-700 transition duration-300 text-sm text-center"
+                                    className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
                                 >
                                     Edit
                                 </Link>
                                 <button 
-                                    onClick={() => handleRemove(item.id, type)} 
-                                    className="flex-1 bg-red-500 text-white font-medium py-2 px-3 rounded-lg hover:bg-red-600 transition duration-300 text-sm"
+                                    onClick={() => {
+                                        console.log('Remove clicked for:', item.id, type);
+                                        handleRemove(item.id, type);
+                                    }} 
+                                    className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
                                 >
                                     Remove
                                 </button>
                                 {type === 'product' && (
                                     <button 
-                                        onClick={() => handleMarkAsSold(item.id)}
+                                        onClick={() => {
+                                            console.log('Mark as sold clicked for:', item.id);
+                                            handleMarkAsSold(item.id);
+                                        }}
                                         disabled={item.is_sold}
-                                        className={`flex-1 text-white font-medium py-2 px-3 rounded-lg transition duration-300 text-sm ${
+                                        className={`px-3 py-1 rounded text-sm text-white ${
                                             item.is_sold 
-                                                ? 'bg-slate-400 cursor-not-allowed' 
-                                                : 'bg-emerald-500 hover:bg-emerald-600'
+                                                ? 'bg-gray-400 cursor-not-allowed' 
+                                                : 'bg-green-500 hover:bg-green-600'
                                         }`}
                                     >
                                         {item.is_sold ? 'Sold' : 'Mark Sold'}
                                     </button>
                                 )}
                             </div>
+                            {type === 'product' && item.is_sold && (
+                                <div className="mt-2">
+                                    <span className="bg-gray-500 text-white text-xs px-2 py-1 rounded">
+                                        SOLD
+                                    </span>
+                                </div>
+                            )}
                         </div>
                     </div>
-                ))}
+                    );
+                })}
             </div>
         );
     };

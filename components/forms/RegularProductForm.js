@@ -19,7 +19,7 @@ const MapPicker = dynamic(() => import('../MapPicker'), {
 const conditions = ['New', 'Used', 'Refurbished'];
 const categories = ['Laptops', 'Project Equipment', 'Books', 'Cycle/Bike', 'Hostel Equipment', 'Notes', 'Rooms/Hostel', 'Furniture', 'Others'];
 
-export default function RegularProductForm({ initialData = {}, onSubmit }) {
+export default function RegularProductForm({ initialData = {}, onSubmit, category = '' }) {
     const router = useRouter();
     const supabase = createSupabaseBrowserClient();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -33,7 +33,7 @@ export default function RegularProductForm({ initialData = {}, onSubmit }) {
         description: initialData.description || '',
         images: initialData.images || [],
         location: initialData.location ? (typeof initialData.location === 'string' ? JSON.parse(initialData.location) : initialData.location) : null,
-        category: initialData.category || '',
+        category: category || initialData.category || '',
     });
 
     const handleChange = (e) => {
@@ -188,13 +188,27 @@ export default function RegularProductForm({ initialData = {}, onSubmit }) {
                 router.push('/login');
                 return;
             }
+
+            // Fetch current user data to include phone number
+            let userProfile = null;
+            try {
+                const { data: profile } = await supabase
+                    .from('users')
+                    .select('phone')
+                    .eq('id', session.user.id)
+                    .single();
+                userProfile = profile;
+            } catch (err) {
+                console.log('ℹ️ [ProductForm] Could not fetch user profile phone:', err);
+            }
             
             currentUser = {
                 id: session.user.id,
                 email: session.user.email,
                 name: session.user.user_metadata?.name || session.user.user_metadata?.full_name || session.user.email.split('@')[0],
                 avatar_url: session.user.user_metadata?.avatar_url,
-                college: formData.college
+                college: formData.college,
+                phone: userProfile?.phone || null // Include phone to preserve it in API upsert
             };
 
             console.log('✅ [ProductForm] User data prepared:', currentUser);
@@ -257,7 +271,7 @@ export default function RegularProductForm({ initialData = {}, onSubmit }) {
             
             // Add basic data
             formDataToSend.append('type', 'products');
-            formDataToSend.append('user', JSON.stringify(userDataToSend));
+            formDataToSend.append('user', JSON.stringify(currentUser));
             formDataToSend.append('title', formData.title);
             formDataToSend.append('description', formData.description);
             formDataToSend.append('price', parseFloat(formData.price));
@@ -456,20 +470,6 @@ export default function RegularProductForm({ initialData = {}, onSubmit }) {
                     >
                         <option value="" disabled>Select Condition</option>
                         {conditions.map(c => <option key={c} value={c}>{c}</option>)}
-                    </select>
-                </div>
-                <div>
-                    <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
-                    <select 
-                        name="category" 
-                        id="category" 
-                        required 
-                        value={formData.category} 
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-black dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
-                        onChange={handleChange}
-                    >
-                        <option value="" disabled>Select Category</option>
-                        {categories.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
                 </div>
             </div>

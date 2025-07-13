@@ -160,13 +160,21 @@ export async function POST(request) {
     
     console.log('👤 [USER SYNC] Upserting user to public.users table');
     try {
+      // First, get existing user data to preserve fields not sent in the form
+      const { data: existingUserData, error: existingUserError } = await supabaseAdmin
+        .from('users')
+        .select('phone, name, avatar_url, college')
+        .eq('id', authUser.id)
+        .single();
+
+      // If user exists, preserve their existing phone number and other data
       const userData = {
         id: authUser.id,
         email: user.email,
-        name: user.name || authUser.user_metadata?.name || authUser.user_metadata?.full_name || user.email.split('@')[0],
-        avatar_url: user.avatar_url || authUser.user_metadata?.avatar_url || null,
-        college: user.college || data.college || null,
-        phone: user.phone || null,
+        name: user.name || authUser.user_metadata?.name || authUser.user_metadata?.full_name || existingUserData?.name || user.email.split('@')[0],
+        avatar_url: user.avatar_url || authUser.user_metadata?.avatar_url || existingUserData?.avatar_url || null,
+        college: user.college || data.college || existingUserData?.college || null,
+        phone: user.phone || existingUserData?.phone || null, // Preserve existing phone if not provided
         updated_at: new Date().toISOString(),
       };
 
@@ -186,7 +194,7 @@ export async function POST(request) {
         }, { status: 500 });
       }
 
-      console.log('✅ [USER SYNC] User upserted successfully:', upsertedUser.id);
+      console.log('✅ [USER SYNC] User upserted successfully, phone preserved:', !!upsertedUser.phone);
     } catch (syncError) {
       console.error('❌ [USER SYNC ERROR] Exception during user sync:', syncError);
       return NextResponse.json({ 

@@ -20,7 +20,7 @@ const roomTypes = ['Single Room', 'Double Room', '1 BHK', '2 BHK', '3 BHK', 'Sha
 const amenitiesList = ['AC', 'WiFi', 'Washing Machine', 'Furnished', 'Refrigerator', 'Parking', 'Hot Water'];
 const categories = ['Laptops', 'Project Equipment', 'Books', 'Cycle/Bike', 'Hostel Equipment', 'Notes', 'Rooms/Hostel', 'Furniture', 'Others'];
 
-export default function RoomsForm({ initialData = {}, onSubmit }) {
+export default function RoomsForm({ initialData = {}, onSubmit, category = 'Rooms/Hostel' }) {
     const router = useRouter();
     const supabase = createSupabaseBrowserClient();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -44,7 +44,7 @@ export default function RoomsForm({ initialData = {}, onSubmit }) {
         amenities: initialData.amenities || [],
         images: initialData.images || [],
         location: initialData.location || null,
-        category: initialData.category || 'Rooms/Hostel',
+        category: category || initialData.category || 'Rooms/Hostel',
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -76,7 +76,7 @@ export default function RoomsForm({ initialData = {}, onSubmit }) {
                 amenities: initialData.amenities || [],
                 images: initialData.images || [],
                 location: initialData.location || null,
-                category: initialData.category || 'Rooms/Hostel',
+                category: category || initialData.category || 'Rooms/Hostel',
             });
         } else {
             // console.log('RoomsForm: No meaningful initialData, keeping current form state');
@@ -168,21 +168,8 @@ export default function RoomsForm({ initialData = {}, onSubmit }) {
                             }));
                         }
                         
-                        // Prefill contact information if user has phone in profile
-                        if (profile.phone && !formData.contact_primary) {
-                            setFormData(prev => ({ 
-                                ...prev, 
-                                contact_primary: profile.phone 
-                            }));
-                        }
-                        
-                        // Prefill owner name if user has name in profile
-                        if (profile.name && !formData.owner_name) {
-                            setFormData(prev => ({ 
-                                ...prev, 
-                                owner_name: profile.name 
-                            }));
-                        }
+                        // Note: Removed auto-fill for owner name and contact to prevent confusion
+                        // Users should manually enter their preferred contact information for room listings
                     }
                 }
             } catch (error) {
@@ -193,7 +180,7 @@ export default function RoomsForm({ initialData = {}, onSubmit }) {
         if (isAuthenticated && !authLoading) {
             loadUserProfile();
         }
-    }, [isAuthenticated, authLoading, formData.college, formData.contact_primary, formData.owner_name, supabase]);
+    }, [isAuthenticated, authLoading, formData.college, supabase]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -272,13 +259,27 @@ export default function RoomsForm({ initialData = {}, onSubmit }) {
                 router.push('/login');
                 return;
             }
+
+            // Fetch current user data to include phone number
+            let userProfile = null;
+            try {
+                const { data: profile } = await supabase
+                    .from('users')
+                    .select('phone')
+                    .eq('id', session.user.id)
+                    .single();
+                userProfile = profile;
+            } catch (err) {
+                console.log('ℹ️ [RoomsForm] Could not fetch user profile phone:', err);
+            }
             
             currentUser = {
                 id: session.user.id,
                 email: session.user.email,
                 name: session.user.user_metadata?.name || session.user.user_metadata?.full_name || session.user.email.split('@')[0],
                 avatar_url: session.user.user_metadata?.avatar_url,
-                college: formData.college
+                college: formData.college,
+                phone: userProfile?.phone || null // Include phone to preserve it in API upsert
             };
 
             console.log('✅ [RoomsForm] User data prepared:', currentUser);
@@ -445,7 +446,7 @@ export default function RoomsForm({ initialData = {}, onSubmit }) {
                 amenities: [],
                 images: [],
                 location: null,
-                category: 'Rooms/Hostel',
+                category: category || 'Rooms/Hostel',
             });
 
             // Redirect to homepage after showing success message

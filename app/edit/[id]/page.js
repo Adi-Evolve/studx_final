@@ -5,7 +5,7 @@ import EditForm from './EditForm';
 async function getItemData(supabase, id, type) {
     let tableName;
     switch (type) {
-        case 'product': tableName = 'product'; break;
+        case 'product': tableName = 'products'; break;
         case 'note': tableName = 'notes'; break;
         case 'room': tableName = 'rooms'; break;
         default: return null;

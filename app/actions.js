@@ -205,98 +205,32 @@ export async function updateUserProfile(formData) {
     return { data };
 }
 
-// Action to fetch sponsored listings
-export async function fetchSponsoredListings() {
-    const supabase = createSupabaseAdminClient();
-
-    try {
-        // 1. Fetch all sponsored item definitions, ordered by their slot.
-        const { data: sequenceItems, error: sequenceError } = await supabase
-            .from('sponsorship_sequences')
-            .select('item_id, item_type, slot')
-            .order('slot', { ascending: true });
-
-        if (sequenceError) {
-            // console.error('Error fetching sponsorship sequence:', sequenceError);
-            throw sequenceError;
-        }
-
-        if (!sequenceItems || sequenceItems.length === 0) {
-            return []; // No sponsored items are configured
-        }
-
-        // 2. Create a map of promises to fetch the full details for each item.
-        const listingPromises = sequenceItems.map(item => {
-            // The item_type is singular ('product'), but the table name is plural ('products').
-            const tableName = `${item.item_type}s`;
-
-            // Validate the constructed table name against a list of known tables.
-            const validTables = ['products', 'notes', 'rooms'];
-            if (!validTables.includes(tableName)) {
-                // console.warn(`Skipping sponsorship item due to invalid type. Type: '${item.item_type}', constructed table: '${tableName}'`);
-                // Return a resolved promise with a value that can be filtered out later.
-                return Promise.resolve(null);
-            }
-
-            // Create a column selection string based on the table type
-            let selectColumns;
-            if (tableName === 'products') {
-                selectColumns = `
-                    id, title, description, price, category, condition, college, 
-                    location, images, is_sold, seller_id, created_at
-                `;
-            } else if (tableName === 'notes') {
-                selectColumns = `
-                    id, title, description, price, category, college, 
-                    academic_year, course_subject, images, pdf_urls, pdfUrl, 
-                    seller_id, created_at
-                `;
-            } else if (tableName === 'rooms') {
-                selectColumns = `
-                    id, title, description, price, category, college, location, 
-                    images, room_type, occupancy, distance, deposit, fees_include_mess, 
-                    mess_fees, owner_name, contact1, contact2, amenities, seller_id, created_at
-                `;
-            }
-
-            return supabase
-                .from(tableName)
-                .select(selectColumns)
-                .eq('id', item.item_id)
-                .single();
-        });
-
-        const results = await Promise.all(listingPromises);
-
-        // 3. Process the results, filtering out any errors or nulls.
-        const sponsoredListings = results
-            .map((result, index) => {
-                // First, check if the promise was skipped earlier.
-                if (result === null) {
-                    return null;
-                }
-
-                // Now check for Supabase errors.
-                if (result.error || !result.data) {
-                    if (result.error) {
-                         // console.error(`Error fetching sponsored item details for item_id ${sequenceItems[index].item_id} from table ${sequenceItems[index].item_type}s:`, result.error.message);
-                    }
-                    return null;
-                }
-                
-                // The type for the client needs to be singular, which it already is.
-                const type = sequenceItems[index].item_type;
-
-                return { ...result.data, type };
-            })
-            .filter(Boolean); // Removes any null entries from the final array
-
-        return sponsoredListings;
-
-    } catch (error) {
-        // console.error('A critical error occurred in fetchSponsoredListings:', error.message);
-        return [];
+// Helper function to ensure data is serializable for client components
+function serializeDataForClient(data) {
+    if (data === null || data === undefined) return data;
+    
+    if (typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean') {
+        return data;
     }
+    
+    if (data instanceof Date) {
+        return data.toISOString();
+    }
+    
+    if (Array.isArray(data)) {
+        return data.map(item => serializeDataForClient(item));
+    }
+    
+    if (typeof data === 'object') {
+        const serialized = {};
+        for (const [key, value] of Object.entries(data)) {
+            serialized[key] = serializeDataForClient(value);
+        }
+        return serialized;
+    }
+    
+    // For any other type, convert to string
+    return String(data);
 }
 
 // Re-implemented to fix home page crash.
@@ -344,14 +278,14 @@ export async function fetchListings({ page = 1, limit = 12 } = {}) {
             // console.error('[Action: fetchListings] Error fetching rooms:', roomsRes.error.message);
         }
 
-        // Combine all listings and add type information
+        // Combine all listings and add type information with proper serialization
         const allListings = [
-            ...(productsRes.data || []).map(item => ({ ...item, type: 'regular' })),
-            ...(notesRes.data || []).map(item => ({ ...item, type: 'note' })),
-            ...(roomsRes.data || []).map(item => ({ ...item, type: 'room' }))
+            ...(productsRes.data || []).map(item => serializeDataForClient({ ...item, type: 'regular' })),
+            ...(notesRes.data || []).map(item => serializeDataForClient({ ...item, type: 'note' })),
+            ...(roomsRes.data || []).map(item => serializeDataForClient({ ...item, type: 'room' }))
         ];
 
-        // Sort by created_at date (most recent first)
+        // Sort by created_at date (most recent first) - now using ISO strings
         allListings.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
         // Apply pagination
@@ -728,12 +662,12 @@ export async function fetchNewestProducts(limit = 4) {
 
         // Combine all and get the newest across all tables
         const allNewest = [
-            ...(productsRes.data || []).map(item => ({ ...item, type: 'regular' })),
-            ...(notesRes.data || []).map(item => ({ ...item, type: 'note' })),
-            ...(roomsRes.data || []).map(item => ({ ...item, type: 'room' }))
+            ...(productsRes.data || []).map(item => serializeDataForClient({ ...item, type: 'regular' })),
+            ...(notesRes.data || []).map(item => serializeDataForClient({ ...item, type: 'note' })),
+            ...(roomsRes.data || []).map(item => serializeDataForClient({ ...item, type: 'room' }))
         ];
 
-        // Sort by created_at and return the newest items
+        // Sort by created_at (now ISO strings) and return the newest items
         allNewest.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
         
         return allNewest.slice(0, limit * 3); // Return more for slider
