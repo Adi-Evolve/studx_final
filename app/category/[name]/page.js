@@ -91,6 +91,19 @@ export default async function CategoryPage({ params }) {
         } else {
             listings = augmentData(data, 'regular');
         }
+    } else if (categoryName === 'Dorm Equipment') {
+        // Fetch dorm equipment from products table
+        const { data, error: queryError } = await supabase
+            .from('products')
+            .select('*')
+            .or('category.ilike.%Dorm%,category.ilike.%Hostel%,category.ilike.%Bed%,category.ilike.%Mattress%,category.ilike.%Pillow%,category.ilike.%Blanket%')
+            .order('created_at', { ascending: false });
+        
+        if (queryError) {
+            error = queryError;
+        } else {
+            listings = augmentData(data, 'regular');
+        }
     } else {
         // For other categories, search in products table
         const { data, error: queryError } = await supabase

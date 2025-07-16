@@ -1,104 +1,102 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import useEmblaCarousel from 'embla-carousel-react';
+import Autoplay from 'embla-carousel-autoplay';
 import ListingCard from './ListingCard';
 import Link from 'next/link';
 
 export default function NewestProductsSlider({ newestProducts, showDistance = false }) {
-    const [currentIndex, setCurrentIndex] = useState(0);
-    const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-    const [isHovered, setIsHovered] = useState(false);
-    const [touchStart, setTouchStart] = useState(0);
-    const [touchEnd, setTouchEnd] = useState(0);
-    const [progress, setProgress] = useState(0);
-    const sliderRef = useRef(null);
-    const progressRef = useRef(null);
-    const itemsToShow = 4; // Show 4 items at once
-    const maxIndex = Math.max(0, newestProducts.length - itemsToShow);
+    const [selectedIndex, setSelectedIndex] = useState(0);
+    const [scrollSnaps, setScrollSnaps] = useState([]);
+    const [prevBtnEnabled, setPrevBtnEnabled] = useState(false);
+    const [nextBtnEnabled, setNextBtnEnabled] = useState(false);
+    
+    // Configure Embla with autoplay and responsive options
+    const autoplayOptions = {
+        delay: 4000,
+        stopOnInteraction: true,
+        stopOnMouseEnter: true,
+        stopOnFocusIn: true,
+        playOnInit: true,
+        rootNode: (emblaRoot) => emblaRoot.parentElement,
+    };
 
-    // Auto-play functionality with progress
+    const [emblaRef, emblaApi] = useEmblaCarousel(
+        {
+            loop: true,
+            align: 'start',
+            containScroll: 'trimSnaps',
+            dragFree: true,
+            slidesToScroll: 1,
+            breakpoints: {
+                '(min-width: 768px)': { slidesToScroll: 2 },
+                '(min-width: 1024px)': { slidesToScroll: 3 },
+            },
+            // Enhanced touch settings for mobile
+            watchDrag: true,
+            watchResize: true,
+            watchSlides: true,
+            skipSnaps: false,
+            inViewThreshold: 0.7,
+        },
+        [Autoplay(autoplayOptions)]
+    );
+
+    // Scroll to specific index
+    const scrollTo = useCallback((index) => {
+        if (emblaApi) emblaApi.scrollTo(index);
+    }, [emblaApi]);
+
+    // Navigation functions
+    const scrollPrev = useCallback(() => {
+        if (emblaApi) emblaApi.scrollPrev();
+    }, [emblaApi]);
+
+    const scrollNext = useCallback(() => {
+        if (emblaApi) emblaApi.scrollNext();
+    }, [emblaApi]);
+
+    // Update button states and selected index
+    const onSelect = useCallback(() => {
+        if (!emblaApi) return;
+        setSelectedIndex(emblaApi.selectedScrollSnap());
+        setPrevBtnEnabled(emblaApi.canScrollPrev());
+        setNextBtnEnabled(emblaApi.canScrollNext());
+    }, [emblaApi]);
+
+    // Initialize embla
     useEffect(() => {
-        if (!isAutoPlaying || isHovered || newestProducts.length <= itemsToShow) {
-            setProgress(0);
-            return;
-        }
-
-        const interval = setInterval(() => {
-            setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
-            setProgress(0); // Reset progress when slide changes
-        }, 4000); // 4 second slide interval
-
-        // Progress animation
-        const progressInterval = setInterval(() => {
-            setProgress((prev) => {
-                if (prev >= 100) return 0;
-                return prev + (100 / 40); // 100% in 4000ms (40 steps of 100ms)
-            });
-        }, 100);
-
+        if (!emblaApi) return;
+        
+        onSelect();
+        setScrollSnaps(emblaApi.scrollSnapList());
+        emblaApi.on('select', onSelect);
+        emblaApi.on('reInit', onSelect);
+        
         return () => {
-            clearInterval(interval);
-            clearInterval(progressInterval);
+            emblaApi.off('select', onSelect);
+            emblaApi.off('reInit', onSelect);
         };
-    }, [isAutoPlaying, isHovered, maxIndex, newestProducts.length, itemsToShow, currentIndex]);
+    }, [emblaApi, onSelect]);
 
     // Keyboard navigation
     useEffect(() => {
         const handleKeyDown = (e) => {
-            if (newestProducts.length <= itemsToShow) return;
+            if (!emblaApi) return;
             
             if (e.key === 'ArrowLeft') {
                 e.preventDefault();
-                handlePrev();
+                scrollPrev();
             } else if (e.key === 'ArrowRight') {
                 e.preventDefault();
-                handleNext();
+                scrollNext();
             }
         };
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [maxIndex, newestProducts.length, itemsToShow]);
-
-    const handlePrev = () => {
-        setCurrentIndex((prev) => (prev <= 0 ? maxIndex : prev - 1));
-        setIsAutoPlaying(false);
-        setProgress(0);
-        // Resume auto-play after 8 seconds of user interaction
-        setTimeout(() => setIsAutoPlaying(true), 8000);
-    };
-
-    const handleNext = () => {
-        setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
-        setIsAutoPlaying(false);
-        setProgress(0);
-        // Resume auto-play after 8 seconds of user interaction
-        setTimeout(() => setIsAutoPlaying(true), 8000);
-    };
-
-    // Touch handlers for mobile swipe
-    const handleTouchStart = (e) => {
-        setTouchStart(e.targetTouches[0].clientX);
-    };
-
-    const handleTouchMove = (e) => {
-        setTouchEnd(e.targetTouches[0].clientX);
-    };
-
-    const handleTouchEnd = () => {
-        if (!touchStart || !touchEnd) return;
-        
-        const distance = touchStart - touchEnd;
-        const isLeftSwipe = distance > 50;
-        const isRightSwipe = distance < -50;
-
-        if (isLeftSwipe && newestProducts.length > itemsToShow) {
-            handleNext();
-        }
-        if (isRightSwipe && newestProducts.length > itemsToShow) {
-            handlePrev();
-        }
-    };
+    }, [emblaApi, scrollPrev, scrollNext]);
 
     if (!newestProducts || newestProducts.length === 0) {
         return (
@@ -136,24 +134,14 @@ export default function NewestProductsSlider({ newestProducts, showDistance = fa
                 </Link>
             </div>
 
-            <div className="relative group" 
-                onMouseEnter={() => setIsHovered(true)} 
-                onMouseLeave={() => setIsHovered(false)}
-                onTouchStart={handleTouchStart}
-                onTouchMove={handleTouchMove}
-                onTouchEnd={handleTouchEnd}
-            >
-                {/* Main slider container */}
-                <div className="overflow-hidden rounded-xl">
-                    <div 
-                        ref={sliderRef}
-                        className="flex transition-transform duration-500 ease-in-out"
-                        style={{ transform: `translateX(-${currentIndex * (100 / itemsToShow)}%)` }}
-                    >
+            <div className="relative group">
+                {/* Embla Carousel Container */}
+                <div className="overflow-hidden" ref={emblaRef}>
+                    <div className="flex touch-pan-x touch-pinch-zoom">
                         {newestProducts.map((item, index) => (
                             <div 
                                 key={`${item.type}-${item.id}`} 
-                                className="w-1/2 md:w-1/4 flex-shrink-0 px-2 md:px-3 isolated-card"
+                                className="flex-[0_0_48%] sm:flex-[0_0_48%] md:flex-[0_0_48%] lg:flex-[0_0_31%] xl:flex-[0_0_23%] min-w-0 pl-2 first:pl-0"
                                 style={{ isolation: 'isolate' }}
                             >
                                 <ListingCard item={item} showDistance={showDistance} />
@@ -162,61 +150,55 @@ export default function NewestProductsSlider({ newestProducts, showDistance = fa
                     </div>
                 </div>
 
-                {/* Navigation buttons - only show if we have more items than visible */}
-                {newestProducts.length > itemsToShow && (
-                    <>
-                        <button
-                            onClick={handlePrev}
-                            className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 backdrop-blur-md hover:bg-white rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 opacity-0 group-hover:opacity-100 focus:outline-none border border-gray-200/50 hover:scale-110 z-10"
-                            aria-label="Previous products"
-                        >
-                            <svg className="w-6 h-6 text-gray-700 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                            </svg>
-                        </button>
-                        
-                        <button
-                            onClick={handleNext}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 backdrop-blur-md hover:bg-white rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 opacity-0 group-hover:opacity-100 focus:outline-none border border-gray-200/50 hover:scale-110 z-10"
-                            aria-label="Next products"
-                        >
-                            <svg className="w-6 h-6 text-gray-700 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
-                        </button>
-                    </>
-                )}
+                {/* Navigation buttons */}
+                <button
+                    onClick={scrollPrev}
+                    disabled={!prevBtnEnabled}
+                    className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-white/95 backdrop-blur-sm hover:bg-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 opacity-0 group-hover:opacity-100 focus:opacity-100 focus:outline-none border border-gray-200/50 hover:scale-105 z-10 disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100"
+                    aria-label="Previous products"
+                >
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                
+                <button
+                    onClick={scrollNext}
+                    disabled={!nextBtnEnabled}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-white/95 backdrop-blur-sm hover:bg-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 opacity-0 group-hover:opacity-100 focus:opacity-100 focus:outline-none border border-gray-200/50 hover:scale-105 z-10 disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100"
+                    aria-label="Next products"
+                >
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
 
                 {/* Dots indicator */}
-                {newestProducts.length > itemsToShow && (
+                {scrollSnaps.length > 1 && (
                     <div className="flex justify-center mt-6 space-x-2">
-                        {Array.from({ length: maxIndex + 1 }).map((_, index) => (
+                        {scrollSnaps.map((_, index) => (
                             <button
                                 key={index}
-                                onClick={() => {
-                                    setCurrentIndex(index);
-                                    setIsAutoPlaying(false);
-                                    setProgress(0);
-                                    // Resume auto-play after 8 seconds of user interaction
-                                    setTimeout(() => setIsAutoPlaying(true), 8000);
-                                }}
-                                className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                                    index === currentIndex 
+                                onClick={() => scrollTo(index)}
+                                className={`h-2 rounded-full transition-all duration-300 ${
+                                    index === selectedIndex 
                                         ? 'bg-blue-600 w-8' 
-                                        : 'bg-gray-300 hover:bg-gray-400'
+                                        : 'bg-gray-300 hover:bg-gray-400 w-2'
                                 }`}
+                                aria-label={`Go to slide ${index + 1}`}
                             />
                         ))}
                     </div>
                 )}
-
-                {/* No auto-play indicator - clean interface */}
             </div>
 
             {/* Quick stats and controls info */}
             <div className="mt-8 flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
-                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg px-6 py-3 text-sm text-gray-600 dark:text-gray-300">
-                    Showing {Math.min(itemsToShow, newestProducts.length)} of {newestProducts.length} newest items
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg px-4 py-2 sm:px-6 sm:py-3 text-sm text-gray-600 dark:text-gray-300">
+                    Showing {newestProducts.length} newest items
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                    💡 Swipe or drag to explore more
                 </div>
             </div>
         </section>

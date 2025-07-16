@@ -572,6 +572,55 @@ body {
     }
   }
 
+  /* Embla Carousel Enhanced Mobile Experience */
+  .embla {
+    overflow: hidden;
+  }
+
+  .embla__container {
+    display: flex;
+    touch-action: pan-x pinch-zoom;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .embla__slide {
+    touch-action: pan-x;
+    min-width: 0;
+    flex: 0 0 auto;
+    position: relative;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Enhanced touch responsiveness */
+  @media (max-width: 768px) {
+    .embla__container {
+      cursor: grab;
+      will-change: transform;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      transform: translateZ(0);
+      -webkit-transform: translateZ(0);
+    }
+
+    .embla__container:active {
+      cursor: grabbing;
+    }
+
+    .embla__slide {
+      touch-action: pan-x;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Smooth momentum scrolling for iOS */
+    .embla__viewport {
+      -webkit-overflow-scrolling: touch;
+      overflow-scrolling: touch;
+    }
+  }
+
   /* Improved text readability on mobile */
   @media (max-width: 640px) {
     .hero-title-mobile {

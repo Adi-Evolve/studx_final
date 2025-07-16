@@ -5,7 +5,7 @@ import NewestProductsSlider from '@/components/NewestProductsSlider';
 import NewestProductsSection from '@/components/NewestProductsSection';
 import HowItWorks from '@/components/HowItWorks';
 import CategoryCard from '@/components/CategoryCard';
-import LocationPermissionBanner from '@/components/LocationPermissionBanner';
+// import LocationPermissionBanner from '@/components/LocationPermissionBanner'; // TODO: Re-enable location features later
 import { 
   fetchSponsoredListings,
   fetchNewestProducts,
@@ -63,8 +63,8 @@ function CategoriesSection() {
         <CategoryCard href="/category/Notes" icon="📝" title="Notes" />
         <CategoryCard href="/category/Rooms" icon="🏠" title="Rooms" />
         <CategoryCard href="/category/Furniture" icon="🪑" title="Furniture" />
-        <CategoryCard href="/category/Lab Equipment" icon="🔬" title="Lab Equipment" />
-        <CategoryCard href="/category/Books" icon="�" title="Books" />
+        <CategoryCard href="/category/Dorm Equipment" icon="�️" title="Dorm Equipment" />
+        <CategoryCard href="/category/Books" icon="📖" title="Books" />
       </div>
     </section>
   );
@@ -237,7 +237,7 @@ export default async function HomePage() {
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Location Permission Banner */}
-        <LocationPermissionBanner />
+        {/* <LocationPermissionBanner /> */} {/* TODO: Re-enable location features later */}
 
         {/* Newest Products Section */}
         <Suspense fallback={<SectionSkeleton />}>
