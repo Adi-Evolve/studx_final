@@ -4,7 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 
 export default function FeaturedSlider({ listings }) {
-    console.log('FeaturedSlider received listings:', listings);
+    // console.log('FeaturedSlider received listings:', listings);
     
     if (!listings || listings.length === 0) {
         return (

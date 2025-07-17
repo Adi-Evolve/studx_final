@@ -1,5 +1,4 @@
-'use client';
-
+﻿'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
@@ -7,18 +6,15 @@ import ImageUploadWithOptimization from '../ImageUploadWithOptimization';
 import FileUpload from '../FileUpload';
 import { colleges } from '../../lib/colleges';
 import toast from 'react-hot-toast';
-
 // Placeholder data
 const academicYears = ['8th', '9th', '10th', '11th', '12th', 'Undergraduate', 'Postgraduate', 'PhD'];
 const subjects = ['Physics', 'Chemistry', 'Mathematics', 'Computer Science', 'Data Structures'];
 const categories = ['Laptops', 'Project Equipment', 'Books', 'Cycle/Bike', 'Hostel Equipment', 'Notes', 'Rooms/Hostel', 'Furniture', 'Others'];
-
 export default function NotesForm({ initialData = {}, onSubmit, category = 'Notes' }) {
     const router = useRouter();
     const supabase = createSupabaseBrowserClient();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [authLoading, setAuthLoading] = useState(true);
-    
     const [formData, setFormData] = useState({
         title: initialData.title || '',
         college: initialData.college || '',
@@ -30,33 +26,19 @@ export default function NotesForm({ initialData = {}, onSubmit, category = 'Note
         pdfs: initialData.pdfurl ? [initialData.pdfurl] : [], // Handle existing PDF
         category: category || initialData.category || 'Notes',
     });
-
     // Check authentication status
     useEffect(() => {
         const checkAuth = async () => {
-            console.log('🔍 [NotesForm] Checking authentication...');
             try {
                 const { data: { session }, error } = await supabase.auth.getSession();
-                
                 if (error) {
-                    console.error('❌ [NotesForm] Auth error:', error);
                     setIsAuthenticated(false);
                     setAuthLoading(false);
                     return;
                 }
-                
-                console.log('🔍 [NotesForm] Session data:', {
-                    hasSession: !!session,
-                    hasUser: !!session?.user,
-                    userEmail: session?.user?.email,
-                    userId: session?.user?.id
-                });
-
                 // Only check for email presence in auth
                 if (session?.user?.email) {
                     setIsAuthenticated(true);
-                    console.log('✅ [NotesForm] User authenticated with email:', session.user.email);
-                    
                     // Pre-fill user data if available
                     try {
                         const { data: userData } = await supabase
@@ -64,7 +46,6 @@ export default function NotesForm({ initialData = {}, onSubmit, category = 'Note
                             .select('name, college')
                             .eq('email', session.user.email)
                             .single();
-                        
                         if (userData) {
                             setFormData(prev => ({
                                 ...prev,
@@ -72,93 +53,62 @@ export default function NotesForm({ initialData = {}, onSubmit, category = 'Note
                             }));
                         }
                     } catch (profileError) {
-                        console.log('ℹ️ [NotesForm] Could not load user profile:', profileError);
                     }
                 } else {
-                    console.log('❌ [NotesForm] No email found in session');
                     setIsAuthenticated(false);
                 }
-                
                 setAuthLoading(false);
             } catch (authError) {
-                console.error('❌ [NotesForm] Auth check exception:', authError);
                 setIsAuthenticated(false);
                 setAuthLoading(false);
             }
         };
-
         checkAuth();
-
         // Listen for auth changes
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-            console.log('🔄 [NotesForm] Auth state changed:', event, !!session?.user?.email);
             if (session?.user?.email) {
                 setIsAuthenticated(true);
             } else {
                 setIsAuthenticated(false);
             }
         });
-
         return () => subscription.unsubscribe();
     }, [supabase.auth]);
-
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
-
     const handleImagesChange = (files) => {
         setFormData(prev => ({ ...prev, images: files }));
     };
-
     const handlePdfsChange = (files) => {
         setFormData(prev => ({ ...prev, pdfs: files }));
     };
-
     const [isSubmitting, setIsSubmitting] = useState(false);
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (isSubmitting) return;
-
-        console.log('📝 [NotesForm] Starting submission...');
-
         // ============================================================================
         // 1. ENHANCED EMAIL-BASED AUTHENTICATION CHECK
         // ============================================================================
-        
         if (!isAuthenticated) {
-            console.log('❌ [NotesForm] Not authenticated, redirecting to login');
             toast.error('Please log in to submit your notes');
             router.push('/login');
             return;
         }
-
         // Get current session and verify email
         let currentUser = null;
         try {
             const { data: { session }, error } = await supabase.auth.getSession();
-            
             if (error) {
-                console.error('❌ [NotesForm] Session error:', error);
                 toast.error('Authentication error. Please try logging in again.');
                 return;
             }
-
-            console.log('🔍 [NotesForm] Session check:', {
-                hasSession: !!session,
-                hasUser: !!session?.user,
-                userEmail: session?.user?.email,
-                userId: session?.user?.id
-            });
-            
             if (!session?.user?.email) {
-                console.log('❌ [NotesForm] No email found in session');
                 toast.error('Invalid authentication. Please log in with a valid email.');
                 router.push('/login');
                 return;
             }
-
             // Fetch current user data to include phone number
             let userProfile = null;
             try {
@@ -169,9 +119,7 @@ export default function NotesForm({ initialData = {}, onSubmit, category = 'Note
                     .single();
                 userProfile = profile;
             } catch (err) {
-                console.log('ℹ️ [NotesForm] Could not fetch user profile phone:', err);
             }
-            
             currentUser = {
                 id: session.user.id,
                 email: session.user.email,
@@ -180,45 +128,32 @@ export default function NotesForm({ initialData = {}, onSubmit, category = 'Note
                 college: formData.college,
                 phone: userProfile?.phone || null // Include phone to preserve it in API upsert
             };
-
-            console.log('✅ [NotesForm] User data prepared:', currentUser);
         } catch (sessionError) {
-            console.error('❌ [NotesForm] Session check failed:', sessionError);
             toast.error('Failed to verify authentication. Please try again.');
             return;
         }
-
         // ============================================================================
         // 2. FORM VALIDATION
         // ============================================================================
-        
         if (!formData.title || !formData.price || !formData.college || !formData.subject) {
             toast.error('Please fill in all required fields');
             return;
         }
-
         if (isNaN(parseFloat(formData.price)) || parseFloat(formData.price) <= 0) {
             toast.error('Please enter a valid price');
             return;
         }
-
-        console.log('✅ [NotesForm] Form validation passed');
         setIsSubmitting(true);
-
         const toastId = toast.loading('Uploading your notes...');
-
         try {
             // ============================================================================
             // 3. PREPARE SUBMISSION DATA
             // ============================================================================
-            
             // ============================================================================
             // 4. SUBMIT TO API
             // ============================================================================
-            
             // Create FormData to handle File uploads
             const formDataToSend = new FormData();
-            
             // Add basic data
             formDataToSend.append('type', 'notes');
             formDataToSend.append('user', JSON.stringify(currentUser));
@@ -229,68 +164,46 @@ export default function NotesForm({ initialData = {}, onSubmit, category = 'Note
             formDataToSend.append('course', formData.course || 'General');
             formDataToSend.append('subject', formData.subject);
             formDataToSend.append('academicYear', formData.academic_year);
-            
             // Add images as File objects
             if (formData.images && formData.images.length > 0) {
                 formData.images.forEach((image, index) => {
                     formDataToSend.append(`images`, image);
                 });
             }
-            
             // Add PDFs as File objects
             if (formData.pdfs && formData.pdfs.length > 0) {
                 formData.pdfs.forEach((pdf, index) => {
                     formDataToSend.append(`pdfs`, pdf);
                 });
             }
-
-            console.log('📤 [NotesForm] Sending FormData to API with', formData.images?.length || 0, 'images and', formData.pdfs?.length || 0, 'PDFs');
-            
             const response = await fetch('/api/sell', {
                 method: 'POST',
                 body: formDataToSend, // Send FormData instead of JSON
             });
-
             const result = await response.json();
-
-            console.log('📥 [NotesForm] API response:', {
-                status: response.status,
-                ok: response.ok,
-                result: result
-            });
-
             if (!response.ok) {
-                console.error('❌ [NotesForm] API error:', result);
-                
                 // Handle specific error codes
                 if (result.code === 'AUTH_MISSING_EMAIL' || result.code === 'AUTH_EMAIL_NOT_FOUND') {
                     toast.error('Authentication required. Please sign in first.');
                     router.push('/login');
                     return;
                 }
-                
                 if (result.code === 'AUTH_EMAIL_UNREGISTERED') {
                     toast.error('Email not registered. Please create an account first.');
                     router.push('/signup');
                     return;
                 }
-                
                 if (result.code === 'DATABASE_RLS_ERROR') {
                     toast.error('Database security error. Please contact support.');
                     return;
                 }
-                
                 // Generic error message
                 toast.error(result.error || 'Failed to submit notes. Please try again.');
                 return;
             }
-
             // ============================================================================
             // 5. SUCCESS HANDLING
             // ============================================================================
-            
-            console.log('✅ [NotesForm] Notes submitted successfully:', result.data);
-            
             // Show success message
             toast.success(
                 `📚 ${result.message || 'Notes submitted successfully!'}\nYour ${result.data?.title || 'notes'} are now live!`,
@@ -303,7 +216,6 @@ export default function NotesForm({ initialData = {}, onSubmit, category = 'Note
                     },
                 }
             );
-            
             // Reset form
             setFormData({
                 title: '',
@@ -316,21 +228,17 @@ export default function NotesForm({ initialData = {}, onSubmit, category = 'Note
                 pdfs: [],
                 category: category || 'Notes',
             });
-
             // Redirect to homepage after showing success message
             setTimeout(() => {
                 router.push('/');
             }, 2000);
-
         } catch (fetchError) {
-            console.error('❌ [NotesForm] Fetch error:', fetchError);
             toast.error('Network error. Please check your connection and try again.');
         } finally {
             setIsSubmitting(false);
             toast.dismiss(toastId);
         }
     };
-
     // Show loading state while checking authentication
     if (authLoading) {
         return (
@@ -345,7 +253,6 @@ export default function NotesForm({ initialData = {}, onSubmit, category = 'Note
             </div>
         );
     }
-
     // Show login prompt if not authenticated
     if (!isAuthenticated) {
         return (
@@ -365,14 +272,12 @@ export default function NotesForm({ initialData = {}, onSubmit, category = 'Note
             </div>
         );
     }
-
     return (
         <form onSubmit={handleSubmit} className="space-y-8">
             <div>
                 <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200">List Notes</h2>
                 <p className="text-gray-600 dark:text-gray-400">Share your knowledge with fellow students.</p>
             </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Title of Notes</label>
@@ -443,7 +348,6 @@ export default function NotesForm({ initialData = {}, onSubmit, category = 'Note
                     </select>
                 </div>
             </div>
-
             <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Upload Preview Images (up to 5)</label>
                 <ImageUploadWithOptimization 
@@ -459,12 +363,10 @@ export default function NotesForm({ initialData = {}, onSubmit, category = 'Note
                     }}
                 />
             </div>
-
             <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Upload PDF Files (up to 10)</label>
                 <FileUpload onFilesChange={handlePdfsChange} maxFiles={10} accept=".pdf" fileType="PDF" />
             </div>
-
             <div className="md:col-span-2">
                 <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
                 <textarea 
@@ -477,7 +379,6 @@ export default function NotesForm({ initialData = {}, onSubmit, category = 'Note
                     placeholder="Describe your notes in detail..."
                 />
             </div>
-
             <button 
                 type="submit" 
                 disabled={isSubmitting}
@@ -488,3 +389,4 @@ export default function NotesForm({ initialData = {}, onSubmit, category = 'Note
         </form>
     );
 }
+

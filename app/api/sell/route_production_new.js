@@ -276,7 +276,7 @@ async function insertItem(itemType, data, userId) {
 
 export async function POST(request) {
   try {
-    console.log('[SELL API] Processing request...')
+    // console.log('[SELL API] Processing request...')
 
     // Parse request body
     let body
@@ -296,7 +296,7 @@ export async function POST(request) {
 
     const { itemType, data } = body
 
-    console.log('[SELL API] Request data:', { itemType, dataKeys: Object.keys(data || {}) })
+    // console.log('[SELL API] Request data:', { itemType, dataKeys: Object.keys(data || {}) })
 
     // Validate request structure
     if (!itemType || !data) {
@@ -314,7 +314,7 @@ export async function POST(request) {
     let authenticatedUser
     try {
       authenticatedUser = await authenticateUser(request)
-      console.log('[SELL API] User authenticated:', { email: authenticatedUser.email, id: authenticatedUser.id })
+      // console.log('[SELL API] User authenticated:', { email: authenticatedUser.email, id: authenticatedUser.id })
     } catch (authError) {
       logError('AUTHENTICATION_FAILED', authError)
       return NextResponse.json(
@@ -349,7 +349,7 @@ export async function POST(request) {
         name: data.name || authenticatedUser.name,
         college: data.college
       })
-      console.log('[SELL API] User found/created:', { id: user.id, email: user.email })
+      // console.log('[SELL API] User found/created:', { id: user.id, email: user.email })
     } catch (userError) {
       logError('USER_CREATION_FAILED', userError)
       return NextResponse.json(
@@ -366,7 +366,7 @@ export async function POST(request) {
     let result
     try {
       result = await insertItem(itemType, data, user.id)
-      console.log('[SELL API] Item created:', { itemType, id: result.id })
+      // console.log('[SELL API] Item created:', { itemType, id: result.id })
     } catch (insertError) {
       logError('ITEM_INSERT_FAILED', insertError, { itemType, userId: user.id })
       return NextResponse.json(

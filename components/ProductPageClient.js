@@ -134,7 +134,7 @@ export default function ProductPageClient({ product, seller, type }) {
                     .createSignedUrl(pdfUrl, 60 * 60); // 1 hour expiry
 
                 if (error) {
-                    console.error('Error creating signed URL:', error);
+                    // console.error('Error creating signed URL:', error);
                     alert('Failed to generate download link');
                     return;
                 }
@@ -291,7 +291,7 @@ export default function ProductPageClient({ product, seller, type }) {
                                     <div className="space-y-3">
                                         {/* Contact Seller Button for Physical Products */}
                                         {seller?.phone ? (
-                                            <a href={`https://wa.me/${getWhatsAppNumber(seller.phone)}?text=I'm%20interested%20in%20your%20'${encodeURIComponent(product.title)}'%20on%20StudXchange.`} target="_blank" rel="noopener noreferrer" className="w-full bg-green-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center">
+                                            <a href={`https://wa.me/${getWhatsAppNumber(seller.phone)}?text=Hi%20there!%20I%20came%20across%20your%20listing%20for%20'${encodeURIComponent(product.title)}'%20on%20StudXchange%20and%20I'm%20very%20interested%20in%20purchasing%20it.%20%0A%0ACould%20you%20please%20provide%20more%20details%20about:%20%0A-%20Current%20condition%20of%20the%20item%20%0A-%20Availability%20for%20viewing/pickup%20%0A-%20Any%20accessories%20or%20additional%20items%20included%20%0A-%20Preferred%20payment%20method%20%0A%0AProduct%20Link:%20${encodeURIComponent(window.location.href)}%20%0A%0AThank%20you%20for%20your%20time%20and%20looking%20forward%20to%20hearing%20from%20you!`} target="_blank" rel="noopener noreferrer" className="w-full bg-green-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center">
                                                 <FontAwesomeIcon icon={faWhatsapp} className="mr-3" size="lg" />
                                                 Contact Seller
                                             </a>

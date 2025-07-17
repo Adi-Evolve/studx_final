@@ -58,6 +58,38 @@ export default function TermsOfService() {
               </p>
             </section>
 
+            <section className="border-l-4 border-orange-500 pl-4 bg-orange-50 dark:bg-orange-900/20 rounded-r-lg p-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-orange-800 dark:text-orange-400 mb-3">⚠️ Important Disclaimer</h2>
+              <div className="text-sm sm:text-base text-orange-700 dark:text-orange-300 leading-relaxed space-y-3">
+                <p className="font-semibold">
+                  All transactions on StudXchange are personal agreements between individual buyers and sellers.
+                </p>
+                <p>
+                  <strong>StudXchange is NOT responsible for:</strong>
+                </p>
+                <ul className="list-disc list-inside space-y-1 ml-4">
+                  <li>Product quality, condition, or authenticity</li>
+                  <li>Delivery, shipping, or pickup arrangements</li>
+                  <li>Payment disputes or fraudulent transactions</li>
+                  <li>Product defects or misrepresentation</li>
+                  <li>Any damages arising from buyer-seller interactions</li>
+                </ul>
+                <p className="font-semibold text-orange-800 dark:text-orange-400">
+                  🛡️ Before making any purchase:
+                </p>
+                <ul className="list-disc list-inside space-y-1 ml-4">
+                  <li>Thoroughly inspect the product (if possible)</li>
+                  <li>Communicate properly with the seller</li>
+                  <li>Verify seller's identity and contact information</li>
+                  <li>Meet in safe, public locations for exchanges</li>
+                  <li>Trust your instincts - if something feels wrong, don't proceed</li>
+                </ul>
+                <p className="font-semibold text-red-700 dark:text-red-400">
+                  By using StudXchange, you acknowledge that you are engaging in peer-to-peer transactions at your own risk.
+                </p>
+              </div>
+            </section>
+
             <section>
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-3">6. Intellectual Property</h2>
               <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 leading-relaxed">

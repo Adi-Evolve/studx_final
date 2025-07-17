@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - StudX</title>
+    <title>StudXchange Admin Panel - Complete Management System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
     <style>
         :root {
             --primary-color: #4a90e2;
@@ -39,7 +40,15 @@
 
         .login-logo h1 {
             color: var(--primary-color);
-            font-size: 24px;
+            font-size: 28px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .login-logo .subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
         }
 
         .login-form .form-control {
@@ -93,215 +102,56 @@
             color: white;
         }
 
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+
         /* Card Styles */
         .card {
             border: none;
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-            transition: transform 0.2s;
         }
 
-        .card:hover {
-            transform: translateY(-2px);
+        .product-card {
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
-        .card-header {
-            background-color: white;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-            padding: 15px 20px;
-            font-weight: 600;
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
         }
 
-        .stats-card {
-            background: linear-gradient(45deg, var(--primary-color), #2980b9);
-            color: white;
-        }
-
-        /* Table Styles */
-        .table {
-            margin-bottom: 0;
-        }
-
-        .table th {
-            font-weight: 600;
-            background-color: var(--light-bg);
-            border-top: none;
-        }
-
-        .table td {
-            vertical-align: middle;
-        }
-
-        /* Search Bar Styles */
-        .search-container {
-            position: relative;
-            margin-bottom: 20px;
-        }
-
-        .search-container input {
-            padding-left: 40px;
-            border-radius: 20px;
-            border: 1px solid #ddd;
-        }
-
-        .search-container i {
+        .delete-product-btn {
             position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #666;
-        }
-
-        /* Button Styles */
-        .btn {
-            border-radius: 5px;
-            padding: 8px 16px;
-            font-weight: 500;
-        }
-
-        .btn-primary {
-            background-color: var(--primary-color);
-            border: none;
-        }
-
-        .btn-primary:hover {
-            background-color: #357abd;
-        }
-
-        .btn-danger {
-            background-color: var(--danger-color);
-            border: none;
-        }
-
-        .btn-success {
-            background-color: var(--success-color);
-            border: none;
-        }
-
-        /* Image Styles */
-        .product-image {
-            width: 50px;
-            height: 50px;
-            object-fit: cover;
-            border-radius: 5px;
-        }
-
-        /* Badge Styles */
-        .badge {
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 0.8rem;
-        }
-
-        .sponsorship-badge {
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 0.8rem;
-        }
-
-        .sponsorship-active {
-            background-color: var(--success-color);
-            color: white;
-        }
-
-        .sponsorship-inactive {
-            background-color: var(--danger-color);
-            color: white;
-        }
-
-        /* Modal Styles */
-        .modal-content {
-            border-radius: 15px;
-            border: none;
-        }
-
-        .modal-header {
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-            padding: 20px;
-        }
-
-        .modal-body {
-            padding: 20px;
-        }
-
-        .modal-footer {
-            border-top: 1px solid rgba(0, 0, 0, 0.1);
-            padding: 20px;
-        }
-
-        /* Form Styles */
-        .form-control {
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            padding: 10px;
-        }
-
-        .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
-        }
-
-        /* Sequence Management Styles */
-        .sequence-container {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .sequence-item {
-            background: var(--light-bg);
-            border-radius: 5px;
-            padding: 10px;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .sequence-item .drag-handle {
-            cursor: move;
-            color: #666;
-            margin-right: 10px;
-        }
-
-        /* User Management Styles */
-        .user-card {
-            display: flex;
-            align-items: center;
-            padding: 15px;
-            background: white;
-            border-radius: 10px;
-            margin-bottom: 10px;
-        }
-
-        .user-avatar {
-            width: 40px;
-            height: 40px;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            padding: 0;
             border-radius: 50%;
-            margin-right: 15px;
-        }
-
-        /* Settings Styles */
-        .settings-section {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .settings-section h3 {
-            margin-bottom: 20px;
-            color: var(--secondary-color);
-        }
-
-        /* Loading Spinner */
-        .loading-spinner {
-            display: none;
-            justify-content: center;
+            display: flex;
             align-items: center;
-            height: 100px;
+            justify-content: center;
+            font-size: 16px;
+            line-height: 1;
+            z-index: 10;
+        }
+
+        .delete-product-btn:hover {
+            background-color: var(--danger-color);
+            transform: scale(1.1);
+        }
+
+        /* Loading spinner animation */
+        .fa-spin {
+            animation: fa-spin 1s infinite linear;
+        }
+
+        @keyframes fa-spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         /* Responsive Design */
@@ -315,11 +165,6 @@
             .main-content {
                 margin-left: 0;
             }
-        }
-
-        .main-content {
-            margin-left: 250px;
-            padding: 20px;
         }
     </style>
 </head>
@@ -357,9 +202,6 @@
                 <a href="#" class="nav-link" data-page="products">
                     <i class="fas fa-box me-2"></i> Products
                 </a>
-                <a href="#" class="nav-link" data-page="sponsorships">
-                    <i class="fas fa-handshake me-2"></i> Sponsorships
-                </a>
                 <a href="#" class="nav-link" data-page="users">
                     <i class="fas fa-users me-2"></i> Users
                 </a>
@@ -384,620 +226,585 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
     <script>
 (async function() {
-        // ---- SUPABASE CONFIG ----
-        const SUPABASE_URL = 'https://vdpmumstdxgftaaxeacx.supabase.co'; // <-- updated URL
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkcG11bXN0ZHhnZnRhYXhlYWN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE5MDYwODIsImV4cCI6MjA2NzQ4MjA4Mn0.Pbfm3FebzjQAHLPfdkzky-IH9aF3Zj1ZNVBjwe-3lyw'; // <-- updated anon key
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // SUPABASE CONFIG
+    const SUPABASE_URL = 'https://vdpmumstdxgftaaxeacx.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkcG11bXN0ZHhnZnRhYXhlYWN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE5MDYwODIsImV4cCI6MjA2NzQ4MjA4Mn0.Pbfm3FebzjQAHLPfdkzky-IH9aF3Zj1ZNVBjwe-3lyw';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Fetch and render products
-        async function loadProducts() {
-            const productsList = document.getElementById('productsList');
-            if (!productsList) return;
-            productsList.innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
-            try {
-                const { data: products, error } = await supabase.from('products').select('*');
-                if (error) throw error;
-                if (!products.length) {
-                    productsList.innerHTML = '<div class="alert alert-info">No products found.</div>';
-                    return;
-                }
-                productsList.innerHTML = `<div class="table-responsive"><table class="table table-striped"><thead><tr><th>Title</th><th>Price</th><th>Category</th><th>Description</th></tr></thead><tbody>${products.map(p => `<tr><td>${p.title||''}</td><td>${p.price||''}</td><td>${p.category||''}</td><td>${p.description||''}</td></tr>`).join('')}</tbody></table></div>`;
-            } catch(err) {
-                productsList.innerHTML = `<div class="alert alert-danger">Error: ${err.message}</div>`;
-            }
-        }
-
-        // ---- END SUPABASE ----
-
-        // Check login status
-        function checkLogin() {
-            const isLoggedIn = localStorage.getItem('isLoggedIn');
-            const rememberMe = localStorage.getItem('rememberMe');
-            
-            if (isLoggedIn === 'true' && rememberMe === 'true') {
-                document.getElementById('loginContainer').style.display = 'none';
-                document.getElementById('mainContent').style.display = 'block';
-                // Pre-fill username if remembered
-                const savedUsername = localStorage.getItem('savedUsername');
-                if (savedUsername) {
-                    document.getElementById('username').value = savedUsername;
-                }
-                // Load default page
-                loadPage('dashboard');
-            } else {
-                document.getElementById('loginContainer').style.display = 'block';
-                document.getElementById('mainContent').style.display = 'none';
-            }
-        }
-
-        // Handle login
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const rememberMe = document.getElementById('rememberMe').checked;
-
-            // TODO: Secure authentication should be handled via backend API, not hardcoded in frontend.
-            // For demo: allow any username/password
+    // Check login status
+    function checkLogin() {
+        const isLoggedIn = localStorage.getItem('isLoggedIn');
+        const rememberMe = localStorage.getItem('rememberMe');
+        
+        if (isLoggedIn === 'true' && rememberMe === 'true') {
             document.getElementById('loginContainer').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
-            if (rememberMe) {
-                localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('rememberMe', 'true');
-                localStorage.setItem('savedUsername', username);
-            } else {
+            loadPage('dashboard');
+            attachSidebarHandlers();
+        } else {
+            document.getElementById('loginContainer').style.display = 'block';
+            document.getElementById('mainContent').style.display = 'none';
+        }
+    }
+
+    // Handle login
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const rememberMe = document.getElementById('rememberMe').checked;
+
+        // Simple demo login - accept any credentials
+        document.getElementById('loginContainer').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'block';
+        
+        if (rememberMe) {
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('rememberMe', 'true');
+            localStorage.setItem('savedUsername', username);
+        }
+        
+        loadPage('dashboard');
+        attachSidebarHandlers();
+    });
+
+    // Attach sidebar navigation handlers
+    function attachSidebarHandlers() {
+        document.querySelectorAll('.nav-link[data-page]').forEach(link => {
+            link.onclick = function(e) {
+                e.preventDefault();
+                const page = this.getAttribute('data-page');
+                loadPage(page);
+            };
+        });
+        
+        // Logout button
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.onclick = function(e) {
+                e.preventDefault();
                 localStorage.removeItem('isLoggedIn');
                 localStorage.removeItem('rememberMe');
                 localStorage.removeItem('savedUsername');
+                document.getElementById('mainContent').style.display = 'none';
+                document.getElementById('loginContainer').style.display = 'block';
+            };
+        }
+    }
+
+    // Function to load page content
+    function loadPage(page) {
+        const contentDiv = document.getElementById('content');
+        
+        // Update active link
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('data-page') === page) {
+                link.classList.add('active');
             }
-            loadPage('dashboard');
-            attachSidebarHandlers();
         });
 
-        // Attach sidebar navigation handlers
-        function attachSidebarHandlers() {
-            document.querySelectorAll('.nav-link[data-page]').forEach(link => {
-                link.onclick = function(e) {
-                    e.preventDefault();
-                    const page = this.getAttribute('data-page');
-                    loadPage(page);
-                };
-            });
-            // Logout button
-            const logoutBtn = document.getElementById('logoutBtn');
-            if (logoutBtn) {
-                logoutBtn.onclick = function(e) {
-                    e.preventDefault();
-                    localStorage.removeItem('isLoggedIn');
-                    localStorage.removeItem('rememberMe');
-                    localStorage.removeItem('savedUsername');
-                    document.getElementById('mainContent').style.display = 'none';
-                    document.getElementById('loginContainer').style.display = 'block';
-                };
-            }
-        }
-
-        // On page load, check login status and setup sidebar
-        function checkLogin() {
-            const isLoggedIn = localStorage.getItem('isLoggedIn');
-            const rememberMe = localStorage.getItem('rememberMe');
-            if (isLoggedIn === 'true' && rememberMe === 'true') {
-                document.getElementById('loginContainer').style.display = 'none';
-                document.getElementById('mainContent').style.display = 'block';
-                // Pre-fill username if remembered
-                const savedUsername = localStorage.getItem('savedUsername');
-                if (savedUsername) {
-                    document.getElementById('username').value = savedUsername;
-                }
-                loadPage('dashboard');
-                attachSidebarHandlers();
-            } else {
-                document.getElementById('loginContainer').style.display = 'block';
-                document.getElementById('mainContent').style.display = 'none';
-            }
-        }
-
-        // Run on page load
-        checkLogin();
-
-        // Function to load page content
-        function loadPage(page) {
-            const contentDiv = document.getElementById('content');
-            // Update active link
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.classList.remove('active');
-                if (link.getAttribute('data-page') === page) {
-                    link.classList.add('active');
-                }
-            });
-            if (page === 'dashboard') {
-                contentDiv.innerHTML = `<iframe src="/" style="width:100%;height:80vh;border:none;"></iframe>`;
-            } else if (page === 'products') {
-                // PRODUCTS PAGE
-                contentDiv.innerHTML = `<h2>Products</h2><div class='mb-3'><input type='text' id='productSearch' class='form-control' placeholder='Search products, rooms, notes...'></div><div id='productCards' class='row g-3'></div><div id='editProductModal'></div>`;
-                renderProductsPage();
-            } else if (page === 'sponsorships') {
-                // SPONSORSHIPS PAGE
-                contentDiv.innerHTML = `<h2>Sponsorships</h2><div class='mb-3'><input type='text' id='sponsorshipSearch' class='form-control' placeholder='Search items...'></div><div id='sponsorshipItems' class='row g-3'></div><div id='sponsorshipActions' class='mt-3'></div>`;
-                renderSponsorshipsPage();
-            } else if (page === 'users') {
-                // USERS PAGE
-                contentDiv.innerHTML = `<h2>Users</h2><div id='usersTable'></div>`;
-                renderUsersPage();
-            } else if (page === 'settings') {
-                contentDiv.innerHTML = '<h2>Settings</h2><p>Settings page coming soon.</p>';
-            } else {
-                contentDiv.innerHTML = `<div class="alert alert-danger">Unknown page: ${page}</div>`;
-            }
-        }
-
-        // PRODUCTS PAGE: Fetch all items and render as cards
-        async function renderProductsPage() {
-            let allItems = [];
-            try {
-                // Fetch from all three tables, handle missing tables gracefully
-                const [{ data: products = [] } = {}, { data: notes = [] } = {}, { data: rooms = [] } = {}] = await Promise.all([
-                    supabase.from('products').select('*').throwOnError(false),
-                    supabase.from('notes').select('*').throwOnError(false),
-                    supabase.from('rooms').select('*').throwOnError(false)
-                ]);
-                products.forEach(p => p._type = 'product');
-                notes.forEach(n => n._type = 'note');
-                rooms.forEach(r => r._type = 'room');
-                allItems = [...products, ...notes, ...rooms];
-            } catch (err) {
-                document.getElementById('productCards').innerHTML = `<div class='alert alert-danger'>Failed to load items: ${err.message}</div>`;
-                return;
-            }
-            function renderCards(filter = '') {
-                const filtered = allItems.filter(item => {
-                    const search = filter.toLowerCase();
-                    return Object.values(item).join(' ').toLowerCase().includes(search);
-                });
-                if (!filtered.length) {
-                    document.getElementById('productCards').innerHTML = `<div class='alert alert-info'>No items found.</div>`;
-                    return;
-                }
-                document.getElementById('productCards').innerHTML = filtered.map(item => {
-                    let imgSrc = item.image || item.image_url || item.img || (item.images && Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : '');
-                    let imgTag = imgSrc ? `<img src='${imgSrc}' alt='Image' class='card-img-top' style='object-fit:cover;height:180px;'>` : `<div style='height:180px;background:#eee;display:flex;align-items:center;justify-content:center;color:#aaa;'>No Image</div>`;
-                    return `
-                    <div class='col-md-4'>
-                        <div class='card product-card h-100 position-relative' style='cursor:pointer;' data-id='${item.id}' data-type='${item._type}'>
-                            <button class='btn btn-sm btn-danger position-absolute end-0 top-0 m-2 delete-product-btn' data-id='${item.id}' data-type='${item._type}' title='Delete'>&times;</button>
-                            ${imgTag}
-                            <div class='card-body'>
-                                <h5 class='card-title'>${item.title || item.name || '(no title)'}</h5>
-                                <p class='card-text'><b>Type:</b> ${item._type}</p>
-                                <p class='card-text'><b>ID:</b> ${item.id}</p>
+        if (page === 'dashboard') {
+            contentDiv.innerHTML = `
+                <div class="dashboard-container">
+                    <h2><i class="fas fa-tachometer-alt"></i> Dashboard</h2>
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-box fa-2x me-3"></i>
+                                        <div>
+                                            <h5>Products</h5>
+                                            <h3 id="productsCount">-</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-success text-white">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-sticky-note fa-2x me-3"></i>
+                                        <div>
+                                            <h5>Notes</h5>
+                                            <h3 id="notesCount">-</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-warning text-white">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-home fa-2x me-3"></i>
+                                        <div>
+                                            <h5>Rooms</h5>
+                                            <h3 id="roomsCount">-</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-info text-white">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-users fa-2x me-3"></i>
+                                        <div>
+                                            <h5>Users</h5>
+                                            <h3 id="usersCount">-</h3>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    `;
-                }).join('');
-                // Add delete handlers
-                document.querySelectorAll('.delete-product-btn').forEach(btn => {
-                    btn.onclick = async (e) => {
-                        e.stopPropagation();
-                        if (!confirm('Are you sure you want to delete this product?')) return;
-                        const id = btn.getAttribute('data-id');
-                        const type = btn.getAttribute('data-type');
-                        let table = type === 'note' ? 'notes' : (type === 'room' ? 'rooms' : 'products');
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-cog"></i> Quick Actions</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-outline-primary" onclick="loadPage('products')">
+                                            <i class="fas fa-box"></i> Manage Products
+                                        </button>
+                                        <button class="btn btn-outline-success" onclick="loadPage('users')">
+                                            <i class="fas fa-users"></i> Manage Users
+                                        </button>
+                                        <button class="btn btn-outline-warning" onclick="loadPage('settings')">
+                                            <i class="fas fa-cog"></i> Settings
+                                        </button>
+                                        <button class="btn btn-outline-info" onclick="window.open('https://studxchange.vercel.app', '_blank')">
+                                            <i class="fas fa-external-link-alt"></i> Open StudXchange Site
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-globe"></i> StudXchange Preview</h5>
+                                </div>
+                                <div class="card-body p-0">
+                                    <iframe 
+                                        src="https://studxchange.vercel.app" 
+                                        width="100%" 
+                                        height="400" 
+                                        frameborder="0" 
+                                        style="border-radius: 0 0 10px 10px;"
+                                        title="StudXchange Preview">
+                                    </iframe>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            renderDashboard();
+        } else if (page === 'products') {
+            contentDiv.innerHTML = `
+                <div class="products-header mb-4">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h2><i class="fas fa-box"></i> Products Management</h2>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex gap-2">
+                                <select id="sortSelect" class="form-select" style="width: auto;">
+                                    <option value="newest">Newest First</option>
+                                    <option value="oldest">Oldest First</option>
+                                    <option value="name">Name A-Z</option>
+                                    <option value="type">Type</option>
+                                </select>
+                                <div class="btn-group" role="group">
+                                    <button class="btn btn-outline-danger" id="bulkDeleteBtn" disabled>
+                                        <i class="fas fa-trash"></i> Delete Selected
+                                    </button>
+                                    <button class="btn btn-outline-secondary" id="selectAllBtn">
+                                        <i class="fas fa-check-square"></i> Select All
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class='mb-3'>
+                    <input type='text' id='productSearch' class='form-control' placeholder='Search products, rooms, notes...'>
+                </div>
+                <div id='productCards' class='row g-3'></div>
+            `;
+            renderProductsPage();
+        } else if (page === 'users') {
+            contentDiv.innerHTML = `<h2><i class="fas fa-users"></i> Users Management</h2><div id='usersTable'></div>`;
+            renderUsersPage();
+        } else if (page === 'settings') {
+            contentDiv.innerHTML = `
+                <div class='container py-4'>
+                    <h2><i class="fas fa-cog"></i> Admin Settings</h2>
+                    <div class='alert alert-info'>
+                        <i class="fas fa-info-circle"></i> Settings functionality coming soon. This is a demo admin panel.
+                    </div>
+                </div>
+            `;
+        } else {
+            contentDiv.innerHTML = `<div class="alert alert-danger">Unknown page: ${page}</div>`;
+        }
+    }
+
+    // Dashboard: Load statistics
+    async function renderDashboard() {
+        try {
+            const [
+                { count: productsCount },
+                { count: notesCount },
+                { count: roomsCount },
+                { count: usersCount }
+            ] = await Promise.all([
+                supabase.from('products').select('*', { count: 'exact', head: true }),
+                supabase.from('notes').select('*', { count: 'exact', head: true }),
+                supabase.from('rooms').select('*', { count: 'exact', head: true }),
+                supabase.from('users').select('*', { count: 'exact', head: true })
+            ]);
+
+            document.getElementById('productsCount').textContent = productsCount || 0;
+            document.getElementById('notesCount').textContent = notesCount || 0;
+            document.getElementById('roomsCount').textContent = roomsCount || 0;
+            document.getElementById('usersCount').textContent = usersCount || 0;
+        } catch (error) {
+            console.error('Error loading dashboard:', error);
+        }
+    }
+
+    // Products Page: Fetch all items and render as cards
+    async function renderProductsPage() {
+        let allItems = [];
+        let selectedItems = new Set();
+        
+        try {
+            const [{ data: products = [] } = {}, { data: notes = [] } = {}, { data: rooms = [] } = {}] = await Promise.all([
+                supabase.from('products').select('*').order('created_at', { ascending: false }).throwOnError(false),
+                supabase.from('notes').select('*').order('created_at', { ascending: false }).throwOnError(false),
+                supabase.from('rooms').select('*').order('created_at', { ascending: false }).throwOnError(false)
+            ]);
+            
+            products.forEach(p => p._type = 'product');
+            notes.forEach(n => n._type = 'note');
+            rooms.forEach(r => r._type = 'room');
+            allItems = [...products, ...notes, ...rooms];
+            
+            // Sort all items by created_at in descending order (newest first)
+            allItems.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        } catch (err) {
+            document.getElementById('productCards').innerHTML = `<div class='alert alert-danger'>Failed to load items: ${err.message}</div>`;
+            return;
+        }
+
+        function updateBulkButtons() {
+            const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+            const selectAllBtn = document.getElementById('selectAllBtn');
+            
+            if (bulkDeleteBtn) {
+                bulkDeleteBtn.disabled = selectedItems.size === 0;
+                bulkDeleteBtn.innerHTML = `<i class="fas fa-trash"></i> Delete Selected (${selectedItems.size})`;
+            }
+            
+            if (selectAllBtn) {
+                const allSelected = selectedItems.size === allItems.length;
+                selectAllBtn.innerHTML = allSelected ? 
+                    '<i class="fas fa-square"></i> Deselect All' : 
+                    '<i class="fas fa-check-square"></i> Select All';
+            }
+        }
+
+        function renderCards(filter = '', sortBy = 'newest') {
+            let filtered = allItems.filter(item => {
+                const search = filter.toLowerCase();
+                return Object.values(item).join(' ').toLowerCase().includes(search);
+            });
+            
+            // Sort filtered items based on sortBy parameter
+            switch(sortBy) {
+                case 'newest':
+                    filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                    break;
+                case 'oldest':
+                    filtered.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+                    break;
+                case 'name':
+                    filtered.sort((a, b) => {
+                        const nameA = (a.title || a.name || '').toLowerCase();
+                        const nameB = (b.title || b.name || '').toLowerCase();
+                        return nameA.localeCompare(nameB);
+                    });
+                    break;
+                case 'type':
+                    filtered.sort((a, b) => a._type.localeCompare(b._type));
+                    break;
+            }
+            
+            if (!filtered.length) {
+                document.getElementById('productCards').innerHTML = `<div class='alert alert-info'>No items found.</div>`;
+                return;
+            }
+            
+            document.getElementById('productCards').innerHTML = filtered.map(item => {
+                let imgSrc = item.image || item.image_url || item.img || (item.images && Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : '');
+                let imgTag = imgSrc ? `<img src='${imgSrc}' alt='Image' class='card-img-top' style='object-fit:cover;height:180px;'>` : `<div style='height:180px;background:#eee;display:flex;align-items:center;justify-content:center;color:#aaa;'>No Image</div>`;
+                const isSelected = selectedItems.has(item.id);
+                
+                return `
+                <div class='col-md-4'>
+                    <div class='card product-card h-100 position-relative ${isSelected ? 'border-primary' : ''}' style='cursor:pointer;' data-id='${item.id}' data-type='${item._type}'>
+                        <div class="form-check position-absolute" style="top: 10px; left: 10px; z-index: 10;">
+                            <input class="form-check-input item-checkbox" type="checkbox" data-id="${item.id}" ${isSelected ? 'checked' : ''}>
+                        </div>
+                        <button class='btn btn-sm btn-danger delete-product-btn' data-id='${item.id}' data-type='${item._type}' title='Delete'>&times;</button>
+                        ${imgTag}
+                        <div class='card-body'>
+                            <h5 class='card-title'>${item.title || item.name || '(no title)'}</h5>
+                            <p class='card-text'><b>Type:</b> <span class="badge bg-secondary">${item._type}</span></p>
+                            <p class='card-text'><b>ID:</b> ${item.id}</p>
+                            <p class='card-text'><b>Created:</b> ${new Date(item.created_at).toLocaleDateString()} <small class="text-muted">(${getRelativeTime(item.created_at)})</small></p>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+            
+            // Add checkbox handlers
+            document.querySelectorAll('.item-checkbox').forEach(checkbox => {
+                checkbox.onclick = (e) => {
+                    e.stopPropagation();
+                    const id = checkbox.getAttribute('data-id');
+                    if (checkbox.checked) {
+                        selectedItems.add(id);
+                    } else {
+                        selectedItems.delete(id);
+                    }
+                    updateBulkButtons();
+                    renderCards(filter);
+                };
+            });
+            
+            // Add individual delete handlers
+            document.querySelectorAll('.delete-product-btn').forEach(btn => {
+                btn.onclick = async (e) => {
+                    e.stopPropagation();
+                    if (!confirm('Are you sure you want to delete this item? This action cannot be undone.')) return;
+                    
+                    const id = btn.getAttribute('data-id');
+                    const type = btn.getAttribute('data-type');
+                    let table = type === 'note' ? 'notes' : (type === 'room' ? 'rooms' : 'products');
+                    
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                    btn.disabled = true;
+                    
+                    try {
                         const { error } = await supabase.from(table).delete().eq('id', id);
                         if (error) {
                             alert('Failed to delete: ' + error.message);
+                            btn.innerHTML = '&times;';
+                            btn.disabled = false;
                             return;
                         }
-                        renderCards(document.getElementById('productSearch')?.value || '');
-                    };
-                });
-                document.querySelectorAll('.product-card').forEach(card => {
-                    card.onclick = () => openEditProductModal(card.dataset.id, card.dataset.type);
-                });
-            }
-            renderCards();
-            // Fix: live search for products
-            const searchInput = document.getElementById('productSearch');
-            if (searchInput) {
-                searchInput.addEventListener('input', (e) => {
-                    renderCards(e.target.value);
-                });
-            }
-        }
-        // EDIT PRODUCT MODAL
-        async function openEditProductModal(id, type) {
-            // Support all three types
-            let table = type === 'note' ? 'notes' : (type === 'room' ? 'rooms' : 'products');
-            const { data, error } = await supabase.from(table).select('*').eq('id', id).single();
-            if (error) {
-                alert('Failed to load item: ' + error.message);
-                return;
-            }
-            let fields = Object.keys(data).filter(k => k !== 'id' && k !== '_type');
-            let formHtml = `<div class='modal fade show' tabindex='-1' style='display:block;background:rgba(0,0,0,0.5);'><div class='modal-dialog'><div class='modal-content'><div class='modal-header'><h5 class='modal-title'>Edit ${type.charAt(0).toUpperCase() + type.slice(1)}</h5><button type='button' class='btn-close' onclick='closeEditModal()'></button></div><div class='modal-body'><form id='editProductForm'>`;
-            fields.forEach(f => {
-                formHtml += `<div class='mb-3 row align-items-center'>
-        <label class='col-sm-4 col-form-label'>${f}</label>
-        <div class='col-sm-8'>
-            <input class='form-control' name='${f}' value='${data[f] || ''}'>
-        </div>
-    </div>`;
+                        
+                        const itemIndex = allItems.findIndex(item => item.id === id && item._type === type);
+                        if (itemIndex !== -1) {
+                            allItems.splice(itemIndex, 1);
+                        }
+                        
+                        selectedItems.delete(id);
+                        const searchValue = document.getElementById('productSearch')?.value || '';
+                        const sortValue = document.getElementById('sortSelect')?.value || 'newest';
+                        renderCards(searchValue, sortValue);
+                        alert('Item deleted successfully!');
+                    } catch (err) {
+                        alert('Error deleting item: ' + err.message);
+                        btn.innerHTML = '&times;';
+                        btn.disabled = false;
+                    }
+                };
             });
-            formHtml += `</form></div><div class='modal-footer'><button class='btn btn-secondary' onclick='closeEditModal()'>Cancel</button><button class='btn btn-primary' onclick='saveEditProduct(${id},"${type}")'>Save</button></div></div></div></div>`;
-            document.getElementById('editProductModal').innerHTML = formHtml;
+            
+            updateBulkButtons();
         }
-        function closeEditModal() {
-            document.getElementById('editProductModal').innerHTML = '';
+
+        // Helper function to get relative time
+        function getRelativeTime(dateString) {
+            const now = new Date();
+            const past = new Date(dateString);
+            const diffInSeconds = Math.floor((now - past) / 1000);
+            
+            if (diffInSeconds < 60) return 'just now';
+            if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+            if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+            if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)}d ago`;
+            return `${Math.floor(diffInSeconds / 2592000)}mo ago`;
         }
-        async function saveEditProduct(id, type) {
-            let table = type === 'note' ? 'notes' : (type === 'room' ? 'rooms' : 'products');
-            const form = document.getElementById('editProductForm');
-            const updates = {};
-            Array.from(form.elements).forEach(el => {
-                if (el.name) updates[el.name] = el.value;
+
+        renderCards();
+        
+        // Setup sorting
+        const sortSelect = document.getElementById('sortSelect');
+        if (sortSelect) {
+            sortSelect.addEventListener('change', (e) => {
+                const searchValue = document.getElementById('productSearch')?.value || '';
+                renderCards(searchValue, e.target.value);
             });
-            const { error } = await supabase.from(table).update(updates).eq('id', id);
-            if (error) {
-                alert('Failed to save: ' + error.message);
-                return;
-            }
-            closeEditModal();
-            renderProductsPage();
         }
-        window.closeEditModal = closeEditModal;
-        window.saveEditProduct = saveEditProduct;
-        window.openEditProductModal = openEditProductModal;
-        // SPONSORSHIPS PAGE: Select items, set sequence, save to new table
-        async function renderSponsorshipsPage() {
-            let allItems = [];
-            try {
-                // Fetch from all three tables, handle missing tables gracefully
-                const [{ data: products = [] } = {}, { data: notes = [] } = {}, { data: rooms = [] } = {}] = await Promise.all([
-                    supabase.from('products').select('*').throwOnError(false),
-                    supabase.from('notes').select('*').throwOnError(false),
-                    supabase.from('rooms').select('*').throwOnError(false)
-                ]);
-                products.forEach(p => p._type = 'product');
-                notes.forEach(n => n._type = 'note');
-                rooms.forEach(r => r._type = 'room');
-                allItems = [...products, ...notes, ...rooms];
-                let sequence = [];
-                function renderSponsorshipCards(filter = '') {
-                    const search = filter.toLowerCase();
-                    const filteredSponsorshipItems = allItems.filter(item => Object.values(item).join(' ').toLowerCase().includes(search));
-                    document.getElementById('sponsorshipItems').innerHTML = filteredSponsorshipItems.map(item => {
-        let imgSrc = item.image || item.image_url || item.img || (item.images && Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : '');
-        let imgTag = imgSrc ? `<img src='${imgSrc}' alt='Image' class='card-img-top' style='object-fit:cover;height:140px;'>` : `<div style='height:140px;background:#eee;display:flex;align-items:center;justify-content:center;color:#aaa;'>No Image</div>`;
-        return `
-        <div class='col-md-3'>
-            <div class='card sponsorship-card h-100' style='cursor:pointer;${sequence.includes(item.id + '-' + item._type) ? 'border:2px solid #4a90e2;' : ''}' data-id='${item.id}' data-type='${item._type}'>
-                ${imgTag}
-                <div class='card-body'>
-                    <h5 class='card-title'>${item.title || item.name || '(no title)'}</h5>
-                    <p class='card-text'><b>Type:</b> ${item._type}</p>
-                    <p class='card-text'><b>ID:</b> ${item.id}</p>
-                    <p class='card-text'>${sequence.includes(item.id + '-' + item._type) ? 'Selected: ' + (sequence.indexOf(item.id + '-' + item._type) + 1) : ''}</p>
-                </div>
-            </div>
-        </div>
-        `;
-    }).join('');
-    // Fix: add click handlers for selection
-    document.querySelectorAll('.sponsorship-card').forEach(card => {
-        card.onclick = () => {
-            const key = card.dataset.id + '-' + card.dataset.type;
-            const idx = sequence.indexOf(key);
-            if (idx === -1) {
-                if (sequence.length < 20) sequence.push(key);
-            } else {
-                sequence.splice(idx, 1);
-            }
-            renderSponsorshipCards(document.getElementById('sponsorshipSearch')?.value || '');
-            renderSponsorshipActions();
-        };
-        // Highlight selected cards
-        const key = card.dataset.id + '-' + card.dataset.type;
-        if (sequence.includes(key)) {
-            card.classList.add('border-primary', 'border', 'shadow');
-        } else {
-            card.classList.remove('border-primary', 'border', 'shadow');
-        }
-    });
-                }
-                function renderSponsorshipActions() {
-                    const actionsDiv = document.getElementById('sponsorshipActions');
-                    actionsDiv.innerHTML = `<button class='btn btn-primary' id='saveSequenceBtn'>Save Sequence (${sequence.length}/20)</button>
-                    <button class='btn btn-outline-secondary ms-2' id='showSequenceBtn'>Show Current Sequence</button>
-                    <div id='currentSequenceList' class='mt-3'></div>`;
-                    document.getElementById('saveSequenceBtn').onclick = async () => {
-    if (sequence.length < 1) {
-        alert('Please select at least 1 item before saving the sequence.');
-        return;
-    }
-    if (sequence.length > 20) {
-        alert('You can save a maximum of 20 items in the sequence.');
-        return;
-    }
-    const rows = sequence.map((key, idx) => {
-    const lastDash = key.lastIndexOf('-');
-    const item_id = key.substring(0, lastDash);
-    const item_type = key.substring(lastDash + 1);
-    return {
-        slot: idx + 1,
-        item_id,
-        item_type,
-        created_at: new Date().toISOString()
-    };
-});
-    // Overwrite old sequence: delete latest group, then insert new
-    // 1. Find latest created_at timestamp
-    const { data: oldRows, error: fetchErr } = await supabase
-      .from('sponsorship_sequences')
-      .select('created_at')
-      .order('created_at', { ascending: false });
-    if (fetchErr) {
-      alert('Failed to fetch old sequence: ' + fetchErr.message);
-      return;
-    }
-    const latestCreatedAt = oldRows && oldRows.length ? oldRows[0].created_at : null;
-    if (latestCreatedAt) {
-      const { error: delError } = await supabase
-        .from('sponsorship_sequences')
-        .delete()
-        .eq('created_at', latestCreatedAt);
-      if (delError) {
-        alert('Failed to clear old sequence: ' + delError.message);
-        return;
-      }
-    }
-    const { error } = await supabase.from('sponsorship_sequences').insert(rows);
-    if (error) {
-        alert('Failed to save sequence: ' + error.message);
-        return;
-    }
-    alert('Sequence saved!');
-    sequence = [];
-    renderSponsorshipCards();
-    renderSponsorshipActions();
-};
-                    document.getElementById('showSequenceBtn').onclick = fetchAndShowCurrentSponsorshipSequence;
-                }
-                renderSponsorshipCards();
-                // Fix: live search for sponsorships
-                const searchInput = document.getElementById('sponsorshipSearch');
-                if (searchInput) {
-                    searchInput.addEventListener('input', (e) => {
-                        renderSponsorshipCards(e.target.value);
+        
+        // Setup bulk operations
+        const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+        const selectAllBtn = document.getElementById('selectAllBtn');
+        
+        if (bulkDeleteBtn) {
+            bulkDeleteBtn.onclick = async () => {
+                if (selectedItems.size === 0) return;
+                
+                if (!confirm(`Are you sure you want to delete ${selectedItems.size} items? This action cannot be undone.`)) return;
+                
+                bulkDeleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+                bulkDeleteBtn.disabled = true;
+                
+                try {
+                    const promises = [];
+                    selectedItems.forEach(id => {
+                        const item = allItems.find(i => i.id === id);
+                        if (item) {
+                            const table = item._type === 'note' ? 'notes' : (item._type === 'room' ? 'rooms' : 'products');
+                            promises.push(supabase.from(table).delete().eq('id', id));
+                        }
                     });
+                    
+                    await Promise.all(promises);
+                    
+                    allItems = allItems.filter(item => !selectedItems.has(item.id));
+                    selectedItems.clear();
+                    
+                    const searchValue = document.getElementById('productSearch')?.value || '';
+                    const sortValue = document.getElementById('sortSelect')?.value || 'newest';
+                    renderCards(searchValue, sortValue);
+                    alert('Items deleted successfully!');
+                } catch (error) {
+                    alert('Error deleting items: ' + error.message);
                 }
-                renderSponsorshipActions();
-            } catch (err) {
-                document.getElementById('sponsorshipItems').innerHTML = `<div class='alert alert-danger'>Failed to load items: ${err.message}</div>`;
-                return;
-            }
+                
+                bulkDeleteBtn.innerHTML = '<i class="fas fa-trash"></i> Delete Selected';
+                bulkDeleteBtn.disabled = true;
+            };
         }
+        
+        if (selectAllBtn) {
+            selectAllBtn.onclick = () => {
+                const allSelected = selectedItems.size === allItems.length;
+                if (allSelected) {
+                    selectedItems.clear();
+                } else {
+                    allItems.forEach(item => selectedItems.add(item.id));
+                }
+                updateBulkButtons();
+                const searchValue = document.getElementById('productSearch')?.value || '';
+                const sortValue = document.getElementById('sortSelect')?.value || 'newest';
+                renderCards(searchValue, sortValue);
+            };
+        }
+        
+        // Search functionality
+        const searchInput = document.getElementById('productSearch');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                const sortValue = document.getElementById('sortSelect')?.value || 'newest';
+                renderCards(e.target.value, sortValue);
+            });
+        }
+    }
 
-        // Fetch and display the latest sponsorship sequence in order
-        async function fetchAndShowCurrentSponsorshipSequence() {
-    const { data: rows, error } = await supabase
-        .from('sponsorship_sequences')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .order('slot', { ascending: true });
-    if (error) {
-        document.getElementById('currentSequenceList').innerHTML = `<div class='alert alert-danger'>Failed to fetch sequence: ${error.message}</div>`;
-        return;
-    }
-    if (!rows || rows.length === 0) {
-        document.getElementById('currentSequenceList').innerHTML = `<div class='alert alert-info'>No saved sequence found.</div>`;
-        return;
-    }
-    // Group by created_at timestamp (to the second)
-    const grouped = {};
-    rows.forEach(r => {
-        const ts = new Date(r.created_at).toISOString().slice(0,19);
-        if (!grouped[ts]) grouped[ts] = [];
-        grouped[ts].push(r);
-    });
-    // Pick the latest group with 10 slots
-    let latest = Object.values(grouped).find(g => g.length === 10) || [];
-    if (latest.length !== 10) {
-        // fallback: take first 10 by created_at
-        latest = rows.slice(0, 10);
-    }
-    // Order by slot
-    latest.sort((a,b) => a.slot - b.slot);
-    // Render readable list
-    if (!latest.length) {
-        document.getElementById('currentSequenceList').innerHTML = `<div class='alert alert-info'>No complete sequence found.</div>`;
-        return;
-    }
-    let html = `<ol class='list-group list-group-numbered' id='currentSequenceOL'>`;
-    for (const row of latest) {
-        html += `<li class='list-group-item d-flex align-items-center justify-content-between' draggable='true' data-itemid='${row.item_id}' data-type='${row.item_type}'>
-            <span>Slot ${row.slot}: <b>${row.item_id}</b> <span class='badge bg-secondary'>${row.item_type}</span></span>
-            <button class='btn btn-sm btn-outline-danger ms-2 remove-seq-item' data-itemid='${row.item_id}' data-slot='${row.slot}' title='Remove'>&times;</button>
-        </li>`;
-    }
-    html += `</ol>`;
-    html += `<button class='btn btn-primary mt-2' id='reeditSeqBtn'>Re-edit Sequence</button>`;
-    document.getElementById('currentSequenceList').innerHTML = html;
-    // Add remove handlers
-    document.querySelectorAll('.remove-seq-item').forEach(btn => {
-        btn.onclick = async function() {
-            const itemId = this.getAttribute('data-itemid');
-            const slot = Number(this.getAttribute('data-slot'));
-            // Remove from DB and UI
-            const { error } = await supabase
-                .from('sponsorship_sequences')
-                .delete()
-                .eq('item_id', itemId)
-                .eq('slot', slot);
-            if (error) {
-                alert('Failed to remove item: ' + error.message);
+    // Users Page: Fetch all users from users table
+    async function renderUsersPage() {
+        try {
+            const { data: users = [], error } = await supabase.from('users').select('*');
+            if (error) throw error;
+            
+            if (!users.length) {
+                document.getElementById('usersTable').innerHTML = `<div class='alert alert-info'>No users found.</div>`;
                 return;
             }
-            fetchAndShowCurrentSponsorshipSequence();
-        };
-    });
-    // Re-edit handler
-    document.getElementById('reeditSeqBtn').onclick = function() {
-        // Populate selection UI with current sequence
-        sequence = latest.map(r => r.item_id + '-' + r.item_type);
-        renderSponsorshipCards(document.getElementById('sponsorshipSearch')?.value || '');
-        renderSponsorshipActions();
-        enableDragAndDropSequence();
-        alert('Re-edit mode enabled. You can now modify the sequence and save.');
-    };
-
-    // Enable drag-and-drop reordering
-    function enableDragAndDropSequence() {
-        const ol = document.getElementById('currentSequenceOL');
-        if (!ol) return;
-        let dragSrcEl = null;
-        ol.querySelectorAll('li').forEach(li => {
-            li.addEventListener('dragstart', function(e) {
-                dragSrcEl = this;
-                e.dataTransfer.effectAllowed = 'move';
-                e.dataTransfer.setData('text/plain', this.dataset.itemid + '|' + this.dataset.type);
-                this.classList.add('dragging');
-            });
-            li.addEventListener('dragend', function() {
-                this.classList.remove('dragging');
-            });
-            li.addEventListener('dragover', function(e) {
-                e.preventDefault();
-                e.dataTransfer.dropEffect = 'move';
-                this.classList.add('drag-over');
-            });
-            li.addEventListener('dragleave', function() {
-                this.classList.remove('drag-over');
-            });
-            li.addEventListener('drop', function(e) {
-                e.preventDefault();
-                this.classList.remove('drag-over');
-                if (dragSrcEl === this) return;
-                const ol = this.parentNode;
-                ol.insertBefore(dragSrcEl, this.nextSibling);
-                // Update sequence array order
-                const newOrder = Array.from(ol.children).map(li => li.dataset.itemid + '-' + li.dataset.type);
-                sequence = newOrder;
-            });
-        });
-    }
-    // If in re-edit mode, enable drag-and-drop
-    enableDragAndDropSequence();
-
-}
-        // USERS PAGE: Fetch all users from users table
-        async function renderUsersPage() {
-            try {
-                const { data: users = [], error } = await supabase.from('users').select('*');
-                if (error) throw error;
-                if (!users.length) {
-                    document.getElementById('usersTable').innerHTML = `<div class='alert alert-info'>No users found.</div>`;
-                    return;
-                }
-                document.getElementById('usersTable').innerHTML = `<div class='table-responsive'><table class='table table-striped'><thead><tr>${Object.keys(users[0]).map(k => `<th>${k}</th>`).join('')}<th>Action</th></tr></thead><tbody>${users.map(u => `<tr>${Object.values(u).map(v => `<td>${v}</td>`).join('')}<td><button class='btn btn-sm btn-danger delete-user-btn' data-id='${u.id}'>Delete</button></td></tr>`).join('')}</tbody></table></div>`;
-                // Add delete handlers
-                document.querySelectorAll('.delete-user-btn').forEach(btn => {
-                    btn.onclick = async () => {
-                        if (!confirm('Are you sure you want to delete this user?')) return;
-                        const id = btn.getAttribute('data-id');
+            
+            document.getElementById('usersTable').innerHTML = `
+                <div class='table-responsive'>
+                    <table class='table table-striped'>
+                        <thead>
+                            <tr>
+                                ${Object.keys(users[0]).map(k => `<th>${k}</th>`).join('')}
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${users.map(u => `
+                                <tr id='user-row-${u.id}'>
+                                    ${Object.values(u).map(v => `<td>${v || 'N/A'}</td>`).join('')}
+                                    <td>
+                                        <button class='btn btn-sm btn-danger delete-user-btn' data-id='${u.id}'>
+                                            Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            // Add delete handlers
+            document.querySelectorAll('.delete-user-btn').forEach(btn => {
+                btn.onclick = async () => {
+                    if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) return;
+                    
+                    const id = btn.getAttribute('data-id');
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                    btn.disabled = true;
+                    
+                    try {
                         const { error } = await supabase.from('users').delete().eq('id', id);
                         if (error) {
                             alert('Failed to delete user: ' + error.message);
+                            btn.innerHTML = 'Delete';
+                            btn.disabled = false;
                             return;
                         }
-                        renderUsersPage();
-                    };
-                });
-            } catch (err) {
-                document.getElementById('usersTable').innerHTML = `<div class='alert alert-danger'>Failed to load users: ${err.message}</div>`;
-           }
-
-        // SETTINGS PAGE: Professional admin settings
-        async function renderSettingsPage() {
-            const contentDiv = document.getElementById('content');
-            contentDiv.innerHTML = `
-                <div class='container py-4'>
-                    <h2>Admin Settings</h2>
-                    <form id='settingsForm' class='mb-3'>
-                        <div class='mb-3'>
-                            <label class='form-label'>Admin Email</label>
-                            <input type='email' class='form-control' id='adminEmail' placeholder='admin@example.com'>
-                        </div>
-                        <div class='mb-3'>
-                            <label class='form-label'>Change Password</label>
-                            <input type='password' class='form-control' id='adminPassword' placeholder='New password'>
-                        </div>
-                        <div class='mb-3'>
-                            <label class='form-label'>Site Features</label><br>
-                            <div class='form-check form-switch'>
-                                <input class='form-check-input' type='checkbox' id='featureA'>
-                                <label class='form-check-label' for='featureA'>Enable Feature A</label>
-                            </div>
-                            <div class='form-check form-switch'>
-                                <input class='form-check-input' type='checkbox' id='featureB'>
-                                <label class='form-check-label' for='featureB'>Enable Feature B</label>
-                            </div>
-                        </div>
-                        <button type='submit' class='btn btn-primary'>Save Settings</button>
-                    </form>
-                    <div id='settingsStatus'></div>
-                </div>
-            `;
-            document.getElementById('settingsForm').onsubmit = async (e) => {
-                e.preventDefault();
-                // Example: Save settings (implement actual logic as needed)
-                document.getElementById('settingsStatus').innerHTML = `<div class='alert alert-success'>Settings saved (demo only).</div>`;
-            };
-        }
-        window.renderSettingsPage = renderSettingsPage;
-
-        // Add navigation link for settings page
-        const nav = document.querySelector('.sidebar, .navbar, nav');
-        if (nav && !document.getElementById('settingsNavLink')) {
-            const link = document.createElement('a');
-            link.href = '#';
-            link.className = 'nav-link';
-            link.textContent = 'Settings';
-            link.id = 'settingsNavLink';
-            link.onclick = (e) => { e.preventDefault(); renderSettingsPage(); };
-            nav.appendChild(link);
-        }
-
-        // Wrap the main admin script in an IIFE (async function)
-        (async function() {
-            // Handle navigation
-            document.querySelectorAll('.nav-link[data-page]').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const page = this.getAttribute('data-page');
-                    loadPage(page);
-                });
+                        
+                        const row = document.getElementById(`user-row-${id}`);
+                        if (row) {
+                            row.remove();
+                        }
+                        
+                        alert('User deleted successfully!');
+                        
+                        const tableBody = document.querySelector('#usersTable tbody');
+                        if (tableBody && tableBody.children.length === 0) {
+                            document.getElementById('usersTable').innerHTML = `<div class='alert alert-info'>No users found.</div>`;
+                        }
+                    } catch (err) {
+                        alert('Error deleting user: ' + err.message);
+                        btn.innerHTML = 'Delete';
+                        btn.disabled = false;
+                    }
+                };
             });
-
-            // Implement correct remember me logic
-            const rememberMe = localStorage.getItem('rememberMe') === 'true';
-            const savedUsername = localStorage.getItem('savedUsername');
-            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-
-            if (rememberMe && savedUsername && isLoggedIn) {
-                // Auto-login if set
-                login(savedUsername);
-            }
-
-            // Clear on logout
-            document.getElementById('logoutBtn').addEventListener('click', function() {
-                localStorage.removeItem('isLoggedIn');
-                localStorage.removeItem('rememberMe');
-                localStorage.removeItem('savedUsername');
-            });
-        })();
+        } catch (err) {
+            document.getElementById('usersTable').innerHTML = `<div class='alert alert-danger'>Failed to load users: ${err.message}</div>`;
+        }
     }
-})()
-  </script>
 
+    // Initialize
+    checkLogin();
+})();
+    </script>
 </body>
 </html>

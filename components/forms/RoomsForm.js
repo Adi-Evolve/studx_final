@@ -1,5 +1,4 @@
-'use client';
-
+﻿'use client';
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
@@ -7,25 +6,20 @@ import ImageUploadWithOptimization from '../ImageUploadWithOptimization';
 import dynamic from 'next/dynamic';
 import toast from 'react-hot-toast';
 import { colleges } from '../../lib/colleges';
-
 // Dynamically import the MapPicker to avoid SSR issues with Leaflet
 const MapPicker = dynamic(() => import('../MapPicker'), { 
     ssr: false,
     loading: () => <div className="animate-pulse bg-gray-200 rounded-lg h-64 flex items-center justify-center">Loading map...</div>
 });
-
 // Placeholder data
-
 const roomTypes = ['Single Room', 'Double Room', '1 BHK', '2 BHK', '3 BHK', 'Shared Apartment'];
 const amenitiesList = ['AC', 'WiFi', 'Washing Machine', 'Furnished', 'Refrigerator', 'Parking', 'Hot Water'];
 const categories = ['Laptops', 'Project Equipment', 'Books', 'Cycle/Bike', 'Hostel Equipment', 'Notes', 'Rooms/Hostel', 'Furniture', 'Others'];
-
 export default function RoomsForm({ initialData = {}, onSubmit, category = 'Rooms/Hostel' }) {
     const router = useRouter();
     const supabase = createSupabaseBrowserClient();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [authLoading, setAuthLoading] = useState(true);
-    
     const [formData, setFormData] = useState({
         hostel_name: initialData.hostel_name || '',
         college: initialData.college || '',
@@ -47,7 +41,6 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
         category: category || initialData.category || 'Rooms/Hostel',
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
-
     useEffect(() => {
         // Only update form data if initialData actually has meaningful data
         // This prevents resetting the form when initialData is just an empty object
@@ -55,9 +48,8 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
                               Object.values(initialData).some(value => 
                                   value !== null && value !== undefined && value !== ''
                               );
-        
         if (hasInitialData) {
-            // console.log('RoomsForm: Updating form data with initialData:', initialData);
+            // 
             setFormData({
                 hostel_name: initialData.hostel_name || '',
                 college: initialData.college || '',
@@ -79,36 +71,22 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
                 category: category || initialData.category || 'Rooms/Hostel',
             });
         } else {
-            // console.log('RoomsForm: No meaningful initialData, keeping current form state');
+            // 
         }
     }, [initialData]);
-
     // Check authentication status
     useEffect(() => {
         const checkAuth = async () => {
-            console.log('🔍 [RoomsForm] Checking authentication...');
             try {
                 const { data: { session }, error } = await supabase.auth.getSession();
-                
                 if (error) {
-                    console.error('❌ [RoomsForm] Auth error:', error);
                     setIsAuthenticated(false);
                     setAuthLoading(false);
                     return;
                 }
-                
-                console.log('🔍 [RoomsForm] Session data:', {
-                    hasSession: !!session,
-                    hasUser: !!session?.user,
-                    userEmail: session?.user?.email,
-                    userId: session?.user?.id
-                });
-
                 // Only check for email presence in auth
                 if (session?.user?.email) {
                     setIsAuthenticated(true);
-                    console.log('✅ [RoomsForm] User authenticated with email:', session.user.email);
-                    
                     // Auto-fill form data from user profile if available
                     if (session.user.user_metadata?.college) {
                         setFormData(prev => ({
@@ -117,38 +95,29 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
                         }));
                     }
                 } else {
-                    console.log('❌ [RoomsForm] No email found in session');
                     setIsAuthenticated(false);
                 }
-                
                 setAuthLoading(false);
             } catch (authError) {
-                console.error('❌ [RoomsForm] Auth check exception:', authError);
                 setIsAuthenticated(false);
                 setAuthLoading(false);
             }
         };
-
         checkAuth();
-
         // Listen for auth changes
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-            console.log('🔄 [RoomsForm] Auth state changed:', event, !!session?.user?.email);
             if (session?.user?.email) {
                 setIsAuthenticated(true);
             } else {
                 setIsAuthenticated(false);
             }
         });
-
         return () => subscription.unsubscribe();
     }, [supabase.auth]);
-
     // Load user profile data to prefill form
     useEffect(() => {
         const loadUserProfile = async () => {
             if (!isAuthenticated) return;
-            
             try {
                 const { data: { user } } = await supabase.auth.getUser();
                 if (user) {
@@ -158,7 +127,6 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
                         .select('college, phone, name')
                         .eq('id', user.id)
                         .single();
-                    
                     if (profile && !error) {
                         // Prefill college if user has it in their profile
                         if (profile.college && !formData.college) {
@@ -167,24 +135,20 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
                                 college: profile.college 
                             }));
                         }
-                        
                         // Note: Removed auto-fill for owner name and contact to prevent confusion
                         // Users should manually enter their preferred contact information for room listings
                     }
                 }
             } catch (error) {
-                console.error('Error loading user profile:', error);
             }
         };
-
         if (isAuthenticated && !authLoading) {
             loadUserProfile();
         }
     }, [isAuthenticated, authLoading, formData.college, supabase]);
-
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-        // console.log('RoomsForm handleChange:', { name, value, type, checked }); // Debug log
+        //  // Debug log
         if (type === 'checkbox') {
             if (name === 'mess_included') {
                 setFormData(prev => ({ ...prev, mess_included: checked }));
@@ -198,68 +162,46 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
             setFormData(prev => ({ ...prev, [name]: value }));
         }
     };
-
     const handleImagesChange = useCallback((files) => {
         setFormData(prev => ({ ...prev, images: files }));
     }, []);
-
     const handleLocationChange = useCallback((location) => {
-        // console.log('RoomsForm: handleLocationChange called with:', location);
-        // console.log('RoomsForm: location type:', typeof location);
-        // console.log('RoomsForm: location.lat:', location?.lat, 'type:', typeof location?.lat);
-        // console.log('RoomsForm: location.lng:', location?.lng, 'type:', typeof location?.lng);
-        
+        // 
+        // 
+        // 
+        // 
         // Validate that location has valid lat/lng
         if (location && typeof location.lat === 'number' && typeof location.lng === 'number') {
             setFormData(prev => ({ ...prev, location }));
-            // console.log('RoomsForm: Location successfully updated');
+            // 
         } else {
-            // console.error('RoomsForm: Invalid location data received:', location);
+            // 
         }
     }, []);
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (isSubmitting) return;
-
-        console.log('🏠 [RoomsForm] Starting submission...');
-
         // ============================================================================
         // 1. ENHANCED EMAIL-BASED AUTHENTICATION CHECK
         // ============================================================================
-        
         if (!isAuthenticated) {
-            console.log('❌ [RoomsForm] Not authenticated, redirecting to login');
             toast.error('Please log in to submit your room listing');
             router.push('/login');
             return;
         }
-
         // Get current session and verify email
         let currentUser = null;
         try {
             const { data: { session }, error } = await supabase.auth.getSession();
-            
             if (error) {
-                console.error('❌ [RoomsForm] Session error:', error);
                 toast.error('Authentication error. Please try logging in again.');
                 return;
             }
-
-            console.log('🔍 [RoomsForm] Session check:', {
-                hasSession: !!session,
-                hasUser: !!session?.user,
-                userEmail: session?.user?.email,
-                userId: session?.user?.id
-            });
-            
             if (!session?.user?.email) {
-                console.log('❌ [RoomsForm] No email found in session');
                 toast.error('Invalid authentication. Please log in with a valid email.');
                 router.push('/login');
                 return;
             }
-
             // Fetch current user data to include phone number
             let userProfile = null;
             try {
@@ -270,9 +212,7 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
                     .single();
                 userProfile = profile;
             } catch (err) {
-                console.log('ℹ️ [RoomsForm] Could not fetch user profile phone:', err);
             }
-            
             currentUser = {
                 id: session.user.id,
                 email: session.user.email,
@@ -281,50 +221,36 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
                 college: formData.college,
                 phone: userProfile?.phone || null // Include phone to preserve it in API upsert
             };
-
-            console.log('✅ [RoomsForm] User data prepared:', currentUser);
         } catch (sessionError) {
-            console.error('❌ [RoomsForm] Session check failed:', sessionError);
             toast.error('Failed to verify authentication. Please try again.');
             return;
         }
-
         // ============================================================================
         // 2. FORM VALIDATION
         // ============================================================================
-        
         if (!formData.hostel_name || !formData.fees || !formData.college || !formData.room_type || !formData.owner_name || !formData.contact_primary) {
             toast.error('Please fill in all required fields');
             return;
         }
-
         if (isNaN(parseFloat(formData.fees)) || parseFloat(formData.fees) <= 0) {
             toast.error('Please enter a valid rent amount');
             return;
         }
-
         if (!formData.location || !formData.location.lat || !formData.location.lng) {
             toast.error('Please select a location on the map');
             return;
         }
-
-        console.log('✅ [RoomsForm] Form validation passed');
         setIsSubmitting(true);
-
         const toastId = toast.loading('Adding your room listing...');
-
         try {
             // ============================================================================
             // 3. PREPARE SUBMISSION DATA
             // ============================================================================
-            
             // ============================================================================
             // 4. SUBMIT TO API
             // ============================================================================
-            
             // Create FormData to handle File uploads
             const formDataToSend = new FormData();
-            
             // Add basic data
             formDataToSend.append('type', 'rooms');
             formDataToSend.append('user', JSON.stringify(currentUser));
@@ -337,7 +263,6 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
             formDataToSend.append('occupancy', formData.occupancy);
             formDataToSend.append('ownerName', formData.owner_name);
             formDataToSend.append('contact1', formData.contact_primary);
-            
             if (formData.contact_secondary) {
                 formDataToSend.append('contact2', formData.contact_secondary);
             }
@@ -347,73 +272,50 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
             if (formData.deposit) {
                 formDataToSend.append('deposit', parseFloat(formData.deposit));
             }
-            
             formDataToSend.append('feesIncludeMess', formData.mess_included);
             if (formData.mess_included && formData.mess_fees) {
                 formDataToSend.append('messType', formData.mess_fees);
             }
-            
             // Add amenities
             if (formData.amenities && formData.amenities.length > 0) {
                 formData.amenities.forEach(amenity => {
                     formDataToSend.append('amenities', amenity);
                 });
             }
-            
             // Add images as File objects
             if (formData.images && formData.images.length > 0) {
                 formData.images.forEach((image, index) => {
                     formDataToSend.append(`images`, image);
                 });
             }
-
-            console.log('📤 [RoomsForm] Sending FormData to API with', formData.images?.length || 0, 'images');
-            
             const response = await fetch('/api/sell', {
                 method: 'POST',
                 body: formDataToSend, // Send FormData instead of JSON
             });
-
             const result = await response.json();
-
-            console.log('📥 [RoomsForm] API response:', {
-                status: response.status,
-                ok: response.ok,
-                result: result
-            });
-
             if (!response.ok) {
-                console.error('❌ [RoomsForm] API error:', result);
-                
                 // Handle specific error codes
                 if (result.code === 'AUTH_MISSING_EMAIL' || result.code === 'AUTH_EMAIL_NOT_FOUND') {
                     toast.error('Authentication required. Please sign in first.');
                     router.push('/login');
                     return;
                 }
-                
                 if (result.code === 'AUTH_EMAIL_UNREGISTERED') {
                     toast.error('Email not registered. Please create an account first.');
                     router.push('/signup');
                     return;
                 }
-                
                 if (result.code === 'DATABASE_RLS_ERROR') {
                     toast.error('Database security error. Please contact support.');
                     return;
                 }
-                
                 // Generic error message
                 toast.error(result.error || 'Failed to submit room listing. Please try again.');
                 return;
             }
-
             // ============================================================================
             // 5. SUCCESS HANDLING
             // ============================================================================
-            
-            console.log('✅ [RoomsForm] Room listing submitted successfully:', result.data);
-            
             // Show success message
             toast.success(
                 `🏠 ${result.message || 'Room listing submitted successfully!'}\nYour ${result.data?.title || 'room'} is now live!`,
@@ -426,7 +328,6 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
                     },
                 }
             );
-            
             // Reset form
             setFormData({
                 hostel_name: '',
@@ -448,21 +349,17 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
                 location: null,
                 category: category || 'Rooms/Hostel',
             });
-
             // Redirect to homepage after showing success message
             setTimeout(() => {
                 router.push('/');
             }, 2000);
-
         } catch (fetchError) {
-            console.error('❌ [RoomsForm] Fetch error:', fetchError);
             toast.error('Network error. Please check your connection and try again.');
         } finally {
             setIsSubmitting(false);
             toast.dismiss(toastId);
         }
     };
-
     // Show loading state while checking authentication
     if (authLoading) {
         return (
@@ -477,7 +374,6 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
             </div>
         );
     }
-
     // Show login prompt if not authenticated
     if (!isAuthenticated) {
         return (
@@ -497,14 +393,12 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
             </div>
         );
     }
-
     return (
         <form onSubmit={handleSubmit} className="space-y-8">
             <div>
                 <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200">List a Room/Hostel</h2>
                 <p className="text-gray-600 dark:text-gray-400">Provide details about the room or hostel you want to list.</p>
             </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label htmlFor="hostel_name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Hostel/Building Name</label>
@@ -606,7 +500,6 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
                     />
                 </div>
             </div>
-
             <div>
                 <div className="flex items-center">
                     <input 
@@ -633,7 +526,6 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
                     </div>
                 )}
             </div>
-
             <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Amenities</label>
                 <div className="mt-2 grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -653,7 +545,6 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
                     ))}
                 </div>
             </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label htmlFor="owner_name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Owner Name</label>
@@ -691,7 +582,6 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
                     />
                 </div>
             </div>
-
             <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Upload Images (up to 10)</label>
                 <ImageUploadWithOptimization 
@@ -707,7 +597,6 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
                     }}
                 />
             </div>
-
             <div className="space-y-4">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Set Location</label>
                 {formData.location && typeof formData.location.lat === 'number' && typeof formData.location.lng === 'number' ? (
@@ -728,7 +617,6 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
                     <MapPicker onLocationChange={handleLocationChange} initialPosition={formData.location} />
                 </div>
             </div>
-
             <div className="mt-8">
                 <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
                 <textarea 
@@ -741,7 +629,6 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
                     placeholder="Describe your room/hostel in detail..."
                 ></textarea>
             </div>
-
             <div className="flex justify-end">
                 <button type="submit" disabled={isSubmitting} className="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 transition duration-300 disabled:bg-gray-400">
                     {isSubmitting ? 'Submitting...' : (initialData.id ? 'Update Room' : 'List Room')}
@@ -750,3 +637,4 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
         </form>
     );
 }
+

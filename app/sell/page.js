@@ -33,7 +33,7 @@ export default function SellPage() {
                 const { data: { session } } = await supabase.auth.getSession();
                 
                 if (!session || !session.user || !session.user.email) {
-                    console.log('❌ No valid session found');
+                    // console.log('❌ No valid session found');
                     setUserStatus('no-email');
                     setLoading(false);
                     return;
@@ -43,7 +43,7 @@ export default function SellPage() {
                 const currentUserEmail = currentUser.email;
                 setUserEmail(currentUserEmail);
                 
-                console.log('🔍 Checking user in database:', currentUserEmail);
+                // console.log('🔍 Checking user in database:', currentUserEmail);
 
                 // First check by user ID (more reliable)
                 const { data: userDataById, error: errorById } = await supabase
@@ -57,7 +57,7 @@ export default function SellPage() {
 
                 // If not found by ID, check by email as fallback
                 if (error || !userData) {
-                    console.log('🔍 User not found by ID, checking by email...');
+                    // console.log('🔍 User not found by ID, checking by email...');
                     const { data: userDataByEmail, error: errorByEmail } = await supabase
                         .from('users')
                         .select('id, email, phone, name')
@@ -69,7 +69,7 @@ export default function SellPage() {
                 }
 
                 if (error || !userData) {
-                    console.log('❌ User not found in users table, attempting to sync...');
+                    // console.log('❌ User not found in users table, attempting to sync...');
                     
                     // Attempt to create the user record
                     const newUserData = {
@@ -88,7 +88,7 @@ export default function SellPage() {
                         updated_at: new Date().toISOString()
                     };
 
-                    console.log('📝 Creating user record:', newUserData);
+                    // console.log('📝 Creating user record:', newUserData);
 
                     const { data: createdUser, error: createError } = await supabase
                         .from('users')
@@ -97,16 +97,16 @@ export default function SellPage() {
                         .single();
 
                     if (createError) {
-                        console.error('❌ Failed to create user record:', createError);
+                        // console.error('❌ Failed to create user record:', createError);
                         setUserStatus('no-email');
                     } else {
-                        console.log('✅ User record created successfully');
+                        // console.log('✅ User record created successfully');
                         userData = createdUser;
                     }
                 }
 
                 if (userData) {
-                    console.log('✅ User found:', userData);
+                    // console.log('✅ User found:', userData);
                     if (!userData.phone || userData.phone.trim() === '') {
                         // User exists but phone is null or empty
                         setUserStatus('no-phone');
@@ -119,7 +119,7 @@ export default function SellPage() {
                 }
 
             } catch (error) {
-                console.error('❌ Error checking user in database:', error);
+                // console.error('❌ Error checking user in database:', error);
                 setUserStatus('no-email');
             }
 

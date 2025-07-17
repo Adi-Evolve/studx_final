@@ -67,7 +67,7 @@ export default function SignUpPage() {
       ? `${currentOrigin}/auth/callback?next=/`
       : `https://studxchnage.vercel.app/auth/callback?next=/`;
     
-    console.log('🔗 Google OAuth signup redirect URL:', redirectUrl);
+    // console.log('🔗 Google OAuth signup redirect URL:', redirectUrl);
     
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',

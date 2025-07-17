@@ -1,5 +1,4 @@
-'use client';
-
+﻿'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -8,7 +7,6 @@ import ListingCard from '@/components/ListingCard';
 import BulkUpload from '@/components/BulkUpload';
 import UserRatingSystem from '@/components/UserRatingSystem';
 import BulkOperationsPanel from '@/components/BulkOperationsPanel';
-
 // Reusable UI Components
 const TabButton = ({ active, onClick, children }) => (
     <button 
@@ -21,25 +19,21 @@ const TabButton = ({ active, onClick, children }) => (
         {children}
     </button>
 );
-
 const EditProfileModal = ({ user, onClose, onSave }) => {
     const [fullName, setFullName] = useState(user.name || '');
     const [phoneNumber, setPhoneNumber] = useState(user.phone || '');
     const [isSaving, setIsSaving] = useState(false);
-
     // Auto-update phone number when user prop changes (e.g., when fetched from database)
     useEffect(() => {
         if (user.phone) {
             setPhoneNumber(user.phone);
         }
     }, [user.phone]);
-
     const handleSave = async () => {
         setIsSaving(true);
         await onSave({ fullName, phoneNumber });
         setIsSaving(false);
     };
-
     return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50">
             <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-2xl w-full max-w-md border border-slate-200 dark:border-gray-700">
@@ -85,7 +79,6 @@ const EditProfileModal = ({ user, onClose, onSave }) => {
         </div>
     );
 };
-
 export default function ProfileClientPage({ serverUser, serverProducts, serverNotes, serverRooms }) {
     const [user, setUser] = useState(serverUser);
     const [products, setProducts] = useState(serverProducts || []);
@@ -97,14 +90,10 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [lastRefresh, setLastRefresh] = useState(Date.now());
     const supabase = createSupabaseBrowserClient();
-
     // Client-side data refresh function
     const refreshListings = async () => {
         if (!user?.id) return;
-        
         setIsRefreshing(true);
-        console.log('🔄 Refreshing listings for user:', user.id);
-        
         try {
             const [productsRes, notesRes, roomsRes] = await Promise.all([
                 supabase.from('products').select(`
@@ -122,80 +111,56 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
                     mess_fees, owner_name, contact1, contact2, amenities, seller_id, created_at
                 `).eq('seller_id', user.id)
             ]);
-
             // Log results
-            console.log('📦 Refreshed products:', productsRes.data?.length || 0, productsRes.error?.message || 'No error');
-            console.log('📝 Refreshed notes:', notesRes.data?.length || 0, notesRes.error?.message || 'No error');
-            console.log('🏠 Refreshed rooms:', roomsRes.data?.length || 0, roomsRes.error?.message || 'No error');
-
             // Update state with new data (or empty arrays if errors)
             setProducts((productsRes.data || []).map(item => ({ ...item, type: 'product' })));
             setNotes((notesRes.data || []).map(item => ({ ...item, type: 'note' })));
             setRooms((roomsRes.data || []).map(item => ({ ...item, type: 'room' })));
-            
             setLastRefresh(Date.now());
-            
         } catch (error) {
-            console.error('❌ Error refreshing listings:', error);
         } finally {
             setIsRefreshing(false);
         }
     };
-
     // Auto-refresh if server data seems incomplete
     useEffect(() => {
         const hasNoData = (!products || products.length === 0) && 
                          (!notes || notes.length === 0) && 
                          (!rooms || rooms.length === 0);
-        
         if (hasNoData && user?.id) {
-            console.log('🔄 No server data found, attempting client-side refresh...');
             setTimeout(refreshListings, 1000); // Small delay to let component mount
         }
     }, [user?.id]); // Only run when user ID changes
-
     const handleSaveProfile = async ({ fullName, phoneNumber }) => {
         try {
-            console.log('Saving profile...', { fullName, phoneNumber });
-            
             const { data, error } = await supabase
                 .from('users')
                 .update({ name: fullName, phone: phoneNumber })
                 .eq('id', user.id)
                 .select()
                 .single();
-
             if (error) {
-                console.error('Profile update error:', error);
                 alert('Error updating profile: ' + error.message);
                 return;
             }
-            
             if (data) {
-                console.log('Profile updated successfully:', data);
                 setUser(prev => ({ ...prev, ...data }));
                 setIsModalOpen(false);
-                
                 // Force a small delay to ensure state update completes
                 setTimeout(() => {
-                    console.log('Profile update complete');
                 }, 100);
             }
         } catch (err) {
-            console.error('Unexpected error in handleSaveProfile:', err);
             alert('An unexpected error occurred while updating your profile.');
         }
     };
-
     const handleRemove = async (id, type) => {
         if (!confirm('Are you sure you want to remove this item?')) return;
-
         const response = await fetch('/api/item/delete', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id, type }),
         });
-
         if (response.ok) {
             if (type === 'product') setProducts(products.filter(p => p.id !== id));
             if (type === 'note') setNotes(notes.filter(n => n.id !== id));
@@ -204,26 +169,22 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
             alert('Failed to remove item.');
         }
     };
-
     const handleMarkAsSold = async (id) => {
         const response = await fetch('/api/item/mark-sold', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id }),
         });
-
         if (response.ok) {
             setProducts(products.map(p => p.id === id ? { ...p, is_sold: true } : p));
         } else {
             alert('Failed to mark as sold.');
         }
     };
-
     const handleBulkUploadSuccess = (newProducts) => {
         setProducts(prev => [...prev, ...newProducts]);
         setShowBulkUpload(false);
     };
-
     const renderItems = () => {
         if (activeTab === 'bulk') {
             const allListings = [...products, ...notes, ...rooms];
@@ -238,14 +199,12 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
                 />
             );
         }
-
         let items, type;
         switch (activeTab) {
             case 'notes': items = notes; type = 'note'; break;
             case 'rooms': items = rooms; type = 'room'; break;
             default: items = products; type = 'product';
         }
-
         if (items.length === 0) {
             return (
                 <div className="text-center py-16">
@@ -282,7 +241,6 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
                 </div>
             );
         }
-
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {items.map(item => {
@@ -303,7 +261,6 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
                                 </Link>
                                 <button 
                                     onClick={() => {
-                                        console.log('Remove clicked for:', item.id, type);
                                         handleRemove(item.id, type);
                                     }} 
                                     className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
@@ -313,7 +270,6 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
                                 {type === 'product' && (
                                     <button 
                                         onClick={() => {
-                                            console.log('Mark as sold clicked for:', item.id);
                                             handleMarkAsSold(item.id);
                                         }}
                                         disabled={item.is_sold}
@@ -341,13 +297,11 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
             </div>
         );
     };
-
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-gray-900">
             <div className="container mx-auto px-4 py-12">
                 {isModalOpen && <EditProfileModal user={user} onClose={() => setIsModalOpen(false)} onSave={handleSaveProfile} />}
                 {showBulkUpload && <BulkUpload onClose={() => setShowBulkUpload(false)} onSuccess={handleBulkUploadSuccess} />}
-                
                 {/* Profile Header */}
                 <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-gray-700 mb-8">
                     <div className="flex flex-col sm:flex-row items-center space-y-6 sm:space-y-0 sm:space-x-8">
@@ -366,7 +320,6 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
                                 <span className="text-xs text-white">✓</span>
                             </div>
                         </div>
-                        
                         <div className="text-center sm:text-left flex-1">
                             <h1 className="text-3xl font-black text-slate-900 dark:text-white mb-1">{user.name}</h1>
                             <p className="text-slate-600 dark:text-gray-300 text-lg mb-2">{user.email}</p>
@@ -380,13 +333,11 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
                                 ✏️ Edit Profile
                             </button>
                         </div>
-                        
                         <div className="w-full sm:w-auto">
                             <UserRatingSystem sellerId={user.id} />
                         </div>
                     </div>
                 </div>
-
                 {/* Tabs and Content */}
                 <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-slate-200 dark:border-gray-700 overflow-hidden">
                     {/* Tab Navigation */}
@@ -417,7 +368,6 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
                                 ⚡ Bulk Operations
                             </TabButton>
                         </div>
-                        
                         <div className="flex gap-2">
                             <button 
                                 onClick={refreshListings}
@@ -427,7 +377,6 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
                             >
                                 {isRefreshing ? '🔄' : '🔄'} Refresh
                             </button>
-                            
                             {activeTab === 'products' && (
                                 <button 
                                     onClick={() => setShowBulkUpload(true)}
@@ -438,7 +387,6 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
                             )}
                         </div>
                     </div>
-                    
                     {/* Tab Content */}
                     <div className="p-8">
                         {renderItems()}
@@ -448,3 +396,4 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
         </div>
     );
 }
+

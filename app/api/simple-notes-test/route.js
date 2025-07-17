@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
 export async function POST(request) {
-    console.log('=== Simple Notes Test ===');
+    // console.log('=== Simple Notes Test ===');
     
     try {
         const supabase = createRouteHandlerClient({ cookies });
@@ -14,7 +14,7 @@ export async function POST(request) {
             return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
         }
         
-        console.log('✅ User authenticated:', user.email);
+        // console.log('✅ User authenticated:', user.email);
         
         // Check if user exists in public.users and create if needed
         const { data: userData, error: publicUserError } = await supabase
@@ -24,7 +24,7 @@ export async function POST(request) {
             .single();
             
         if (publicUserError || !userData) {
-            console.log('Creating user in public.users...');
+            // console.log('Creating user in public.users...');
             
             const { data: newUser, error: createError } = await supabase
                 .from('users')
@@ -42,9 +42,9 @@ export async function POST(request) {
                 console.error('User creation failed:', createError);
                 return NextResponse.json({ error: createError.message }, { status: 500 });
             }
-            console.log('✅ User created:', newUser);
+            // console.log('✅ User created:', newUser);
         } else {
-            console.log('✅ User exists:', userData);
+            // console.log('✅ User exists:', userData);
         }
         
         // Try inserting a minimal note
@@ -59,7 +59,7 @@ export async function POST(request) {
             category: 'Notes'
         };
         
-        console.log('Inserting note:', noteData);
+        // console.log('Inserting note:', noteData);
         
         const { data: note, error: noteError } = await supabase
             .from('notes')
@@ -76,7 +76,7 @@ export async function POST(request) {
             }, { status: 500 });
         }
         
-        console.log('✅ Note created:', note);
+        // console.log('✅ Note created:', note);
         
         // Clean up
         await supabase.from('notes').delete().eq('id', note.id);

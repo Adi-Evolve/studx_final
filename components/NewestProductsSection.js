@@ -23,7 +23,7 @@ export default function NewestProductsSection({ initialProducts }) {
                 );
                 setNewestProducts(locationBasedProducts);
             } catch (error) {
-                console.error('Error loading location-based newest products:', error);
+                // console.error('Error loading location-based newest products:', error);
                 // Keep the initial products if location-based fetch fails
             } finally {
                 setLoading(false);

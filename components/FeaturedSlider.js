@@ -5,6 +5,7 @@ import useEmblaCarousel from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
 import FeaturedCard from './FeaturedCard';
 import Link from 'next/link';
+import { useSwipeGesture } from '@/hooks/useSwipeGesture';
 
 export default function FeaturedSlider({ featuredItems }) {
     // Add null/undefined checking
@@ -32,7 +33,7 @@ export default function FeaturedSlider({ featuredItems }) {
             loop: true,
             align: 'start',
             containScroll: 'trimSnaps',
-            dragFree: true,
+            dragFree: false,
             slidesToScroll: 1,
             breakpoints: {
                 '(min-width: 640px)': { slidesToScroll: 2 },
@@ -44,6 +45,10 @@ export default function FeaturedSlider({ featuredItems }) {
             watchSlides: true,
             skipSnaps: false,
             inViewThreshold: 0.7,
+            // Improved touch handling
+            axis: 'x',
+            dragThreshold: 10,
+            startIndex: 0,
         },
         [Autoplay(autoplayOptions)]
     );
@@ -56,6 +61,12 @@ export default function FeaturedSlider({ featuredItems }) {
     const scrollNext = useCallback(() => {
         if (emblaApi) emblaApi.scrollNext();
     }, [emblaApi]);
+
+    // Touch gesture handling
+    const { handleTouchStart, handleTouchMove, handleTouchEnd } = useSwipeGesture(
+        scrollNext, // onSwipeLeft
+        scrollPrev  // onSwipeRight
+    );
 
     // Scroll to specific index
     const scrollTo = useCallback((index) => {
@@ -145,8 +156,15 @@ export default function FeaturedSlider({ featuredItems }) {
 
             <div className="relative">
                 {/* Embla Carousel Container */}
-                <div className="overflow-hidden rounded-2xl" ref={emblaRef}>
-                    <div className="flex touch-pan-x touch-pinch-zoom">
+                <div 
+                    className="overflow-hidden rounded-2xl" 
+                    ref={emblaRef}
+                    onTouchStart={handleTouchStart}
+                    onTouchMove={handleTouchMove}
+                    onTouchEnd={handleTouchEnd}
+                    style={{ touchAction: 'pan-y pinch-zoom' }}
+                >
+                    <div className="flex">
                         {featuredItems.map((item, index) => (
                             <div 
                                 key={`featured-${item.type}-${item.id}-${index}`}

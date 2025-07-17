@@ -5,6 +5,7 @@ import useEmblaCarousel from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
 import ListingCard from './ListingCard';
 import Link from 'next/link';
+import { useSwipeGesture } from '@/hooks/useSwipeGesture';
 
 export default function NewestProductsSlider({ newestProducts, showDistance = false }) {
     const [selectedIndex, setSelectedIndex] = useState(0);
@@ -27,7 +28,7 @@ export default function NewestProductsSlider({ newestProducts, showDistance = fa
             loop: true,
             align: 'start',
             containScroll: 'trimSnaps',
-            dragFree: true,
+            dragFree: false,
             slidesToScroll: 1,
             breakpoints: {
                 '(min-width: 768px)': { slidesToScroll: 2 },
@@ -39,6 +40,10 @@ export default function NewestProductsSlider({ newestProducts, showDistance = fa
             watchSlides: true,
             skipSnaps: false,
             inViewThreshold: 0.7,
+            // Improved touch handling
+            axis: 'x',
+            dragThreshold: 10,
+            startIndex: 0,
         },
         [Autoplay(autoplayOptions)]
     );
@@ -56,6 +61,12 @@ export default function NewestProductsSlider({ newestProducts, showDistance = fa
     const scrollNext = useCallback(() => {
         if (emblaApi) emblaApi.scrollNext();
     }, [emblaApi]);
+
+    // Touch gesture handling
+    const { handleTouchStart, handleTouchMove, handleTouchEnd } = useSwipeGesture(
+        scrollNext, // onSwipeLeft
+        scrollPrev  // onSwipeRight
+    );
 
     // Update button states and selected index
     const onSelect = useCallback(() => {
@@ -136,8 +147,15 @@ export default function NewestProductsSlider({ newestProducts, showDistance = fa
 
             <div className="relative group">
                 {/* Embla Carousel Container */}
-                <div className="overflow-hidden" ref={emblaRef}>
-                    <div className="flex touch-pan-x touch-pinch-zoom">
+                <div 
+                    className="overflow-hidden" 
+                    ref={emblaRef}
+                    onTouchStart={handleTouchStart}
+                    onTouchMove={handleTouchMove}
+                    onTouchEnd={handleTouchEnd}
+                    style={{ touchAction: 'pan-y pinch-zoom' }}
+                >
+                    <div className="flex">
                         {newestProducts.map((item, index) => (
                             <div 
                                 key={`${item.type}-${item.id}`} 
@@ -198,7 +216,7 @@ export default function NewestProductsSlider({ newestProducts, showDistance = fa
                     Showing {newestProducts.length} newest items
                 </div>
                 <div className="text-xs text-gray-500 dark:text-gray-400">
-                    💡 Swipe or drag to explore more
+                    💡 Swipe horizontally to browse • Swipe vertically to scroll page
                 </div>
             </div>
         </section>

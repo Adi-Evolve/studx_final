@@ -116,7 +116,7 @@ function SearchContent() {
             setTotalResults(filteredResults.length);
         } catch (err) {
             setError('Search failed. Please try again.');
-            console.error('Search error:', err);
+            // console.error('Search error:', err);
         } finally {
             setLoading(false);
         }
@@ -151,7 +151,7 @@ function SearchContent() {
             setTotalResults(filteredResults.length);
         } catch (err) {
             setError('Failed to load listings. Please try again.');
-            console.error('Listings fetch error:', err);
+            // console.error('Listings fetch error:', err);
         } finally {
             setLoading(false);
         }

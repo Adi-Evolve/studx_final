@@ -16,13 +16,13 @@ export default function TestUserCreation() {
             try {
                 const { data: { user }, error } = await supabase.auth.getUser();
                 if (error) {
-                    console.error('Auth error:', error);
+                    // console.error('Auth error:', error);
                     setUser(null);
                 } else {
                     setUser(user);
                 }
             } catch (error) {
-                console.error('Auth check error:', error);
+                // console.error('Auth check error:', error);
                 setUser(null);
             } finally {
                 setAuthLoading(false);

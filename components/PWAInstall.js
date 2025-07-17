@@ -27,7 +27,7 @@ export function usePWAInstall() {
             setIsInstalled(true);
             setIsInstallable(false);
             setDeferredPrompt(null);
-            console.log('StudX PWA was installed successfully');
+            // console.log('StudX PWA was installed successfully');
         };
 
         window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -182,10 +182,10 @@ export function registerServiceWorker() {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('/sw.js')
                 .then((registration) => {
-                    console.log('SW registered: ', registration);
+                    // console.log('SW registered: ', registration);
                 })
                 .catch((registrationError) => {
-                    console.log('SW registration failed: ', registrationError);
+                    // console.log('SW registration failed: ', registrationError);
                 });
         });
     }

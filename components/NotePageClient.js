@@ -51,7 +51,7 @@ export default function NotePageClient({ note, seller }) {
                     .createSignedUrl(pdfUrl, 60 * 60); // 1 hour expiry
 
                 if (error) {
-                    console.error('Error creating signed URL:', error);
+                    // console.error('Error creating signed URL:', error);
                     alert('Failed to generate download link');
                     return;
                 }
@@ -139,7 +139,7 @@ export default function NotePageClient({ note, seller }) {
                                     </button>
                                 )}
                                 {whatsAppNumber && (
-                                    <a href={`https://wa.me/${whatsAppNumber}?text=I'm%20interested%20in%20your%20notes%20'${encodeURIComponent(note.title)}'%20on%20StudXchange.`} target="_blank" rel="noopener noreferrer" className="w-full bg-green-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center">
+                                    <a href={`https://wa.me/${whatsAppNumber}?text=Hello!%20I%20found%20your%20study%20notes%20for%20'${encodeURIComponent(note.title)}'%20on%20StudXchange%20and%20I'm%20really%20interested%20in%20purchasing%20them.%20%0A%0ACould%20you%20please%20let%20me%20know:%20%0A-%20Quality%20and%20completeness%20of%20the%20notes%20%0A-%20Which%20topics/chapters%20are%20covered%20%0A-%20Format%20of%20the%20notes%20(handwritten/typed)%20%0A-%20Any%20additional%20study%20materials%20included%20%0A-%20Best%20time%20for%20pickup/delivery%20%0A%0AProduct%20Link:%20${encodeURIComponent(window.location.href)}%20%0A%0AThese%20notes%20would%20be%20really%20helpful%20for%20my%20studies.%20Thank%20you!`} target="_blank" rel="noopener noreferrer" className="w-full bg-green-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center">
                                         <FontAwesomeIcon icon={faWhatsapp} className="mr-3" size="lg" />
                                         Contact Seller
                                     </a>

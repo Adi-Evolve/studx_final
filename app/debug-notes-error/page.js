@@ -19,7 +19,7 @@ export default function ReplicateNotesError() {
                 setUser(user);
                 setAccessToken(session?.access_token);
             } catch (error) {
-                console.error('Auth error:', error);
+                // console.error('Auth error:', error);
             }
         };
         checkAuth();
@@ -45,7 +45,7 @@ export default function ReplicateNotesError() {
             data.append('images', new File([], ''));
             data.append('pdfs', new File([], ''));
             
-            console.log('🔍 Sending request with FormData, user:', user?.email);
+            // console.log('🔍 Sending request with FormData, user:', user?.email);
             
             const headers = {
                 ...(accessToken && { 'Authorization': `Bearer ${accessToken}` })

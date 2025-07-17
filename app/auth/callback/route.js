@@ -14,7 +14,7 @@ export async function GET(request) {
                 // Get the current user after successful authentication
                 const { data: { user }, error: userError } = await supabase.auth.getUser();
                 if (user && !userError) {
-                    console.log('🔐 Auth callback: User authenticated:', user.email);
+                    // console.log('🔐 Auth callback: User authenticated:', user.email);
                     // Sync user data to public.users table
                     try {
                         // First check if user already exists in database to preserve phone number
@@ -39,13 +39,13 @@ export async function GET(request) {
                             created_at: new Date().toISOString(),
                             updated_at: new Date().toISOString()
                         };
-                        console.log('📝 Syncing user data:', { 
-                            id: userData.id, 
-                            email: userData.email, 
-                            name: userData.name,
-                            phone: userData.phone,
-                            existingPhone: existingUser?.phone 
-                        });
+                        // console.log('📝 Syncing user data:', {
+                        //     id: userData.id, 
+                        //     email: userData.email, 
+                        //     name: userData.name,
+                        //     phone: userData.phone,
+                        //     existingPhone: existingUser?.phone 
+                        // });
                         // Use upsert to insert or update
                         const { data: syncResult, error: syncError } = await supabase
                             .from('users')
@@ -55,19 +55,19 @@ export async function GET(request) {
                             })
                             .select();
                         if (syncError) {
-                            console.error('❌ User sync error:', syncError);
-                            console.log('🔍 User data that failed:', userData);
+                            // console.error('❌ User sync error:', syncError);
+                            // console.log('🔍 User data that failed:', userData);
                             // Try a direct insert as fallback
                             const { error: insertError } = await supabase
                                 .from('users')
                                 .insert(userData);
                             if (insertError) {
-                                console.error('❌ Fallback insert also failed:', insertError);
+                                // console.error('❌ Fallback insert also failed:', insertError);
                             } else {
-                                console.log('✅ Fallback insert successful');
+                                // console.log('✅ Fallback insert successful');
                             }
                         } else {
-                            console.log('✅ User sync successful:', syncResult?.[0]?.email);
+                            // console.log('✅ User sync successful:', syncResult?.[0]?.email);
                         }
                         // Verify the user exists in the table
                         const { data: verifyUser, error: verifyError } = await supabase
@@ -76,12 +76,12 @@ export async function GET(request) {
                             .eq('id', user.id)
                             .single();
                         if (verifyError) {
-                            console.error('❌ User verification failed:', verifyError);
+                            // console.error('❌ User verification failed:', verifyError);
                         } else {
-                            console.log('✅ User verified in database:', verifyUser.email);
+                            // console.log('✅ User verified in database:', verifyUser.email);
                         }
                     } catch (syncError) {
-                        console.error('❌ Exception during user sync:', syncError);
+                        // console.error('❌ Exception during user sync:', syncError);
                         // Don't fail auth if sync fails
                     }
                 }
@@ -92,7 +92,7 @@ export async function GET(request) {
                 const redirectUrl = isProduction
                     ? `https://studxchange.vercel.app${next}`
                     : `http://localhost:1501${next}`;
-                console.log('🔗 Redirecting to:', redirectUrl, { host, isProduction });
+                // console.log('🔗 Redirecting to:', redirectUrl, { host, isProduction });
                 return NextResponse.redirect(redirectUrl);
             }
         } catch (error) {
@@ -106,6 +106,6 @@ export async function GET(request) {
     const errorRedirect = isProduction
         ? 'https://studxchange.vercel.app/auth/auth-code-error'
         : 'http://localhost:1501/auth/auth-code-error';
-    console.log('🔗 Error redirect to:', errorRedirect, { host, isProduction });
+    // console.log('🔗 Error redirect to:', errorRedirect, { host, isProduction });
     return NextResponse.redirect(errorRedirect);
 }

@@ -13,7 +13,7 @@ export default function RoomActions({ room, sellerPhoneNumber }) {
     };
 
     const whatsappLink = sellerPhoneNumber 
-        ? `https://wa.me/${sellerPhoneNumber}?text=I'm%20interested%20in%20your%20room:%20${encodeURIComponent(room.hostel_name || room.title)}`
+        ? `https://wa.me/${sellerPhoneNumber}?text=Hello!%20I%20saw%20your%20room%20listing%20for%20'${encodeURIComponent(room.hostel_name || room.title)}'%20on%20StudXchange%20and%20I'm%20interested%20in%20renting%20it.%20%0A%0ACould%20you%20please%20provide%20more%20details%20about:%20%0A-%20Room%20availability%20dates%20%0A-%20Monthly%20rent%20and%20security%20deposit%20%0A-%20Included%20amenities%20and%20utilities%20%0A-%20House%20rules%20and%20preferences%20%0A-%20Best%20time%20for%20room%20viewing%20%0A%0ARoom%20Link:%20${encodeURIComponent(window.location.href)}%20%0A%0AI%20would%20love%20to%20schedule%20a%20viewing%20if%20possible.%20Thank%20you!`
         : '#';
 
     return (
