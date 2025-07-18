@@ -57,13 +57,14 @@ function CategoriesSection() {
       
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
         <CategoryCard href="/category/Laptop" icon="💻" title="Laptops" />
+        <CategoryCard href="/category/Project Equipment" icon="🔬" title="Project Equipments" />
         <CategoryCard href="/category/Textbook" icon="📚" title="Textbooks" />
         <CategoryCard href="/category/Electronics" icon="🔌" title="Electronics" />
         <CategoryCard href="/category/Bike" icon="🚲" title="Bikes" />
         <CategoryCard href="/category/Notes" icon="📝" title="Notes" />
         <CategoryCard href="/category/Rooms" icon="🏠" title="Rooms" />
         <CategoryCard href="/category/Furniture" icon="🪑" title="Furniture" />
-        <CategoryCard href="/category/Dorm Equipment" icon="�️" title="Dorm Equipment" />
+        <CategoryCard href="/category/Dorm Equipment" icon="🛏️" title="Dorm Equipment" />
         <CategoryCard href="/category/Books" icon="📖" title="Books" />
       </div>
     </section>
@@ -85,7 +86,7 @@ function HowItWorksSection() {
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
         <div className="text-center">
-          <div className="w-12 h-12 md:w-16 md:h-16 bg-blue-500 dark:bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-2 md:mb-4 shadow-lg dark:shadow-blue-500/20">
+          <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-r from-slate-700 to-emerald-600 dark:bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-2 md:mb-4 shadow-lg dark:shadow-blue-500/20">
             <span className="text-lg md:text-2xl text-white font-bold">1</span>
           </div>
           <h3 className="text-lg md:text-xl font-bold text-gray-800 dark:text-white mb-1 md:mb-2">Sign Up</h3>
@@ -95,7 +96,7 @@ function HowItWorksSection() {
         </div>
         
         <div className="text-center">
-          <div className="w-12 h-12 md:w-16 md:h-16 bg-green-500 dark:bg-green-600 rounded-full flex items-center justify-center mx-auto mb-2 md:mb-4 shadow-lg dark:shadow-green-500/20">
+          <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-r from-emerald-600 to-teal-600 dark:bg-green-600 rounded-full flex items-center justify-center mx-auto mb-2 md:mb-4 shadow-lg dark:shadow-green-500/20">
             <span className="text-lg md:text-2xl text-white font-bold">2</span>
           </div>
           <h3 className="text-lg md:text-xl font-bold text-gray-800 dark:text-white mb-1 md:mb-2">List or Browse</h3>
@@ -105,7 +106,7 @@ function HowItWorksSection() {
         </div>
         
         <div className="text-center">
-          <div className="w-12 h-12 md:w-16 md:h-16 bg-purple-500 dark:bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-2 md:mb-4 shadow-lg dark:shadow-purple-500/20">
+          <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-r from-slate-800 to-slate-600 dark:bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-2 md:mb-4 shadow-lg dark:shadow-purple-500/20">
             <span className="text-lg md:text-2xl text-white font-bold">3</span>
           </div>
           <h3 className="text-lg md:text-xl font-bold text-gray-800 dark:text-white mb-1 md:mb-2">Connect & Deal</h3>
@@ -178,12 +179,18 @@ async function ExploreListingsSection() {
                     </div>
                     <div className="p-4">
                       <div className="flex items-center justify-between mb-2">
-                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                        <span className={`px-2 py-1 text-xs font-semibold rounded-full flex items-center gap-1 ${
                           item.type === 'room' ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200' : 
                           item.type === 'note' ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' : 
                           'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200'
                         }`}>
-                          {item.type === 'room' ? 'Room' : item.type === 'note' ? 'Notes' : 'Product'}
+                          {item.type === 'room' ? (
+                            <>🏠 Room</>
+                          ) : item.type === 'note' ? (
+                            <>📚 Notes</>
+                          ) : (
+                            <>📦 Product</>
+                          )}
                         </span>
                       </div>
                       <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2 line-clamp-2">

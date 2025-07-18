@@ -25,28 +25,9 @@ export default function ThemeToggle({ className = "" }) {
       title={`Switch to ${isDark ? 'light' : 'dark'} mode`}
     >
       <div className="relative w-5 h-5">
-        {/* Sun Icon */}
         <FontAwesomeIcon
-          icon={faSun}
-          className={`
-            absolute inset-0 w-5 h-5 transition-all duration-300 ease-in-out
-            ${isDark 
-              ? 'opacity-0 rotate-90 scale-0' 
-              : 'opacity-100 rotate-0 scale-100'
-            }
-          `}
-        />
-        
-        {/* Moon Icon */}
-        <FontAwesomeIcon
-          icon={faMoon}
-          className={`
-            absolute inset-0 w-5 h-5 transition-all duration-300 ease-in-out
-            ${isDark 
-              ? 'opacity-100 rotate-0 scale-100' 
-              : 'opacity-0 -rotate-90 scale-0'
-            }
-          `}
+          icon={isDark ? faMoon : faSun}
+          className="w-5 h-5 transition-all duration-300 ease-in-out"
         />
       </div>
     </button>

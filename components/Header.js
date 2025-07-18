@@ -238,9 +238,9 @@ export default function Header() {
                         {/* Mobile Search Button for tablets */}
                         <button
                             onClick={() => setIsSearchOpen(true)}
-                            className="lg:hidden p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
+                            className="lg:hidden p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors border border-gray-200 dark:border-gray-600"
                         >
-                            <FontAwesomeIcon icon={faSearch} className="w-5 h-5 text-gray-600" />
+                            <FontAwesomeIcon icon={faSearch} className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                         </button>
 
                         {user ? (
@@ -298,13 +298,13 @@ export default function Header() {
                     <div className="md:hidden flex items-center space-x-2">
                         <button
                             onClick={() => setIsSearchOpen(true)}
-                            className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                            className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors border border-gray-200 dark:border-gray-600"
                         >
                             <FontAwesomeIcon icon={faSearch} className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                         </button>
                         <button
                             onClick={() => setIsMenuOpen(!isMenuOpen)}
-                            className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                            className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors border border-gray-200 dark:border-gray-600"
                         >
                             <FontAwesomeIcon 
                                 icon={isMenuOpen ? faTimes : faBars} 

@@ -31,19 +31,22 @@ export default function NewestProductsSlider({ newestProducts, showDistance = fa
             dragFree: false,
             slidesToScroll: 1,
             breakpoints: {
-                '(min-width: 768px)': { slidesToScroll: 2 },
-                '(min-width: 1024px)': { slidesToScroll: 3 },
+                '(min-width: 768px)': { slidesToScroll: 1 },
+                '(min-width: 1024px)': { slidesToScroll: 1 },
             },
-            // Enhanced touch settings for mobile
+            // Enhanced touch settings for mobile and desktop
             watchDrag: true,
             watchResize: true,
             watchSlides: true,
             skipSnaps: false,
             inViewThreshold: 0.7,
-            // Improved touch handling
+            // Improved touch and mouse handling
             axis: 'x',
             dragThreshold: 10,
             startIndex: 0,
+            // Enable mouse dragging for desktop
+            dragFree: false,
+            dragThreshold: 5,
         },
         [Autoplay(autoplayOptions)]
     );
@@ -91,8 +94,11 @@ export default function NewestProductsSlider({ newestProducts, showDistance = fa
         };
     }, [emblaApi, onSelect]);
 
-    // Keyboard navigation
+    // Keyboard navigation and wheel support
     useEffect(() => {
+        let lastScrollTime = 0;
+        const scrollThrottleDelay = 300; // Minimum time between scrolls in milliseconds
+
         const handleKeyDown = (e) => {
             if (!emblaApi) return;
             
@@ -105,8 +111,43 @@ export default function NewestProductsSlider({ newestProducts, showDistance = fa
             }
         };
 
+        const handleWheel = (e) => {
+            if (!emblaApi) return;
+            
+            const now = Date.now();
+            
+            // Throttle scroll events to reduce sensitivity
+            if (now - lastScrollTime < scrollThrottleDelay) {
+                return;
+            }
+            
+            // Check if horizontal scroll is being used (common with trackpads)
+            // Increased threshold to make it less sensitive
+            if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 30) {
+                e.preventDefault();
+                lastScrollTime = now;
+                
+                if (e.deltaX > 0) {
+                    scrollNext();
+                } else {
+                    scrollPrev();
+                }
+            }
+        };
+
+        const emblaContainer = emblaApi?.containerNode();
+        
         window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
+        if (emblaContainer) {
+            emblaContainer.addEventListener('wheel', handleWheel, { passive: false });
+        }
+        
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+            if (emblaContainer) {
+                emblaContainer.removeEventListener('wheel', handleWheel);
+            }
+        };
     }, [emblaApi, scrollPrev, scrollNext]);
 
     if (!newestProducts || newestProducts.length === 0) {
@@ -126,7 +167,7 @@ export default function NewestProductsSlider({ newestProducts, showDistance = fa
     }
 
     return (
-        <section className="mb-16">
+        <section className="mb-16 px-2">
             <div className="flex justify-between items-center mb-8">
                 <div>
                     <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white flex items-center">
@@ -134,32 +175,23 @@ export default function NewestProductsSlider({ newestProducts, showDistance = fa
                     </h2>
                     <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 mt-2">Fresh listings from your fellow students</p>
                 </div>
-                <Link 
-                    href="/search?sortBy=newest" 
-                    className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-semibold flex items-center text-sm sm:text-base"
-                >
-                    Explore more
-                    <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                </Link>
             </div>
 
-            <div className="relative group">
+            <div className="relative group py-4">
                 {/* Embla Carousel Container */}
                 <div 
-                    className="overflow-hidden" 
+                    className="overflow-hidden cursor-grab active:cursor-grabbing" 
                     ref={emblaRef}
                     onTouchStart={handleTouchStart}
                     onTouchMove={handleTouchMove}
                     onTouchEnd={handleTouchEnd}
                     style={{ touchAction: 'pan-y pinch-zoom' }}
                 >
-                    <div className="flex">
+                    <div className="flex gap-4">
                         {newestProducts.map((item, index) => (
                             <div 
                                 key={`${item.type}-${item.id}`} 
-                                className="flex-[0_0_48%] sm:flex-[0_0_48%] md:flex-[0_0_48%] lg:flex-[0_0_31%] xl:flex-[0_0_23%] min-w-0 pl-2 first:pl-0"
+                                className="flex-[0_0_calc(50%-8px)] sm:flex-[0_0_calc(50%-8px)] md:flex-[0_0_calc(33.33%-12px)] lg:flex-[0_0_calc(25%-12px)] min-w-0 isolated-card"
                                 style={{ isolation: 'isolate' }}
                             >
                                 <ListingCard item={item} showDistance={showDistance} />
@@ -208,16 +240,6 @@ export default function NewestProductsSlider({ newestProducts, showDistance = fa
                         ))}
                     </div>
                 )}
-            </div>
-
-            {/* Quick stats and controls info */}
-            <div className="mt-8 flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
-                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg px-4 py-2 sm:px-6 sm:py-3 text-sm text-gray-600 dark:text-gray-300">
-                    Showing {newestProducts.length} newest items
-                </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">
-                    💡 Swipe horizontally to browse • Swipe vertically to scroll page
-                </div>
             </div>
         </section>
     );
