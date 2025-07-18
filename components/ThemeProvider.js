@@ -17,7 +17,7 @@ export const useTheme = () => {
 };
 
 export function ThemeProvider({ children }) {
-  const [theme, setTheme] = useState('light');
+  const [theme, setTheme] = useState('dark'); // Default to dark mode
   const [mounted, setMounted] = useState(false);
 
   // Ensure we only access localStorage on the client side
@@ -27,9 +27,8 @@ export function ThemeProvider({ children }) {
     if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark')) {
       setTheme(savedTheme);
     } else {
-      // Check system preference
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setTheme(prefersDark ? 'dark' : 'light');
+      // Default to dark mode for new users
+      setTheme('dark');
     }
   }, []);
 
