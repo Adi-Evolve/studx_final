@@ -100,7 +100,9 @@ export default function ListingCard({ item, onClick, isSelectMode = false, isSpo
                                 className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-slate-800 to-emerald-600 dark:from-slate-200 dark:to-emerald-400"
                             />
                             {item.type === 'room' && (
-                                <span className="text-xs text-slate-500 dark:text-slate-400">/month</span>
+                                <span className="text-xs text-slate-500 dark:text-slate-400">
+                                    /{(item.fees_period || 'Monthly').toLowerCase()}
+                                </span>
                             )}
                         </div>
                         

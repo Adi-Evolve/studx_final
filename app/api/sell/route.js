@@ -60,6 +60,7 @@ export async function POST(request) {
       feesIncludeMess: formData.get('feesIncludeMess') === 'true',
       messType: formData.get('messType'),
       amenities: formData.getAll('amenities'),
+      feesPeriod: formData.get('fees_period'), // Add fees period
       course: formData.get('course'),
       subject: formData.get('subject'),
       academicYear: formData.get('academicYear'),
@@ -283,6 +284,7 @@ export async function POST(request) {
             fees_include_mess: data.feesIncludeMess || false,
             mess_fees: data.messType && data.messType !== 'no-mess' ? parseFloat(data.messType) : null,
             amenities: data.amenities || [],
+            fees_period: data.feesPeriod || 'Monthly', // Add fees period with default
             category: 'rooms',
           };
           break;

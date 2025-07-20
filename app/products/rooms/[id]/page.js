@@ -11,7 +11,7 @@ async function getRoomData(id) {
         .select(`
             id, title, description, price, category, college, location, 
             images, room_type, occupancy, distance, deposit, fees_include_mess, 
-            mess_fees, owner_name, contact1, contact2, amenities, seller_id, created_at
+            mess_fees, owner_name, contact1, contact2, amenities, fees_period, seller_id, created_at
         `)
         .eq('id', id)
         .single();

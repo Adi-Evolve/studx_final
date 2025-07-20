@@ -106,7 +106,7 @@ export default function RoomPageClient({ room, seller }) {
                     <div className="lg:col-span-2">
                         <div className="bg-white rounded-lg shadow-md p-6 sticky top-24">
                             <h1 className="text-3xl font-bold text-primary mb-2 leading-tight">{room.title}</h1>
-                            <p className="text-3xl font-bold text-accent mb-4">₹{room.price ? room.price.toLocaleString() : 'N/A'} / month</p>
+                            <p className="text-3xl font-bold text-accent mb-4">₹{room.price ? room.price.toLocaleString() : 'N/A'} / {(room.fees_period || 'Monthly').toLowerCase()}</p>
                             
                             <div className="space-y-3 text-sm text-gray-600 border-t pt-4 mb-4">
                                 <div className="flex items-center"><FontAwesomeIcon icon={faCalendarAlt} className="w-4 mr-3 text-gray-400" /> Posted on {formattedDate}</div>
