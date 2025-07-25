@@ -14,7 +14,7 @@ const getListingUrl = (item) => {
     return `/products/regular/${item.id}`;
 };
 
-export default function ListingCard({ item, onClick, isSelectMode = false, isSponsored = false, asLink = true, showDistance = false }) {
+export default function ListingCard({ item, onClick, isSelectMode = false, isSponsored = false, asLink = true, showDistance = false, onEdit, onRemove, onMarkAsSold }) {
     if (!item) {
         return null;
     }
@@ -141,6 +141,41 @@ export default function ListingCard({ item, onClick, isSelectMode = false, isSpo
                         </div>
                     )}
                 </div>
+
+                {/* Action Buttons for Profile Page */}
+                {(onEdit || onRemove || onMarkAsSold) && (
+                    <div className="flex gap-2 mt-4">
+                        {onEdit && (
+                            <button
+                                onClick={e => { e.stopPropagation(); onEdit(item); }}
+                                className="bg-slate-600 dark:bg-slate-700 text-white px-4 py-1 rounded-full text-sm font-semibold shadow hover:bg-slate-800 dark:hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-400"
+                            >
+                                Edit
+                            </button>
+                        )}
+                        {onRemove && (
+                            <button
+                                onClick={e => { e.stopPropagation(); onRemove(item); }}
+                                className="bg-rose-500 dark:bg-rose-700 text-white px-4 py-1 rounded-full text-sm font-semibold shadow hover:bg-rose-600 dark:hover:bg-rose-800 focus:outline-none focus:ring-2 focus:ring-rose-400"
+                            >
+                                Remove
+                            </button>
+                        )}
+                        {onMarkAsSold && (
+                            <button
+                                onClick={e => { e.stopPropagation(); onMarkAsSold(item); }}
+                                disabled={item.is_sold}
+                                className={`px-4 py-1 rounded-full text-sm font-semibold text-white shadow focus:outline-none focus:ring-2 focus:ring-emerald-400 ${
+                                    item.is_sold 
+                                        ? 'bg-gray-400 cursor-not-allowed' 
+                                        : 'bg-emerald-600 dark:bg-emerald-700 hover:bg-emerald-700 dark:hover:bg-emerald-800'
+                                }`}
+                            >
+                                {item.is_sold ? 'Sold' : 'Mark as Sold'}
+                            </button>
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     );
@@ -157,9 +192,18 @@ export default function ListingCard({ item, onClick, isSelectMode = false, isSpo
         );
     }
 
+    // Only redirect if clicking outside action buttons
     return (
-        <Link href={url} className="block h-full hover-lift">
+        <div
+            className="block h-full hover-lift cursor-pointer"
+            onClick={e => {
+                // Only redirect if not clicking a button
+                if (e.target.tagName !== 'BUTTON') {
+                    window.location.href = url;
+                }
+            }}
+        >
             {cardContent}
-        </Link>
+        </div>
     );
 }

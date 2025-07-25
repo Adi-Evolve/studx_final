@@ -7,6 +7,7 @@ import ListingCard from '@/components/ListingCard';
 import BulkUpload from '@/components/BulkUpload';
 import UserRatingSystem from '@/components/UserRatingSystem';
 import BulkOperationsPanel from '@/components/BulkOperationsPanel';
+import RegularProductForm from '@/components/forms/RegularProductForm';
 // Reusable UI Components
 const TabButton = ({ active, onClick, children }) => (
     <button 
@@ -89,6 +90,9 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
     const [showBulkUpload, setShowBulkUpload] = useState(false);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [lastRefresh, setLastRefresh] = useState(Date.now());
+    const [editItem, setEditItem] = useState(null);
+    const [editType, setEditType] = useState('product');
+    const [showEditModal, setShowEditModal] = useState(false);
     const supabase = createSupabaseBrowserClient();
     // Client-side data refresh function
     const refreshListings = async () => {
@@ -154,6 +158,26 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
             alert('An unexpected error occurred while updating your profile.');
         }
     };
+    const handleEdit = (item, type) => {
+        setEditItem(item);
+        setEditType(type);
+        setShowEditModal(true);
+    };
+    const handleEditSave = async (updatedData) => {
+        const response = await fetch('/api/item/edit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: editItem.id, type: editType, data: updatedData }),
+        });
+        if (response.ok) {
+            setShowEditModal(false);
+            setEditItem(null);
+            // Optionally refresh listings
+            fetchUserListings();
+        } else {
+            alert('Failed to update item.');
+        }
+    };
     const handleRemove = async (id, type) => {
         if (!confirm('Are you sure you want to remove this item?')) return;
         const response = await fetch('/api/item/delete', {
@@ -162,21 +186,21 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
             body: JSON.stringify({ id, type }),
         });
         if (response.ok) {
-            if (type === 'product') setProducts(products.filter(p => p.id !== id));
-            if (type === 'note') setNotes(notes.filter(n => n.id !== id));
-            if (type === 'room') setRooms(rooms.filter(r => r.id !== id));
+            fetchUserListings();
         } else {
             alert('Failed to remove item.');
         }
     };
-    const handleMarkAsSold = async (id) => {
+    const handleMarkAsSold = async (id, type) => {
         const response = await fetch('/api/item/mark-sold', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id }),
+            body: JSON.stringify({ id, type }),
         });
         if (response.ok) {
-            setProducts(products.map(p => p.id === id ? { ...p, is_sold: true } : p));
+            if (type === 'product') setProducts(products.map(p => p.id === id ? { ...p, is_sold: true } : p));
+            if (type === 'note') setNotes(notes.map(n => n.id === id ? { ...n, is_sold: true } : n));
+            if (type === 'room') setRooms(rooms.map(r => r.id === id ? { ...r, is_sold: true } : r));
         } else {
             alert('Failed to mark as sold.');
         }
@@ -242,59 +266,30 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
             );
         }
         return (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {items.map(item => {
-                    return (
-                    <div key={item.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-slate-200 dark:border-gray-700 overflow-hidden">
-                        <ListingCard item={item} />
-                        {/* Button area with forced visibility */}
-                        <div className="p-4 bg-gray-100 dark:bg-gray-700 border-t-2 border-red-500" style={{minHeight: '80px'}}>
-                            <div className="mb-2 text-sm text-gray-600">
-                                ID: {item.id} | Type: {type} | Title: {item.title}
+            <>
+                {showEditModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm">
+                        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto border border-slate-200 dark:border-gray-700">
+                            <h2 className="text-xl font-bold mb-4 text-slate-900 dark:text-white">Edit Item</h2>
+                            <RegularProductForm initialData={editItem} onSubmit={handleEditSave} category={editType} />
+                            <div className="flex justify-end mt-4">
+                                <button onClick={() => setShowEditModal(false)} className="bg-slate-600 text-white px-4 py-1 rounded-full font-semibold hover:bg-slate-800">Close</button>
                             </div>
-                            <div className="flex gap-2">
-                                <Link 
-                                    href={`/edit/${item.id}?type=${type}`} 
-                                    className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
-                                >
-                                    Edit
-                                </Link>
-                                <button 
-                                    onClick={() => {
-                                        handleRemove(item.id, type);
-                                    }} 
-                                    className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
-                                >
-                                    Remove
-                                </button>
-                                {type === 'product' && (
-                                    <button 
-                                        onClick={() => {
-                                            handleMarkAsSold(item.id);
-                                        }}
-                                        disabled={item.is_sold}
-                                        className={`px-3 py-1 rounded text-sm text-white ${
-                                            item.is_sold 
-                                                ? 'bg-gray-400 cursor-not-allowed' 
-                                                : 'bg-green-500 hover:bg-green-600'
-                                        }`}
-                                    >
-                                        {item.is_sold ? 'Sold' : 'Mark Sold'}
-                                    </button>
-                                )}
-                            </div>
-                            {type === 'product' && item.is_sold && (
-                                <div className="mt-2">
-                                    <span className="bg-gray-500 text-white text-xs px-2 py-1 rounded">
-                                        SOLD
-                                    </span>
-                                </div>
-                            )}
                         </div>
                     </div>
-                    );
-                })}
-            </div>
+                )}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {items.map(item => (
+                        <ListingCard
+                            key={item.id}
+                            item={item}
+                            onEdit={() => handleEdit(item, type)}
+                            onRemove={() => handleRemove(item.id, type)}
+                            onMarkAsSold={() => handleMarkAsSold(item.id, type)}
+                        />
+                    ))}
+                </div>
+            </>
         );
     };
     return (

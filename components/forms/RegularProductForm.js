@@ -16,7 +16,7 @@ const MapPicker = dynamic(() => import('../MapPicker'), {
 
 // Placeholder data - in a real app, this would come from a database
 const conditions = ['New', 'Used', 'Refurbished'];
-const categories = ['Laptops', 'Project Equipment', 'Books', 'Cycle/Bike', 'Hostel Equipment', 'Notes', 'Rooms/Hostel', 'Furniture', 'Others'];
+const categories = ['Laptops', 'Project Equipment', 'Books', 'Cycle/Bike', 'Hostel Equipment', 'Notes', 'Rooms/Hostel', 'Furniture', 'Assignments/Projects', 'Others'];
 
 export default function RegularProductForm({ initialData = {}, onSubmit, category = '' }) {
     const router = useRouter();
@@ -455,6 +455,20 @@ export default function RegularProductForm({ initialData = {}, onSubmit, categor
                     >
                         <option value="" disabled>Select College</option>
                         {colleges.sort((a, b) => a.name.localeCompare(b.name)).map(c => <option key={c.short} value={c.short}>{c.name}</option>)}
+                    </select>
+                </div>
+                <div>
+                    <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
+                    <select 
+                        name="category" 
+                        id="category" 
+                        required 
+                        value={formData.category} 
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-black dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                        onChange={handleChange}
+                    >
+                        <option value="" disabled>Select Category</option>
+                        {categories.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
                 </div>
                 <div>
