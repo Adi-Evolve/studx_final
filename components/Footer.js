@@ -1,0 +1,24 @@
+import Link from 'next/link';
+
+export default function Footer() {
+  return (
+    <footer className="bg-studx-gradient text-white py-8">
+      <div className="container mx-auto px-6 text-center">
+        <p>&copy; {new Date().getFullYear()} StudX. All rights reserved.</p>
+        <div className="flex justify-center space-x-6 mt-4">
+          <Link href="/about" className="hover:text-emerald-200 transition-colors">About Us</Link>
+          <Link href="/terms" className="hover:text-emerald-200 transition-colors">Terms of Service</Link>
+          <Link href="/privacy" className="hover:text-emerald-200 transition-colors">Privacy Policy</Link>
+          <Link href="/contact" className="hover:text-emerald-200 transition-colors">Contact</Link>
+        </div>
+        <div className="mt-4">
+            <p>
+                Contact: <a href="mailto:adiinamdar888@gmail.com" className="hover:text-emerald-200 transition-colors">adiinamdar888@gmail.com</a>
+                <span className="mx-2">|</span>
+                <a href="tel:8857053541" className="hover:text-emerald-200 transition-colors">8857053541</a>
+            </p>
+        </div>
+      </div>
+    </footer>
+  );
+}

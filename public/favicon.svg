@@ -1,0 +1,12 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="32" height="32" rx="6" fill="#3B82F6"/>
+  
+  <!-- Simplified "S" -->
+  <path d="M8 11 C8 9.5 9.5 8 11 8 L13 8 C14.5 8 16 9.5 16 11 C16 12.5 14.5 14 13 14 L11 14 C9.5 14 8 15.5 8 17 C8 18.5 9.5 20 11 20 L13 20 C14.5 20 16 21.5 16 23" 
+        stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+  
+  <!-- Small "X" -->
+  <path d="M20 18 L26 24 M26 18 L20 24" 
+        stroke="#FBBF24" stroke-width="2" stroke-linecap="round"/>
+</svg>

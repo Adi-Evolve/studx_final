@@ -1,0 +1,36 @@
+<svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background with gradient -->
+  <rect width="192" height="192" rx="32" fill="url(#gradient1)"/>
+  
+  <!-- Define gradients -->
+  <defs>
+    <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1E40AF;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FBBF24;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F59E0B;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Simplified StudX logo for smaller size -->
+  <!-- Large "S" -->
+  <path d="M50 65 C40 65 32 73 32 83 C32 93 40 101 50 101 L75 101 C85 101 93 109 93 119 C93 129 85 137 75 137 L50 137 C32 137 18 123 18 105 L18 95" 
+        stroke="white" stroke-width="8" fill="none" stroke-linecap="round"/>
+  
+  <!-- Book stack -->
+  <rect x="110" y="60" width="60" height="8" rx="2" fill="white" opacity="0.9"/>
+  <rect x="113" y="50" width="54" height="8" rx="2" fill="white" opacity="0.8"/>
+  <rect x="116" y="40" width="48" height="8" rx="2" fill="white" opacity="0.7"/>
+  
+  <!-- Exchange symbol -->
+  <path d="M75 150 L105 150 M95 140 L105 150 L95 160" 
+        stroke="url(#gradient2)" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M120 170 L90 170 M100 160 L90 170 L100 180" 
+        stroke="url(#gradient2)" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- "X" for exchange -->
+  <path d="M135 150 L155 170 M155 150 L135 170" 
+        stroke="white" stroke-width="4" stroke-linecap="round"/>
+</svg>

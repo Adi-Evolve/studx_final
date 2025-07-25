@@ -1,0 +1,41 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background with gradient -->
+  <rect width="512" height="512" rx="80" fill="url(#gradient1)"/>
+  
+  <!-- Define gradients -->
+  <defs>
+    <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1E40AF;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FBBF24;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F59E0B;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Main StudX logo design -->
+  <!-- Large "S" representing StudX -->
+  <path d="M140 180 C120 180 100 200 100 220 C100 240 120 260 140 260 L200 260 C220 260 240 280 240 300 C240 320 220 340 200 340 L140 340 C100 340 70 310 70 270 L70 250" 
+        stroke="white" stroke-width="20" fill="none" stroke-linecap="round"/>
+  
+  <!-- Book stack representing education -->
+  <rect x="280" y="160" width="160" height="20" rx="4" fill="white" opacity="0.9"/>
+  <rect x="285" y="140" width="150" height="20" rx="4" fill="white" opacity="0.8"/>
+  <rect x="290" y="120" width="140" height="20" rx="4" fill="white" opacity="0.7"/>
+  
+  <!-- Exchange arrows representing marketplace -->
+  <path d="M200 380 L280 380 M260 360 L280 380 L260 400" 
+        stroke="url(#gradient2)" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M320 420 L240 420 M260 400 L240 420 L260 440" 
+        stroke="url(#gradient2)" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Small "X" representing exchange -->
+  <path d="M360 380 L400 420 M400 380 L360 420" 
+        stroke="white" stroke-width="8" stroke-linecap="round"/>
+  
+  <!-- Decorative elements -->
+  <circle cx="120" cy="120" r="8" fill="white" opacity="0.6"/>
+  <circle cx="400" cy="100" r="6" fill="white" opacity="0.5"/>
+  <circle cx="450" cy="160" r="4" fill="white" opacity="0.4"/>
+</svg>
