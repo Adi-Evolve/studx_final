@@ -157,65 +157,68 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
     const handleSaveProfile = async ({ fullName, phoneNumber }) => {
         try {
             // console.log('Saving profile...', { fullName, phoneNumber });
-            // 
             // const { data, error } = await supabase
-                // .from('users')
-                // .update({ name: fullName, phone: phoneNumber })
-                // .eq('id', user.id)
-                // .select()
-                // .single();
-// 
+            //     .from('users')
+            //     .update({ name: fullName, phone: phoneNumber })
+            //     .eq('id', user.id)
+            //     .select()
+            //     .single();
             // if (error) {
-                // console.error('Profile update error:', error);
-                // alert('Error updating profile: ' + error.message);
-                // return;
+            //     console.error('Profile update error:', error);
+            //     alert('Error updating profile: ' + error.message);
+            //     return;
             // }
-            // 
             // if (data) {
-                // // console.log('Profile updated successfully:', data);
-                // setUser(prev => ({ ...prev, ...data }));
-                // setIsModalOpen(false);
-                // 
-                // // Force a small delay to ensure state update completes
-                // setTimeout(() => {
-                    // // console.log('Profile update complete');
-                // }, 100);
+            //     // console.log('Profile updated successfully:', data);
+            //     setUser(prev => ({ ...prev, ...data }));
+            //     setIsModalOpen(false);
+            //     // Force a small delay to ensure state update completes
+            //     setTimeout(() => {
+            //         // console.log('Profile update complete');
+            //     }, 100);
             // }
-        // } catch (err) {
+        } catch (err) {
             // console.error('Unexpected error in handleSaveProfile:', err);
             // alert('An unexpected error occurred while updating your profile.');
-        // }
-    // };
-// 
-    // const handleRemove = async (id, type) => {
-        // if (!confirm('Are you sure you want to remove this item?')) return;
-// 
-        // const response = await fetch('/api/item/delete', {
-            // method: 'POST',
-            // headers: { 'Content-Type': 'application/json' },
-            // body: JSON.stringify({ id, type }),
-        // });
-
-        if (response.ok) {
-            if (type === 'product') setProducts(products.filter(p => p.id !== id));
-            if (type === 'note') setNotes(notes.filter(n => n.id !== id));
-            if (type === 'room') setRooms(rooms.filter(r => r.id !== id));
-        } else {
-            alert('Failed to remove item.');
         }
     };
 
-    const handleMarkAsSold = async (id) => {
-        const response = await fetch('/api/item/mark-sold', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id }),
-        });
+    const handleRemove = async (id, type) => {
+        try {
+            // if (!confirm('Are you sure you want to remove this item?')) return;
+            const response = await fetch('/api/item/delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, type }),
+            });
+            if (response.ok) {
+                if (type === 'product') setProducts(products.filter(p => p.id !== id));
+                if (type === 'note') setNotes(notes.filter(n => n.id !== id));
+                if (type === 'room') setRooms(rooms.filter(r => r.id !== id));
+            } else {
+                alert('Failed to remove item.');
+            }
+        } catch (err) {
+            alert('Error removing item.');
+        }
+    };
 
-        if (response.ok) {
-            setProducts(products.map(p => p.id === id ? { ...p, is_sold: true } : p));
-        } else {
-            alert('Failed to mark as sold.');
+    const handleMarkAsSold = async (id, type) => {
+        try {
+            const response = await fetch('/api/item/mark-sold', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, type }),
+            });
+            if (response.ok) {
+                if (type === 'product') setProducts(products.map(p => p.id === id ? { ...p, is_sold: true } : p));
+                if (type === 'note') setNotes(notes.map(n => n.id === id ? { ...n, is_sold: true } : n));
+                if (type === 'room') setRooms(rooms.map(r => r.id === id ? { ...r, is_sold: true } : r));
+            } else {
+                alert('Failed to mark as sold.');
+            }
+        } catch (err) {
+            alert('Error marking as sold.');
         }
     };
 
@@ -313,8 +316,7 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
                                 {type === 'product' && (
                                     <button 
                                         onClick={() => {
-                                            // console.log('Mark as sold clicked for:', item.id);
-                                            handleMarkAsSold(item.id);
+                                            handleMarkAsSold(item.id, type);
                                         }}
                                         disabled={item.is_sold}
                                         className={`px-3 py-1 rounded text-sm text-white ${
