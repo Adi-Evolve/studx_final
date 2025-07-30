@@ -8,6 +8,9 @@ import Link from 'next/link';
 import { useSwipeGesture } from '@/hooks/useSwipeGesture';
 
 export default function NewestProductsSlider({ newestProducts, showDistance = false }) {
+    useEffect(() => {
+        console.log('[NewestProductsSlider] Items received:', newestProducts.map(item => ({ id: item.id, type: item.type, title: item.title })));
+    }, [newestProducts]);
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [scrollSnaps, setScrollSnaps] = useState([]);
     const [prevBtnEnabled, setPrevBtnEnabled] = useState(false);

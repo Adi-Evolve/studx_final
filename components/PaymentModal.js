@@ -18,56 +18,31 @@ export default function PaymentModal({
 
     const handlePayment = async () => {
         setIsProcessing(true);
-        
         try {
-            // Step 1: Create transaction record
-            const response = await fetch('/api/create-transaction', {
+            // Step 1: Create Razorpay order via backend
+            const orderRes = await fetch('/api/razorpay-order', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    listingId: listing.id,
-                    listingType: listing.type,
-                    amount: listing.price,
-                    sellerId: listing.seller_id,
-                    paymentMethod
-                })
+                body: JSON.stringify({ amount: listing.price, currency: 'INR' })
             });
-
-            const { success, transaction, error } = await response.json();
-            
-            if (!success) {
-                throw new Error(error);
+            if (orderRes.status === 404) {
+                throw new Error('Razorpay backend route not found. Please ensure /api/razorpay-order.js exists.');
             }
+            const order = await orderRes.json();
+            if (!order.id) throw new Error('Failed to create Razorpay order');
 
             // Step 2: Initialize Razorpay payment
             const options = {
                 key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-                amount: listing.price * 100, // Convert to paisa
-                currency: 'INR',
+                amount: order.amount,
+                currency: order.currency,
                 name: 'StudX Marketplace',
                 description: `Purchase: ${listing.title}`,
-                order_id: transaction.id,
-                handler: async function (response) {
-                    // Step 3: Verify payment and update transaction
-                    const verifyResponse = await fetch('/api/verify-payment', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            transactionId: transaction.id,
-                            paymentId: response.razorpay_payment_id,
-                            orderId: response.razorpay_order_id,
-                            signature: response.razorpay_signature
-                        })
-                    });
-
-                    const verifyResult = await verifyResponse.json();
-                    
-                    if (verifyResult.success) {
-                        onPaymentSuccess(transaction);
-                        onClose();
-                    } else {
-                        alert('Payment verification failed. Please contact support.');
-                    }
+                order_id: order.id,
+                handler: function (response) {
+                    alert('Payment successful! Payment ID: ' + response.razorpay_payment_id);
+                    onPaymentSuccess({ id: response.razorpay_payment_id });
+                    onClose();
                 },
                 prefill: {
                     name: 'Student User',
@@ -77,10 +52,18 @@ export default function PaymentModal({
                     color: '#3B82F6'
                 }
             };
-
-            const rzp = new window.Razorpay(options);
-            rzp.open();
-
+            if (!window.Razorpay) {
+                const script = document.createElement('script');
+                script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+                script.onload = () => {
+                    const rzp = new window.Razorpay(options);
+                    rzp.open();
+                };
+                document.body.appendChild(script);
+            } else {
+                const rzp = new window.Razorpay(options);
+                rzp.open();
+            }
         } catch (error) {
             console.error('Payment error:', error);
             alert('Payment failed: ' + error.message);
@@ -166,11 +149,11 @@ export default function PaymentModal({
                         </label>
                         <select
                             value={paymentMethod}
-                            onChange={(e) => setPaymentMethod(e.target.value)}
+                            onChange={() => {}}
                             className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                            disabled
                         >
                             <option value="razorpay">💳 Razorpay (UPI, Cards, Net Banking)</option>
-                            <option value="stripe">🌍 Stripe (International Cards)</option>
                         </select>
                     </div>
 

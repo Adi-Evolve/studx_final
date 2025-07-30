@@ -37,7 +37,7 @@ async function FeaturedItemsSection() {
 
 // Newest Products Section Component
 async function NewestProductsSectionWrapper() {
-  const newestProducts = await fetchNewestProducts(12); // Get 12 items for slider
+  const newestProducts = await fetchNewestProducts(30); // Increased limit to show more notes/products/rooms
   
   return <NewestProductsSection initialProducts={newestProducts} />;
 }

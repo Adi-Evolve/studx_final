@@ -32,52 +32,37 @@ export default function NotePageClient({ note, seller }) {
             alert('No PDF file available for download');
             return;
         }
-
         try {
             let downloadUrl = pdfUrl;
-
-            // If the pdfUrl is a Google Drive URL, use it directly
             if (typeof pdfUrl === 'string' && pdfUrl.startsWith('https://drive.google.com/')) {
                 downloadUrl = pdfUrl;
-            }
-            // If the pdfUrl is a legacy Supabase storage path, generate a signed URL
-            else if (typeof pdfUrl === 'string' && !pdfUrl.startsWith('http')) {
-                // Import Supabase client
+            } else if (typeof pdfUrl === 'string' && !pdfUrl.startsWith('http')) {
                 const { createSupabaseBrowserClient } = await import('@/lib/supabase/client');
                 const supabase = createSupabaseBrowserClient();
-
                 const { data, error } = await supabase.storage
                     .from('product_pdfs')
-                    .createSignedUrl(pdfUrl, 60 * 60); // 1 hour expiry
-
+                    .createSignedUrl(pdfUrl, 60 * 60);
                 if (error) {
-                    // console.error('Error creating signed URL:', error);
                     alert('Failed to generate download link');
                     return;
                 }
                 downloadUrl = data.signedUrl;
             }
-
-            // Create a temporary anchor element to trigger download
             const link = document.createElement('a');
             link.href = downloadUrl;
             link.download = `${fileName || 'StudXchange_Notes'}.pdf`;
             link.target = '_blank';
             link.rel = 'noopener noreferrer';
-            
-            // Append to body, click, and remove
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         } catch (error) {
-            // console.error('Download failed:', error);
             alert('Failed to download PDF. Please try again.');
         }
     };
 
     const handleShowSellerInfo = async () => {
         if (!seller) {
-            // console.error("handleShowSellerInfo called but seller object is null or undefined.");
             return;
         }
         try {
@@ -89,7 +74,6 @@ export default function NotePageClient({ note, seller }) {
             setOtherListings(listings);
             setIsSellerModalOpen(true);
         } catch (error) {
-            // console.error('Error fetching seller listings:', error);
             alert('Could not load seller information.');
         }
     };
@@ -129,7 +113,18 @@ export default function NotePageClient({ note, seller }) {
                             </div>
 
                             <div className="grid grid-cols-1 gap-3 mt-6">
-                                {note.pdfurl && (
+                                {note.pdf_urls && Array.isArray(note.pdf_urls) && note.pdf_urls.length > 0 ? (
+                                    note.pdf_urls.map((pdfUrl, index) => (
+                                        <button
+                                            key={index}
+                                            onClick={() => handleDownload(pdfUrl, `${note.title}_${index + 1}`)}
+                                            className="w-full bg-gradient-to-r from-slate-800 via-slate-700 to-emerald-600 text-white font-bold py-3 px-4 rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center justify-center"
+                                        >
+                                            <FontAwesomeIcon icon={faFilePdf} className="mr-3" size="lg" />
+                                            Download PDF {note.pdf_urls.length > 1 ? `(${index + 1}/${note.pdf_urls.length})` : ''}
+                                        </button>
+                                    ))
+                                ) : note.pdfurl ? (
                                     <button
                                         onClick={() => handleDownload(note.pdfurl, note.title)}
                                         className="w-full bg-gradient-to-r from-slate-800 via-slate-700 to-emerald-600 text-white font-bold py-3 px-4 rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center justify-center"
@@ -137,6 +132,11 @@ export default function NotePageClient({ note, seller }) {
                                         <FontAwesomeIcon icon={faFilePdf} className="mr-3" size="lg" />
                                         Download PDF
                                     </button>
+                                ) : (
+                                    <div className="w-full bg-gray-300 text-gray-600 font-bold py-3 px-4 rounded-lg flex items-center justify-center cursor-not-allowed">
+                                        <FontAwesomeIcon icon={faFilePdf} className="mr-3" size="lg" />
+                                        No PDF Available
+                                    </div>
                                 )}
                                 {whatsAppNumber && (
                                     <a href={`https://wa.me/${whatsAppNumber}?text=Hello!%20I%20found%20your%20study%20notes%20for%20'${encodeURIComponent(note.title)}'%20on%20StudXchange%20and%20I'm%20really%20interested%20in%20purchasing%20them.%20%0A%0ACould%20you%20please%20let%20me%20know:%20%0A-%20Quality%20and%20completeness%20of%20the%20notes%20%0A-%20Which%20topics/chapters%20are%20covered%20%0A-%20Format%20of%20the%20notes%20(handwritten/typed)%20%0A-%20Any%20additional%20study%20materials%20included%20%0A-%20Best%20time%20for%20pickup/delivery%20%0A%0AProduct%20Link:%20${encodeURIComponent(window.location.href)}%20%0A%0AThese%20notes%20would%20be%20really%20helpful%20for%20my%20studies.%20Thank%20you!`} target="_blank" rel="noopener noreferrer" className="w-full bg-green-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center">

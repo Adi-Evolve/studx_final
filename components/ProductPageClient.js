@@ -13,10 +13,49 @@ import CompareModal from '@/components/CompareModal';
 import CompareSelectionModal from '@/components/CompareSelectionModal';
 import SimilarItemsFeed from '@/components/SimilarItemsFeed';
 import PaymentModal from '@/components/PaymentModal';
+import DriveUploadButton from './DriveUploadButton';
 import { fetchSellerListings } from '@/app/actions';
 
 export default function ProductPageClient({ product, seller, type }) {
     // Correctly group all hooks at the top of the component, before any returns.
+
+    // PDF download handler
+    const handleDownload = async (pdfData, fileName) => {
+        if (!pdfData) return;
+        let downloadUrl = '';
+        // Strictly check for object with downloadUrl (Google Drive)
+        if (pdfData && typeof pdfData === 'object' && pdfData.downloadUrl) {
+            downloadUrl = pdfData.downloadUrl;
+        } else if (typeof pdfData === 'string' && pdfData.startsWith('https://drive.google.com/')) {
+            downloadUrl = pdfData;
+        } else if (typeof pdfData === 'string' && !pdfData.startsWith('http')) {
+            // Only for legacy Supabase storage paths
+            const { createSupabaseBrowserClient } = await import('@/lib/supabase/client');
+            const supabase = createSupabaseBrowserClient();
+            const { data, error } = await supabase.storage
+                .from('product_pdfs')
+                .createSignedUrl(pdfData, 60 * 60);
+            if (error || !data?.signedUrl) {
+                alert('Failed to generate download link. PDF may not exist or you may not have access.');
+                return;
+            }
+            downloadUrl = data.signedUrl;
+        } else {
+            alert('No valid PDF download link found.');
+            return;
+        }
+        // Only trigger download if downloadUrl is a valid Google Drive or Supabase link
+        if (downloadUrl.startsWith('https://drive.google.com/') || downloadUrl.startsWith('https://')) {
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = `${fileName || (pdfData.fileName || 'StudXchange_Notes')}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } else {
+            alert('No valid PDF download link found.');
+        }
+    };
     const [isSellerModalOpen, setIsSellerModalOpen] = useState(false);
     const [isCompareModalOpen, setIsCompareModalOpen] = useState(false);
     const [otherListings, setOtherListings] = useState([]);
@@ -68,7 +107,6 @@ export default function ProductPageClient({ product, seller, type }) {
             });
             setOtherListings(listings);
         } catch (error) {
-            // console.error('Error fetching seller listings:', error);
             setListingsError('Could not load seller information.');
         } finally {
             setListingsLoading(false);
@@ -108,54 +146,21 @@ export default function ProductPageClient({ product, seller, type }) {
         });
         localStorage.setItem('studx_purchases', JSON.stringify(purchases));
     };
-
-    const handleDownload = async (pdfUrl, fileName) => {
-        if (!pdfUrl) {
-            alert('No PDF file available for download');
-            return;
-        }
-
-        try {
-            let downloadUrl = pdfUrl;
-
-            // If the pdfUrl is a Google Drive URL, use it directly
-            if (typeof pdfUrl === 'string' && pdfUrl.startsWith('https://drive.google.com/')) {
-                downloadUrl = pdfUrl;
-            }
-            // If the pdfUrl is a legacy Supabase storage path, generate a signed URL
-            else if (typeof pdfUrl === 'string' && !pdfUrl.startsWith('http')) {
-                // Import Supabase client
-                const { createSupabaseBrowserClient } = await import('@/lib/supabase/client');
-                const supabase = createSupabaseBrowserClient();
-
-                const { data, error } = await supabase.storage
-                    .from('product_pdfs')
-                    .createSignedUrl(pdfUrl, 60 * 60); // 1 hour expiry
-
-                if (error) {
-                    // console.error('Error creating signed URL:', error);
-                    alert('Failed to generate download link');
-                    return;
-                }
-                downloadUrl = data.signedUrl;
-            }
-
-            // Create a temporary anchor element to trigger download
-            const link = document.createElement('a');
-            link.href = downloadUrl;
-            link.download = `${fileName || 'StudXchange_Notes'}.pdf`;
-            link.target = '_blank';
-            link.rel = 'noopener noreferrer';
-            
-            // Append to body, click, and remove
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        } catch (error) {
-            // console.error('Download failed:', error);
-            alert('Failed to download PDF. Please try again.');
-        }
-    };
+                                    {(!product.pdf_urls || !Array.isArray(product.pdf_urls) || product.pdf_urls.length === 0) && product.pdfurl && (
+                                        <button 
+                                            onClick={() => handleDownload(product.pdfurl, product.title)}
+                                            className="w-full bg-gradient-to-r from-slate-800 via-slate-700 to-emerald-600 text-white font-bold py-3 px-4 rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center justify-center"
+                                        >
+                                            <FontAwesomeIcon icon={faDownload} className="mr-3" />
+                                            Download PDF
+                                        </button>
+                                    )}
+                                    {(!product.pdf_urls || !Array.isArray(product.pdf_urls) || product.pdf_urls.length === 0) && !product.pdfurl && (
+                                        <div className="w-full bg-gray-300 text-gray-600 font-bold py-3 px-4 rounded-lg flex items-center justify-center cursor-not-allowed">
+                                            <FontAwesomeIcon icon={faDownload} className="mr-3" />
+                                            No PDF Available
+                                        </div>
+                                    )}
 
     const formattedDate = product.created_at ? new Date(product.created_at).toLocaleDateString('en-US', {
         year: 'numeric',
@@ -168,7 +173,6 @@ export default function ProductPageClient({ product, seller, type }) {
         try {
             parsedLocation = typeof product.location === 'string' ? JSON.parse(product.location) : product.location;
         } catch (error) {
-            // console.error('Failed to parse location JSON:', error);
         }
     }
 
@@ -247,20 +251,20 @@ export default function ProductPageClient({ product, seller, type }) {
                                                 
                                                 {/* Multiple PDF downloads if pdf_urls array exists */}
                                                 {product.pdf_urls && Array.isArray(product.pdf_urls) && product.pdf_urls.length > 0 ? (
-                                                    product.pdf_urls.map((pdfUrl, index) => (
+                                                    product.pdf_urls.map((pdfObj, index) => (
                                                         <button 
                                                             key={index}
-                                                            onClick={() => handleDownload(pdfUrl, `${product.title}_${index + 1}`)}
+                                                            onClick={() => handleDownload(pdfObj, `${product.title}_${index + 1}`)}
                                                             className="w-full bg-gradient-to-r from-slate-800 via-slate-700 to-emerald-600 text-white font-bold py-3 px-4 rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center justify-center"
                                                         >
                                                             <FontAwesomeIcon icon={faDownload} className="mr-3" />
                                                             Download PDF {product.pdf_urls.length > 1 ? `(${index + 1}/${product.pdf_urls.length})` : ''}
                                                         </button>
                                                     ))
-                                                ) : product.pdfurl ? (
+                                                ) : product.pdf_url ? (
                                                     /* Fallback to single PDF */
                                                     <button 
-                                                        onClick={() => handleDownload(product.pdfurl, product.title)}
+                                                        onClick={() => handleDownload(product.pdf_url, product.title)}
                                                         className="w-full bg-gradient-to-r from-slate-800 via-slate-700 to-emerald-600 text-white font-bold py-3 px-4 rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center justify-center"
                                                     >
                                                         <FontAwesomeIcon icon={faDownload} className="mr-3" />

@@ -33,39 +33,49 @@ async function uploadImageToImgBB(file) {
 }
 export async function POST(request) {
   try {
-    // Parse FormData instead of JSON
-    const formData = await request.formData();
-    // Extract data from FormData
-    const type = formData.get('type');
-    const user = JSON.parse(formData.get('user') || '{}');
+    let parsedData;
+    let isJson = false;
+    const contentType = request.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+      parsedData = await request.json();
+      isJson = true;
+    } else {
+      const formData = await request.formData();
+      parsedData = {};
+      for (const key of formData.keys()) {
+        parsedData[key] = formData.get(key);
+      }
+    }
+    // Now use parsedData object for all fields
+    const type = parsedData.type;
+    const user = isJson ? (parsedData.user || {}) : JSON.parse(parsedData.user || '{}');
     // Extract other fields based on type
     const data = {
-      title: formData.get('title'),
-      description: formData.get('description'),
-      price: formData.get('price'),
-      category: formData.get('category'),
-      condition: formData.get('condition'),
-      college: formData.get('college'),
-      location: formData.get('location') ? JSON.parse(formData.get('location')) : null,
-      images: formData.getAll('images'), // Get all image files
-      pdfs: formData.getAll('pdfs'), // Get all PDF files
-      // Add other fields as needed for rooms/notes
-      roomType: formData.get('roomType'),
-      occupancy: formData.get('occupancy'),
-      ownerName: formData.get('ownerName'),
-      contact1: formData.get('contact1'),
-      contact2: formData.get('contact2'),
-      distance: formData.get('distance'),
-      deposit: formData.get('deposit'),
-      feesIncludeMess: formData.get('feesIncludeMess') === 'true',
-      messType: formData.get('messType'),
-      amenities: formData.getAll('amenities'),
-      feesPeriod: formData.get('fees_period'), // Add fees period
-      course: formData.get('course'),
-      subject: formData.get('subject'),
-      academicYear: formData.get('academicYear'),
-      pdfUrls: formData.getAll('pdfUrls'),
-      pdfUrl: formData.get('pdfUrl'),
+      title: parsedData.title,
+      description: parsedData.description,
+      price: parsedData.price,
+      category: parsedData.category,
+      condition: parsedData.condition,
+      college: parsedData.college,
+      location: parsedData.location ? (typeof parsedData.location === 'string' ? JSON.parse(parsedData.location) : parsedData.location) : null,
+      images: parsedData.images || [],
+      pdfs: parsedData.pdfs || [],
+      roomType: parsedData.roomType,
+      occupancy: parsedData.occupancy,
+      ownerName: parsedData.ownerName,
+      contact1: parsedData.contact1,
+      contact2: parsedData.contact2,
+      distance: parsedData.distance,
+      deposit: parsedData.deposit,
+      feesIncludeMess: parsedData.feesIncludeMess === 'true',
+      messType: parsedData.messType,
+      amenities: parsedData.amenities || [],
+      feesPeriod: parsedData.fees_period,
+      course: parsedData.course,
+      subject: parsedData.subject,
+      academicYear: parsedData.academicYear,
+      pdfUrls: parsedData.pdfUrls || [],
+      pdfUrl: parsedData.pdfUrl,
     };
     // ============================================================================
     // 1. AUTHENTICATION VALIDATION (EMAIL-BASED)
@@ -174,25 +184,36 @@ export async function POST(request) {
     // 4. IMAGE UPLOAD PROCESSING
     // ============================================================================
     let imageUrls = [];
-    if (data.images && Array.isArray(data.images) && data.images.length > 0) {
+    console.log('[Sell API] Received images:', data.images);
+    // Accept single File object or array
+    let imagesArray = [];
+    if (Array.isArray(data.images)) {
+      imagesArray = data.images;
+    } else if (data.images) {
+      imagesArray = [data.images];
+    }
+    console.log('[Sell API] imagesArray length:', imagesArray.length);
+    if (imagesArray.length > 0) {
       try {
-        for (let i = 0; i < data.images.length; i++) {
-          const imageItem = data.images[i];
-          // Skip if it's already a URL string
+        for (let i = 0; i < imagesArray.length; i++) {
+          const imageItem = imagesArray[i];
+          console.log(`[Sell API] Processing imageItem[${i}]:`, imageItem);
           if (typeof imageItem === 'string' && imageItem.trim() !== '') {
             imageUrls.push(imageItem);
             continue;
           }
-          // Skip if it's an invalid object or empty
           if (!imageItem || typeof imageItem !== 'object') {
+            console.log(`[Sell API] imageItem[${i}] is not a valid object, skipping.`);
             continue;
           }
-          // If it's a File object or has file-like properties, we need to upload it
           if (imageItem.name && imageItem.type && imageItem.size) {
             try {
+              console.log('[Sell API] Uploading image:', imageItem.name, imageItem.type, imageItem.size);
               const uploadedUrl = await uploadImageToImgBB(imageItem);
+              console.log('[Sell API] Uploaded image URL:', uploadedUrl);
               imageUrls.push(uploadedUrl);
             } catch (uploadError) {
+              console.error('[Sell API] Image upload error:', uploadError);
               return NextResponse.json({ 
                 success: false, 
                 error: `Failed to upload image "${imageItem.name}": ${uploadError.message}`,
@@ -200,9 +221,13 @@ export async function POST(request) {
                 details: uploadError.message
               }, { status: 400 });
             }
+          } else {
+            console.log(`[Sell API] imageItem[${i}] missing file properties, skipping.`);
           }
         }
+        console.log('[Sell API] Final image URLs:', imageUrls);
       } catch (imageProcessError) {
+        console.error('[Sell API] Image processing error:', imageProcessError);
         return NextResponse.json({ 
           success: false, 
           error: 'Failed to process images. Please try again.',
@@ -215,25 +240,36 @@ export async function POST(request) {
     // 4B. PDF UPLOAD PROCESSING (for notes)
     // ============================================================================
     let pdfUrls = [];
-    if (type === 'notes' && data.pdfs && Array.isArray(data.pdfs) && data.pdfs.length > 0) {
+    console.log('[Sell API] Received PDFs:', data.pdfs);
+    // Accept single File object or array
+    let pdfsArray = [];
+    if (Array.isArray(data.pdfs)) {
+      pdfsArray = data.pdfs;
+    } else if (data.pdfs) {
+      pdfsArray = [data.pdfs];
+    }
+    console.log('[Sell API] pdfsArray length:', pdfsArray.length);
+    if (type === 'notes' && pdfsArray.length > 0) {
       try {
-        for (let i = 0; i < data.pdfs.length; i++) {
-          const pdfFile = data.pdfs[i];
-          // Skip if it's already a URL string
+        for (let i = 0; i < pdfsArray.length; i++) {
+          const pdfFile = pdfsArray[i];
+          console.log(`[Sell API] Processing pdfFile[${i}]:`, pdfFile);
           if (typeof pdfFile === 'string' && pdfFile.trim() !== '') {
             pdfUrls.push(pdfFile);
             continue;
           }
-          // Skip if it's an invalid object or empty
           if (!pdfFile || typeof pdfFile !== 'object') {
+            console.log(`[Sell API] pdfFile[${i}] is not a valid object, skipping.`);
             continue;
           }
-          // If it's a File object, upload it
           if (pdfFile.name && pdfFile.type && pdfFile.size) {
             try {
+              console.log('[Sell API] Uploading PDF:', pdfFile.name, pdfFile.type, pdfFile.size);
               const uploadedUrl = await uploadPdfToGoogleDrive(pdfFile);
+              console.log('[Sell API] Uploaded PDF URL:', uploadedUrl);
               pdfUrls.push(uploadedUrl);
             } catch (uploadError) {
+              console.error('[Sell API] PDF upload error:', uploadError);
               return NextResponse.json({ 
                 success: false, 
                 error: `Failed to upload PDF "${pdfFile.name}": ${uploadError.message}`,
@@ -241,9 +277,13 @@ export async function POST(request) {
                 details: uploadError.message
               }, { status: 400 });
             }
+          } else {
+            console.log(`[Sell API] pdfFile[${i}] missing file properties, skipping.`);
           }
         }
+        console.log('[Sell API] Final PDF URLs:', pdfUrls);
       } catch (pdfProcessError) {
+        console.error('[Sell API] PDF processing error:', pdfProcessError);
         return NextResponse.json({ 
           success: false, 
           error: 'Failed to process PDFs. Please try again.',
@@ -320,11 +360,13 @@ export async function POST(request) {
             pdf_url: pdfUrls.length > 0 ? pdfUrls[0] : null,
             category: 'notes',
           };
+          console.log('[Sell API] Final note insertData:', insertData);
           break;
         default:
           throw new Error(`Unsupported type: ${type}`);
       }
     } catch (dataError) {
+      console.error('[Sell API] Data preparation error:', dataError);
       return NextResponse.json({ 
         success: false, 
         error: `Failed to prepare ${type} data. Check required fields.`,
@@ -336,12 +378,14 @@ export async function POST(request) {
     // 6. INSERT DATA TO DATABASE
     // ============================================================================
     try {
+      console.log('[Sell API] Inserting into table:', tableName, 'with data:', insertData);
       const { data: insertedData, error: insertError } = await supabaseAdmin
         .from(tableName)
         .insert(insertData)
         .select()
         .single();
       if (insertError) {
+        console.error('[Sell API] Database insert error:', insertError);
         // Handle specific database errors
         if (insertError.code === 'PGRST116') {
           return NextResponse.json({ 
@@ -369,6 +413,7 @@ export async function POST(request) {
       // ============================================================================
       // 7. SUCCESS RESPONSE
       // ============================================================================
+      console.log('[Sell API] Inserted data:', insertedData);
       return NextResponse.json({
         success: true,
         message: `${type.charAt(0).toUpperCase() + type.slice(1)} submitted successfully!`,
@@ -380,6 +425,7 @@ export async function POST(request) {
         }
       }, { status: 201 });
     } catch (insertException) {
+      console.error('[Sell API] Database exception:', insertException);
       return NextResponse.json({ 
         success: false, 
         error: `Database error while saving ${type}. Please try again.`,

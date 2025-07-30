@@ -4,22 +4,22 @@ export default function TermsOfService() {
   // Razorpay demo payment handler
   const handleDemoPayment = async () => {
     if (typeof window === 'undefined') return;
-    if (!window.Razorpay) {
-      const script = document.createElement('script');
-      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-      script.onload = openRazorpay;
-      document.body.appendChild(script);
-    } else {
-      openRazorpay();
-    }
+    // Step 1: Create order via backend
+    const res = await fetch('/api/razorpay-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount: 100, currency: 'INR' }) // 100 INR
+    });
+    const order = await res.json();
+    // Step 2: Load Razorpay script if needed
     function openRazorpay() {
       const options = {
-        key: 'rzp_test_nBF2NFAmkQSJeY', // Replace with your Razorpay Test Key
-        amount: 10000, // 100 INR in paise
-        currency: 'INR',
-        name: 'StudXchange Demo',
-        description: 'Demo Payment',
+        key: 'rzp_live_vN1vH0MlhuhxV3', // Replace with your Razorpay Live Key
+        amount: order.amount,
+        currency: order.currency,
+        name: 'StudXchange',
         image: '/favicon.ico',
+        order_id: order.id,
         handler: function (response) {
           alert('Payment successful! Payment ID: ' + response.razorpay_payment_id);
         },
@@ -33,6 +33,14 @@ export default function TermsOfService() {
       };
       const rzp = new window.Razorpay(options);
       rzp.open();
+    }
+    if (!window.Razorpay) {
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = openRazorpay;
+      document.body.appendChild(script);
+    } else {
+      openRazorpay();
     }
   };
 
@@ -64,19 +72,11 @@ export default function TermsOfService() {
                   Last updated: {new Date().toLocaleDateString()}
                 </p>
               </div>
-              <div className="mt-8 flex justify-center">
-                <button
-                  onClick={handleDemoPayment}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-3 rounded-lg shadow-md transition-all duration-300"
-                >
-                  Buy Now (Demo ₹100)
-                </button>
-              </div>
             </div>
           </div>
         </div>
       </div>
-      <footer className="bg-white dark:bg-gray-800 border-t border-slate-200 dark:border-gray-700 py-6 mt-8">
+      <footer className="mt-12 py-6 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
         <div className="container mx-auto px-4 flex flex-wrap justify-center gap-4 text-sm text-slate-600 dark:text-gray-300">
           <a href="/terms" className="hover:text-blue-500">Terms &amp; Conditions</a>
           <a href="/privacy" className="hover:text-blue-500">Privacy Policy</a>
