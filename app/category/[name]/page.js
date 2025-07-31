@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 export default async function CategoryPage({ params }) {
     const categoryName = decodeURIComponent(params.name);
-        const supabase = createSupabaseServerClient();
+    const supabase = createSupabaseServerClient();
 
     let listings = [];
     let error = null;
@@ -15,112 +15,125 @@ export default async function CategoryPage({ params }) {
         return data.map(item => ({ ...item, type }));
     };
 
-    if (categoryName === 'Rooms') {
-        // Fetch all rooms
-        const { data, error: queryError } = await supabase
-            .from('rooms')
-            .select('*')
-            .order('created_at', { ascending: false });
-        
-        if (queryError) {
-            error = queryError;
-        } else {
-            listings = augmentData(data, 'room');
+    // Map homepage category names to correct query logic
+    const categoryMap = {
+        'Rooms': async () => {
+            const { data, error: queryError } = await supabase
+                .from('rooms')
+                .select('*')
+                .order('created_at', { ascending: false });
+            return queryError ? { error: queryError } : { listings: augmentData(data, 'room') };
+        },
+        'Notes': async () => {
+            const { data, error: queryError } = await supabase
+                .from('notes')
+                .select('*')
+                .order('created_at', { ascending: false });
+            return queryError ? { error: queryError } : { listings: augmentData(data, 'note') };
+        },
+        'Books': async () => {
+            const { data, error: queryError } = await supabase
+                .from('products')
+                .select('*')
+                .ilike('category', '%Book%')
+                .order('created_at', { ascending: false });
+            return queryError ? { error: queryError } : { listings: augmentData(data, 'regular') };
+        },
+        'Textbook': async () => {
+            const { data, error: queryError } = await supabase
+                .from('products')
+                .select('*')
+                .or('category.ilike.%Textbook%,category.ilike.%Book%')
+                .order('created_at', { ascending: false });
+            return queryError ? { error: queryError } : { listings: augmentData(data, 'regular') };
+        },
+        'Laptops': async () => {
+            const { data, error: queryError } = await supabase
+                .from('products')
+                .select('*')
+                .ilike('category', '%Laptop%')
+                .order('created_at', { ascending: false });
+            return queryError ? { error: queryError } : { listings: augmentData(data, 'regular') };
+        },
+        'Laptop': async () => {
+            const { data, error: queryError } = await supabase
+                .from('products')
+                .select('*')
+                .ilike('category', '%Laptop%')
+                .order('created_at', { ascending: false });
+            return queryError ? { error: queryError } : { listings: augmentData(data, 'regular') };
+        },
+        'Bike': async () => {
+            const { data, error: queryError } = await supabase
+                .from('products')
+                .select('*')
+                .ilike('category', '%Bike%')
+                .order('created_at', { ascending: false });
+            return queryError ? { error: queryError } : { listings: augmentData(data, 'regular') };
+        },
+        'Electronics': async () => {
+            const { data, error: queryError } = await supabase
+                .from('products')
+                .select('*')
+                .ilike('category', '%Electronics%')
+                .order('created_at', { ascending: false });
+            return queryError ? { error: queryError } : { listings: augmentData(data, 'regular') };
+        },
+        'Furniture': async () => {
+            const { data, error: queryError } = await supabase
+                .from('products')
+                .select('*')
+                .ilike('category', '%Furniture%')
+                .order('created_at', { ascending: false });
+            return queryError ? { error: queryError } : { listings: augmentData(data, 'regular') };
+        },
+        'Dorm Equipment': async () => {
+            const { data, error: queryError } = await supabase
+                .from('products')
+                .select('*')
+                .or('category.ilike.%Dorm%,category.ilike.%Hostel%,category.ilike.%Bed%,category.ilike.%Mattress%,category.ilike.%Pillow%,category.ilike.%Blanket%')
+                .order('created_at', { ascending: false });
+            return queryError ? { error: queryError } : { listings: augmentData(data, 'regular') };
+        },
+        'Project Equipment': async () => {
+            const { data, error: queryError } = await supabase
+                .from('products')
+                .select('*')
+                .ilike('category', '%Project%')
+                .order('created_at', { ascending: false });
+            return queryError ? { error: queryError } : { listings: augmentData(data, 'regular') };
+        },
+        'Other': async () => {
+            const { data, error: queryError } = await supabase
+                .from('products')
+                .select('*')
+                .ilike('category', '%Other%')
+                .order('created_at', { ascending: false });
+            return queryError ? { error: queryError } : { listings: augmentData(data, 'regular') };
         }
-    } else if (categoryName === 'Lab Equipment') {
-        // Fetch lab equipment from products table
-        const { data, error: queryError } = await supabase
-            .from('products')
-            .select('*')
-            .ilike('category', '%Lab Equipment%')
-            .order('created_at', { ascending: false });
-        
-        if (queryError) {
-            error = queryError;
-        } else {
-            listings = augmentData(data, 'regular');
-        }
-    } else if (categoryName === 'Notes') {
-        // Fetch all notes
-        const { data, error: queryError } = await supabase
-            .from('notes')
-            .select('*')
-            .order('created_at', { ascending: false });
+    };
 
-        if (queryError) {
-            error = queryError;
-        } else {
-            listings = augmentData(data, 'note');
-        }
-    } else if (categoryName === 'Books' || categoryName === 'Textbook') {
-        // Fetch books from products table
-        const { data, error: queryError } = await supabase
-            .from('products')
-            .select('*')
-            .ilike('category', '%Book%')
-            .order('created_at', { ascending: false });
-        
-        if (queryError) {
-            error = queryError;
-        } else {
-            listings = augmentData(data, 'regular');
-        }
-    } else if (categoryName === 'Laptop') {
-        // Fetch laptops from products table
-        const { data, error: queryError } = await supabase
-            .from('products')
-            .select('*')
-            .ilike('category', '%Laptop%')
-            .order('created_at', { ascending: false });
-        
-        if (queryError) {
-            error = queryError;
-        } else {
-            listings = augmentData(data, 'regular');
-        }
-    } else if (categoryName === 'Bike') {
-        // Fetch bikes from products table
-        const { data, error: queryError } = await supabase
-            .from('products')
-            .select('*')
-            .ilike('category', '%Bike%')
-            .order('created_at', { ascending: false });
-        
-        if (queryError) {
-            error = queryError;
-        } else {
-            listings = augmentData(data, 'regular');
-        }
-    } else if (categoryName === 'Dorm Equipment') {
-        // Fetch dorm equipment from products table
-        const { data, error: queryError } = await supabase
-            .from('products')
-            .select('*')
-            .or('category.ilike.%Dorm%,category.ilike.%Hostel%,category.ilike.%Bed%,category.ilike.%Mattress%,category.ilike.%Pillow%,category.ilike.%Blanket%')
-            .order('created_at', { ascending: false });
-        
-        if (queryError) {
-            error = queryError;
-        } else {
-            listings = augmentData(data, 'regular');
-        }
+    let result;
+    if (categoryMap[categoryName]) {
+        result = await categoryMap[categoryName]();
     } else {
-        // For other categories, search in products table
+        // Fallback: search in products table by category name
         const { data, error: queryError } = await supabase
             .from('products')
             .select('*')
             .ilike('category', `%${categoryName}%`)
             .order('created_at', { ascending: false });
-        
-        if (queryError) {
-            error = queryError;
-        } else {
-            listings = augmentData(data, 'regular');
-        }
+        result = queryError ? { error: queryError } : { listings: augmentData(data, 'regular') };
+    }
+
+    if (result.error) {
+        error = result.error;
+        listings = [];
+    } else {
+        listings = result.listings;
     }
 
     if (error) {
-        // console.error('Error fetching category listings:', error.message);
         return (
             <div className="container mx-auto px-4 py-12 text-center">
                 <h1 className="text-3xl font-bold text-primary mb-8">Category: {categoryName}</h1>

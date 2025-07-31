@@ -180,30 +180,12 @@ export default function ListingCard({ item, onClick, isSelectMode = false, isSpo
         </div>
     );
 
-    if (!asLink) {
-        return <div className="h-full hover-lift">{cardContent}</div>;
-    }
-
-    if (isSelectMode) {
-        return (
-            <div onClick={() => onClick(item)} className="cursor-pointer h-full hover-lift">
-                {cardContent}
-            </div>
-        );
-    }
-
-    // Only redirect if clicking outside action buttons
+    // Always use Link for navigation in server-rendered context
     return (
-        <div
-            className="block h-full hover-lift cursor-pointer"
-            onClick={e => {
-                // Only redirect if not clicking a button
-                if (e.target.tagName !== 'BUTTON') {
-                    window.location.href = url;
-                }
-            }}
-        >
-            {cardContent}
-        </div>
+        <Link href={url} legacyBehavior>
+            <a className="block h-full hover-lift cursor-pointer" style={{ textDecoration: 'none' }}>
+                {cardContent}
+            </a>
+        </Link>
     );
 }
