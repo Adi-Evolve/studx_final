@@ -23,7 +23,7 @@ export default function NotesForm({ initialData = {}, onSubmit, category = 'Note
         price: initialData.price || '',
         description: initialData.description || '',
         images: initialData.images || [],
-        pdfs: initialData.pdfurl ? [initialData.pdfurl] : [], // Handle existing PDF
+        pdfs: [], // Restore pdfs field for original PDF upload
         category: category || initialData.category || 'Notes',
     });
     // Check authentication status
@@ -170,7 +170,7 @@ export default function NotesForm({ initialData = {}, onSubmit, category = 'Note
                     formDataToSend.append(`images`, image);
                 });
             }
-            // Add PDFs as File objects
+            // Add PDF files
             if (formData.pdfs && formData.pdfs.length > 0) {
                 formData.pdfs.forEach((pdf, index) => {
                     formDataToSend.append(`pdfs`, pdf);
@@ -182,23 +182,14 @@ export default function NotesForm({ initialData = {}, onSubmit, category = 'Note
             });
             const result = await response.json();
             if (!response.ok) {
-                // Handle specific error codes
-                if (result.code === 'AUTH_MISSING_EMAIL' || result.code === 'AUTH_EMAIL_NOT_FOUND') {
-                    toast.error('Authentication required. Please sign in first.');
-                    router.push('/login');
-                    return;
-                }
-                if (result.code === 'AUTH_EMAIL_UNREGISTERED') {
-                    toast.error('Email not registered. Please create an account first.');
-                    router.push('/signup');
-                    return;
-                }
-                if (result.code === 'DATABASE_RLS_ERROR') {
-                    toast.error('Database security error. Please contact support.');
-                    return;
-                }
-                // Generic error message
-                toast.error(result.error || 'Failed to submit notes. Please try again.');
+                let errorMsg = 'Failed to submit notes.';
+                if (result.error) errorMsg += `\nError: ${result.error}`;
+                if (result.code) errorMsg += `\nCode: ${result.code}`;
+                if (result.details) errorMsg += `\nDetails: ${result.details}`;
+                if (result.stack) errorMsg += `\nStack: ${result.stack}`;
+                toast.error(errorMsg, { duration: 8000 });
+                // Optionally log to console for debugging
+                console.error('API Error:', result);
                 return;
             }
             // ============================================================================

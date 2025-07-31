@@ -1,6 +1,6 @@
 ﻿import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
-import { uploadPdfToGoogleDrive } from '@/lib/googleDriveOAuthService';
+const { uploadPdfToGoogleDrive } = require('@/lib/googleDriveOAuthService');
 // Initialize Supabase clients
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -264,7 +264,7 @@ export async function POST(request) {
           }
           if (pdfFile.name && pdfFile.type && pdfFile.size) {
             try {
-              console.log('[Sell API] Uploading PDF:', pdfFile.name, pdfFile.type, pdfFile.size);
+              console.log('[Sell API] Uploading PDF to Google Drive:', pdfFile.name, pdfFile.type, pdfFile.size);
               const uploadedUrl = await uploadPdfToGoogleDrive(pdfFile);
               console.log('[Sell API] Uploaded PDF URL:', uploadedUrl);
               pdfUrls.push(uploadedUrl);
