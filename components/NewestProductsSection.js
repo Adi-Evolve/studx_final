@@ -7,6 +7,16 @@ import { fetchNewestProducts, fetchNewestProductsWithLocation } from '@/app/acti
 
 export default function NewestProductsSection({ initialProducts }) {
     const [newestProducts, setNewestProducts] = useState(initialProducts || []);
+    useEffect(() => {
+        if (newestProducts && newestProducts.length > 0) {
+            // console.log('[DEBUG] All newestProducts:', newestProducts);
+            // console.log('[DEBUG] All types:', newestProducts.map(item => item.type));
+            const notes = newestProducts.filter(item => item.type === 'note');
+            // console.log('[DEBUG] Notes fetched for homepage:', notes);
+        } else {
+            // console.log('[DEBUG] No newest products fetched yet.');
+        }
+    }, [newestProducts]);
     const [loading, setLoading] = useState(false);
     const { location, error: locationError } = useUserLocation();
 

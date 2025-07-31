@@ -1,4 +1,5 @@
-﻿'use client';
+﻿        // console.error('API Error:', result);
+'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';

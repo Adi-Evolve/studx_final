@@ -92,7 +92,7 @@ export default function BulkUpload({ onUploadComplete }) {
 
             // Set defaults and process data
             item.price = price;
-            item.type = item.category === 'Notes' ? 'notes' : item.category === 'Rooms' ? 'rooms' : 'regular';
+            item.type = item.category?.toLowerCase() === 'notes' ? 'notes' : item.category?.toLowerCase() === 'rooms' ? 'rooms' : 'regular';
             item.image_urls = item.image_urls ? item.image_urls.split('|').filter(url => url.trim()) : [];
             
             items.push(item);

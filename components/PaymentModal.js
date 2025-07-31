@@ -65,7 +65,6 @@ export default function PaymentModal({
                 rzp.open();
             }
         } catch (error) {
-            console.error('Payment error:', error);
             alert('Payment failed: ' + error.message);
         } finally {
             setIsProcessing(false);

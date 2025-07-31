@@ -87,11 +87,11 @@ export async function fetchSellerListings({ sellerId, excludeId, excludeType }) 
                 id, title, description, price, category, condition, college, 
                 location, images, is_sold, seller_id, created_at
             `).eq('seller_id', sellerId),
-            supabase.from('notes').select(`
-                id, title, description, price, category, college, 
-                academic_year, course_subject, images, pdf_urls, pdfUrl, 
-                seller_id, created_at
-            `).eq('seller_id', sellerId),
+                supabase.from('notes').select(`
+                    id, title, description, price, category, college, 
+                    academic_year, course_subject, images, pdf_urls, pdf_url, 
+                    seller_id, created_at
+                `).eq('seller_id', sellerId),
             supabase.from('rooms').select(`
                 id, title, description, price, category, college, location, 
                 images, room_type, occupancy, distance, deposit, fees_include_mess, 
@@ -137,7 +137,7 @@ export async function fetchSimilarListings({ type, category, college, excludeId,
         } else {
             selectColumns = `
                 id, title, description, price, category, college, 
-                academic_year, course_subject, images, pdf_urls, pdfUrl, 
+                academic_year, course_subject, images, pdf_urls, pdf_url, 
                 seller_id, created_at
             `;
         }
@@ -343,18 +343,18 @@ export async function fetchListings({ page = 1, limit = 12 } = {}) {
                 .from('notes')
                 .select(`
                     id, title, description, price, category, college, 
-                    academic_year, course_subject, images, pdf_urls, pdfUrl, 
+                    academic_year, course_subject, images, pdf_urls, pdf_url, 
                     seller_id, created_at
                 `)
                 .order('created_at', { ascending: false }),
-            supabase
-                .from('rooms')
-                .select(`
-                    id, title, description, price, category, college, location, 
-                    images, room_type, occupancy, distance, deposit, fees_include_mess, 
-                    mess_fees, owner_name, contact1, contact2, amenities, seller_id, created_at
-                `)
-                .order('created_at', { ascending: false })
+                supabase
+                    .from('rooms')
+                    .select(`
+                        id, title, description, price, category, college, location, 
+                        images, room_type, occupancy, distance, deposit, fees_include_mess, 
+                        mess_fees, owner_name, contact1, contact2, amenities, seller_id, created_at
+                    `)
+                    .order('created_at', { ascending: false })
         ]);
 
         // Check for errors
@@ -721,7 +721,9 @@ export async function fetchNewestProducts(limit = 4) {
     const supabase = createSupabaseServerClient();
 
     try {
-        const [productsRes, notesRes, roomsRes] = await Promise.all([
+        let productsRes, notesRes, roomsRes;
+        try {
+            [productsRes, notesRes, roomsRes] = await Promise.all([
             supabase
                 .from('products')
                 .select(`
@@ -734,7 +736,7 @@ export async function fetchNewestProducts(limit = 4) {
                 .from('notes')
                 .select(`
                     id, title, description, price, category, college, 
-                    academic_year, course_subject, images, pdf_urls, pdfUrl, 
+                    academic_year, course_subject, images, pdf_urls, pdf_url, 
                     seller_id, created_at
                 `)
                 .order('created_at', { ascending: false })
@@ -749,18 +751,27 @@ export async function fetchNewestProducts(limit = 4) {
                 .order('created_at', { ascending: false })
                 .limit(limit)
         ]);
+        } catch (err) {
+            console.error('[fetchNewestProducts] DB fetch error:', err);
+            return { error: 'Database fetch error', details: err.message };
+        }
 
-        // Combine all and get the newest across all tables
+        // Enhanced error handling for notes
+        if (notesRes.error) {
+            console.error('[fetchNewestProducts] Notes fetch error:', notesRes.error);
+            return { error: 'Notes fetch error', details: notesRes.error.message };
+        }
+        const notes = (notesRes.data || []).map(item => serializeDataForClient({ ...item, type: 'note' }));
+        console.log('[DEBUG] fetchNewestProducts notes:', notes);
+
         const allNewest = [
             ...(productsRes.data || []).map(item => serializeDataForClient({ ...item, type: 'regular' })),
-            ...(notesRes.data || []).map(item => serializeDataForClient({ ...item, type: 'note' })),
+            ...notes,
             ...(roomsRes.data || []).map(item => serializeDataForClient({ ...item, type: 'room' }))
         ];
 
-        // Sort by created_at (now ISO strings) and return the newest items
         allNewest.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-        
-        return allNewest.slice(0, limit * 3); // Return more for slider
+        return allNewest.slice(0, limit * 3);
 
     } catch (error) {
         // console.error('[Action: fetchNewestProducts] Error:', error.message);

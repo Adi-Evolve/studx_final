@@ -184,7 +184,6 @@ export async function POST(request) {
     // 4. IMAGE UPLOAD PROCESSING
     // ============================================================================
     let imageUrls = [];
-    console.log('[Sell API] Received images:', data.images);
     // Accept single File object or array
     let imagesArray = [];
     if (Array.isArray(data.images)) {
@@ -192,28 +191,22 @@ export async function POST(request) {
     } else if (data.images) {
       imagesArray = [data.images];
     }
-    console.log('[Sell API] imagesArray length:', imagesArray.length);
     if (imagesArray.length > 0) {
       try {
         for (let i = 0; i < imagesArray.length; i++) {
           const imageItem = imagesArray[i];
-          console.log(`[Sell API] Processing imageItem[${i}]:`, imageItem);
           if (typeof imageItem === 'string' && imageItem.trim() !== '') {
             imageUrls.push(imageItem);
             continue;
           }
           if (!imageItem || typeof imageItem !== 'object') {
-            console.log(`[Sell API] imageItem[${i}] is not a valid object, skipping.`);
             continue;
           }
           if (imageItem.name && imageItem.type && imageItem.size) {
             try {
-              console.log('[Sell API] Uploading image:', imageItem.name, imageItem.type, imageItem.size);
               const uploadedUrl = await uploadImageToImgBB(imageItem);
-              console.log('[Sell API] Uploaded image URL:', uploadedUrl);
               imageUrls.push(uploadedUrl);
             } catch (uploadError) {
-              console.error('[Sell API] Image upload error:', uploadError);
               return NextResponse.json({ 
                 success: false, 
                 error: `Failed to upload image "${imageItem.name}": ${uploadError.message}`,
@@ -222,12 +215,9 @@ export async function POST(request) {
               }, { status: 400 });
             }
           } else {
-            console.log(`[Sell API] imageItem[${i}] missing file properties, skipping.`);
           }
         }
-        console.log('[Sell API] Final image URLs:', imageUrls);
       } catch (imageProcessError) {
-        console.error('[Sell API] Image processing error:', imageProcessError);
         return NextResponse.json({ 
           success: false, 
           error: 'Failed to process images. Please try again.',
@@ -240,7 +230,6 @@ export async function POST(request) {
     // 4B. PDF UPLOAD PROCESSING (for notes)
     // ============================================================================
     let pdfUrls = [];
-    console.log('[Sell API] Received PDFs:', data.pdfs);
     // Accept single File object or array
     let pdfsArray = [];
     if (Array.isArray(data.pdfs)) {
@@ -248,28 +237,22 @@ export async function POST(request) {
     } else if (data.pdfs) {
       pdfsArray = [data.pdfs];
     }
-    console.log('[Sell API] pdfsArray length:', pdfsArray.length);
     if (type === 'notes' && pdfsArray.length > 0) {
       try {
         for (let i = 0; i < pdfsArray.length; i++) {
           const pdfFile = pdfsArray[i];
-          console.log(`[Sell API] Processing pdfFile[${i}]:`, pdfFile);
           if (typeof pdfFile === 'string' && pdfFile.trim() !== '') {
             pdfUrls.push(pdfFile);
             continue;
           }
           if (!pdfFile || typeof pdfFile !== 'object') {
-            console.log(`[Sell API] pdfFile[${i}] is not a valid object, skipping.`);
             continue;
           }
           if (pdfFile.name && pdfFile.type && pdfFile.size) {
             try {
-              console.log('[Sell API] Uploading PDF to Google Drive:', pdfFile.name, pdfFile.type, pdfFile.size);
               const uploadedUrl = await uploadPdfToGoogleDrive(pdfFile);
-              console.log('[Sell API] Uploaded PDF URL:', uploadedUrl);
               pdfUrls.push(uploadedUrl);
             } catch (uploadError) {
-              console.error('[Sell API] PDF upload error:', uploadError);
               return NextResponse.json({ 
                 success: false, 
                 error: `Failed to upload PDF "${pdfFile.name}": ${uploadError.message}`,
@@ -278,12 +261,9 @@ export async function POST(request) {
               }, { status: 400 });
             }
           } else {
-            console.log(`[Sell API] pdfFile[${i}] missing file properties, skipping.`);
           }
         }
-        console.log('[Sell API] Final PDF URLs:', pdfUrls);
       } catch (pdfProcessError) {
-        console.error('[Sell API] PDF processing error:', pdfProcessError);
         return NextResponse.json({ 
           success: false, 
           error: 'Failed to process PDFs. Please try again.',
@@ -360,7 +340,6 @@ export async function POST(request) {
             pdf_url: pdfUrls.length > 0 ? pdfUrls[0] : null,
             category: 'notes',
           };
-          console.log('[Sell API] Final note insertData:', insertData);
           break;
         default:
           throw new Error(`Unsupported type: ${type}`);

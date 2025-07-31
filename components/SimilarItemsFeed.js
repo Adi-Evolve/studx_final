@@ -34,7 +34,6 @@ const SimilarItemsFeed = ({ type, category, college, currentItemId }) => {
             setError(null);
         }
 
-        // console.log(`[SimilarItemsFeed] Loading page ${page} for type: ${type}, category: ${category}, college: ${college}`);
 
         try {
             const newItems = await fetchSimilarListings({
@@ -56,7 +55,6 @@ const SimilarItemsFeed = ({ type, category, college, currentItemId }) => {
                 setHasMore(false);
             }
         } catch (e) {
-            // console.error('[SimilarItemsFeed] Failed to fetch similar items:', e);
             setError('An error occurred while loading items.');
         } finally {
             setIsLoading(false);
