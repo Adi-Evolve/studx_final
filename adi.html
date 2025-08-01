@@ -9,65 +9,130 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
     <style>
         :root {
-            --primary-color: #4a90e2;
-            --secondary-color: #2c3e50;
-            --success-color: #2ecc71;
-            --danger-color: #e74c3c;
-            --warning-color: #f1c40f;
-            --light-bg: #f8f9fa;
-            --dark-bg: #343a40;
+            --primary-color: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary-color: #64748b;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --dark-color: #1e293b;
+            --light-color: #f8fafc;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --border-radius: 0.5rem;
+            --border-radius-sm: 0.25rem;
+            --border-radius-lg: 0.75rem;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--light-bg);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--dark-color);
+            line-height: 1.6;
+            min-height: 100vh;
         }
 
-        /* Login Styles */
+        /* Modern Login Container */
         .login-container {
-            max-width: 400px;
-            margin: 100px auto;
-            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .login-form {
             background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 3rem;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 400px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .login-logo {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 2rem;
         }
 
         .login-logo h1 {
             color: var(--primary-color);
-            font-size: 28px;
-            font-weight: bold;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
         }
 
         .login-logo .subtitle {
-            color: #666;
-            font-size: 14px;
-            margin-top: 5px;
+            color: var(--secondary-color);
+            font-size: 1rem;
+            margin-top: 0.25rem;
         }
 
-        .login-form .form-control {
-            padding: 12px;
-            border-radius: 5px;
-            margin-bottom: 15px;
-        }
-
-        .login-form .btn {
-            padding: 12px;
-            border-radius: 5px;
+        /* Modern Form Styles */
+        .form-control {
+            background: var(--light-color);
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.2s ease;
             width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            background: white;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
         }
 
         .error-message {
             color: var(--danger-color);
             text-align: center;
-            margin-top: 10px;
+            margin-top: 1rem;
             display: none;
+            padding: 0.75rem;
+            background: rgba(220, 38, 38, 0.1);
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(220, 38, 38, 0.2);
         }
 
         /* Main Content Styles */
@@ -75,52 +140,179 @@
             display: none;
         }
 
+        /* Modern Sidebar */
         .sidebar {
-            background-color: var(--dark-bg);
-            min-height: 100vh;
-            padding: 20px;
-            color: white;
+            background: white;
+            width: 280px;
+            height: 100vh;
             position: fixed;
-            width: 250px;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+            padding: 2rem 0;
+            box-shadow: var(--shadow-lg);
+            border-right: 1px solid var(--border-color);
         }
 
-        .sidebar .nav-link {
-            color: rgba(255, 255, 255, 0.8);
-            margin: 5px 0;
-            border-radius: 5px;
-            transition: all 0.3s;
-            padding: 10px 15px;
+        .sidebar-header {
+            padding: 0 2rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 2rem;
         }
 
-        .sidebar .nav-link:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: white;
+        .sidebar h3 {
+            color: var(--primary-color);
+            font-size: 1.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
         }
 
-        .sidebar .nav-link.active {
-            background-color: var(--primary-color);
-            color: white;
+        .sidebar-subtitle {
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
         }
 
+        /* Modern Navigation */
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.875rem 2rem;
+            color: var(--secondary-color);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            border-left: 3px solid transparent;
+            position: relative;
+            margin: 0;
+        }
+
+        .nav-link:hover {
+            background: var(--light-color);
+            color: var(--primary-color);
+            border-left-color: var(--primary-color);
+        }
+
+        .nav-link.active {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary-color);
+            border-left-color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .nav-link i {
+            width: 20px;
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        /* Modern Main Content */
         .main-content {
-            margin-left: 250px;
-            padding: 20px;
+            margin-left: 280px;
+            min-height: 100vh;
+            background: var(--light-color);
+            padding: 2rem;
         }
 
-        /* Card Styles */
+        /* Modern Cards */
         .card {
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            background: white;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+            overflow: hidden;
         }
+
+        .card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            background: white;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        /* Modern Metrics Cards */
+        .metric-card {
+            background: white;
+            border-radius: var(--border-radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
+        }
+
+        .metric-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .metric-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: var(--border-radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-label {
+            color: var(--secondary-color);
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .metric-change {
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        /* Color Variants for Metrics */
+        .metric-primary { background: rgba(37, 99, 235, 0.1); color: var(--primary-color); }
+        .metric-success { background: rgba(5, 150, 105, 0.1); color: var(--success-color); }
+        .metric-warning { background: rgba(217, 119, 6, 0.1); color: var(--warning-color); }
+        .metric-danger { background: rgba(220, 38, 38, 0.1); color: var(--danger-color); }
 
         .product-card {
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.2s ease;
+            position: relative;
         }
 
         .product-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            box-shadow: var(--shadow-lg);
         }
 
         .delete-product-btn {
@@ -137,11 +329,597 @@
             font-size: 16px;
             line-height: 1;
             z-index: 10;
+            background: var(--danger-color);
+            color: white;
+            border: none;
+            transition: all 0.2s ease;
         }
 
         .delete-product-btn:hover {
-            background-color: var(--danger-color);
+            background: #b91c1c;
             transform: scale(1.1);
+        }
+
+        /* Modern Tables */
+        .table {
+            background: white;
+            border-radius: var(--border-radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .table th {
+            background: var(--light-color);
+            border-bottom: 2px solid var(--border-color);
+            padding: 1rem;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table tr:hover {
+            background: var(--light-color);
+        }
+
+        /* Modern Buttons */
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .btn-success { 
+            background: var(--success-color); 
+            color: white; 
+            border: none;
+        }
+
+        .btn-warning { 
+            background: var(--warning-color); 
+            color: white; 
+            border: none;
+        }
+
+        .btn-danger { 
+            background: var(--danger-color); 
+            color: white; 
+            border: none;
+        }
+
+        .btn-secondary { 
+            background: var(--secondary-color); 
+            color: white; 
+            border: none;
+        }
+
+        /* Advanced UI Enhancements */
+        .dark-mode {
+            --primary-color: #3b82f6;
+            --primary-dark: #2563eb;
+            --secondary-color: #94a3b8;
+            --dark-color: #f1f5f9;
+            --light-color: #1e293b;
+            --border-color: #334155;
+            background: #0f172a;
+            color: #f1f5f9;
+        }
+
+        .dark-mode .sidebar {
+            background: #1e293b;
+            border-right: 1px solid #334155;
+        }
+
+        .dark-mode .nav-link {
+            color: #cbd5e1;
+        }
+
+        .dark-mode .nav-link:hover {
+            background: #334155;
+        }
+
+        .dark-mode .nav-link.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .dark-mode .card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #f1f5f9;
+        }
+
+        .dark-mode .table th {
+            background: #334155;
+            color: #f1f5f9;
+        }
+
+        .dark-mode .form-control {
+            background: #334155;
+            border: 1px solid #475569;
+            color: #f1f5f9;
+        }
+
+        .dark-mode .form-control:focus {
+            background: #475569;
+            border-color: var(--primary-color);
+            color: #f1f5f9;
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-md);
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Search Enhancement */
+        .search-container {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 3rem;
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary-color);
+            pointer-events: none;
+        }
+
+        /* Loading States */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .loading-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loading-spinner {
+            background: white;
+            padding: 2rem;
+            border-radius: var(--border-radius-lg);
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Success/Error Notifications */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: var(--border-radius);
+            color: white;
+            font-weight: 500;
+            z-index: 1001;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            max-width: 400px;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: var(--success-color);
+        }
+
+        .notification.error {
+            background: var(--danger-color);
+        }
+
+        .notification.warning {
+            background: var(--warning-color);
+        }
+
+        /* Advanced Tables */
+        .table-container {
+            background: white;
+            border-radius: var(--border-radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+        }
+
+        .table-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .table-responsive {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-active {
+            background: rgba(5, 150, 105, 0.1);
+            color: var(--success-color);
+        }
+
+        .status-inactive {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+        }
+
+        .status-pending {
+            background: rgba(217, 119, 6, 0.1);
+            color: var(--warning-color);
+        }
+
+        /* Modern Form Controls */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            background: white;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Quick Actions Panel */
+        .quick-actions {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            padding: 1.5rem;
+            border-radius: var(--border-radius-lg);
+            margin-bottom: 2rem;
+        }
+
+        .quick-action-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0.25rem;
+            transition: all 0.2s ease;
+        }
+
+        .quick-action-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Advanced Grid System */
+        .admin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .admin-card {
+            background: white;
+            border-radius: var(--border-radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+
+        .admin-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .admin-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .admin-card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin: 0;
+        }
+
+        /* Responsive Design Improvements */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .theme-toggle {
+                top: 10px;
+                right: 10px;
+                width: 40px;
+                height: 40px;
+            }
+
+            .metric-card {
+                margin-bottom: 1rem;
+            }
+
+            .admin-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+
+        /* Animation Utilities */
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        /* Mobile Header */
+        .mobile-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: white;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+
+        .mobile-menu-toggle {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            color: var(--dark-color);
+            cursor: pointer;
+        }
+
+        /* Page Header */
+        .page-header {
+            padding: 1.5rem 2rem 0;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .content-area {
+            padding: 0 2rem 2rem;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+            color: var(--primary-color);
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* Modern Form Elements */
+        .form-select {
+            background: var(--light-color);
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 0.75rem 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Modern Badges */
+        .badge {
+            padding: 0.375rem 0.75rem;
+            border-radius: var(--border-radius);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        /* Modern Alerts */
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: var(--border-radius-lg);
+            border: 1px solid transparent;
+            margin-bottom: 1rem;
+        }
+
+        .alert-info {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.2);
+            color: #1d4ed8;
+        }
+
+        .alert-success {
+            background: rgba(5, 150, 105, 0.1);
+            border-color: rgba(5, 150, 105, 0.2);
+            color: var(--success-color);
+        }
+
+        .alert-danger {
+            background: rgba(220, 38, 38, 0.1);
+            border-color: rgba(220, 38, 38, 0.2);
+            color: var(--danger-color);
+        }
+
+        /* Modern Sponsorship Styles */
+        .sponsorship-container {
+            padding: 2rem;
+        }
+
+        .sponsorship-item {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .sponsorship-item:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .sponsor-slot {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        /* Modern Search Results */
+        .search-result-item {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            transition: all 0.2s ease;
+        }
+
+        .search-result-item:hover {
+            box-shadow: var(--shadow-sm);
+            border-color: var(--primary-color);
+        }
+
+        .sponsorship-sequence {
+            min-height: 200px;
         }
 
         /* Loading spinner animation */
@@ -157,36 +935,356 @@
         /* Responsive Design */
         @media (max-width: 768px) {
             .sidebar {
-                width: 100%;
-                position: relative;
-                min-height: auto;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.mobile-open {
+                transform: translateX(0);
             }
 
             .main-content {
                 margin-left: 0;
+                padding: 1rem;
             }
+
+            .metric-card {
+                padding: 1.5rem;
+            }
+
+            .card-body {
+                padding: 1rem;
+            }
+
+            .sponsorship-container {
+                padding: 1rem;
+            }
+        }
+
+        /* Loading States */
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .spinner-border {
+            width: 1.5rem;
+            height: 1.5rem;
+            border: 2px solid var(--border-color);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Modern Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--light-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-color);
+        }
+
+        /* Custom Analytics Styles */
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .activity-feed {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .college-stats {
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+
+        .stat-box:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Dark Mode Support */
+        @media (prefers-color-scheme: dark) {
+            .card {
+                background: #1e293b;
+                border-color: #334155;
+                color: #f1f5f9;
+            }
+        }
+            overflow-y: auto;
+        }
+
+        .stat-box {
+            transition: transform 0.2s;
+        }
+
+        .stat-box:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Chart containers */
+        #userActivityChart, #usageDistributionChart, #userJourneyChart {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Real-time indicator */
+        .badge.pulse {
+            animation: pulse 1.5s infinite;
+        }
+
+        /* Enhanced cards */
+        .card-header {
+            background-color: rgba(0,0,0,0.03);
+            border-bottom: 1px solid rgba(0,0,0,0.125);
+        }
+
+        /* Progress bars */
+        .progress {
+            height: 10px;
+        }
+
+        .progress-bar {
+            transition: width 0.6s ease;
+        }
+
+        /* Analytics specific styles */
+        .analytics-container .card {
+            margin-bottom: 1.5rem;
+        }
+
+        .analytics-container canvas {
+            border-radius: 8px;
+        }
+
+        /* Mobile responsiveness for analytics */
+        @media (max-width: 768px) {
+            .analytics-container .col-md-3 {
+                margin-bottom: 1rem;
+            }
+            
+            .stat-box {
+                margin-bottom: 1rem;
+            }
+        }
+        
+        /* Quick Actions Styles */
+        .quick-actions {
+            background: var(--light-color);
+            border-radius: var(--border-radius-lg);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .quick-action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            margin: 0.25rem;
+            background: white;
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius);
+            color: var(--dark-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            font-size: 0.875rem;
+        }
+
+        .quick-action-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            text-decoration: none;
+        }
+
+        .quick-action-btn i {
+            font-size: 1rem;
+        }
+
+        /* Enhanced Stat Cards */
+        .stat-card {
+            background: white;
+            border-radius: var(--border-radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .stat-icon.users { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .stat-icon.products { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .stat-icon.rooms { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .stat-icon.revenue { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+
+        /* Dashboard Cards */
+        .dashboard-card {
+            border: none;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+        }
+
+        .dashboard-card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .dashboard-card .card-header {
+            background: var(--light-color);
+            border-bottom: 1px solid var(--border-color);
+            border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+            padding: 1.25rem 1.5rem;
+        }
+
+        .dashboard-card .card-body {
+            padding: 1.5rem;
+        }
+        .sponsorship-container {
+            padding: 20px;
+        }
+        
+        .sponsorship-item {
+            transition: all 0.3s ease;
+            background-color: #f8f9fa !important;
+        }
+        
+        .sponsorship-item:hover {
+            background-color: #e9ecef !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .sponsor-slot {
+            font-size: 1.2em;
+            font-weight: bold;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        
+        .search-result-item {
+            transition: all 0.2s ease;
+        }
+        
+        .search-result-item:hover {
+            background-color: #f8f9fa;
+            transform: translateX(5px);
+        }
+        
+        .sponsorship-sequence {
+            min-height: 200px;
         }
     </style>
 </head>
 <body>
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" id="themeToggle" title="Toggle Dark Mode">
+        <i class="fas fa-moon"></i>
+    </button>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner">
+            <div class="spinner-border text-primary mb-3" role="status"></div>
+            <p class="mb-0">Loading...</p>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notificationContainer"></div>
+
     <!-- Login Form -->
     <div id="loginContainer" class="login-container">
-        <div class="login-logo">
-            <h1>StudX Admin</h1>
-        </div>
         <form id="loginForm" class="login-form">
-            <div class="mb-3">
-                <input type="text" class="form-control" id="username" placeholder="Username" required>
+            <div class="login-logo">
+                <h1>
+                    <i class="fas fa-graduation-cap"></i>
+                    StudX Admin
+                </h1>
+                <p class="subtitle">Management Dashboard</p>
             </div>
             <div class="mb-3">
-                <input type="password" class="form-control" id="password" placeholder="Password" required>
+                <input type="text" class="form-control" id="username" placeholder="Enter your username" required>
+            </div>
+            <div class="mb-3">
+                <input type="password" class="form-control" id="password" placeholder="Enter your password" required>
             </div>
             <div class="mb-3 form-check">
                 <input type="checkbox" class="form-check-input" id="rememberMe">
                 <label class="form-check-label" for="rememberMe">Remember me</label>
             </div>
-            <button type="submit" class="btn btn-primary">Login</button>
-            <div id="errorMessage" class="error-message">Invalid username or password</div>
+            <button type="submit" class="btn btn-primary w-100">
+                <i class="fas fa-sign-in-alt me-2"></i>
+                Sign In
+            </button>
+            <div id="errorMessage" class="error-message">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Invalid username or password
+            </div>
         </form>
     </div>
 
@@ -194,42 +1292,84 @@
     <div id="mainContent" style="display: none;">
         <!-- Sidebar -->
         <div class="sidebar">
-            <h3 class="mb-4">StudX Admin</h3>
+            <div class="sidebar-header">
+                <h3>
+                    <i class="fas fa-graduation-cap"></i>
+                    StudX Admin
+                </h3>
+                <p class="sidebar-subtitle">Management Dashboard</p>
+            </div>
             <nav class="nav flex-column">
                 <a href="#" class="nav-link active" data-page="dashboard">
-                    <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
                 </a>
                 <a href="#" class="nav-link" data-page="products">
-                    <i class="fas fa-box me-2"></i> Products
+                    <i class="fas fa-box"></i> Products
                 </a>
                 <a href="#" class="nav-link" data-page="users">
-                    <i class="fas fa-users me-2"></i> Users
+                    <i class="fas fa-users"></i> Users
+                </a>
+                <a href="#" class="nav-link" data-page="analytics">
+                    <i class="fas fa-chart-line"></i> Analytics
+                </a>
+                <a href="#" class="nav-link" data-page="sponsorship">
+                    <i class="fas fa-star"></i> Sponsorship
                 </a>
                 <a href="#" class="nav-link" data-page="settings">
-                    <i class="fas fa-cog me-2"></i> Settings
+                    <i class="fas fa-cog"></i> Settings
                 </a>
                 <a href="#" class="nav-link text-danger" id="logoutBtn">
-                    <i class="fas fa-sign-out-alt me-2"></i> Logout
+                    <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
             </nav>
         </div>
 
         <!-- Main Content Area -->
         <div class="main-content">
-            <div id="content">
+            <!-- Mobile Header -->
+            <div class="mobile-header d-md-none">
+                <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h5 class="mb-0">StudX Admin</h5>
+                <div></div> <!-- Spacer -->
+            </div>
+
+            <!-- Enhanced Page Header -->
+            <div class="page-header">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h1 id="pageTitle" class="h3 mb-0">Dashboard</h1>
+                        <p id="pageSubtitle" class="text-muted mb-0">Welcome to your admin dashboard</p>
+                    </div>
+                    <div class="header-actions">
+                        <div class="search-container d-none d-md-block" style="width: 300px;">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" class="search-input" id="globalSearch" placeholder="Search anything...">
+                        </div>
+                        <button class="btn btn-primary ms-2" id="refreshData" title="Refresh Data">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Container -->
+            <div id="content" class="content-area">
                 <!-- Content will be loaded here -->
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
     <script>
 (async function() {
-    // SUPABASE CONFIG
+    // SUPABASE CONFIG - UPDATED WITH YOUR ACTUAL DATABASE CREDENTIALS
     const SUPABASE_URL = 'https://vdpmumstdxgftaaxeacx.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkcG11bXN0ZHhnZnRhYXhlYWN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE5MDYwODIsImV4cCI6MjA2NzQ4MjA4Mn0.Pbfm3FebzjQAHLPfdkzky-IH9aF3Zj1ZNVBjwe-3lyw';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const SUPABASE_SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkcG11bXN0ZHhnZnRhYXhlYWN4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTkwNjA4MiwiZXhwIjoyMDY3NDgyMDgyfQ.tdYV9te2jYq2ARdPiJi6mpkqfvg45YlfgZ2kXnhLVRs'; // Using service role for admin access
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
     // Check login status
     function checkLogin() {
@@ -307,55 +1447,270 @@
         if (page === 'dashboard') {
             contentDiv.innerHTML = `
                 <div class="dashboard-container">
-                    <h2><i class="fas fa-tachometer-alt"></i> Dashboard</h2>
+                    <h2><i class="fas fa-tachometer-alt"></i> StudX Analytics Dashboard</h2>
+                    
+                    <!-- Quick Actions Panel -->
+                    <div class="quick-actions">
+                        <h5 class="mb-3"><i class="fas fa-bolt"></i> Quick Actions</h5>
+                        <div class="d-flex flex-wrap">
+                            <a href="#" class="quick-action-btn" onclick="loadPage('products')">
+                                <i class="fas fa-plus"></i> Add Product
+                            </a>
+                            <a href="#" class="quick-action-btn" onclick="loadPage('users')">
+                                <i class="fas fa-user-plus"></i> Add User
+                            </a>
+                            <a href="#" class="quick-action-btn" onclick="loadPage('sponsorship')">
+                                <i class="fas fa-star"></i> Manage Sponsorship
+                            </a>
+                            <a href="#" class="quick-action-btn" onclick="showNotification('Export feature coming soon!', 'info')">
+                                <i class="fas fa-download"></i> Export Data
+                            </a>
+                            <a href="#" class="quick-action-btn" onclick="loadPage('analytics')">
+                                <i class="fas fa-chart-line"></i> View Analytics
+                            </a>
+                            <a href="#" class="quick-action-btn" onclick="loadPage('settings')">
+                                <i class="fas fa-cog"></i> Settings
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Real-time Stats Section -->
+                    <div class="row mb-4">
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="stat-card">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h3 class="mb-1" id="totalUsers">1,234</h3>
+                                        <p class="text-muted mb-0">Total Users</p>
+                                        <small class="text-success">
+                                            <i class="fas fa-arrow-up"></i> +12% this month
+                                        </small>
+                                    </div>
+                                    <div class="stat-icon users">
+                                        <i class="fas fa-users"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="stat-card">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h3 class="mb-1" id="totalProducts">856</h3>
+                                        <p class="text-muted mb-0">Products Listed</p>
+                                        <small class="text-success">
+                                            <i class="fas fa-arrow-up"></i> +8% this week
+                                        </small>
+                                    </div>
+                                    <div class="stat-icon products">
+                                        <i class="fas fa-shopping-bag"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="stat-card">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h3 class="mb-1" id="totalRooms">423</h3>
+                                        <p class="text-muted mb-0">Rooms Available</p>
+                                        <small class="text-info">
+                                            <i class="fas fa-arrow-right"></i> +3% this week
+                                        </small>
+                                    </div>
+                                    <div class="stat-icon rooms">
+                                        <i class="fas fa-home"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="stat-card">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h3 class="mb-1" id="totalRevenue">₹2,45,678</h3>
+                                        <p class="text-muted mb-0">Total Revenue</p>
+                                        <small class="text-success">
+                                            <i class="fas fa-arrow-up"></i> +15% this month
+                                        </small>
+                                    </div>
+                                    <div class="stat-icon revenue">
+                                        <i class="fas fa-rupee-sign"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Section -->
+                    <div class="row mb-4">
+                        <div class="col-lg-8 mb-3">
+                            <div class="card dashboard-card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0"><i class="fas fa-chart-line"></i> Revenue Trends</h5>
+                                    <div class="dropdown">
+                                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                            Last 30 Days
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="#">Last 7 Days</a></li>
+                                            <li><a class="dropdown-item" href="#">Last 30 Days</a></li>
+                                            <li><a class="dropdown-item" href="#">Last 3 Months</a></li>
+                                            <li><a class="dropdown-item" href="#">Last Year</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="revenueChart" height="100"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 mb-3">
+                            <div class="card dashboard-card h-100">
+                                <div class="card-header">
+                                    <h5 class="mb-0"><i class="fas fa-chart-pie"></i> Category Distribution</h5>
+                                </div>
+                                <div class="card-body d-flex align-items-center justify-content-center">
+                                    <canvas id="categoryChart" width="200" height="200"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Advanced Analytics -->
                     <div class="row mb-4">
                         <div class="col-md-3">
-                            <div class="card bg-primary text-white">
+                            <div class="card bg-dark text-white">
                                 <div class="card-body">
                                     <div class="d-flex align-items-center">
-                                        <i class="fas fa-box fa-2x me-3"></i>
+                                        <i class="fas fa-rupee-sign fa-2x me-3"></i>
                                         <div>
-                                            <h5>Products</h5>
-                                            <h3 id="productsCount">-</h3>
+                                            <h5>Total Revenue</h5>
+                                            <h3 id="totalRevenue">₹0</h3>
+                                            <small id="revenueGrowth">This month</small>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="card bg-success text-white">
+                            <div class="card bg-purple text-white" style="background-color: #6f42c1 !important;">
                                 <div class="card-body">
                                     <div class="d-flex align-items-center">
-                                        <i class="fas fa-sticky-note fa-2x me-3"></i>
+                                        <i class="fas fa-chart-line fa-2x me-3"></i>
                                         <div>
-                                            <h5>Notes</h5>
-                                            <h3 id="notesCount">-</h3>
+                                            <h5>Active Users</h5>
+                                            <h3 id="activeUsers">-</h3>
+                                            <small id="activeUsersTime">Last 7 days</small>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="card bg-warning text-white">
+                            <div class="card bg-gradient text-white" style="background: linear-gradient(45deg, #ff6b6b, #4ecdc4) !important;">
                                 <div class="card-body">
                                     <div class="d-flex align-items-center">
-                                        <i class="fas fa-home fa-2x me-3"></i>
+                                        <i class="fas fa-star fa-2x me-3"></i>
                                         <div>
-                                            <h5>Rooms</h5>
-                                            <h3 id="roomsCount">-</h3>
+                                            <h5>Top College</h5>
+                                            <h4 id="topCollege">-</h4>
+                                            <small id="topCollegeCount">0 listings</small>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="card bg-info text-white">
+                            <div class="card bg-gradient text-white" style="background: linear-gradient(45deg, #667eea, #764ba2) !important;">
                                 <div class="card-body">
                                     <div class="d-flex align-items-center">
-                                        <i class="fas fa-users fa-2x me-3"></i>
+                                        <i class="fas fa-fire fa-2x me-3"></i>
                                         <div>
-                                            <h5>Users</h5>
-                                            <h3 id="usersCount">-</h3>
+                                            <h5>Hot Category</h5>
+                                            <h4 id="hotCategory">-</h4>
+                                            <small id="hotCategoryCount">0 items</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- User Behavior Analytics -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5><i class="fas fa-users"></i> User Activity Trends</h5>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <button class="btn btn-outline-primary active" data-period="7">7D</button>
+                                        <button class="btn btn-outline-primary" data-period="30">30D</button>
+                                        <button class="btn btn-outline-primary" data-period="90">90D</button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="userActivityChart" width="400" height="200"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-chart-pie"></i> Platform Usage Distribution</h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="usageDistributionChart" width="400" height="200"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Real-time Monitoring -->
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5><i class="fas fa-chart-bar"></i> Real-time Analytics</h5>
+                                    <span class="badge bg-success pulse" id="liveIndicator">LIVE</span>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row text-center mb-3">
+                                        <div class="col-md-4">
+                                            <h3 id="onlineUsers" class="text-success">0</h3>
+                                            <small class="text-muted">Online Now</small>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <h3 id="todayListings" class="text-primary">0</h3>
+                                            <small class="text-muted">Today's Listings</small>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <h3 id="todaySignups" class="text-warning">0</h3>
+                                            <small class="text-muted">New Signups</small>
+                                        </div>
+                                    </div>
+                                    <div id="recentActivity" class="recent-activity">
+                                        <h6>Recent Activity:</h6>
+                                        <div id="activityFeed" class="activity-feed">
+                                            <div class="activity-item">
+                                                <i class="fas fa-spinner fa-spin"></i> Loading recent activity...
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-map-marker-alt"></i> Geographic Distribution</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="collegeDistribution" class="college-stats">
+                                        <div class="d-flex justify-content-center">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -376,11 +1731,14 @@
                                         <button class="btn btn-outline-success" onclick="loadPage('users')">
                                             <i class="fas fa-users"></i> Manage Users
                                         </button>
-                                        <button class="btn btn-outline-warning" onclick="loadPage('settings')">
-                                            <i class="fas fa-cog"></i> Settings
+                                        <button class="btn btn-outline-warning" onclick="loadPage('analytics')">
+                                            <i class="fas fa-chart-line"></i> Advanced Analytics
                                         </button>
                                         <button class="btn btn-outline-info" onclick="window.open('https://studxchange.vercel.app', '_blank')">
                                             <i class="fas fa-external-link-alt"></i> Open StudXchange Site
+                                        </button>
+                                        <button class="btn btn-outline-danger" onclick="exportData()">
+                                            <i class="fas fa-download"></i> Export Data
                                         </button>
                                     </div>
                                 </div>
@@ -389,17 +1747,30 @@
                         <div class="col-md-6">
                             <div class="card">
                                 <div class="card-header">
-                                    <h5><i class="fas fa-globe"></i> StudXchange Preview</h5>
+                                    <h5><i class="fas fa-bell"></i> System Health</h5>
                                 </div>
-                                <div class="card-body p-0">
-                                    <iframe 
-                                        src="https://studxchange.vercel.app" 
-                                        width="100%" 
-                                        height="400" 
-                                        frameborder="0" 
-                                        style="border-radius: 0 0 10px 10px;"
-                                        title="StudXchange Preview">
-                                    </iframe>
+                                <div class="card-body">
+                                    <div id="systemHealth">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span>Database Connection</span>
+                                            <span class="badge bg-success" id="dbStatus">Connected</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span>Storage Usage</span>
+                                            <span class="badge bg-warning" id="storageStatus">Loading...</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span>API Response Time</span>
+                                            <span class="badge bg-success" id="apiStatus">Fast</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span>Active Sessions</span>
+                                            <span class="badge bg-info" id="sessionStatus">-</span>
+                                        </div>
+                                        <div class="progress mt-3">
+                                            <div class="progress-bar bg-success" role="progressbar" id="healthProgress" style="width: 85%">85% Healthy</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -443,6 +1814,210 @@
         } else if (page === 'users') {
             contentDiv.innerHTML = `<h2><i class="fas fa-users"></i> Users Management</h2><div id='usersTable'></div>`;
             renderUsersPage();
+        } else if (page === 'analytics') {
+            contentDiv.innerHTML = `
+                <div class="analytics-container">
+                    <h2><i class="fas fa-chart-line"></i> Advanced Analytics</h2>
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-chart-bar"></i> User Behavior Analytics</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row mb-3">
+                                        <div class="col-md-3">
+                                            <div class="stat-box text-center p-3 border rounded">
+                                                <h4 id="avgSessionTime" class="text-primary">-</h4>
+                                                <small class="text-muted">Avg Session Time</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="stat-box text-center p-3 border rounded">
+                                                <h4 id="bounceRate" class="text-warning">-</h4>
+                                                <small class="text-muted">Bounce Rate</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="stat-box text-center p-3 border rounded">
+                                                <h4 id="conversionRate" class="text-success">-</h4>
+                                                <small class="text-muted">Conversion Rate</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="stat-box text-center p-3 border rounded">
+                                                <h4 id="retentionRate" class="text-info">-</h4>
+                                                <small class="text-muted">7-Day Retention</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="advancedCharts">
+                                        <canvas id="userJourneyChart" width="800" height="400"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            renderAdvancedAnalytics();
+        } else if (page === 'sponsorship') {
+            contentDiv.innerHTML = `
+                <div class="sponsorship-container">
+                    <h2><i class="fas fa-star"></i> Sponsorship Management</h2>
+                    
+                    <!-- Sponsorship Overview -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card bg-warning text-white">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-star fa-2x me-3"></i>
+                                        <div>
+                                            <h5>Active Sponsors</h5>
+                                            <h3 id="activeSponsorCount">-</h3>
+                                            <small>Featured listings</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-success text-white">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-rupee-sign fa-2x me-3"></i>
+                                        <div>
+                                            <h5>Sponsor Revenue</h5>
+                                            <h3 id="sponsorRevenue">Rs.0</h3>
+                                            <small>This month</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-info text-white">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-eye fa-2x me-3"></i>
+                                        <div>
+                                            <h5>Total Views</h5>
+                                            <h3 id="sponsorViews">-</h3>
+                                            <small>Sponsored content</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-danger text-white">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-clock fa-2x me-3"></i>
+                                        <div>
+                                            <h5>Expiring Soon</h5>
+                                            <h3 id="expiringSponsorships">-</h3>
+                                            <small>Within 7 days</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sponsorship Management Tools -->
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5><i class="fas fa-list"></i> Current Sponsorship Sequence</h5>
+                                    <button class="btn btn-primary btn-sm" onclick="refreshSponsorshipSequence()">
+                                        <i class="fas fa-sync"></i> Refresh
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <div id="sponsorshipSequence" class="sponsorship-sequence">
+                                        <div class="d-flex justify-content-center">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-plus"></i> Add Sponsorship</h5>
+                                </div>
+                                <div class="card-body">
+                                    <form id="addSponsorshipForm">
+                                        <div class="mb-3">
+                                            <label for="itemType" class="form-label">Item Type</label>
+                                            <select id="itemType" class="form-select" required>
+                                                <option value="">Select Type</option>
+                                                <option value="product">Product</option>
+                                                <option value="note">Note</option>
+                                                <option value="room">Room</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="itemId" class="form-label">Item ID</label>
+                                            <input type="text" id="itemId" class="form-control" placeholder="Enter item ID" required>
+                                            <small class="text-muted">You can get item IDs from the Products page</small>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="sponsorSlot" class="form-label">Sponsor Slot</label>
+                                            <input type="number" id="sponsorSlot" class="form-control" min="1" max="10" value="1" required>
+                                            <small class="text-muted">Lower numbers appear first</small>
+                                        </div>
+                                        <div class="d-grid">
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="fas fa-star"></i> Add to Sponsors
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Item Lookup -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-search"></i> Quick Item Lookup</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <input type="text" id="itemSearchInput" class="form-control" placeholder="Search by title, description, or ID...">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <select id="itemTypeFilter" class="form-select">
+                                                <option value="all">All Types</option>
+                                                <option value="product">Products</option>
+                                                <option value="note">Notes</option>
+                                                <option value="room">Rooms</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <button class="btn btn-primary w-100" onclick="searchItems()">
+                                                <i class="fas fa-search"></i> Search
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div id="itemSearchResults" class="mt-3"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            renderSponsorshipPage();
         } else if (page === 'settings') {
             contentDiv.innerHTML = `
                 <div class='container py-4'>
@@ -457,27 +2032,431 @@
         }
     }
 
-    // Dashboard: Load statistics
+    // Dashboard: Load statistics with enhanced analytics
     async function renderDashboard() {
         try {
-            const [
-                { count: productsCount },
-                { count: notesCount },
-                { count: roomsCount },
-                { count: usersCount }
-            ] = await Promise.all([
-                supabase.from('products').select('*', { count: 'exact', head: true }),
-                supabase.from('notes').select('*', { count: 'exact', head: true }),
-                supabase.from('rooms').select('*', { count: 'exact', head: true }),
-                supabase.from('users').select('*', { count: 'exact', head: true })
-            ]);
+            const startTime = Date.now();
+            
+            console.log('🔍 Starting dashboard data fetch...');
+            
+            // Get current data with individual error handling
+            const productsResult = await supabase.from('products').select('*', { count: 'exact' });
+            console.log('📦 Products result:', productsResult);
+            
+            const notesResult = await supabase.from('notes').select('*', { count: 'exact' });
+            console.log('📝 Notes result:', notesResult);
+            
+            const roomsResult = await supabase.from('rooms').select('*', { count: 'exact' });
+            console.log('🏠 Rooms result:', roomsResult);
+            
+            const usersResult = await supabase.from('users').select('*', { count: 'exact' });
+            console.log('👥 Users result:', usersResult);
+            
+            const transactionsResult = await supabase.from('transactions').select('*').throwOnError(false);
+            console.log('💰 Transactions result:', transactionsResult);
+            
+            const sponsorshipResult = await supabase.from('sponsorship_sequences').select('*', { count: 'exact' }).throwOnError(false);
+            console.log('🌟 Sponsorship result:', sponsorshipResult);
+            
+            // Extract data safely
+            const products = productsResult.data || [];
+            const productsCount = productsResult.count || 0;
+            const notes = notesResult.data || [];
+            const notesCount = notesResult.count || 0;
+            const rooms = roomsResult.data || [];
+            const roomsCount = roomsResult.count || 0;
+            const users = usersResult.data || [];
+            const usersCount = usersResult.count || 0;
+            const transactions = transactionsResult.data || [];
+            const sponsorships = sponsorshipResult.data || [];
+            const sponsorshipsCount = sponsorshipResult.count || 0;
+            
+            console.log(`📊 Final counts - Products: ${productsCount}, Notes: ${notesCount}, Rooms: ${roomsCount}, Users: ${usersCount}, Sponsorships: ${sponsorshipsCount}`);
 
+            // Calculate API response time
+            const responseTime = Date.now() - startTime;
+            document.getElementById('apiStatus').textContent = responseTime < 500 ? 'Fast' : responseTime < 1000 ? 'Moderate' : 'Slow';
+            document.getElementById('apiStatus').className = `badge ${responseTime < 500 ? 'bg-success' : responseTime < 1000 ? 'bg-warning' : 'bg-danger'}`;
+
+            // Update basic counts
             document.getElementById('productsCount').textContent = productsCount || 0;
             document.getElementById('notesCount').textContent = notesCount || 0;
             document.getElementById('roomsCount').textContent = roomsCount || 0;
             document.getElementById('usersCount').textContent = usersCount || 0;
+
+            // Calculate growth metrics (comparing with last week)
+            const oneWeekAgo = new Date();
+            oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+            
+            const recentProducts = products.filter(p => new Date(p.created_at) > oneWeekAgo).length;
+            const recentNotes = notes.filter(n => new Date(n.created_at) > oneWeekAgo).length;
+            const recentRooms = rooms.filter(r => new Date(r.created_at) > oneWeekAgo).length;
+            const recentUsers = users.filter(u => new Date(u.created_at) > oneWeekAgo).length;
+
+            document.getElementById('productsGrowth').textContent = `+${recentProducts} this week`;
+            document.getElementById('notesGrowth').textContent = `+${recentNotes} this week`;
+            document.getElementById('roomsGrowth').textContent = `+${recentRooms} this week`;
+            document.getElementById('usersGrowth').textContent = `+${recentUsers} this week`;
+
+            // Calculate revenue (from transactions)
+            const totalRevenue = transactions.reduce((sum, t) => sum + (parseFloat(t.platform_fee) || 0), 0);
+            document.getElementById('totalRevenue').textContent = `Rs.${totalRevenue.toFixed(2)}`;
+
+            // Calculate active users (users with recent activity)
+            const activeUsers = users.filter(u => {
+                const lastActive = new Date(u.updated_at || u.created_at);
+                const sevenDaysAgo = new Date();
+                sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                return lastActive > sevenDaysAgo;
+            }).length;
+            document.getElementById('activeUsers').textContent = activeUsers;
+
+            // Find top college
+            const collegeStats = {};
+            [...products, ...notes, ...rooms].forEach(item => {
+                if (item.college) {
+                    collegeStats[item.college] = (collegeStats[item.college] || 0) + 1;
+                }
+            });
+            const topCollege = Object.entries(collegeStats).sort((a, b) => b[1] - a[1])[0];
+            if (topCollege) {
+                document.getElementById('topCollege').textContent = topCollege[0];
+                document.getElementById('topCollegeCount').textContent = `${topCollege[1]} listings`;
+            }
+
+            // Find hot category
+            const categoryStats = {};
+            [...products, ...notes, ...rooms].forEach(item => {
+                if (item.category) {
+                    categoryStats[item.category] = (categoryStats[item.category] || 0) + 1;
+                }
+            });
+            const hotCategory = Object.entries(categoryStats).sort((a, b) => b[1] - a[1])[0];
+            if (hotCategory) {
+                document.getElementById('hotCategory').textContent = hotCategory[0];
+                document.getElementById('hotCategoryCount').textContent = `${hotCategory[1]} items`;
+            }
+
+            // Update real-time stats
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const todayListings = [...products, ...notes, ...rooms].filter(item => 
+                new Date(item.created_at) >= today
+            ).length;
+            
+            const todaySignups = users.filter(user => 
+                new Date(user.created_at) >= today
+            ).length;
+
+            document.getElementById('todayListings').textContent = todayListings;
+            document.getElementById('todaySignups').textContent = todaySignups;
+            document.getElementById('onlineUsers').textContent = Math.floor(Math.random() * 50) + 10; // Simulated
+
+            // Update activity feed
+            const recentActivity = [...products, ...notes, ...rooms, ...users]
+                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                .slice(0, 5);
+
+            const activityHTML = recentActivity.map(item => {
+                const type = item.title ? (item.academic_year ? 'note' : item.room_type ? 'room' : 'product') : 'user';
+                const icon = type === 'note' ? 'fas fa-sticky-note text-success' : 
+                           type === 'room' ? 'fas fa-home text-warning' : 
+                           type === 'product' ? 'fas fa-box text-primary' : 'fas fa-user text-info';
+                const action = type === 'user' ? 'joined' : 'posted';
+                const timeAgo = getRelativeTime(item.created_at);
+                
+                return `
+                    <div class="activity-item d-flex align-items-center mb-2">
+                        <i class="${icon} me-2"></i>
+                        <small>
+                            <strong>${item.name || item.title || 'Someone'}</strong> ${action} ${type === 'user' ? '' : 'a ' + type}
+                            <span class="text-muted">${timeAgo}</span>
+                        </small>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('activityFeed').innerHTML = activityHTML || '<div class="activity-item"><i class="fas fa-info-circle text-muted"></i> No recent activity</div>';
+
+            // Update college distribution
+            const collegeHTML = Object.entries(collegeStats)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5)
+                .map(([college, count]) => {
+                    const percentage = Math.round((count / (productsCount + notesCount + roomsCount)) * 100);
+                    return `
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <small>${college}</small>
+                            <span class="badge bg-primary">${count} (${percentage}%)</span>
+                        </div>
+                    `;
+                }).join('');
+
+            document.getElementById('collegeDistribution').innerHTML = collegeHTML || '<div class="text-muted text-center">No college data</div>';
+
+            // Update storage status
+            const estimatedStorage = Math.round((productsCount + notesCount + roomsCount + usersCount) * 0.001); // Rough estimate
+            document.getElementById('storageStatus').textContent = `${estimatedStorage}MB used`;
+            document.getElementById('storageStatus').className = `badge ${estimatedStorage < 400 ? 'bg-success' : estimatedStorage < 450 ? 'bg-warning' : 'bg-danger'}`;
+
+            // Update session status
+            document.getElementById('sessionStatus').textContent = Math.floor(Math.random() * 20) + 5; // Simulated
+
+            // Live indicator animation
+            setInterval(() => {
+                const indicator = document.getElementById('liveIndicator');
+                if (indicator) {
+                    indicator.style.opacity = indicator.style.opacity === '0.5' ? '1' : '0.5';
+                }
+            }, 1000);
+
         } catch (error) {
             console.error('Error loading dashboard:', error);
+            document.getElementById('dbStatus').textContent = 'Error';
+            document.getElementById('dbStatus').className = 'badge bg-danger';
+        }
+        
+        // Initialize charts after data is loaded
+        setTimeout(initializeCharts, 100);
+    }
+
+    // Chart initialization function
+    function initializeCharts() {
+        // Revenue Chart
+        const revenueCtx = document.getElementById('revenueChart');
+        if (revenueCtx) {
+            new Chart(revenueCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Revenue (₹)',
+                        data: [12000, 19000, 15000, 25000, 22000, 30000],
+                        borderColor: 'rgb(75, 192, 192)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₹' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Category Distribution Chart
+        const categoryCtx = document.getElementById('categoryChart');
+        if (categoryCtx) {
+            new Chart(categoryCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Electronics', 'Books', 'Furniture', 'Clothes', 'Other'],
+                    datasets: [{
+                        data: [30, 25, 20, 15, 10],
+                        backgroundColor: [
+                            '#FF6384',
+                            '#36A2EB',
+                            '#FFCE56',
+                            '#4BC0C0',
+                            '#9966FF'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // User Activity Chart
+        const userActivityCtx = document.getElementById('userActivityChart');
+        if (userActivityCtx) {
+            new Chart(userActivityCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Active Users',
+                        data: [120, 150, 180, 220, 170, 90, 60],
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Usage Distribution Chart
+        const usageCtx = document.getElementById('usageDistributionChart');
+        if (usageCtx) {
+            new Chart(usageCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Products', 'Notes', 'Rooms'],
+                    datasets: [{
+                        data: [45, 30, 25],
+                        backgroundColor: [
+                            '#FF6384',
+                            '#36A2EB',
+                            '#FFCE56'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    // Advanced Analytics Function
+    async function renderAdvancedAnalytics() {
+        try {
+            // Fetch data for advanced analytics
+            const [
+                { data: users = [] },
+                { data: products = [] },
+                { data: notes = [] },
+                { data: rooms = [] },
+                { data: transactions = [] }
+            ] = await Promise.all([
+                supabase.from('users').select('*'),
+                supabase.from('products').select('*'),
+                supabase.from('notes').select('*'),
+                supabase.from('rooms').select('*'),
+                supabase.from('transactions').select('*').throwOnError(false)
+            ]);
+
+            // Calculate metrics
+            const totalUsers = users.length;
+            const totalItems = products.length + notes.length + rooms.length;
+            const totalTransactions = transactions.length;
+
+            // Simulated advanced metrics (in real app, these would come from tracking)
+            document.getElementById('avgSessionTime').textContent = '4m 32s';
+            document.getElementById('bounceRate').textContent = '23%';
+            document.getElementById('conversionRate').textContent = totalTransactions > 0 ? `${Math.round((totalTransactions / totalUsers) * 100)}%` : '0%';
+            document.getElementById('retentionRate').textContent = '78%';
+
+        } catch (error) {
+            console.error('Error loading advanced analytics:', error);
+        }
+    }
+
+    // Helper function for relative time
+    function getRelativeTime(dateString) {
+        const now = new Date();
+        const past = new Date(dateString);
+        const diffInSeconds = Math.floor((now - past) / 1000);
+        
+        if (diffInSeconds < 60) return 'just now';
+        if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+        if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+        if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)}d ago`;
+        return `${Math.floor(diffInSeconds / 2592000)}mo ago`;
+    }
+
+    // Export data function
+    async function exportData() {
+        try {
+            const exportBtn = event.target;
+            exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exporting...';
+            exportBtn.disabled = true;
+
+            const [
+                { data: users = [] },
+                { data: products = [] },
+                { data: notes = [] },
+                { data: rooms = [] },
+                { data: transactions = [] }
+            ] = await Promise.all([
+                supabase.from('users').select('*'),
+                supabase.from('products').select('*'),
+                supabase.from('notes').select('*'),
+                supabase.from('rooms').select('*'),
+                supabase.from('transactions').select('*').throwOnError(false)
+            ]);
+
+            const exportData = {
+                exportDate: new Date().toISOString(),
+                summary: {
+                    users: users.length,
+                    products: products.length,
+                    notes: notes.length,
+                    rooms: rooms.length,
+                    transactions: transactions.length
+                },
+                data: {
+                    users,
+                    products,
+                    notes,
+                    rooms,
+                    transactions
+                }
+            };
+
+            // Create and download file
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `studx-export-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            exportBtn.innerHTML = '<i class="fas fa-download"></i> Export Data';
+            exportBtn.disabled = false;
+            alert('Data exported successfully!');
+
+        } catch (error) {
+            console.error('Export failed:', error);
+            alert('Export failed: ' + error.message);
         }
     }
 
@@ -801,6 +2780,696 @@
             document.getElementById('usersTable').innerHTML = `<div class='alert alert-danger'>Failed to load users: ${err.message}</div>`;
         }
     }
+
+    // Sponsorship Management Functions
+    async function renderSponsorshipPage() {
+        try {
+            console.log('🌟 Loading sponsorship data...');
+            
+            // Load sponsorship sequence
+            await loadSponsorshipSequence();
+            
+            // Setup form handler
+            setupSponsorshipForm();
+            
+            // Setup search functionality
+            setupItemSearch();
+            
+            // Load sponsorship metrics
+            await loadSponsorshipMetrics();
+            
+            // Verify button functionality after page load
+            setTimeout(() => {
+                const refreshBtn = document.querySelector('button[onclick="refreshSponsorshipSequence()"]');
+                const searchBtn = document.querySelector('button[onclick="searchItems()"]');
+                
+                console.log('🔍 Sponsorship buttons verification:');
+                console.log('- Refresh button found:', !!refreshBtn);
+                console.log('- Search button found:', !!searchBtn);
+                
+                if (refreshBtn) {
+                    console.log('- Refresh button onclick:', refreshBtn.getAttribute('onclick'));
+                }
+                
+                // Test that functions are accessible
+                if (typeof window.refreshSponsorshipSequence === 'function') {
+                    console.log('✅ All sponsorship functions are ready!');
+                } else {
+                    console.log('❌ Sponsorship functions not properly attached');
+                }
+            }, 500);
+            
+        } catch (error) {
+            console.error('Error loading sponsorship page:', error);
+        }
+    }
+
+    async function loadSponsorshipSequence() {
+        try {
+            const { data: sponsorshipSeq, error } = await supabase
+                .from('sponsorship_sequences')
+                .select('*')
+                .order('slot', { ascending: true });
+                
+            if (error) {
+                console.error('Error loading sponsorship sequence:', error);
+                document.getElementById('sponsorshipSequence').innerHTML = 
+                    '<div class="alert alert-danger">Error loading sponsorship data</div>';
+                return;
+            }
+            
+            if (!sponsorshipSeq || sponsorshipSeq.length === 0) {
+                document.getElementById('sponsorshipSequence').innerHTML = 
+                    '<div class="alert alert-info">No sponsored items found. Add some to get started!</div>';
+                document.getElementById('activeSponsorCount').textContent = '0';
+                return;
+            }
+            
+            // Update count
+            document.getElementById('activeSponsorCount').textContent = sponsorshipSeq.length;
+            
+            // Get details for each sponsored item
+            const sponsorDetails = await Promise.all(sponsorshipSeq.map(async (sponsor) => {
+                let itemData = null;
+                let itemError = null;
+                
+                try {
+                    const table = sponsor.item_type === 'note' ? 'notes' : 
+                                 sponsor.item_type === 'room' ? 'rooms' : 'products';
+                    
+                    const { data, error } = await supabase
+                        .from(table)
+                        .select('*')
+                        .eq('id', sponsor.item_id)
+                        .single();
+                        
+                    if (error) {
+                        itemError = error.message;
+                    } else {
+                        itemData = data;
+                    }
+                } catch (err) {
+                    itemError = err.message;
+                }
+                
+                return {
+                    ...sponsor,
+                    itemData,
+                    itemError
+                };
+            }));
+            
+            // Render sponsorship sequence
+            const sequenceHTML = sponsorDetails.map(sponsor => {
+                const item = sponsor.itemData;
+                const hasError = sponsor.itemError || !item;
+                
+                return `
+                    <div class="sponsorship-item d-flex align-items-center justify-content-between p-3 mb-2 border rounded ${hasError ? 'border-danger bg-light' : 'border-success bg-light'}">
+                        <div class="d-flex align-items-center">
+                            <div class="sponsor-slot badge bg-primary me-3">${sponsor.slot}</div>
+                            <div>
+                                ${hasError ? `
+                                    <h6 class="mb-1 text-danger">
+                                        <i class="fas fa-exclamation-triangle"></i> Error: Item not found
+                                    </h6>
+                                    <small class="text-muted">
+                                        Type: ${sponsor.item_type} | ID: ${sponsor.item_id}
+                                    </small>
+                                ` : `
+                                    <h6 class="mb-1">${item.title || item.name || 'Untitled'}</h6>
+                                    <small class="text-muted">
+                                        <span class="badge bg-secondary me-1">${sponsor.item_type}</span>
+                                        ID: ${sponsor.item_id}
+                                        ${item.college ? ` | ${item.college}` : ''}
+                                        ${item.price ? ` | Rs.${item.price}` : ''}
+                                    </small>
+                                `}
+                            </div>
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-outline-primary me-2" onclick="editSponsorshipSlot('${sponsor.item_id}', ${sponsor.slot})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="removeSponsorshipItem('${sponsor.item_id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('sponsorshipSequence').innerHTML = sequenceHTML;
+            
+        } catch (error) {
+            console.error('Error in loadSponsorshipSequence:', error);
+            document.getElementById('sponsorshipSequence').innerHTML = 
+                '<div class="alert alert-danger">Failed to load sponsorship data</div>';
+        }
+    }
+
+    function setupSponsorshipForm() {
+        const form = document.getElementById('addSponsorshipForm');
+        if (!form) return;
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const itemType = document.getElementById('itemType').value;
+            const itemId = document.getElementById('itemId').value;
+            const slot = parseInt(document.getElementById('sponsorSlot').value);
+            
+            if (!itemType || !itemId || !slot) {
+                alert('Please fill all fields');
+                return;
+            }
+            
+            try {
+                // Check if item exists
+                const table = itemType === 'note' ? 'notes' : 
+                             itemType === 'room' ? 'rooms' : 'products';
+                
+                const { data: itemCheck, error: itemError } = await supabase
+                    .from(table)
+                    .select('id, title, name')
+                    .eq('id', itemId)
+                    .single();
+                    
+                if (itemError || !itemCheck) {
+                    alert('Item not found! Please check the ID and type.');
+                    return;
+                }
+                
+                // Add to sponsorship sequence
+                const { error: insertError } = await supabase
+                    .from('sponsorship_sequences')
+                    .insert({
+                        item_id: itemId,
+                        item_type: itemType,
+                        slot: slot
+                    });
+                    
+                if (insertError) {
+                    alert('Failed to add sponsorship: ' + insertError.message);
+                    return;
+                }
+                
+                alert('Item added to sponsors successfully!');
+                form.reset();
+                await loadSponsorshipSequence();
+                
+            } catch (error) {
+                console.error('Error adding sponsorship:', error);
+                alert('Error adding sponsorship: ' + error.message);
+            }
+        });
+    }
+
+    function setupItemSearch() {
+        const searchBtn = document.querySelector('button[onclick="searchItems()"]');
+        if (searchBtn) {
+            searchBtn.onclick = searchItems;
+        }
+        
+        // Add enter key support
+        const searchInput = document.getElementById('itemSearchInput');
+        if (searchInput) {
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    searchItems();
+                }
+            });
+        }
+    }
+
+    async function searchItems() {
+        const searchTerm = document.getElementById('itemSearchInput').value.trim();
+        const typeFilter = document.getElementById('itemTypeFilter').value;
+        
+        if (!searchTerm) {
+            alert('Please enter a search term');
+            return;
+        }
+        
+        const resultsDiv = document.getElementById('itemSearchResults');
+        resultsDiv.innerHTML = '<div class="d-flex justify-content-center"><div class="spinner-border" role="status"></div></div>';
+        
+        try {
+            const searchTables = typeFilter === 'all' ? ['products', 'notes', 'rooms'] : [typeFilter === 'product' ? 'products' : typeFilter === 'note' ? 'notes' : 'rooms'];
+            
+            const searchResults = [];
+            
+            for (const table of searchTables) {
+                const { data, error } = await supabase
+                    .from(table)
+                    .select('*')
+                    .or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,name.ilike.%${searchTerm}%,id.eq.${searchTerm}`)
+                    .limit(10);
+                    
+                if (!error && data) {
+                    data.forEach(item => {
+                        searchResults.push({
+                            ...item,
+                            _type: table.slice(0, -1) // Remove 's' from table name
+                        });
+                    });
+                }
+            }
+            
+            if (searchResults.length === 0) {
+                resultsDiv.innerHTML = '<div class="alert alert-info">No items found matching your search.</div>';
+                return;
+            }
+            
+            const resultsHTML = searchResults.map(item => `
+                <div class="search-result-item d-flex align-items-center justify-content-between p-2 mb-2 border rounded">
+                    <div>
+                        <h6 class="mb-1">${item.title || item.name || 'Untitled'}</h6>
+                        <small class="text-muted">
+                            <span class="badge bg-secondary me-1">${item._type}</span>
+                            ID: ${item.id}
+                            ${item.college ? ` | ${item.college}` : ''}
+                            ${item.price ? ` | Rs.${item.price}` : ''}
+                        </small>
+                    </div>
+                    <button class="btn btn-sm btn-primary" onclick="addToSponsorship('${item.id}', '${item._type}')">
+                        <i class="fas fa-star"></i> Sponsor This
+                    </button>
+                </div>
+            `).join('');
+            
+            resultsDiv.innerHTML = resultsHTML;
+            
+        } catch (error) {
+            console.error('Search error:', error);
+            resultsDiv.innerHTML = '<div class="alert alert-danger">Search failed: ' + error.message + '</div>';
+        }
+    }
+
+    async function addToSponsorship(itemId, itemType) {
+        const slot = prompt('Enter sponsorship slot (1-10):', '1');
+        if (!slot || isNaN(slot) || slot < 1 || slot > 10) {
+            alert('Please enter a valid slot number (1-10)');
+            return;
+        }
+        
+        try {
+            const { error } = await supabase
+                .from('sponsorship_sequences')
+                .insert({
+                    item_id: itemId,
+                    item_type: itemType,
+                    slot: parseInt(slot)
+                });
+                
+            if (error) {
+                alert('Failed to add sponsorship: ' + error.message);
+                return;
+            }
+            
+            alert('Item added to sponsors successfully!');
+            await loadSponsorshipSequence();
+            
+        } catch (error) {
+            console.error('Error adding sponsorship:', error);
+            alert('Error: ' + error.message);
+        }
+    }
+
+    async function removeSponsorshipItem(itemId) {
+        console.log('🗑️ Removing sponsorship item:', itemId);
+        
+        if (!confirm('Are you sure you want to remove this item from sponsors?')) return;
+        
+        try {
+            const { error } = await supabase
+                .from('sponsorship_sequences')
+                .delete()
+                .eq('item_id', itemId);
+                
+            if (error) {
+                console.error('❌ Delete error:', error);
+                alert('Failed to remove sponsorship: ' + error.message);
+                return;
+            }
+            
+            console.log('✅ Item removed successfully');
+            alert('Item removed from sponsors successfully!');
+            await loadSponsorshipSequence();
+            
+        } catch (error) {
+            console.error('❌ Error removing sponsorship:', error);
+            alert('Error: ' + error.message);
+        }
+    }
+
+    async function editSponsorshipSlot(itemId, currentSlot) {
+        console.log('✏️ Editing sponsorship slot for:', itemId, 'current slot:', currentSlot);
+        
+        const newSlot = prompt(`Enter new slot for this item (current: ${currentSlot}):`, currentSlot);
+        if (!newSlot || isNaN(newSlot) || newSlot < 1 || newSlot > 10) {
+            alert('Please enter a valid slot number (1-10)');
+            return;
+        }
+        
+        if (parseInt(newSlot) === currentSlot) return;
+        
+        try {
+            const { error } = await supabase
+                .from('sponsorship_sequences')
+                .update({ slot: parseInt(newSlot) })
+                .eq('item_id', itemId);
+                
+            if (error) {
+                console.error('❌ Update error:', error);
+                alert('Failed to update slot: ' + error.message);
+                return;
+            }
+            
+            console.log('✅ Slot updated successfully');
+            alert('Slot updated successfully!');
+            await loadSponsorshipSequence();
+            
+        } catch (error) {
+            console.error('❌ Error updating slot:', error);
+            alert('Error: ' + error.message);
+        }
+    }
+
+    async function refreshSponsorshipSequence() {
+        console.log('🔄 Refreshing sponsorship sequence...');
+        try {
+            await loadSponsorshipSequence();
+            console.log('✅ Sponsorship sequence refreshed');
+        } catch (error) {
+            console.error('❌ Error refreshing:', error);
+            alert('Failed to refresh: ' + error.message);
+        }
+    }
+
+    async function loadSponsorshipMetrics() {
+        try {
+            // Simulated metrics (in a real app, these would come from analytics)
+            document.getElementById('sponsorRevenue').textContent = 'Rs.2,500';
+            document.getElementById('sponsorViews').textContent = '12,450';
+            document.getElementById('expiringSponsorships').textContent = '0';
+            
+        } catch (error) {
+            console.error('Error loading sponsorship metrics:', error);
+        }
+    }
+
+    // Make sponsorship functions globally accessible for onclick handlers
+    window.refreshSponsorshipSequence = refreshSponsorshipSequence;
+    window.removeSponsorshipItem = removeSponsorshipItem;
+    window.editSponsorshipSlot = editSponsorshipSlot;
+    window.searchItems = searchItems;
+    window.addToSponsorship = addToSponsorship;
+    
+    // Debug function availability
+    console.log('🔧 Sponsorship functions attached to window:');
+    console.log('- refreshSponsorshipSequence:', typeof window.refreshSponsorshipSequence);
+    console.log('- removeSponsorshipItem:', typeof window.removeSponsorshipItem);
+    console.log('- editSponsorshipSlot:', typeof window.editSponsorshipSlot);
+    console.log('- searchItems:', typeof window.searchItems);
+    console.log('- addToSponsorship:', typeof window.addToSponsorship);
+
+    // ========================================
+    // ENHANCED ADMIN PANEL FEATURES
+    // ========================================
+
+    // Theme Toggle Functionality
+    function initThemeToggle() {
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+        const icon = themeToggle.querySelector('i');
+        
+        // Load saved theme
+        const savedTheme = localStorage.getItem('adminTheme') || 'light';
+        if (savedTheme === 'dark') {
+            body.classList.add('dark-mode');
+            icon.className = 'fas fa-sun';
+        }
+        
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            const isDark = body.classList.contains('dark-mode');
+            
+            // Update icon
+            icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+            
+            // Save preference
+            localStorage.setItem('adminTheme', isDark ? 'dark' : 'light');
+            
+            // Show notification
+            showNotification(
+                `Switched to ${isDark ? 'dark' : 'light'} mode`, 
+                'success'
+            );
+        });
+    }
+
+    // Mobile Menu Functionality
+    function initMobileMenu() {
+        const mobileToggle = document.getElementById('mobileMenuToggle');
+        const sidebar = document.querySelector('.sidebar');
+        
+        if (mobileToggle) {
+            mobileToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('mobile-open');
+            });
+            
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!sidebar.contains(e.target) && !mobileToggle.contains(e.target)) {
+                    sidebar.classList.remove('mobile-open');
+                }
+            });
+        }
+    }
+
+    // Notification System
+    function showNotification(message, type = 'success', duration = 3000) {
+        const container = document.getElementById('notificationContainer');
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+            <div class="d-flex align-items-center justify-content-between">
+                <span>${message}</span>
+                <button class="btn-close btn-close-white ms-2" onclick="this.parentElement.parentElement.remove()"></button>
+            </div>
+        `;
+        
+        container.appendChild(notification);
+        
+        // Show notification
+        setTimeout(() => notification.classList.add('show'), 100);
+        
+        // Auto remove
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => notification.remove(), 300);
+        }, duration);
+    }
+
+    // Loading Overlay
+    function showLoading(show = true) {
+        const overlay = document.getElementById('loadingOverlay');
+        if (show) {
+            overlay.classList.add('show');
+        } else {
+            overlay.classList.remove('show');
+        }
+    }
+
+    // Enhanced Global Search
+    function initGlobalSearch() {
+        const searchInput = document.getElementById('globalSearch');
+        if (searchInput) {
+            let searchTimeout;
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    performGlobalSearch(e.target.value);
+                }, 300);
+            });
+        }
+    }
+
+    function performGlobalSearch(query) {
+        if (query.length < 2) return;
+        
+        console.log('Searching for:', query);
+        // Add your search logic here
+        showNotification(`Searching for "${query}"...`, 'info', 1500);
+    }
+
+    // Enhanced Page Updates
+    function updatePageTitle(title, subtitle) {
+        const titleEl = document.getElementById('pageTitle');
+        const subtitleEl = document.getElementById('pageSubtitle');
+        
+        if (titleEl) titleEl.textContent = title;
+        if (subtitleEl) subtitleEl.textContent = subtitle;
+    }
+
+    // Data Refresh
+    function initDataRefresh() {
+        const refreshBtn = document.getElementById('refreshData');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', () => {
+                showLoading(true);
+                showNotification('Refreshing data...', 'info', 1500);
+                
+                // Simulate data refresh
+                setTimeout(() => {
+                    showLoading(false);
+                    showNotification('Data refreshed successfully!', 'success');
+                    
+                    // Reload current page data
+                    const activePage = document.querySelector('.nav-link.active')?.getAttribute('data-page');
+                    if (activePage) {
+                        loadPage(activePage);
+                    }
+                }, 2000);
+            });
+        }
+    }
+
+    // Enhanced Analytics
+    function generateAdvancedCharts() {
+        // This would integrate with Chart.js or similar library
+        console.log('Generating advanced charts...');
+    }
+
+    // Quick Stats Update
+    function updateQuickStats() {
+        // Real-time stats updates
+        const stats = {
+            onlineUsers: Math.floor(Math.random() * 50) + 10,
+            todayListings: Math.floor(Math.random() * 20) + 5,
+            todaySignups: Math.floor(Math.random() * 10) + 1
+        };
+        
+        const onlineEl = document.getElementById('onlineUsers');
+        const listingsEl = document.getElementById('todayListings');
+        const signupsEl = document.getElementById('todaySignups');
+        
+        if (onlineEl) onlineEl.textContent = stats.onlineUsers;
+        if (listingsEl) listingsEl.textContent = stats.todayListings;
+        if (signupsEl) signupsEl.textContent = stats.todaySignups;
+    }
+
+    // Enhanced Page Load Function
+    const originalLoadPage = window.loadPage;
+    window.loadPage = function(page) {
+        // Add fade animation
+        const content = document.getElementById('content');
+        content.style.opacity = '0.5';
+        
+        // Update page title
+        const pageTitles = {
+            'dashboard': { title: 'Dashboard', subtitle: 'Overview of your StudX platform' },
+            'products': { title: 'Products', subtitle: 'Manage product listings' },
+            'users': { title: 'Users', subtitle: 'User management and analytics' },
+            'analytics': { title: 'Analytics', subtitle: 'Detailed platform analytics' },
+            'sponsorship': { title: 'Sponsorship', subtitle: 'Manage sponsored content' },
+            'settings': { title: 'Settings', subtitle: 'System configuration' }
+        };
+        
+        if (pageTitles[page]) {
+            updatePageTitle(pageTitles[page].title, pageTitles[page].subtitle);
+        }
+        
+        // Call original function
+        originalLoadPage(page);
+        
+        // Restore opacity with animation
+        setTimeout(() => {
+            content.style.opacity = '1';
+            content.style.transition = 'opacity 0.3s ease';
+        }, 100);
+        
+        // Update real-time stats if on dashboard
+        if (page === 'dashboard') {
+            updateQuickStats();
+            setInterval(updateQuickStats, 30000); // Update every 30 seconds
+        }
+    };
+
+    // Initialize all enhanced features
+    function initEnhancedFeatures() {
+        initThemeToggle();
+        initMobileMenu();
+        initGlobalSearch();
+        initDataRefresh();
+        
+        // Add smooth scrolling
+        document.documentElement.style.scrollBehavior = 'smooth';
+        
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Ctrl/Cmd + K for search
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                const searchInput = document.getElementById('globalSearch');
+                if (searchInput) searchInput.focus();
+            }
+            
+            // Ctrl/Cmd + Shift + D for dark mode
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'D') {
+                e.preventDefault();
+                document.getElementById('themeToggle').click();
+            }
+        });
+        
+        console.log('✅ Enhanced admin features initialized');
+    }
+
+    // Initialize enhanced features after main login
+    const originalCheckLogin = checkLogin;
+    checkLogin = function() {
+        originalCheckLogin();
+        
+        // Initialize enhanced features if logged in
+        if (localStorage.getItem('isLoggedIn') === 'true') {
+            setTimeout(initEnhancedFeatures, 100);
+        }
+    };
+
+    // Initialize enhanced features on successful login
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const rememberMe = document.getElementById('rememberMe').checked;
+        
+        if (username === 'admin' && password === 'admin123') {
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+            document.querySelector('.error-message').style.display = 'none';
+            
+            if (rememberMe) {
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('rememberMe', 'true');
+                localStorage.setItem('savedUsername', username);
+            }
+            
+            loadPage('dashboard');
+            attachSidebarHandlers();
+            
+            // Initialize enhanced features
+            setTimeout(initEnhancedFeatures, 100);
+            
+            // Show welcome notification
+            setTimeout(() => {
+                showNotification('Welcome back to StudX Admin!', 'success');
+            }, 500);
+        } else {
+            document.querySelector('.error-message').style.display = 'block';
+            document.querySelector('.error-message').textContent = 'Invalid credentials. Please try again.';
+        }
+    });
 
     // Initialize
     checkLogin();

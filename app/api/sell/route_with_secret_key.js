@@ -1,4 +1,4 @@
-﻿import { createClient } from '@supabase/supabase-js'
+import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
 // Enhanced error logging
@@ -126,47 +126,23 @@ export async function POST(request) {
 
     console.log('[SELL API] Validating user...')
 
-    // Check if user exists - diagnostic version
+    // Check if user exists
     const { data: userData, error: userError } = await supabase
       .from('users')
       .select('id, email')
       .eq('email', userEmail)
+      .single()
 
-    console.log('[SELL API] User query result:', {
-      userData,
-      userError,
-      userCount: userData ? userData.length : 0
-    })
-
-    if (userError) {
-      logError('USER_VALIDATION', userError)
+    if (userError || !userData) {
+      logError('USER_VALIDATION', userError || new Error('User not found'))
       return NextResponse.json({ 
-        error: 'Database error during user validation',
+        error: 'User not found or invalid',
         userEmail,
-        details: userError.message 
-      }, { status: 500 })
-    }
-
-    if (!userData || userData.length === 0) {
-      console.log('[SELL API] No user found with email:', userEmail)
-      return NextResponse.json({ 
-        error: 'User not found',
-        userEmail,
-        suggestion: 'Please make sure you are logged in with the correct email'
+        details: userError?.message 
       }, { status: 401 })
     }
 
-    if (userData.length > 1) {
-      console.log('[SELL API] Multiple users found with email:', userEmail)
-      return NextResponse.json({ 
-        error: 'Multiple users found with this email',
-        userEmail,
-        count: userData.length
-      }, { status: 409 })
-    }
-
-    const user = userData[0]
-    console.log('[SELL API] User validated:', user.id)
+    console.log('[SELL API] User validated:', userData.id)
 
     // Handle image upload if present
     let imageUrl = null
@@ -187,20 +163,14 @@ export async function POST(request) {
     // Prepare data for database
     const now = new Date().toISOString()
     let insertData = {
-      user_id: user.id,
+      user_id: userData.id,
       created_at: now,
       updated_at: now
     }
 
     // Add image URL if available
     if (imageUrl) {
-      if (type === 'room' || type === 'product') {
-        // For rooms and products, add to images array
-        insertData.images = [imageUrl]
-      } else if (type === 'note') {
-        // For notes, use image_url field (if it exists)
-        insertData.images = [imageUrl]
-      }
+      insertData.image_url = imageUrl
     }
 
     let tableName
@@ -208,48 +178,28 @@ export async function POST(request) {
 
     // Insert based on type
     if (type === 'room') {
-      tableName = 'rooms'
+      tableName = 'room_listings'
       insertData = {
         ...insertData,
-        title: body.roomName || 'Unnamed Room',
-        description: body.description || '',
-        price: parseFloat(body.price) || 0,
+        room_name: body.roomName || 'Unnamed Room',
         location: body.location || '',
-        room_type: body.roomType || 'single',
-        category: 'rooms',
-        seller_id: user.id, // Use seller_id instead of user_id for rooms table
-        college: body.college || '',
-        occupancy: body.occupancy || '1',
-        owner_name: body.ownerName || '',
-        contact1: body.contact1 || '',
-        contact2: body.contact2 || null,
-        deposit: parseFloat(body.deposit) || 0,
-        fees_include_mess: body.feesIncludeMess || false,
-        mess_fees: parseFloat(body.messFees) || null,
+        price: parseFloat(body.price) || 0,
+        description: body.description || '',
         amenities: body.amenities || [],
-        distance: body.distance || '0',
-        fee_period: body.feePeriod || 'monthly',
-        fees_period: body.feePeriod || 'Monthly',
-        duration: body.duration || body.feePeriod || 'monthly' // Add duration field
+        room_type: body.roomType || 'single',
+        availability_status: 'available'
       }
-      // Remove user_id for rooms table
-      delete insertData.user_id
     } else if (type === 'product') {
-      tableName = 'products'
+      tableName = 'product_listings'
       insertData = {
         ...insertData,
-        title: body.productName || 'Unnamed Product',
-        description: body.description || '',
-        price: parseFloat(body.price) || 0,
+        product_name: body.productName || 'Unnamed Product',
         category: body.category || 'other',
-        condition: body.condition || 'Used',
-        seller_id: user.id, // Use seller_id instead of user_id for products table
-        college: body.college || '',
-        location: body.location || '',
-        is_sold: false
+        price: parseFloat(body.price) || 0,
+        description: body.description || '',
+        condition: body.condition || 'good',
+        availability_status: 'available'
       }
-      // Remove user_id for products table
-      delete insertData.user_id
     } else if (type === 'note') {
       tableName = 'notes'
       insertData = {
@@ -258,11 +208,9 @@ export async function POST(request) {
         subject: body.subject || '',
         price: parseFloat(body.price) || 0,
         description: body.description || '',
-        seller_id: user.id, // Use seller_id for consistency
-        category: 'notes'
+        file_type: body.fileType || 'pdf',
+        availability_status: 'available'
       }
-      // Remove user_id for notes table  
-      delete insertData.user_id
     } else {
       return NextResponse.json({ 
         error: 'Invalid type',
