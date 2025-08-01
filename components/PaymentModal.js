@@ -73,9 +73,9 @@ export default function PaymentModal({
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full shadow-2xl">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full shadow-2xl max-h-[90vh] overflow-y-auto">
                 {/* Header */}
-                <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+                <div className="p-6 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-800 z-10">
                     <div className="flex items-center justify-between">
                         <div>
                             <h2 className="text-xl font-bold text-gray-900 dark:text-white">
@@ -94,8 +94,8 @@ export default function PaymentModal({
                     </div>
                 </div>
 
-                {/* Content */}
-                <div className="p-6">
+                {/* Content - Scrollable */}
+                <div className="p-6 overflow-y-auto">
                     {/* Item Summary */}
                     <div className="mb-6">
                         <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
@@ -119,13 +119,8 @@ export default function PaymentModal({
                             </div>
                             
                             <div className="flex justify-between">
-                                <span className="text-gray-600 dark:text-gray-400">Platform Fee ({fees.feePercent}%):</span>
-                                <span className="text-red-600 dark:text-red-400">₹{fees.platformFee}</span>
-                            </div>
-                            
-                            <div className="flex justify-between">
-                                <span className="text-gray-600 dark:text-gray-400">Payment Processing:</span>
-                                <span className="text-red-600 dark:text-red-400">₹{fees.gatewayFee}</span>
+                                <span className="text-gray-600 dark:text-gray-400">Platform Fees (5%):</span>
+                                <span className="text-red-600 dark:text-red-400">₹{Math.round(fees.originalAmount * 0.05)}</span>
                             </div>
                             
                             <div className="border-t border-gray-200 dark:border-gray-600 pt-2 mt-2">
@@ -136,7 +131,7 @@ export default function PaymentModal({
                             </div>
 
                             <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                                💡 Note seller receives: ₹{fees.sellerAmount} after fees
+                                💡 Note seller receives: ₹{Math.round(fees.originalAmount * 0.95)} after fees
                             </div>
                         </div>
                     </div>
@@ -168,7 +163,7 @@ export default function PaymentModal({
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex gap-3">
+                    <div className="flex gap-3 sticky bottom-0 bg-white dark:bg-gray-800 pt-4 border-t border-gray-200 dark:border-gray-700 mt-4">
                         <button
                             onClick={onClose}
                             className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"

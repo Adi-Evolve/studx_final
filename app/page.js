@@ -14,6 +14,9 @@ import {
 } from './actions';
 import Link from 'next/link';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 // Loading components
 function SectionSkeleton() {
   return (
@@ -30,9 +33,33 @@ function SectionSkeleton() {
 
 // Featured Items Section Component
 async function FeaturedItemsSection() {
-  const featuredItems = await fetchSponsoredListings();
+  // Import the sponsorship manager dynamically to avoid issues with server components
+  const { sponsorshipManager } = await import('@/lib/sponsorship');
   
-  return <FeaturedSlider featuredItems={featuredItems} />;
+  try {
+    // Get all sponsored items from the new system
+    const sponsoredItems = await sponsorshipManager.getAllSponsoredItems();
+    
+    // Fallback to old system if new system returns no items
+    if (!sponsoredItems || sponsoredItems.length === 0) {
+      const featuredItems = await fetchSponsoredListings();
+      return <FeaturedSlider featuredItems={featuredItems} />;
+    }
+    
+    // Format sponsored items for the FeaturedSlider component
+    const formattedItems = sponsoredItems.map(item => ({
+      ...item,
+      is_sponsored: true,
+      isFeatured: true
+    }));
+    
+    return <FeaturedSlider featuredItems={formattedItems} />;
+  } catch (error) {
+    console.error('Error loading sponsored items:', error);
+    // Fallback to old system
+    const featuredItems = await fetchSponsoredListings();
+    return <FeaturedSlider featuredItems={featuredItems} />;
+  }
 }
 
 // Newest Products Section Component

@@ -1,6 +1,7 @@
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import ListingCard from '@/components/ListingCard';
 import Link from 'next/link';
+import { sponsorshipManager } from '@/lib/sponsorship';
 
 export default async function CategoryPage({ params }) {
     const categoryName = decodeURIComponent(params.name);
@@ -13,6 +14,42 @@ export default async function CategoryPage({ params }) {
     const augmentData = (data, type) => {
         if (!data) return [];
         return data.map(item => ({ ...item, type }));
+    };
+
+    // Helper to get category type for sponsorship filtering
+    const getCategoryType = (categoryName) => {
+        const lowerCategory = categoryName.toLowerCase();
+        if (lowerCategory.includes('room')) return 'room';
+        if (lowerCategory.includes('note')) return 'note';
+        return 'regular';
+    };
+
+    // Helper to mix sponsored items with regular results
+    const mixWithSponsoredItems = async (regularListings, categoryName) => {
+        try {
+            const categoryType = getCategoryType(categoryName);
+            
+            // Get relevant sponsored items for this category
+            const sponsoredItems = await sponsorshipManager.getSponsoredItems(categoryType);
+            
+            if (!sponsoredItems || sponsoredItems.length === 0) {
+                return regularListings;
+            }
+
+            // For category pages, show 1-2 sponsored items at the top
+            const numSponsoredToShow = Math.min(2, sponsoredItems.length);
+            const selectedSponsored = sponsoredItems.slice(0, numSponsoredToShow).map(item => ({
+                ...item,
+                is_sponsored: true,
+                type: categoryType
+            }));
+
+            // Mix sponsored items at the beginning
+            return [...selectedSponsored, ...regularListings];
+        } catch (error) {
+            console.error('Error mixing sponsored items:', error);
+            return regularListings;
+        }
     };
 
     // Map homepage category names to correct query logic
@@ -130,7 +167,8 @@ export default async function CategoryPage({ params }) {
         error = result.error;
         listings = [];
     } else {
-        listings = result.listings;
+        // Mix sponsored items with regular listings
+        listings = await mixWithSponsoredItems(result.listings, categoryName);
     }
 
     if (error) {
@@ -147,8 +185,12 @@ export default async function CategoryPage({ params }) {
             <h1 className="text-3xl font-bold text-primary mb-8">Category: {categoryName}</h1>
             {listings && listings.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                    {listings.map(item => (
-                        <ListingCard key={`${item.type}-${item.id}`} item={item} />
+                    {listings.map((item, index) => (
+                        <ListingCard 
+                            key={`${item.type}-${item.id}-${index}`} 
+                            item={item} 
+                            isSponsored={item.is_sponsored || false}
+                        />
                     ))}
                 </div>
             ) : (

@@ -96,7 +96,7 @@ export default function NotePageClient({ note, seller }) {
 
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
                     <div className="lg:col-span-3 bg-white rounded-lg shadow-md p-4">
-                        <ProductImageGallery images={note.images} title={note.title} />
+                        <ProductImageGallery images={note.images || note.image_urls || []} title={note.title} />
                     </div>
 
                     <div className="lg:col-span-2">

@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { searchListings, fetchListings, searchListingsWithLocation, fetchListingsWithLocation } from '@/app/actions';
 import ListingCard from '@/components/ListingCard';
 import { useUserLocation } from '@/hooks/useUserLocation';
+import { sponsorshipManager } from '@/lib/sponsorship';
 
 // Force dynamic rendering to prevent build-time prerendering issues
 export const dynamic = 'force-dynamic';
@@ -112,8 +113,19 @@ function SearchContent() {
             // Apply client-side filters and sorting
             let filteredResults = applyFiltersAndSorting(results);
             
-            setSearchResults(filteredResults);
-            setTotalResults(filteredResults.length);
+            // Mix with sponsored items for priority placement
+            const mixedResults = await sponsorshipManager.mixSponsoredWithRegular(
+                filteredResults, 
+                query.trim(),
+                {
+                    type: filters.category !== 'all' ? getTypeFromCategory(filters.category) : null,
+                    insertEvery: 4, // Insert sponsored item every 4 regular items
+                    maxSponsored: 5
+                }
+            );
+            
+            setSearchResults(mixedResults);
+            setTotalResults(mixedResults.length);
         } catch (err) {
             setError('Search failed. Please try again.');
             // console.error('Search error:', err);
@@ -147,8 +159,19 @@ function SearchContent() {
             // Apply client-side filters and sorting
             let filteredResults = applyFiltersAndSorting(results);
             
-            setSearchResults(filteredResults);
-            setTotalResults(filteredResults.length);
+            // Mix with sponsored items for general browsing
+            const mixedResults = await sponsorshipManager.mixSponsoredWithRegular(
+                filteredResults, 
+                '',
+                {
+                    type: filters.category !== 'all' ? getTypeFromCategory(filters.category) : null,
+                    insertEvery: 6, // Insert sponsored item every 6 regular items for browsing
+                    maxSponsored: 3
+                }
+            );
+            
+            setSearchResults(mixedResults);
+            setTotalResults(mixedResults.length);
         } catch (err) {
             setError('Failed to load listings. Please try again.');
             // console.error('Listings fetch error:', err);
@@ -210,6 +233,20 @@ function SearchContent() {
         });
 
         return filteredResults;
+    };
+
+    // Helper function to map category to item type
+    const getTypeFromCategory = (category) => {
+        const categoryMap = {
+            'Notes': 'note',
+            'Room': 'room',
+            'Rooms': 'room',
+            'Books': 'product',
+            'Electronics': 'product',
+            'Furniture': 'product',
+            'Other': 'product'
+        };
+        return categoryMap[category] || null;
     };
 
     const handleFilterChange = (filterType, value) => {
@@ -465,6 +502,7 @@ function SearchContent() {
                                         key={`${item.type}-${item.id}-${index}`}
                                         item={item}
                                         showDistance={!!location && !locationError}
+                                        isSponsored={item.is_sponsored || false}
                                     />
                                 ))}
                             </div>

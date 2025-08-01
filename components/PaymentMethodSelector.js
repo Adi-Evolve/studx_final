@@ -89,14 +89,14 @@ export default function PaymentMethodSelector({
     };
 
     return (
-        <div className="max-w-2xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
+        <div className="max-w-2xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden max-h-[90vh] overflow-y-auto">
             {/* Header */}
-            <div className="bg-gradient-to-r from-primary-600 to-primary-700 px-6 py-4">
+            <div className="bg-gradient-to-r from-primary-600 to-primary-700 px-6 py-4 sticky top-0 z-10">
                 <h3 className="text-xl font-bold text-white">Choose Payment Method</h3>
                 <p className="text-primary-100">Select how you'd like to pay ₹{amount}</p>
             </div>
 
-            <div className="p-6">
+            <div className="p-6 overflow-y-auto">
                 {/* Payment Methods */}
                 <div className="space-y-4 mb-6">
                     {paymentMethods.filter(method => method.available).map(method => (
@@ -245,7 +245,7 @@ export default function PaymentMethodSelector({
                 )}
 
                 {/* Action Buttons */}
-                <div className="flex space-x-3">
+                <div className="flex space-x-3 sticky bottom-0 bg-white dark:bg-gray-800 pt-4 border-t border-gray-200 dark:border-gray-700 mt-4">
                     <button
                         onClick={onCancel}
                         className="flex-1 btn-secondary"

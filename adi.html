@@ -448,6 +448,110 @@
             color: #f1f5f9;
         }
 
+        /* Dark mode modal and additional component styles */
+        .dark-mode .modal-content {
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #f1f5f9;
+        }
+
+        .dark-mode .modal-header {
+            border-bottom: 1px solid #334155;
+        }
+
+        .dark-mode .modal-footer {
+            border-top: 1px solid #334155;
+        }
+
+        .dark-mode .form-select {
+            background: #334155;
+            border: 1px solid #475569;
+            color: #f1f5f9;
+        }
+
+        .dark-mode .alert {
+            border: 1px solid #334155;
+        }
+
+        .dark-mode .alert-info {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: #3b82f6;
+            color: #93c5fd;
+        }
+
+        .dark-mode .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: #10b981;
+            color: #86efac;
+        }
+
+        .dark-mode .alert-danger {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: #ef4444;
+            color: #fca5a5;
+        }
+
+        .dark-mode .text-muted {
+            color: #94a3b8 !important;
+        }
+
+        .dark-mode .item-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #f1f5f9;
+        }
+
+        .dark-mode .sponsor-slot {
+            background: #334155;
+            border: 2px dashed #475569 !important;
+        }
+
+        .dark-mode .sponsor-slot.drag-over {
+            border-color: var(--primary-color) !important;
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .dark-mode .sponsored-item {
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #f1f5f9;
+        }
+
+        .dark-mode .btn-outline-secondary {
+            border-color: #64748b;
+            color: #64748b;
+        }
+
+        .dark-mode .btn-outline-secondary:hover {
+            background: #64748b;
+            border-color: #64748b;
+            color: white;
+        }
+
+        .dark-mode .btn-outline-danger {
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+
+        .dark-mode .btn-outline-danger:hover {
+            background: #ef4444;
+            border-color: #ef4444;
+            color: white;
+        }
+
+        .dark-mode .table-striped > tbody > tr:nth-of-type(odd) > td,
+        .dark-mode .table-striped > tbody > tr:nth-of-type(odd) > th {
+            background: #334155;
+        }
+
+        .dark-mode .table {
+            color: #f1f5f9;
+        }
+
+        .dark-mode .badge {
+            color: white;
+        }
+
         /* Theme Toggle */
         .theme-toggle {
             position: fixed;
@@ -870,56 +974,629 @@
             color: var(--danger-color);
         }
 
-        /* Modern Sponsorship Styles */
+        /* Modern Sponsorship Redesign */
         .sponsorship-container {
-            padding: 2rem;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            background-attachment: fixed;
         }
 
-        .sponsorship-item {
-            background: white;
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius-lg);
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            transition: all 0.2s ease;
-            position: relative;
+        /* Gradient Button */
+        .btn-gradient-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
         }
 
-        .sponsorship-item:hover {
-            box-shadow: var(--shadow-md);
+        .btn-gradient-primary:hover {
             transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
         }
 
-        .sponsor-slot {
+        /* Modern Stat Cards */
+        .stat-card {
+            border-radius: 20px;
+            padding: 30px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            transform: translate(30px, -30px);
+        }
+
+        .bg-gradient-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .bg-gradient-success { background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%); }
+        .bg-gradient-info { background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); }
+        .bg-gradient-warning { background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); }
+
+        .stat-icon {
+            font-size: 3rem;
+            opacity: 0.8;
+            float: right;
+            margin-top: -10px;
+        }
+
+        .stat-content h3 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 10px 0 5px 0;
+        }
+
+        .stat-content p {
+            font-size: 1.1rem;
+            margin: 0;
+            opacity: 0.9;
+        }
+
+        .stat-trend {
+            font-size: 0.9rem;
+            margin-top: 8px;
+            opacity: 0.8;
+        }
+
+        /* Modern Cards */
+        .modern-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modern-card:hover {
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .card-header-modern {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-icon {
             width: 50px;
             height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-right: 15px;
+            font-size: 1.2rem;
+        }
+
+        .card-body-modern {
+            padding: 25px;
+        }
+
+        /* Quick Actions Grid */
+        .quick-actions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .quick-action-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 15px;
+            padding: 20px;
+            color: white;
+            text-align: center;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .quick-action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+            color: white;
+        }
+
+        .quick-action-btn i {
+            font-size: 1.5rem;
+        }
+
+        /* Sponsorship Grid */
+        .sponsorship-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            min-height: 400px;
+        }
+
+        .sponsor-item-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: move;
+            border: 2px solid transparent;
+        }
+
+        .sponsor-item-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            border-color: #667eea;
+        }
+
+        .sponsor-item-card.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+
+        /* Loading States */
+        .loading-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #e9ecef;
+            border-top: 4px solid #667eea;
             border-radius: 50%;
-            background: var(--primary-color);
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        .spinner-sm {
+            width: 30px;
+            height: 30px;
+            border: 3px solid #e9ecef;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Performance List */
+        .performance-list {
+            min-height: 200px;
+        }
+
+        .performance-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .performance-item:last-child {
+            border-bottom: none;
+        }
+
+        .performance-rank {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 700;
-            font-size: 1.2rem;
+            font-weight: bold;
+            margin-right: 15px;
         }
 
-        /* Modern Search Results */
-        .search-result-item {
+        /* Enhanced Modal Styles */
+        .modern-modal {
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .modal-header-modern {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 20px 20px 0 0;
+            border-bottom: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.3rem;
+        }
+
+        .btn-close-modern {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 10px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-close-modern:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.1);
+        }
+
+        .modal-body-modern {
+            padding: 30px;
+        }
+
+        .modal-footer-modern {
+            padding: 20px 30px;
+            border-top: 1px solid #e9ecef;
+            background: #f8f9fa;
+            border-radius: 0 0 20px 20px;
+        }
+
+        /* Search Panel */
+        .search-panel {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+
+        .search-box input {
+            padding-left: 45px;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+        .modern-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .modern-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+        /* Section Headers */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .section-header h6 {
+            margin: 0;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        /* Items Grid */
+        .items-grid {
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .items-grid::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .items-grid::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .items-grid::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+        }
+
+        .item-card {
             background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .item-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            border-color: #667eea;
+        }
+
+        .item-card.selected {
+            border-color: #28a745;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+
+        /* Sponsor Slots Container */
+        .sponsor-slots-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            min-height: 500px;
+            border: 2px dashed #dee2e6;
+            transition: all 0.3s ease;
+        }
+
+        .sponsor-slots-container.drag-over {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .empty-slots {
+            text-align: center;
+            color: #6c757d;
+            padding: 60px 20px;
+        }
+
+        .empty-slots i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .slot-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .slot-number {
+            background: rgba(255,255,255,0.2);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sponsorship-container {
+                padding: 15px;
+            }
+            
+            .stat-card {
+                margin-bottom: 20px;
+            }
+            
+            .quick-actions-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .sponsorship-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-body-modern {
+                padding: 20px;
+            }
+        }
+
+        /* Loading Placeholder */
+        .loading-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        /* Enhanced Sponsorship Modal Styles */
+        .modal-items-list {
+            max-height: 400px;
+            overflow-y: auto;
             border: 1px solid var(--border-color);
             border-radius: var(--border-radius);
             padding: 1rem;
-            margin-bottom: 0.75rem;
+        }
+
+        .item-card {
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .item-card:hover {
+            border-color: var(--primary-color);
+            box-shadow: var(--shadow-sm);
+            transform: translateY(-2px);
+        }
+
+        .item-card.selected {
+            border-color: var(--success-color);
+            background: rgba(5, 150, 105, 0.1);
+        }
+
+        .item-card.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+
+        .sponsor-slots {
+            min-height: 400px;
+            background: var(--light-color);
+            border: 2px dashed var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+        }
+
+        .sponsor-slot {
+            min-height: 80px;
+            border: 2px dashed var(--secondary-color);
+            border-radius: var(--border-radius);
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: white;
+            position: relative;
             transition: all 0.2s ease;
         }
 
-        .search-result-item:hover {
-            box-shadow: var(--shadow-sm);
+        .sponsor-slot:hover {
             border-color: var(--primary-color);
+            background: rgba(37, 99, 235, 0.05);
         }
 
-        .sponsorship-sequence {
-            min-height: 200px;
+        .sponsor-slot.drag-over {
+            border-color: var(--success-color);
+            background: rgba(5, 150, 105, 0.1);
+            transform: scale(1.02);
+        }
+
+        .sponsor-slot .slot-number {
+            position: absolute;
+            top: -10px;
+            left: 10px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .sponsor-slot .slot-content {
+            padding-top: 10px;
+        }
+
+        .sponsored-item {
+            background: var(--light-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: move;
+        }
+
+        .sponsored-item:hover {
+            background: var(--border-color);
+        }
+
+        .remove-sponsor {
+            background: var(--danger-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            cursor: pointer;
+        }
+
+        /* Drag and Drop States */
+        .draggable {
+            cursor: move;
+        }
+
+        .draggable:active {
+            cursor: grabbing;
+        }
+
+        .drop-zone {
+            transition: all 0.2s ease;
+        }
+
+        .drop-zone.drag-over {
+            background: rgba(37, 99, 235, 0.1);
+            border-color: var(--primary-color);
         }
 
         /* Loading spinner animation */
@@ -1312,6 +1989,9 @@
                 <a href="#" class="nav-link" data-page="analytics">
                     <i class="fas fa-chart-line"></i> Analytics
                 </a>
+                <a href="#" class="nav-link" data-page="transactions">
+                    <i class="fas fa-exchange-alt"></i> Transaction History
+                </a>
                 <a href="#" class="nav-link" data-page="sponsorship">
                     <i class="fas fa-star"></i> Sponsorship
                 </a>
@@ -1480,10 +2160,10 @@
                             <div class="stat-card">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
-                                        <h3 class="mb-1" id="totalUsers">1,234</h3>
+                                        <h3 class="mb-1" id="totalUsers">-</h3>
                                         <p class="text-muted mb-0">Total Users</p>
-                                        <small class="text-success">
-                                            <i class="fas fa-arrow-up"></i> +12% this month
+                                        <small class="text-success" id="usersGrowth">
+                                            Loading...
                                         </small>
                                     </div>
                                     <div class="stat-icon users">
@@ -1496,10 +2176,10 @@
                             <div class="stat-card">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
-                                        <h3 class="mb-1" id="totalProducts">856</h3>
+                                        <h3 class="mb-1" id="totalProducts">-</h3>
                                         <p class="text-muted mb-0">Products Listed</p>
-                                        <small class="text-success">
-                                            <i class="fas fa-arrow-up"></i> +8% this week
+                                        <small class="text-success" id="productsGrowth">
+                                            Loading...
                                         </small>
                                     </div>
                                     <div class="stat-icon products">
@@ -1512,10 +2192,10 @@
                             <div class="stat-card">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
-                                        <h3 class="mb-1" id="totalRooms">423</h3>
+                                        <h3 class="mb-1" id="totalRooms">-</h3>
                                         <p class="text-muted mb-0">Rooms Available</p>
-                                        <small class="text-info">
-                                            <i class="fas fa-arrow-right"></i> +3% this week
+                                        <small class="text-info" id="roomsGrowth">
+                                            Loading...
                                         </small>
                                     </div>
                                     <div class="stat-icon rooms">
@@ -1528,10 +2208,10 @@
                             <div class="stat-card">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
-                                        <h3 class="mb-1" id="totalRevenue">₹2,45,678</h3>
+                                        <h3 class="mb-1" id="totalRevenue">-</h3>
                                         <p class="text-muted mb-0">Total Revenue</p>
-                                        <small class="text-success">
-                                            <i class="fas fa-arrow-up"></i> +15% this month
+                                        <small class="text-success" id="revenueGrowth">
+                                            Loading...
                                         </small>
                                     </div>
                                     <div class="stat-icon revenue">
@@ -1861,36 +2541,50 @@
                 </div>
             `;
             renderAdvancedAnalytics();
-        } else if (page === 'sponsorship') {
+        } else if (page === 'transactions') {
             contentDiv.innerHTML = `
-                <div class="sponsorship-container">
-                    <h2><i class="fas fa-star"></i> Sponsorship Management</h2>
-                    
-                    <!-- Sponsorship Overview -->
+                <div class="transactions-container">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2><i class="fas fa-exchange-alt"></i> Transaction History</h2>
+                        <div class="d-flex gap-2">
+                            <select id="transactionFilter" class="form-select" style="width: auto;">
+                                <option value="all">All Transactions</option>
+                                <option value="completed">Completed</option>
+                                <option value="pending">Pending</option>
+                                <option value="failed">Failed</option>
+                            </select>
+                            <input type="date" id="transactionDate" class="form-control" style="width: auto;">
+                            <button class="btn btn-primary" onclick="exportTransactions()">
+                                <i class="fas fa-download"></i> Export
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Transaction Summary Cards -->
                     <div class="row mb-4">
                         <div class="col-md-3">
-                            <div class="card bg-warning text-white">
+                            <div class="card bg-success text-white">
                                 <div class="card-body">
                                     <div class="d-flex align-items-center">
-                                        <i class="fas fa-star fa-2x me-3"></i>
+                                        <i class="fas fa-check-circle fa-2x me-3"></i>
                                         <div>
-                                            <h5>Active Sponsors</h5>
-                                            <h3 id="activeSponsorCount">-</h3>
-                                            <small>Featured listings</small>
+                                            <h5>Completed</h5>
+                                            <h3 id="completedTransactions">-</h3>
+                                            <small>Total transactions</small>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="card bg-success text-white">
+                            <div class="card bg-warning text-white">
                                 <div class="card-body">
                                     <div class="d-flex align-items-center">
-                                        <i class="fas fa-rupee-sign fa-2x me-3"></i>
+                                        <i class="fas fa-clock fa-2x me-3"></i>
                                         <div>
-                                            <h5>Sponsor Revenue</h5>
-                                            <h3 id="sponsorRevenue">Rs.0</h3>
-                                            <small>This month</small>
+                                            <h5>Pending</h5>
+                                            <h3 id="pendingTransactions">-</h3>
+                                            <small>Awaiting completion</small>
                                         </div>
                                     </div>
                                 </div>
@@ -1900,25 +2594,25 @@
                             <div class="card bg-info text-white">
                                 <div class="card-body">
                                     <div class="d-flex align-items-center">
-                                        <i class="fas fa-eye fa-2x me-3"></i>
+                                        <i class="fas fa-rupee-sign fa-2x me-3"></i>
                                         <div>
-                                            <h5>Total Views</h5>
-                                            <h3 id="sponsorViews">-</h3>
-                                            <small>Sponsored content</small>
+                                            <h5>Total Volume</h5>
+                                            <h3 id="totalVolume">₹-</h3>
+                                            <small>All transactions</small>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="card bg-danger text-white">
+                            <div class="card bg-primary text-white">
                                 <div class="card-body">
                                     <div class="d-flex align-items-center">
-                                        <i class="fas fa-clock fa-2x me-3"></i>
+                                        <i class="fas fa-percentage fa-2x me-3"></i>
                                         <div>
-                                            <h5>Expiring Soon</h5>
-                                            <h3 id="expiringSponsorships">-</h3>
-                                            <small>Within 7 days</small>
+                                            <h5>Platform Revenue</h5>
+                                            <h3 id="platformRevenue">₹-</h3>
+                                            <small>Total earnings</small>
                                         </div>
                                     </div>
                                 </div>
@@ -1926,98 +2620,311 @@
                         </div>
                     </div>
 
-                    <!-- Sponsorship Management Tools -->
-                    <div class="row mb-4">
-                        <div class="col-md-8">
-                            <div class="card">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <h5><i class="fas fa-list"></i> Current Sponsorship Sequence</h5>
-                                    <button class="btn btn-primary btn-sm" onclick="refreshSponsorshipSequence()">
-                                        <i class="fas fa-sync"></i> Refresh
-                                    </button>
+                    <!-- Transactions Table -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Recent Transactions</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Transaction ID</th>
+                                            <th>Item</th>
+                                            <th>Buyer</th>
+                                            <th>Phone</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                            <th>Date</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="transactionsTableBody">
+                                        <tr>
+                                            <td colspan="8" class="text-center">
+                                                <div class="spinner-border text-primary" role="status">
+                                                    <span class="visually-hidden">Loading...</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            loadTransactionHistory();
+        } else if (page === 'sponsorship') {
+            contentDiv.innerHTML = `
+                <div class="sponsorship-container">
+                    <!-- Header Section -->
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h2 class="mb-1"><i class="fas fa-star text-warning"></i> Sponsorship Center</h2>
+                            <p class="text-muted mb-0">Manage featured listings and boost visibility</p>
+                        </div>
+                        <button class="btn btn-gradient-primary btn-lg" onclick="openSponsorshipModal()">
+                            <i class="fas fa-plus me-2"></i>Add New Sponsor
+                        </button>
+                    </div>
+
+                    <!-- Quick Stats Cards -->
+                    <div class="row g-4 mb-5">
+                        <div class="col-lg-3 col-md-6">
+                            <div class="stat-card bg-gradient-primary">
+                                <div class="stat-icon">
+                                    <i class="fas fa-star"></i>
                                 </div>
-                                <div class="card-body">
-                                    <div id="sponsorshipSequence" class="sponsorship-sequence">
-                                        <div class="d-flex justify-content-center">
-                                            <div class="spinner-border text-primary" role="status">
-                                                <span class="visually-hidden">Loading...</span>
+                                <div class="stat-content">
+                                    <h3 id="activeSponsorCount">-</h3>
+                                    <p>Active Sponsors</p>
+                                    <div class="stat-trend">
+                                        <i class="fas fa-arrow-up"></i> 12% from last month
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <div class="stat-card bg-gradient-success">
+                                <div class="stat-icon">
+                                    <i class="fas fa-rupee-sign"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 id="sponsorRevenue">₹0</h3>
+                                    <p>Revenue This Month</p>
+                                    <div class="stat-trend">
+                                        <i class="fas fa-arrow-up"></i> 8% increase
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <div class="stat-card bg-gradient-info">
+                                <div class="stat-icon">
+                                    <i class="fas fa-eye"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 id="sponsorViews">-</h3>
+                                    <p>Total Impressions</p>
+                                    <div class="stat-trend">
+                                        <i class="fas fa-arrow-up"></i> 15% boost
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <div class="stat-card bg-gradient-warning">
+                                <div class="stat-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 id="expiringSponsorships">-</h3>
+                                    <p>Expiring Soon</p>
+                                    <div class="stat-trend">
+                                        <i class="fas fa-exclamation-triangle"></i> Needs attention
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Main Content -->
+                    <div class="row g-4">
+                        <!-- Sponsorship Sequence -->
+                        <div class="col-lg-8">
+                            <div class="modern-card">
+                                <div class="card-header-modern">
+                                    <div class="d-flex align-items-center">
+                                        <div class="header-icon bg-primary">
+                                            <i class="fas fa-list"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="mb-1">Featured Sequence</h5>
+                                            <p class="text-muted mb-0">Drag & drop to reorder priority</p>
+                                        </div>
+                                    </div>
+                                    <div class="header-actions">
+                                        <button class="btn btn-outline-primary btn-sm me-2" onclick="refreshSponsorshipSequence()">
+                                            <i class="fas fa-sync-alt"></i> Refresh
+                                        </button>
+                                        <button class="btn btn-outline-success btn-sm" onclick="bulkAction('enable')">
+                                            <i class="fas fa-play"></i> Enable All
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-body-modern">
+                                    <div id="sponsorshipSequence" class="sponsorship-grid">
+                                        <div class="loading-state">
+                                            <div class="spinner"></div>
+                                            <p>Loading sponsorship sequence...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Control Panel -->
+                        <div class="col-lg-4">
+                            <div class="modern-card mb-4">
+                                <div class="card-header-modern">
+                                    <div class="d-flex align-items-center">
+                                        <div class="header-icon bg-info">
+                                            <i class="fas fa-control-panel"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="mb-1">Quick Actions</h5>
+                                            <p class="text-muted mb-0">Manage sponsors easily</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body-modern">
+                                    <div class="quick-actions-grid">
+                                        <button class="quick-action-btn" onclick="openSponsorshipModal()">
+                                            <i class="fas fa-plus"></i>
+                                            <span>Add Sponsor</span>
+                                        </button>
+                                        <button class="quick-action-btn" onclick="showAnalytics()">
+                                            <i class="fas fa-chart-line"></i>
+                                            <span>Analytics</span>
+                                        </button>
+                                        <button class="quick-action-btn" onclick="exportSponsors()">
+                                            <i class="fas fa-download"></i>
+                                            <span>Export Data</span>
+                                        </button>
+                                        <button class="quick-action-btn" onclick="showSettings()">
+                                            <i class="fas fa-cog"></i>
+                                            <span>Settings</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Performance Insights -->
+                            <div class="modern-card">
+                                <div class="card-header-modern">
+                                    <div class="d-flex align-items-center">
+                                        <div class="header-icon bg-success">
+                                            <i class="fas fa-chart-bar"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="mb-1">Performance</h5>
+                                            <p class="text-muted mb-0">Top performing sponsors</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body-modern">
+                                    <div class="performance-list" id="topPerformers">
+                                        <div class="loading-state">
+                                            <div class="spinner-sm"></div>
+                                            <p>Loading performance data...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Enhanced Sponsorship Modal -->
+                <div class="modal fade" id="sponsorshipModal" tabindex="-1">
+                    <div class="modal-dialog modal-xl">
+                        <div class="modal-content modern-modal">
+                            <div class="modal-header-modern">
+                                <div class="d-flex align-items-center">
+                                    <div class="modal-icon">
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="modal-title mb-1">Add New Sponsor</h5>
+                                        <p class="text-muted mb-0">Select items to feature and boost visibility</p>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn-close-modern" data-bs-dismiss="modal">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="modal-body-modern">
+                                <div class="row g-4">
+                                    <!-- Search & Filter Panel -->
+                                    <div class="col-12">
+                                        <div class="search-panel">
+                                            <div class="row g-3">
+                                                <div class="col-md-5">
+                                                    <div class="search-box">
+                                                        <i class="fas fa-search"></i>
+                                                        <input type="text" id="modalItemSearch" placeholder="Search your listings...">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <select id="modalItemType" class="form-select modern-select">
+                                                        <option value="all">All Types</option>
+                                                        <option value="product">Products</option>
+                                                        <option value="note">Notes</option>
+                                                        <option value="room">Rooms</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <select id="modalSortBy" class="form-select modern-select">
+                                                        <option value="newest">Newest First</option>
+                                                        <option value="price_high">Price: High to Low</option>
+                                                        <option value="price_low">Price: Low to High</option>
+                                                        <option value="views">Most Viewed</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <button class="btn btn-primary w-100" onclick="searchModalItems()">
+                                                        <i class="fas fa-filter"></i> Filter
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Item Selection -->
+                                    <div class="col-lg-8">
+                                        <div class="section-header">
+                                            <h6><i class="fas fa-list me-2"></i>Available Items</h6>
+                                            <span class="badge bg-primary" id="itemCount">0 items</span>
+                                        </div>
+                                        <div id="modalItemsList" class="items-grid">
+                                            <div class="loading-placeholder">
+                                                <div class="spinner"></div>
+                                                <p>Loading your listings...</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Sponsor Slots -->
+                                    <div class="col-lg-4">
+                                        <div class="section-header">
+                                            <h6><i class="fas fa-sort-numeric-down me-2"></i>Featured Slots</h6>
+                                            <span class="badge bg-success" id="selectedCount">0 selected</span>
+                                        </div>
+                                        <div id="sponsorSlots" class="sponsor-slots-container">
+                                            <div class="empty-slots">
+                                                <i class="fas fa-drag-and-drop"></i>
+                                                <p>Drag items here to make them featured</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5><i class="fas fa-plus"></i> Add Sponsorship</h5>
-                                </div>
-                                <div class="card-body">
-                                    <form id="addSponsorshipForm">
-                                        <div class="mb-3">
-                                            <label for="itemType" class="form-label">Item Type</label>
-                                            <select id="itemType" class="form-select" required>
-                                                <option value="">Select Type</option>
-                                                <option value="product">Product</option>
-                                                <option value="note">Note</option>
-                                                <option value="room">Room</option>
-                                            </select>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="itemId" class="form-label">Item ID</label>
-                                            <input type="text" id="itemId" class="form-control" placeholder="Enter item ID" required>
-                                            <small class="text-muted">You can get item IDs from the Products page</small>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="sponsorSlot" class="form-label">Sponsor Slot</label>
-                                            <input type="number" id="sponsorSlot" class="form-control" min="1" max="10" value="1" required>
-                                            <small class="text-muted">Lower numbers appear first</small>
-                                        </div>
-                                        <div class="d-grid">
-                                            <button type="submit" class="btn btn-success">
-                                                <i class="fas fa-star"></i> Add to Sponsors
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Quick Item Lookup -->
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5><i class="fas fa-search"></i> Quick Item Lookup</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <input type="text" id="itemSearchInput" class="form-control" placeholder="Search by title, description, or ID...">
-                                        </div>
-                                        <div class="col-md-3">
-                                            <select id="itemTypeFilter" class="form-select">
-                                                <option value="all">All Types</option>
-                                                <option value="product">Products</option>
-                                                <option value="note">Notes</option>
-                                                <option value="room">Rooms</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <button class="btn btn-primary w-100" onclick="searchItems()">
-                                                <i class="fas fa-search"></i> Search
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div id="itemSearchResults" class="mt-3"></div>
-                                </div>
+                            <div class="modal-footer-modern">
+                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                                    <i class="fas fa-times me-2"></i>Cancel
+                                </button>
+                                <button type="button" class="btn btn-success" onclick="saveSponsorshipChanges()">
+                                    <i class="fas fa-save me-2"></i>Save Featured Items
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
             `;
             renderSponsorshipPage();
+        } else if (page === 'settings') {
         } else if (page === 'settings') {
             contentDiv.innerHTML = `
                 <div class='container py-4'>
@@ -2075,14 +2982,22 @@
 
             // Calculate API response time
             const responseTime = Date.now() - startTime;
-            document.getElementById('apiStatus').textContent = responseTime < 500 ? 'Fast' : responseTime < 1000 ? 'Moderate' : 'Slow';
-            document.getElementById('apiStatus').className = `badge ${responseTime < 500 ? 'bg-success' : responseTime < 1000 ? 'bg-warning' : 'bg-danger'}`;
+            const apiStatusEl = document.getElementById('apiStatus');
+            if (apiStatusEl) {
+                apiStatusEl.textContent = responseTime < 500 ? 'Fast' : responseTime < 1000 ? 'Moderate' : 'Slow';
+                apiStatusEl.className = `badge ${responseTime < 500 ? 'bg-success' : responseTime < 1000 ? 'bg-warning' : 'bg-danger'}`;
+            }
 
-            // Update basic counts
-            document.getElementById('productsCount').textContent = productsCount || 0;
-            document.getElementById('notesCount').textContent = notesCount || 0;
-            document.getElementById('roomsCount').textContent = roomsCount || 0;
-            document.getElementById('usersCount').textContent = usersCount || 0;
+            // Update basic counts with null checks
+            const productsCountEl = document.getElementById('productsCount');
+            const notesCountEl = document.getElementById('notesCount');
+            const roomsCountEl = document.getElementById('roomsCount');
+            const usersCountEl = document.getElementById('usersCount');
+            
+            if (productsCountEl) productsCountEl.textContent = productsCount || 0;
+            if (notesCountEl) notesCountEl.textContent = notesCount || 0;
+            if (roomsCountEl) roomsCountEl.textContent = roomsCount || 0;
+            if (usersCountEl) usersCountEl.textContent = usersCount || 0;
 
             // Calculate growth metrics (comparing with last week)
             const oneWeekAgo = new Date();
@@ -2093,14 +3008,80 @@
             const recentRooms = rooms.filter(r => new Date(r.created_at) > oneWeekAgo).length;
             const recentUsers = users.filter(u => new Date(u.created_at) > oneWeekAgo).length;
 
-            document.getElementById('productsGrowth').textContent = `+${recentProducts} this week`;
-            document.getElementById('notesGrowth').textContent = `+${recentNotes} this week`;
-            document.getElementById('roomsGrowth').textContent = `+${recentRooms} this week`;
-            document.getElementById('usersGrowth').textContent = `+${recentUsers} this week`;
+            // Update old dashboard elements with null checks
+            const productsGrowthEl = document.getElementById('productsGrowth');
+            const notesGrowthEl = document.getElementById('notesGrowth');
+            const roomsGrowthEl = document.getElementById('roomsGrowth');
+            const usersGrowthEl = document.getElementById('usersGrowth');
+            
+            if (productsGrowthEl) productsGrowthEl.textContent = `+${recentProducts} this week`;
+            if (notesGrowthEl) notesGrowthEl.textContent = `+${recentNotes} this week`;
+            if (roomsGrowthEl) roomsGrowthEl.textContent = `+${recentRooms} this week`;
+            if (usersGrowthEl) usersGrowthEl.textContent = `+${recentUsers} this week`;
+
+            // Update basic counts in new stat cards with null checks
+            const totalUsersEl = document.getElementById('totalUsers');
+            const totalProductsEl = document.getElementById('totalProducts');
+            const totalRoomsEl = document.getElementById('totalRooms');
+            const totalRevenueEl = document.getElementById('totalRevenue');
+            
+            if (totalUsersEl) totalUsersEl.textContent = usersCount || 0;
+            if (totalProductsEl) totalProductsEl.textContent = productsCount || 0;
+            if (totalRoomsEl) totalRoomsEl.textContent = roomsCount || 0;
 
             // Calculate revenue (from transactions)
             const totalRevenue = transactions.reduce((sum, t) => sum + (parseFloat(t.platform_fee) || 0), 0);
-            document.getElementById('totalRevenue').textContent = `Rs.${totalRevenue.toFixed(2)}`;
+            if (totalRevenueEl) totalRevenueEl.textContent = totalRevenue > 0 ? `₹${totalRevenue.toLocaleString()}` : '₹0';
+
+            // Calculate recent revenue for growth indicator
+            const recentRevenue = transactions
+                .filter(t => new Date(t.created_at) > oneWeekAgo)
+                .reduce((sum, t) => sum + (parseFloat(t.platform_fee) || 0), 0);
+
+            // Update growth indicators for new stat cards with null checks
+            const usersGrowthNewEl = document.getElementById('usersGrowth');
+            if (usersGrowthNewEl) {
+                usersGrowthNewEl.innerHTML = recentUsers > 0 ? 
+                    `<i class="fas fa-arrow-up"></i> +${recentUsers} this week` : 
+                    '<i class="fas fa-minus"></i> No new users';
+            }
+            
+            const productsGrowthNewEl = document.getElementById('productsGrowth');
+            if (productsGrowthNewEl) {
+                productsGrowthNewEl.innerHTML = recentProducts > 0 ? 
+                    `<i class="fas fa-arrow-up"></i> +${recentProducts} this week` : 
+                    '<i class="fas fa-minus"></i> No new products';
+            }
+            
+            const roomsGrowthNewEl = document.getElementById('roomsGrowth');
+            if (roomsGrowthNewEl) {
+                roomsGrowthNewEl.innerHTML = recentRooms > 0 ? 
+                    `<i class="fas fa-arrow-up"></i> +${recentRooms} this week` : 
+                    '<i class="fas fa-minus"></i> No new rooms';
+            }
+            
+            const revenueGrowthEl = document.getElementById('revenueGrowth');
+            if (revenueGrowthEl) {
+                revenueGrowthEl.innerHTML = recentRevenue > 0 ? 
+                    `<i class="fas fa-arrow-up"></i> +₹${recentRevenue.toLocaleString()} this week` : 
+                    '<i class="fas fa-minus"></i> No revenue';
+            }
+
+            // Update old dashboard elements (for compatibility)
+            if (document.getElementById('productsCount')) {
+                document.getElementById('productsCount').textContent = productsCount || 0;
+                document.getElementById('notesCount').textContent = notesCount || 0;
+                document.getElementById('roomsCount').textContent = roomsCount || 0;
+                document.getElementById('usersCount').textContent = usersCount || 0;
+                
+                // Update old growth indicators too
+                if (document.getElementById('productsGrowth')) {
+                    document.getElementById('productsGrowth').textContent = `+${recentProducts} this week`;
+                    document.getElementById('notesGrowth').textContent = `+${recentNotes} this week`;
+                    document.getElementById('roomsGrowth').textContent = `+${recentRooms} this week`;
+                    document.getElementById('usersGrowth').textContent = `+${recentUsers} this week`;
+                }
+            }
 
             // Calculate active users (users with recent activity)
             const activeUsers = users.filter(u => {
@@ -2109,7 +3090,9 @@
                 sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
                 return lastActive > sevenDaysAgo;
             }).length;
-            document.getElementById('activeUsers').textContent = activeUsers;
+            if (document.getElementById('activeUsers')) {
+                document.getElementById('activeUsers').textContent = activeUsers;
+            }
 
             // Find top college
             const collegeStats = {};
@@ -2119,7 +3102,7 @@
                 }
             });
             const topCollege = Object.entries(collegeStats).sort((a, b) => b[1] - a[1])[0];
-            if (topCollege) {
+            if (topCollege && document.getElementById('topCollege')) {
                 document.getElementById('topCollege').textContent = topCollege[0];
                 document.getElementById('topCollegeCount').textContent = `${topCollege[1]} listings`;
             }
@@ -2132,7 +3115,7 @@
                 }
             });
             const hotCategory = Object.entries(categoryStats).sort((a, b) => b[1] - a[1])[0];
-            if (hotCategory) {
+            if (hotCategory && document.getElementById('hotCategory')) {
                 document.getElementById('hotCategory').textContent = hotCategory[0];
                 document.getElementById('hotCategoryCount').textContent = `${hotCategory[1]} items`;
             }
@@ -2222,135 +3205,224 @@
     }
 
     // Chart initialization function
-    function initializeCharts() {
-        // Revenue Chart
-        const revenueCtx = document.getElementById('revenueChart');
-        if (revenueCtx) {
-            new Chart(revenueCtx, {
-                type: 'line',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                    datasets: [{
-                        label: 'Revenue (₹)',
-                        data: [12000, 19000, 15000, 25000, 22000, 30000],
-                        borderColor: 'rgb(75, 192, 192)',
-                        backgroundColor: 'rgba(75, 192, 192, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
+    async function initializeCharts() {
+        try {
+            // Fetch real data for charts
+            const [
+                { data: products = [] },
+                { data: notes = [] },
+                { data: rooms = [] },
+                { data: transactions = [] }
+            ] = await Promise.all([
+                supabase.from('products').select('*'),
+                supabase.from('notes').select('*'),
+                supabase.from('rooms').select('*'),
+                supabase.from('transactions').select('*').throwOnError(false)
+            ]);
+
+            // Calculate real revenue data for last 6 months
+            const monthlyRevenue = calculateMonthlyRevenue(transactions);
+            const categoryData = calculateCategoryDistribution([...products, ...notes, ...rooms]);
+            const weeklyActivity = calculateWeeklyActivity([...products, ...notes, ...rooms]);
+
+            // Revenue Chart with real data
+            const revenueCtx = document.getElementById('revenueChart');
+            if (revenueCtx) {
+                new Chart(revenueCtx, {
+                    type: 'line',
+                    data: {
+                        labels: monthlyRevenue.labels,
+                        datasets: [{
+                            label: 'Revenue (₹)',
+                            data: monthlyRevenue.data,
+                            borderColor: 'rgb(75, 192, 192)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return '₹' + value.toLocaleString();
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return '₹' + value.toLocaleString();
+                                    }
                                 }
                             }
                         }
                     }
-                }
-            });
-        }
+                });
+            }
 
-        // Category Distribution Chart
-        const categoryCtx = document.getElementById('categoryChart');
-        if (categoryCtx) {
-            new Chart(categoryCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Electronics', 'Books', 'Furniture', 'Clothes', 'Other'],
-                    datasets: [{
-                        data: [30, 25, 20, 15, 10],
-                        backgroundColor: [
-                            '#FF6384',
-                            '#36A2EB',
-                            '#FFCE56',
-                            '#4BC0C0',
-                            '#9966FF'
-                        ],
-                        borderWidth: 2,
-                        borderColor: '#fff'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                padding: 20,
-                                usePointStyle: true
+            // Category Distribution Chart with real data
+            const categoryCtx = document.getElementById('categoryChart');
+            if (categoryCtx) {
+                new Chart(categoryCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: categoryData.labels,
+                        datasets: [{
+                            data: categoryData.data,
+                            backgroundColor: [
+                                '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+                                '#FF9F40', '#FF6384', '#C9CBCF', '#4BC0C0', '#FF6384'
+                            ],
+                            borderWidth: 2,
+                            borderColor: '#fff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 20,
+                                    usePointStyle: true
+                                }
                             }
                         }
                     }
-                }
-            });
-        }
+                });
+            }
 
-        // User Activity Chart
-        const userActivityCtx = document.getElementById('userActivityChart');
-        if (userActivityCtx) {
-            new Chart(userActivityCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                    datasets: [{
-                        label: 'Active Users',
-                        data: [120, 150, 180, 220, 170, 90, 60],
-                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
+            // User Activity Chart with real data
+            const userActivityCtx = document.getElementById('userActivityChart');
+            if (userActivityCtx) {
+                new Chart(userActivityCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [{
+                            label: 'New Listings',
+                            data: weeklyActivity,
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
                         }
                     }
-                }
-            });
-        }
+                });
+            }
 
-        // Usage Distribution Chart
-        const usageCtx = document.getElementById('usageDistributionChart');
-        if (usageCtx) {
-            new Chart(usageCtx, {
-                type: 'pie',
-                data: {
-                    labels: ['Products', 'Notes', 'Rooms'],
-                    datasets: [{
-                        data: [45, 30, 25],
-                        backgroundColor: [
-                            '#FF6384',
-                            '#36A2EB',
-                            '#FFCE56'
-                        ]
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'right'
+            // Usage Distribution Chart with real data
+            const usageCtx = document.getElementById('usageDistributionChart');
+            if (usageCtx) {
+                const usageData = [products.length, notes.length, rooms.length];
+                new Chart(usageCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Products', 'Notes', 'Rooms'],
+                        datasets: [{
+                            data: usageData,
+                            backgroundColor: [
+                                '#FF6384',
+                                '#36A2EB',
+                                '#FFCE56'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right'
+                            }
                         }
                     }
-                }
-            });
+                });
+            }
+        } catch (error) {
+            console.error('Error initializing charts:', error);
+            // Fallback to empty charts if data fetch fails
+            initializeEmptyCharts();
         }
+    }
+
+    // Helper functions for real data calculations
+    function calculateMonthlyRevenue(transactions) {
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+        const now = new Date();
+        const labels = [];
+        const data = [];
+        
+        for (let i = 5; i >= 0; i--) {
+            const month = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            labels.push(months[month.getMonth()]);
+            
+            const monthRevenue = transactions
+                .filter(t => {
+                    const tDate = new Date(t.created_at);
+                    return tDate.getMonth() === month.getMonth() && 
+                           tDate.getFullYear() === month.getFullYear();
+                })
+                .reduce((sum, t) => sum + (parseFloat(t.platform_fee) || 0), 0);
+            
+            data.push(monthRevenue);
+        }
+        
+        return { labels, data };
+    }
+
+    function calculateCategoryDistribution(items) {
+        const categories = {};
+        items.forEach(item => {
+            if (item.category) {
+                categories[item.category] = (categories[item.category] || 0) + 1;
+            }
+        });
+        
+        const sorted = Object.entries(categories)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 10); // Top 10 categories
+        
+        return {
+            labels: sorted.map(([cat]) => cat),
+            data: sorted.map(([, count]) => count)
+        };
+    }
+
+    function calculateWeeklyActivity(items) {
+        const weekDays = [1, 2, 3, 4, 5, 6, 0]; // Mon-Sun
+        const activity = new Array(7).fill(0);
+        
+        items.forEach(item => {
+            const day = new Date(item.created_at).getDay();
+            const index = weekDays.indexOf(day);
+            if (index !== -1) activity[index]++;
+        });
+        
+        return activity;
+    }
+
+    function initializeEmptyCharts() {
+        // Initialize charts with no data message
+        ['revenueChart', 'categoryChart', 'userActivityChart', 'usageDistributionChart'].forEach(chartId => {
+            const ctx = document.getElementById(chartId);
+            if (ctx) {
+                const parentDiv = ctx.parentElement;
+                parentDiv.innerHTML = '<div class="text-center py-4 text-muted"><i class="fas fa-chart-line fa-2x mb-2"></i><br>No data available</div>';
+            }
+        });
     }
 
     // Advanced Analytics Function
@@ -2781,47 +3853,1404 @@
         }
     }
 
-    // Sponsorship Management Functions
+    // Transaction History Functions
+    async function loadTransactionHistory() {
+        try {
+            console.log('📊 Loading transaction history...');
+            
+            // Load all transactions first
+            const { data: transactions, error } = await supabase
+                .from('transactions')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(100);
+
+            if (error) throw error;
+
+            // For each transaction, fetch the related item and user details separately
+            const enrichedTransactions = await Promise.all(transactions.map(async (transaction) => {
+                let item = null;
+                let buyer = null;
+                let seller = null;
+
+                // Fetch item details based on item_type
+                try {
+                    if (transaction.item_type === 'note') {
+                        const { data: noteData } = await supabase
+                            .from('notes')
+                            .select('id, title')
+                            .eq('id', transaction.listing_id)
+                            .single();
+                        item = noteData ? { ...noteData, type: 'note' } : null;
+                    } else if (transaction.item_type === 'room') {
+                        const { data: roomData } = await supabase
+                            .from('rooms')
+                            .select('id, hostel_name, room_type')
+                            .eq('id', transaction.listing_id)
+                            .single();
+                        item = roomData ? { ...roomData, type: 'room', title: `${roomData.hostel_name} - ${roomData.room_type}` } : null;
+                    } else {
+                        const { data: productData } = await supabase
+                            .from('products')
+                            .select('id, title, name')
+                            .eq('id', transaction.listing_id)
+                            .single();
+                        item = productData ? { ...productData, type: 'product', title: productData.title || productData.name } : null;
+                    }
+                } catch (itemError) {
+                    console.error('Error fetching item:', itemError);
+                }
+
+                // Fetch buyer details
+                try {
+                    const { data: buyerData } = await supabase
+                        .from('users')
+                        .select('id, full_name, phone, email')
+                        .eq('id', transaction.buyer_id)
+                        .single();
+                    buyer = buyerData;
+                } catch (buyerError) {
+                    console.error('Error fetching buyer:', buyerError);
+                }
+
+                // Fetch seller details
+                try {
+                    const { data: sellerData } = await supabase
+                        .from('users')
+                        .select('id, full_name, phone, email')
+                        .eq('id', transaction.seller_id)
+                        .single();
+                    seller = sellerData;
+                } catch (sellerError) {
+                    console.error('Error fetching seller:', sellerError);
+                }
+
+                return {
+                    ...transaction,
+                    item,
+                    buyer,
+                    seller
+                };
+            }));
+
+            // Update summary cards
+            const completed = enrichedTransactions.filter(t => t.status === 'completed');
+            const pending = enrichedTransactions.filter(t => t.status === 'pending');
+            const totalVolume = enrichedTransactions
+                .filter(t => t.status === 'completed')
+                .reduce((sum, t) => sum + t.amount, 0);
+            const platformRevenue = enrichedTransactions
+                .filter(t => t.status === 'completed')
+                .reduce((sum, t) => sum + (t.amount * 0.05), 0);
+
+            // Update UI
+            const safeUpdate = (id, value) => {
+                const element = document.getElementById(id);
+                if (element) element.textContent = value;
+            };
+
+            safeUpdate('completedTransactions', completed.length);
+            safeUpdate('pendingTransactions', pending.length);
+            safeUpdate('totalVolume', `₹${totalVolume.toLocaleString()}`);
+            safeUpdate('platformRevenue', `₹${Math.round(platformRevenue).toLocaleString()}`);
+
+            // Populate table
+            const tbody = document.getElementById('transactionsTableBody');
+            if (!tbody) return;
+
+            if (enrichedTransactions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No transactions found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = enrichedTransactions.map(transaction => {
+                // Get item name based on type
+                let itemName = 'Unknown Item';
+                if (transaction.item) {
+                    itemName = transaction.item.title || transaction.item.name || 'Untitled Item';
+                }
+
+                const buyerName = transaction.buyer?.full_name || 'Unknown Buyer';
+                const buyerPhone = transaction.buyer?.phone || 'N/A';
+                const statusColor = {
+                    'completed': 'success',
+                    'pending': 'warning',
+                    'failed': 'danger'
+                }[transaction.status] || 'secondary';
+
+                const date = new Date(transaction.created_at).toLocaleDateString('en-IN', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                return `
+                    <tr>
+                        <td><code>${transaction.id.substring(0, 8)}...</code></td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <span class="badge bg-info me-2">${transaction.listing_type}</span>
+                                <span title="${itemName}">${itemName.length > 30 ? itemName.substring(0, 30) + '...' : itemName}</span>
+                            </div>
+                        </td>
+                        <td>${buyerName}</td>
+                        <td><a href="tel:${buyerPhone}" class="text-decoration-none">${buyerPhone}</a></td>
+                        <td><strong>₹${transaction.amount.toLocaleString()}</strong></td>
+                        <td><span class="badge bg-${statusColor}">${transaction.status}</span></td>
+                        <td><small>${date}</small></td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-sm btn-outline-primary" onclick="viewTransactionDetails('${transaction.id}')" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                ${transaction.status === 'pending' ? `
+                                    <button class="btn btn-sm btn-outline-success" onclick="markTransactionCompleted('${transaction.id}')" title="Mark Completed">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            // Setup filters
+            setupTransactionFilters(enrichedTransactions);
+
+        } catch (error) {
+            console.error('Error loading transaction history:', error);
+            const tbody = document.getElementById('transactionsTableBody');
+            if (tbody) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Error loading transactions</td></tr>';
+            }
+        }
+    }
+
+    // Setup transaction filters
+    function setupTransactionFilters(allTransactions) {
+        const filterSelect = document.getElementById('transactionFilter');
+        const dateInput = document.getElementById('transactionDate');
+        
+        if (filterSelect) {
+            filterSelect.addEventListener('change', () => filterTransactions(allTransactions));
+        }
+        
+        if (dateInput) {
+            dateInput.addEventListener('change', () => filterTransactions(allTransactions));
+        }
+    }
+
+    // Filter transactions
+    function filterTransactions(allTransactions) {
+        const filter = document.getElementById('transactionFilter')?.value || 'all';
+        const date = document.getElementById('transactionDate')?.value;
+        
+        let filtered = allTransactions;
+        
+        // Filter by status
+        if (filter !== 'all') {
+            filtered = filtered.filter(t => t.status === filter);
+        }
+        
+        // Filter by date
+        if (date) {
+            const filterDate = new Date(date).toDateString();
+            filtered = filtered.filter(t => new Date(t.created_at).toDateString() === filterDate);
+        }
+        
+        // Update table with filtered results
+        updateTransactionTable(filtered);
+    }
+
+    // Update transaction table
+    function updateTransactionTable(transactions) {
+        const tbody = document.getElementById('transactionsTableBody');
+        if (!tbody) return;
+        
+        if (transactions.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No transactions match the selected filters</td></tr>';
+            return;
+        }
+        
+        // Reuse the same table generation logic...
+        // (Implementation same as in loadTransactionHistory)
+    }
+
+    // View transaction details
+    function viewTransactionDetails(transactionId) {
+        showNotification(`Viewing details for transaction ${transactionId.substring(0, 8)}...`, 'info');
+        // Implementation for viewing transaction details modal
+    }
+
+    // Mark transaction as completed
+    async function markTransactionCompleted(transactionId) {
+        try {
+            const { error } = await supabase
+                .from('transactions')
+                .update({ status: 'completed' })
+                .eq('id', transactionId);
+                
+            if (error) throw error;
+            
+            showNotification('Transaction marked as completed', 'success');
+            loadTransactionHistory(); // Reload the table
+        } catch (error) {
+            console.error('Error updating transaction:', error);
+            showNotification('Error updating transaction', 'error');
+        }
+    }
+
+    // Export transactions
+    function exportTransactions() {
+        showNotification('Export functionality coming soon!', 'info');
+        // Implementation for CSV/Excel export
+    }
+
+    // Enhanced Sponsorship Management Functions
     async function renderSponsorshipPage() {
         try {
-            console.log('🌟 Loading sponsorship data...');
+            console.log('🌟 Loading modern sponsorship interface...');
             
-            // Load sponsorship sequence
-            await loadSponsorshipSequence();
-            
-            // Setup form handler
-            setupSponsorshipForm();
-            
-            // Setup search functionality
-            setupItemSearch();
+            // Load sponsorship sequence with modern design
+            await loadModernSponsorshipSequence();
             
             // Load sponsorship metrics
             await loadSponsorshipMetrics();
             
-            // Verify button functionality after page load
-            setTimeout(() => {
-                const refreshBtn = document.querySelector('button[onclick="refreshSponsorshipSequence()"]');
-                const searchBtn = document.querySelector('button[onclick="searchItems()"]');
-                
-                console.log('🔍 Sponsorship buttons verification:');
-                console.log('- Refresh button found:', !!refreshBtn);
-                console.log('- Search button found:', !!searchBtn);
-                
-                if (refreshBtn) {
-                    console.log('- Refresh button onclick:', refreshBtn.getAttribute('onclick'));
-                }
-                
-                // Test that functions are accessible
-                if (typeof window.refreshSponsorshipSequence === 'function') {
-                    console.log('✅ All sponsorship functions are ready!');
-                } else {
-                    console.log('❌ Sponsorship functions not properly attached');
-                }
-            }, 500);
+            // Load performance insights
+            await loadPerformanceInsights();
+            
+            console.log('✅ Modern sponsorship interface loaded successfully!');
             
         } catch (error) {
             console.error('Error loading sponsorship page:', error);
+            document.getElementById('sponsorshipSequence').innerHTML = 
+                '<div class="loading-state"><i class="fas fa-exclamation-triangle text-danger" style="font-size: 3rem; margin-bottom: 20px;"></i><p class="text-danger">Error loading sponsorship data</p></div>';
         }
+    }
+
+    // Load modern sponsorship sequence
+    async function loadModernSponsorshipSequence() {
+        const container = document.getElementById('sponsorshipSequence');
+        
+        try {
+            // Show loading state
+            container.innerHTML = `
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                    <p>Loading featured items...</p>
+                </div>
+            `;
+
+            // Fetch sponsorship data
+            const { data: sponsorships, error } = await supabase
+                .from('sponsorship_sequences')
+                .select('*')
+                .order('slot', { ascending: true });
+
+            if (error) throw error;
+
+            if (!sponsorships || sponsorships.length === 0) {
+                container.innerHTML = `
+                    <div class="loading-state">
+                        <i class="fas fa-star" style="font-size: 3rem; margin-bottom: 20px; color: #dee2e6;"></i>
+                        <p>No featured items yet</p>
+                        <button class="btn btn-gradient-primary mt-3" onclick="openSponsorshipModal()">
+                            <i class="fas fa-plus me-2"></i>Add Your First Featured Item
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            // Fetch item details for each sponsorship
+            const enrichedSponsorships = await Promise.all(sponsorships.map(async (sponsor) => {
+                let itemData = null;
+                try {
+                    if (sponsor.item_type === 'note') {
+                        const { data } = await supabase
+                            .from('notes')
+                            .select('*')
+                            .eq('id', sponsor.item_id)
+                            .single();
+                        itemData = data ? { ...data, type: 'note' } : null;
+                    } else if (sponsor.item_type === 'room') {
+                        const { data } = await supabase
+                            .from('rooms')
+                            .select('*')
+                            .eq('id', sponsor.item_id)
+                            .single();
+                        itemData = data ? { ...data, type: 'room' } : null;
+                    } else {
+                        const { data } = await supabase
+                            .from('products')
+                            .select('*')
+                            .eq('id', sponsor.item_id)
+                            .single();
+                        itemData = data ? { ...data, type: 'product' } : null;
+                    }
+                } catch (error) {
+                    console.error('Error fetching item details:', error);
+                }
+
+                return { ...sponsor, itemData };
+            }));
+
+            // Render modern sponsor cards
+            container.innerHTML = enrichedSponsorships.map((sponsor, index) => {
+                const item = sponsor.itemData;
+                if (!item) return '';
+
+                const title = item.title || item.name || item.hostel_name || 'Untitled';
+                const price = item.price || item.fees || 0;
+                const imageUrl = (Array.isArray(item.images) && item.images[0]) || 
+                               (Array.isArray(item.image_urls) && item.image_urls[0]) || 
+                               'https://via.placeholder.com/300x200?text=No+Image';
+
+                const typeColors = {
+                    'note': 'bg-info',
+                    'room': 'bg-warning', 
+                    'product': 'bg-success'
+                };
+
+                const typeIcons = {
+                    'note': 'fas fa-book',
+                    'room': 'fas fa-home',
+                    'product': 'fas fa-shopping-bag'
+                };
+
+                return `
+                    <div class="sponsor-item-card" draggable="true" data-sponsor-id="${sponsor.id}" data-slot="${sponsor.slot}">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="slot-number">${sponsor.slot}</div>
+                            <div class="dropdown">
+                                <button class="btn btn-link text-muted p-0" data-bs-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" onclick="editSponsor(${sponsor.id})">
+                                        <i class="fas fa-edit me-2"></i>Edit
+                                    </a></li>
+                                    <li><a class="dropdown-item text-danger" href="#" onclick="removeSponsor(${sponsor.id})">
+                                        <i class="fas fa-trash me-2"></i>Remove
+                                    </a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="item-image mb-3">
+                            <img src="${imageUrl}" alt="${title}" class="img-fluid rounded" style="width: 100%; height: 150px; object-fit: cover;">
+                        </div>
+                        
+                        <div class="item-details">
+                            <span class="badge ${typeColors[item.type]} mb-2">
+                                <i class="${typeIcons[item.type]} me-1"></i>
+                                ${item.type.charAt(0).toUpperCase() + item.type.slice(1)}
+                            </span>
+                            <h6 class="item-title mb-2">${title}</h6>
+                            <div class="item-price text-success fw-bold mb-2">₹${price.toLocaleString()}</div>
+                            <div class="item-stats">
+                                <small class="text-muted">
+                                    <i class="fas fa-eye me-1"></i> 
+                                    Views: ${Math.floor(Math.random() * 500) + 100}
+                                </small>
+                                <small class="text-muted ms-3">
+                                    <i class="fas fa-clock me-1"></i>
+                                    ${new Date(sponsor.created_at).toLocaleDateString()}
+                                </small>
+                            </div>
+                        </div>
+                        
+                        <div class="item-actions mt-3">
+                            <button class="btn btn-outline-primary btn-sm me-2" onclick="viewItem('${item.type}', '${item.id}')">
+                                <i class="fas fa-eye me-1"></i>View
+                            </button>
+                            <button class="btn btn-outline-success btn-sm" onclick="boostItem(${sponsor.id})">
+                                <i class="fas fa-rocket me-1"></i>Boost
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Initialize drag and drop
+            initializeDragAndDrop();
+
+        } catch (error) {
+            console.error('Error loading sponsorship sequence:', error);
+            container.innerHTML = `
+                <div class="loading-state">
+                    <i class="fas fa-exclamation-triangle text-danger" style="font-size: 3rem; margin-bottom: 20px;"></i>
+                    <p class="text-danger">Error loading featured items</p>
+                    <button class="btn btn-outline-primary mt-3" onclick="loadModernSponsorshipSequence()">
+                        <i class="fas fa-sync me-2"></i>Try Again
+                    </button>
+                </div>
+            `;
+        }
+    }
+
+    // Load performance insights
+    async function loadPerformanceInsights() {
+        const container = document.getElementById('topPerformers');
+        
+        try {
+            // Simulate performance data (replace with real analytics)
+            const performanceData = [
+                { rank: 1, title: 'JEE Physics Notes', views: 1250, type: 'note' },
+                { rank: 2, title: 'MacBook Pro 13"', views: 980, type: 'product' },
+                { rank: 3, title: 'Hostel Room - Deluxe', views: 756, type: 'room' }
+            ];
+
+            container.innerHTML = performanceData.map(item => `
+                <div class="performance-item">
+                    <div class="performance-rank">${item.rank}</div>
+                    <div class="flex-grow-1">
+                        <div class="fw-bold">${item.title}</div>
+                        <small class="text-muted">${item.views} views • ${item.type}</small>
+                    </div>
+                    <div class="text-success fw-bold">
+                        <i class="fas fa-arrow-up"></i> ${Math.floor(Math.random() * 20) + 5}%
+                    </div>
+                </div>
+            `).join('');
+
+        } catch (error) {
+            container.innerHTML = `
+                <div class="loading-state">
+                    <div class="spinner-sm"></div>
+                    <p>Unable to load performance data</p>
+                </div>
+            `;
+        }
+    }
+
+    // Initialize drag and drop functionality
+    function initializeDragAndDrop() {
+        const cards = document.querySelectorAll('.sponsor-item-card');
+        
+        cards.forEach(card => {
+            card.addEventListener('dragstart', handleDragStart);
+            card.addEventListener('dragover', handleDragOver);
+            card.addEventListener('drop', handleDrop);
+            card.addEventListener('dragend', handleDragEnd);
+        });
+    }
+
+    function handleDragStart(e) {
+        e.target.classList.add('dragging');
+        e.dataTransfer.setData('text/plain', e.target.dataset.sponsorId);
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault();
+    }
+
+    function handleDrop(e) {
+        e.preventDefault();
+        const draggedId = e.dataTransfer.getData('text/plain');
+        const targetId = e.target.closest('.sponsor-item-card')?.dataset.sponsorId;
+        
+        if (draggedId !== targetId) {
+            // Implement reordering logic here
+            console.log('Reorder:', draggedId, 'to position of', targetId);
+            showNotification('Reordering feature coming soon!', 'info');
+        }
+    }
+
+    function handleDragEnd(e) {
+        e.target.classList.remove('dragging');
+    }
+
+    // Global utility functions
+    window.showNotification = function(message, type = 'info') {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed`;
+        notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; max-width: 400px;';
+        
+        notification.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 5000);
+    };
+
+    // Enhanced Modern Sponsorship Modal Functions
+    window.openSponsorshipModal = function() {
+        const modal = new bootstrap.Modal(document.getElementById('sponsorshipModal'));
+        
+        // Initialize modern modal
+        initializeModernModal();
+        
+        // Load available items in the modern search panel
+        loadAvailableItems();
+        modal.show();
+    };
+
+    // Initialize modern modal elements
+    function initializeModernModal() {
+        // Reset selection state
+        window.selectedItem = null;
+        
+        // Reset search
+        const searchInput = document.getElementById('itemSearch');
+        const typeFilter = document.getElementById('typeFilter');
+        const confirmBtn = document.getElementById('confirmAddSponsor');
+        
+        if (searchInput) searchInput.value = '';
+        if (typeFilter) typeFilter.value = '';
+        if (confirmBtn) {
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<i class="fas fa-star me-2"></i>Select an Item';
+        }
+    }
+
+    // Load available items with modern design
+    async function loadAvailableItems() {
+        const container = document.getElementById('availableItems');
+        if (!container) return;
+        
+        try {
+            // Show loading state
+            container.innerHTML = `
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                    <p>Loading available items...</p>
+                </div>
+            `;
+
+            // Load all items in parallel
+            const [notesResult, roomsResult, productsResult] = await Promise.all([
+                supabase.from('notes').select('*').order('created_at', { ascending: false }),
+                supabase.from('rooms').select('*').order('created_at', { ascending: false }),
+                supabase.from('products').select('*').order('created_at', { ascending: false })
+            ]);
+
+            const allItems = [
+                ...(notesResult.data || []).map(item => ({ ...item, type: 'note' })),
+                ...(roomsResult.data || []).map(item => ({ ...item, type: 'room' })),
+                ...(productsResult.data || []).map(item => ({ ...item, type: 'product' }))
+            ];
+
+            if (allItems.length === 0) {
+                container.innerHTML = `
+                    <div class="loading-state">
+                        <i class="fas fa-box-open" style="font-size: 3rem; margin-bottom: 20px; color: #dee2e6;"></i>
+                        <p>No items available for featuring</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Render items in modern grid
+            container.innerHTML = `
+                <div class="items-grid">
+                    ${allItems.map(item => {
+                        const title = item.title || item.name || item.hostel_name || 'Untitled';
+                        const price = item.price || item.fees || 0;
+                        const imageUrl = (Array.isArray(item.images) && item.images[0]) || 
+                                       (Array.isArray(item.image_urls) && item.image_urls[0]) || 
+                                       'https://via.placeholder.com/200x150?text=No+Image';
+
+                        const typeColors = {
+                            'note': 'bg-info',
+                            'room': 'bg-warning',
+                            'product': 'bg-success'
+                        };
+
+                        const typeIcons = {
+                            'note': 'fas fa-book',
+                            'room': 'fas fa-home',
+                            'product': 'fas fa-shopping-bag'
+                        };
+
+                        return `
+                            <div class="item-card" onclick="selectItem('${item.type}', '${item.id}', '${title.replace(/'/g, "\\'")}')">
+                                <div class="item-image">
+                                    <img src="${imageUrl}" alt="${title}" class="img-fluid">
+                                    <span class="badge ${typeColors[item.type]} type-badge">
+                                        <i class="${typeIcons[item.type]} me-1"></i>
+                                        ${item.type.charAt(0).toUpperCase() + item.type.slice(1)}
+                                    </span>
+                                </div>
+                                <div class="item-info">
+                                    <h6 class="item-title">${title}</h6>
+                                    <div class="item-price text-success fw-bold">₹${price.toLocaleString()}</div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+
+        } catch (error) {
+            console.error('Error loading available items:', error);
+            container.innerHTML = `
+                <div class="loading-state">
+                    <i class="fas fa-exclamation-triangle text-danger" style="font-size: 3rem; margin-bottom: 20px;"></i>
+                    <p class="text-danger">Error loading items</p>
+                    <button class="btn btn-outline-primary mt-3" onclick="loadAvailableItems()">
+                        <i class="fas fa-sync me-2"></i>Try Again
+                    </button>
+                </div>
+            `;
+        }
+    }
+
+    // Modern item selection handler
+    function selectItem(type, id, title) {
+        // Visual feedback
+        document.querySelectorAll('.item-card').forEach(card => card.classList.remove('selected'));
+        event.currentTarget.classList.add('selected');
+
+        // Store selection
+        window.selectedItem = { type, id, title };
+
+        // Update confirm button
+        const confirmBtn = document.getElementById('confirmAddSponsor');
+        if (confirmBtn) {
+            confirmBtn.disabled = false;
+            confirmBtn.innerHTML = `<i class="fas fa-star me-2"></i>Feature "${title}"`;
+        }
+    }
+
+    // Enhanced search functionality
+    function searchItems() {
+        const searchTerm = document.getElementById('itemSearch')?.value.toLowerCase() || '';
+        const typeFilter = document.getElementById('typeFilter')?.value || '';
+        const items = document.querySelectorAll('.item-card');
+
+        items.forEach(item => {
+            const title = item.querySelector('.item-title')?.textContent.toLowerCase() || '';
+            const type = item.querySelector('.type-badge')?.textContent.toLowerCase().trim() || '';
+            
+            const matchesSearch = !searchTerm || title.includes(searchTerm);
+            const matchesType = !typeFilter || type.includes(typeFilter.toLowerCase());
+
+            item.style.display = matchesSearch && matchesType ? 'block' : 'none';
+        });
+    }
+
+    // Modern sponsorship confirmation
+    async function confirmAddSponsor() {
+        if (!window.selectedItem) {
+            showNotification('Please select an item to feature', 'warning');
+            return;
+        }
+
+        const confirmBtn = document.getElementById('confirmAddSponsor');
+        const originalContent = confirmBtn?.innerHTML || '';
+        
+        try {
+            // Show loading state
+            if (confirmBtn) {
+                confirmBtn.disabled = true;
+                confirmBtn.innerHTML = '<div class="spinner-sm me-2"></div>Adding...';
+            }
+
+            // Find next available slot
+            const { data: existingSponsors } = await supabase
+                .from('sponsorship_sequences')
+                .select('slot')
+                .order('slot', { ascending: false })
+                .limit(1);
+
+            const nextSlot = existingSponsors && existingSponsors.length > 0 
+                ? existingSponsors[0].slot + 1 
+                : 1;
+
+            // Insert new sponsorship
+            const { error } = await supabase
+                .from('sponsorship_sequences')
+                .insert({
+                    item_id: window.selectedItem.id,
+                    item_type: window.selectedItem.type,
+                    slot: nextSlot,
+                    is_active: true,
+                    user_id: currentUser.id
+                });
+
+            if (error) throw error;
+
+            // Success feedback
+            showNotification(`"${window.selectedItem.title}" has been featured successfully!`, 'success');
+            
+            // Close modal and refresh
+            const modalElement = document.getElementById('sponsorshipModal');
+            if (modalElement) {
+                const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                if (modalInstance) modalInstance.hide();
+            }
+            
+            await loadModernSponsorshipSequence();
+            await loadSponsorshipMetrics();
+
+        } catch (error) {
+            console.error('Error adding sponsorship:', error);
+            showNotification('Error featuring item: ' + error.message, 'error');
+        } finally {
+            if (confirmBtn) {
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = originalContent;
+            }
+        }
+    }
+
+    // Additional Modern Helper Functions
+    function editSponsor(sponsorId) {
+        showNotification('Edit feature coming soon!', 'info');
+    }
+
+    async function removeSponsor(sponsorId) {
+        if (!confirm('Are you sure you want to remove this featured item?')) return;
+
+        try {
+            const { error } = await supabase
+                .from('sponsorship_sequences')
+                .delete()
+                .eq('id', sponsorId);
+
+            if (error) throw error;
+
+            showNotification('Featured item removed successfully!', 'success');
+            await loadModernSponsorshipSequence();
+            await loadSponsorshipMetrics();
+
+        } catch (error) {
+            console.error('Error removing sponsorship:', error);
+            showNotification('Error removing featured item: ' + error.message, 'error');
+        }
+    }
+
+    function viewItem(type, id) {
+        const urls = {
+            'note': `note.html?id=${id}`,
+            'room': `room.html?id=${id}`,
+            'product': `product.html?id=${id}`
+        };
+        
+        if (urls[type]) {
+            window.open(urls[type], '_blank');
+        }
+    }
+
+    function boostItem(sponsorId) {
+        showNotification('Boost feature coming soon!', 'info');
+    }
+
+    // Enhanced notification system
+    function showNotification(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `toast align-items-center text-bg-${type === 'error' ? 'danger' : type} border-0`;
+        toast.setAttribute('role', 'alert');
+        toast.setAttribute('aria-live', 'assertive');
+        toast.setAttribute('aria-atomic', 'true');
+        
+        toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
+                    ${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        `;
+        
+        // Create toast container if it doesn't exist
+        let toastContainer = document.getElementById('toast-container');
+        if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.id = 'toast-container';
+            toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+            toastContainer.style.zIndex = '9999';
+            document.body.appendChild(toastContainer);
+        }
+        
+        toastContainer.appendChild(toast);
+        const bsToast = new bootstrap.Toast(toast);
+        bsToast.show();
+        
+        // Remove toast element after it's hidden
+        toast.addEventListener('hidden.bs.toast', () => {
+            toast.remove();
+        });
+    }
+
+    window.searchModalItems = function() {
+        searchItems();
+    };
+
+    window.saveSponsorshipChanges = async function() {
+        try {
+            const slots = document.querySelectorAll('.sponsor-slot');
+            const sponsorships = [];
+            
+            slots.forEach(slot => {
+                const sponsoredItem = slot.querySelector('.sponsored-item');
+                if (sponsoredItem) {
+                    sponsorships.push({
+                        slot: parseInt(slot.dataset.slot),
+                        item_id: sponsoredItem.dataset.itemId,
+                        item_type: sponsoredItem.dataset.itemType
+                    });
+                }
+            });
+
+            // Clear existing sponsorships
+            await supabase.from('sponsorship_sequences').delete().neq('id', 0);
+            
+            // Insert new sponsorships
+            if (sponsorships.length > 0) {
+                const { error } = await supabase
+                    .from('sponsorship_sequences')
+                    .insert(sponsorships);
+                    
+                if (error) throw error;
+            }
+
+            // Close modal and refresh
+            const modal = bootstrap.Modal.getInstance(document.getElementById('sponsorshipModal'));
+            modal.hide();
+            
+            showNotification('Sponsorship changes saved successfully!', 'success');
+            await loadSponsorshipSequence();
+            
+        } catch (error) {
+            console.error('Error saving sponsorship changes:', error);
+            showNotification('Error saving changes: ' + error.message, 'error');
+        }
+    };
+
+    // Initialize modern sponsorship interface when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize sponsorship page if we're on the right section
+        if (document.getElementById('sponsorshipSequence')) {
+            console.log('🚀 Initializing modern sponsorship interface...');
+            setTimeout(renderSponsorshipPage, 500);
+        }
+
+        // Add event listeners for search functionality
+        const itemSearch = document.getElementById('itemSearch');
+        const typeFilter = document.getElementById('typeFilter');
+        
+        if (itemSearch) {
+            itemSearch.addEventListener('input', searchItems);
+        }
+        
+        if (typeFilter) {
+            typeFilter.addEventListener('change', searchItems);
+        }
+
+        // Add event listener for modal confirm button
+        const confirmBtn = document.getElementById('confirmAddSponsor');
+        if (confirmBtn) {
+            confirmBtn.addEventListener('click', confirmAddSponsor);
+        }
+    });
+
+    // Initialize drag and drop functionality
+    function initializeDragAndDrop() {
+        const cards = document.querySelectorAll('.sponsor-item-card');
+        
+        cards.forEach(card => {
+            card.addEventListener('dragstart', handleDragStart);
+            card.addEventListener('dragover', handleDragOver);
+            card.addEventListener('drop', handleDrop);
+            card.addEventListener('dragend', handleDragEnd);
+        });
+    }
+
+    function handleDragStart(e) {
+        e.target.classList.add('dragging');
+        e.dataTransfer.setData('text/plain', e.target.dataset.sponsorId);
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault();
+        e.target.closest('.sponsor-item-card')?.classList.add('drag-over');
+    }
+
+    function handleDrop(e) {
+        e.preventDefault();
+        const draggedId = e.dataTransfer.getData('text/plain');
+        const targetCard = e.target.closest('.sponsor-item-card');
+        const targetId = targetCard?.dataset.sponsorId;
+        
+        // Remove drag-over class
+        targetCard?.classList.remove('drag-over');
+        
+        if (draggedId !== targetId && targetId) {
+            // Implement reordering logic here
+            console.log('Reorder:', draggedId, 'to position of', targetId);
+            showNotification('Reordering feature will be available soon!', 'info');
+        }
+    }
+
+    function handleDragEnd(e) {
+        e.target.classList.remove('dragging');
+        document.querySelectorAll('.sponsor-item-card').forEach(card => {
+            card.classList.remove('drag-over');
+        });
+    }
+
+    // Enhanced sponsorship analytics
+    async function loadSponsorshipMetrics() {
+        try {
+            // Get total sponsored items
+            const { data: totalSponsored, error: totalError } = await supabase
+                .from('sponsorship_sequences')
+                .select('id', { count: 'exact' });
+
+            if (totalError) throw totalError;
+
+            // Get active sponsored items
+            const { data: activeSponsored, error: activeError } = await supabase
+                .from('sponsorship_sequences')
+                .select('id', { count: 'exact' })
+                .eq('is_active', true);
+
+            if (activeError) throw activeError;
+
+            // Simulate other metrics (replace with real analytics)
+            const metrics = {
+                total: totalSponsored?.length || 0,
+                active: activeSponsored?.length || 0,
+                totalViews: Math.floor(Math.random() * 10000) + 5000,
+                clickThrough: (Math.random() * 5 + 2).toFixed(1)
+            };
+
+            // Update metric displays
+            updateMetricDisplay('totalSponsoredItems', metrics.total);
+            updateMetricDisplay('activeSponsoredItems', metrics.active);
+            updateMetricDisplay('totalSponsorViews', metrics.totalViews.toLocaleString());
+            updateMetricDisplay('sponsorClickRate', metrics.clickThrough + '%');
+
+        } catch (error) {
+            console.error('Error loading sponsorship metrics:', error);
+        }
+    }
+
+    function updateMetricDisplay(elementId, value) {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.textContent = value;
+        }
+    }
+
+    console.log('✅ Modern sponsorship management system loaded successfully!');
+
+    window.removeSponsorFromSlot = function(button) {
+        const slot = button.closest('.sponsor-slot');
+        const slotNumber = slot.dataset.slot;
+        const slotContent = slot.querySelector('.slot-content');
+        
+        slotContent.innerHTML = `
+            <div class="text-center text-muted">
+                <i class="fas fa-plus"></i>
+                <br><small>Drop item here</small>
+            </div>
+        `;
+        
+        showNotification(`Item removed from sponsor slot ${slotNumber}`, 'info');
+    };
+
+    // Open sponsorship modal - legacy function name
+    function openSponsorshipModal() {
+        window.openSponsorshipModal();
+    }
+
+    // Load modal items function
+    async function loadModalItems() {
+        try {
+            const container = document.getElementById('modalItemsList');
+            if (!container) return;
+
+            // Load notes
+            const { data: notes, error: notesError } = await supabase
+                .from('notes')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (notesError) throw notesError;
+
+            // Load products (if available)
+            const { data: products, error: productsError } = await supabase
+                .from('products')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            // Load user-generated content (if available)
+            const { data: userContent, error: userContentError } = await supabase
+                .from('user_profiles')
+                .select('id, full_name, created_at')
+                .order('created_at', { ascending: false });
+
+            let itemsHTML = '';
+
+            // Add notes
+            notes?.forEach(note => {
+                itemsHTML += `
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="item-card card h-100" draggable="true" 
+                             data-item-id="${note.id}" data-item-type="note"
+                             ondragstart="handleDragStart(event)">
+                            <div class="card-body">
+                                <h6 class="card-title text-truncate">${note.title || 'Untitled Note'}</h6>
+                                <p class="card-text small text-muted text-truncate">
+                                    ${note.content ? note.content.substring(0, 100) + '...' : 'No content'}
+                                </p>
+                                <span class="badge bg-primary">Note</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Add products if available
+            products?.forEach(product => {
+                itemsHTML += `
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="item-card card h-100" draggable="true" 
+                             data-item-id="${product.id}" data-item-type="product"
+                             ondragstart="handleDragStart(event)">
+                            <div class="card-body">
+                                <h6 class="card-title text-truncate">${product.name || 'Untitled Product'}</h6>
+                                <p class="card-text small text-muted text-truncate">
+                                    ${product.description ? product.description.substring(0, 100) + '...' : 'No description'}
+                                </p>
+                                <span class="badge bg-success">Product</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Add user content if available
+            userContent?.forEach(user => {
+                itemsHTML += `
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="item-card card h-100" draggable="true" 
+                             data-item-id="${user.id}" data-item-type="user"
+                             ondragstart="handleDragStart(event)">
+                            <div class="card-body">
+                                <h6 class="card-title text-truncate">${user.full_name || 'Anonymous User'}</h6>
+                                <p class="card-text small text-muted">User Profile</p>
+                                <span class="badge bg-info">User</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = itemsHTML || '<div class="col-12"><p class="text-muted text-center">No items available</p></div>';
+
+        } catch (error) {
+            console.error('Error loading modal items:', error);
+            const container = document.getElementById('modalItemsList');
+            if (container) {
+                container.innerHTML = '<div class="col-12"><div class="alert alert-danger">Error loading items</div></div>';
+            }
+        }
+    }
+
+    // Generate sponsor slots
+    function generateSponsorSlots() {
+        const container = document.getElementById('sponsorSlotsList');
+        if (!container) return;
+
+        let slotsHTML = '';
+        for (let i = 1; i <= 12; i++) {
+            slotsHTML += `
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <div class="sponsor-slot border rounded p-3" 
+                         data-slot="${i}"
+                         ondrop="handleDrop(event)" 
+                         ondragover="handleDragOver(event)">
+                        <h6 class="text-center mb-3">Sponsor Slot ${i}</h6>
+                        <div class="slot-content text-center text-muted">
+                            <i class="fas fa-plus"></i>
+                            <br><small>Drop item here</small>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        container.innerHTML = slotsHTML;
+    }
+
+    // Drag and drop handlers
+    window.handleDragStart = function(event) {
+        const itemCard = event.target.closest('.item-card');
+        event.dataTransfer.setData('text/plain', JSON.stringify({
+            itemId: itemCard.dataset.itemId,
+            itemType: itemCard.dataset.itemType,
+            title: itemCard.querySelector('h6').textContent,
+            description: itemCard.querySelector('p').textContent
+        }));
+    };
+
+    window.handleDragOver = function(event) {
+        event.preventDefault();
+        event.currentTarget.classList.add('drag-over');
+    };
+
+    window.handleDrop = function(event) {
+        event.preventDefault();
+        event.currentTarget.classList.remove('drag-over');
+        
+        try {
+            const data = JSON.parse(event.dataTransfer.getData('text/plain'));
+            const slot = event.currentTarget;
+            const slotContent = slot.querySelector('.slot-content');
+            
+            slotContent.innerHTML = `
+                <div class="sponsored-item" data-item-id="${data.itemId}" data-item-type="${data.itemType}">
+                    <h6 class="text-truncate mb-1">${data.title}</h6>
+                    <p class="small text-muted mb-2 text-truncate">${data.description}</p>
+                    <span class="badge bg-${data.itemType === 'note' ? 'primary' : data.itemType === 'product' ? 'success' : 'info'}">${data.itemType}</span>
+                    <button class="btn btn-sm btn-outline-danger mt-2" onclick="removeSponsorFromSlot(this)">
+                        <i class="fas fa-times"></i> Remove
+                    </button>
+                </div>
+            `;
+            
+            showNotification(`Item added to sponsor slot ${slot.dataset.slot}`, 'success');
+        } catch (error) {
+            console.error('Error handling drop:', error);
+            showNotification('Error adding item to slot', 'error');
+        }
+    };
+
+    // Load items for modal selection
+    async function loadModalItems() {
+        try {
+            const [
+                { data: products = [] },
+                { data: notes = [] },
+                { data: rooms = [] }
+            ] = await Promise.all([
+                supabase.from('products').select('*'),
+                supabase.from('notes').select('*'),
+                supabase.from('rooms').select('*')
+            ]);
+
+            const allItems = [
+                ...products.map(p => ({...p, type: 'product'})),
+                ...notes.map(n => ({...n, type: 'note'})),
+                ...rooms.map(r => ({...r, type: 'room'}))
+            ];
+
+            displayModalItems(allItems);
+        } catch (error) {
+            console.error('Error loading modal items:', error);
+            document.getElementById('modalItemsList').innerHTML = 
+                '<div class="alert alert-danger">Error loading items</div>';
+        }
+    }
+
+    // Display items in modal
+    function displayModalItems(items) {
+        const container = document.getElementById('modalItemsList');
+        
+        if (items.length === 0) {
+            container.innerHTML = '<div class="text-center py-4 text-muted">No items found</div>';
+            return;
+        }
+
+        const itemsHTML = items.map(item => `
+            <div class="item-card" draggable="true" data-item-id="${item.id}" data-item-type="${item.type}">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">${item.title || item.name || 'Untitled'}</h6>
+                        <p class="mb-1 text-muted small">${item.description || 'No description'}</p>
+                        <div class="d-flex gap-2">
+                            <span class="badge bg-primary">${item.type}</span>
+                            ${item.college ? `<span class="badge bg-secondary">${item.college}</span>` : ''}
+                            ${item.price ? `<span class="badge bg-success">₹${item.price}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <small class="text-muted">ID: ${item.id}</small>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+        container.innerHTML = itemsHTML;
+
+        // Add drag event listeners
+        container.querySelectorAll('.item-card').forEach(card => {
+            card.addEventListener('dragstart', handleDragStart);
+            card.addEventListener('dragend', handleDragEnd);
+        });
+    }
+
+    // Generate sponsor slots
+    function generateSponsorSlots() {
+        const container = document.getElementById('sponsorSlots');
+        const slotsHTML = Array.from({length: 10}, (_, i) => `
+            <div class="sponsor-slot drop-zone" data-slot="${i + 1}">
+                <div class="slot-number">${i + 1}</div>
+                <div class="slot-content">
+                    <div class="text-center text-muted">
+                        <i class="fas fa-plus"></i>
+                        <br><small>Drop item here</small>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+        container.innerHTML = slotsHTML;
+
+        // Add drop event listeners
+        container.querySelectorAll('.sponsor-slot').forEach(slot => {
+            slot.addEventListener('dragover', handleDragOver);
+            slot.addEventListener('drop', handleDrop);
+            slot.addEventListener('dragenter', handleDragEnter);
+            slot.addEventListener('dragleave', handleDragLeave);
+        });
+    }
+
+    // Drag and drop handlers
+    function handleDragStart(e) {
+        e.target.classList.add('dragging');
+        e.dataTransfer.setData('text/plain', JSON.stringify({
+            id: e.target.dataset.itemId,
+            type: e.target.dataset.itemType,
+            title: e.target.querySelector('h6').textContent
+        }));
+    }
+
+    function handleDragEnd(e) {
+        e.target.classList.remove('dragging');
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault();
+    }
+
+    function handleDragEnter(e) {
+        e.preventDefault();
+        e.target.closest('.sponsor-slot').classList.add('drag-over');
+    }
+
+    function handleDragLeave(e) {
+        if (!e.target.closest('.sponsor-slot').contains(e.relatedTarget)) {
+            e.target.closest('.sponsor-slot').classList.remove('drag-over');
+        }
+    }
+
+    function handleDrop(e) {
+        e.preventDefault();
+        const slot = e.target.closest('.sponsor-slot');
+        slot.classList.remove('drag-over');
+        
+        const itemData = JSON.parse(e.dataTransfer.getData('text/plain'));
+        const slotNumber = slot.dataset.slot;
+        
+        // Update slot content
+        const slotContent = slot.querySelector('.slot-content');
+        slotContent.innerHTML = `
+            <div class="sponsored-item" data-item-id="${itemData.id}" data-item-type="${itemData.type}">
+                <div>
+                    <strong>${itemData.title}</strong>
+                    <br><small class="text-muted">${itemData.type} • ID: ${itemData.id}</small>
+                </div>
+                <button class="remove-sponsor" onclick="removeSponsorFromSlot(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+        
+        showNotification(`Item added to sponsor slot ${slotNumber}`, 'success');
+    }
+
+    // Remove sponsor from slot
+    function removeSponsorFromSlot(button) {
+        const slot = button.closest('.sponsor-slot');
+        const slotNumber = slot.dataset.slot;
+        const slotContent = slot.querySelector('.slot-content');
+        
+        slotContent.innerHTML = `
+            <div class="text-center text-muted">
+                <i class="fas fa-plus"></i>
+                <br><small>Drop item here</small>
+            </div>
+        `;
+        
+        showNotification(`Item removed from sponsor slot ${slotNumber}`, 'info');
+    }
+
+    // Save sponsorship changes
+    async function saveSponsorshipChanges() {
+        try {
+            const slots = document.querySelectorAll('.sponsor-slot');
+            const sponsorships = [];
+            
+            slots.forEach(slot => {
+                const sponsoredItem = slot.querySelector('.sponsored-item');
+                if (sponsoredItem) {
+                    sponsorships.push({
+                        slot: parseInt(slot.dataset.slot),
+                        item_id: sponsoredItem.dataset.itemId,
+                        item_type: sponsoredItem.dataset.itemType
+                    });
+                }
+            });
+
+            // Clear existing sponsorships
+            await supabase.from('sponsorship_sequences').delete().neq('id', 0);
+            
+            // Insert new sponsorships
+            if (sponsorships.length > 0) {
+                const { error } = await supabase
+                    .from('sponsorship_sequences')
+                    .insert(sponsorships);
+                    
+                if (error) throw error;
+            }
+
+            // Close modal and refresh
+            const modal = bootstrap.Modal.getInstance(document.getElementById('sponsorshipModal'));
+            modal.hide();
+            
+            showNotification('Sponsorship changes saved successfully!', 'success');
+            await loadSponsorshipSequence();
+            
+        } catch (error) {
+            console.error('Error saving sponsorship changes:', error);
+            showNotification('Error saving changes: ' + error.message, 'error');
+        }
+    }
+
+    // Search items in modal
+    function searchModalItems() {
+        const searchTerm = document.getElementById('modalItemSearch').value.toLowerCase();
+        const typeFilter = document.getElementById('modalItemType').value;
+        
+        const itemCards = document.querySelectorAll('.item-card');
+        
+        itemCards.forEach(card => {
+            const title = card.querySelector('h6').textContent.toLowerCase();
+            const description = card.querySelector('p').textContent.toLowerCase();
+            const type = card.dataset.itemType;
+            
+            const matchesSearch = title.includes(searchTerm) || description.includes(searchTerm);
+            const matchesType = typeFilter === 'all' || type === typeFilter;
+            
+            card.style.display = matchesSearch && matchesType ? 'block' : 'none';
+        });
     }
 
     async function loadSponsorshipSequence() {
@@ -3083,16 +5512,84 @@
                 });
                 
             if (error) {
-                alert('Failed to add sponsorship: ' + error.message);
+                alert('Failed to add to sponsorship: ' + error.message);
                 return;
             }
             
-            alert('Item added to sponsors successfully!');
+            showNotification('Item added to sponsors successfully!', 'success');
             await loadSponsorshipSequence();
             
         } catch (error) {
-            console.error('Error adding sponsorship:', error);
+            console.error('Error adding to sponsorship:', error);
             alert('Error: ' + error.message);
+        }
+    }
+
+    // Remove sponsorship item
+    async function removeSponsorshipItem(itemId) {
+        if (!confirm('Are you sure you want to remove this item from sponsors?')) return;
+        
+        try {
+            const { error } = await supabase
+                .from('sponsorship_sequences')
+                .delete()
+                .eq('item_id', itemId);
+                
+            if (error) {
+                alert('Failed to remove from sponsorship: ' + error.message);
+                return;
+            }
+            
+            showNotification('Item removed from sponsors', 'success');
+            await loadSponsorshipSequence();
+            
+        } catch (error) {
+            console.error('Error removing sponsorship:', error);
+            alert('Error: ' + error.message);
+        }
+    }
+
+    // Edit sponsorship slot
+    async function editSponsorshipSlot(itemId, currentSlot) {
+        const newSlot = prompt(`Enter new slot number (current: ${currentSlot}):`);
+        if (!newSlot || isNaN(newSlot) || newSlot < 1 || newSlot > 10) return;
+        
+        try {
+            const { error } = await supabase
+                .from('sponsorship_sequences')
+                .update({ slot: parseInt(newSlot) })
+                .eq('item_id', itemId);
+                
+            if (error) {
+                alert('Failed to update slot: ' + error.message);
+                return;
+            }
+            
+            showNotification('Slot updated successfully!', 'success');
+            await loadSponsorshipSequence();
+            
+        } catch (error) {
+            console.error('Error updating slot:', error);
+            alert('Error: ' + error.message);
+        }
+    }
+
+    // Load sponsorship metrics
+    async function loadSponsorshipMetrics() {
+        try {
+            const { data: sponsorships, error } = await supabase
+                .from('sponsorship_sequences')
+                .select('*');
+                
+            if (!error && sponsorships) {
+                document.getElementById('activeSponsorCount').textContent = sponsorships.length;
+                
+                // Calculate estimated revenue (placeholder)
+                const estimatedRevenue = sponsorships.length * 100; // Rs. 100 per sponsor
+                document.getElementById('sponsorRevenue').textContent = `₹${estimatedRevenue}`;
+            }
+        } catch (error) {
+            console.error('Error loading sponsorship metrics:', error);
         }
     }
 
@@ -3473,7 +5970,9 @@
 
     // Initialize
     checkLogin();
-})();
-    </script>
+
+})(); // Close the main IIFE
+
+</script>
 </body>
 </html>

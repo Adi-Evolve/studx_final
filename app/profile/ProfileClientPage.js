@@ -126,15 +126,10 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
             setIsRefreshing(false);
         }
     };
-    // Auto-refresh if server data seems incomplete
-    useEffect(() => {
-        const hasNoData = (!products || products.length === 0) && 
-                         (!notes || notes.length === 0) && 
-                         (!rooms || rooms.length === 0);
-        if (hasNoData && user?.id) {
-            setTimeout(refreshListings, 1000); // Small delay to let component mount
-        }
-    }, [user?.id]); // Only run when user ID changes
+    
+    // Removed auto-refresh mechanism - it was causing unnecessary loading
+    // The server-side data loading is sufficient and prevents loading loops
+    
     const handleSaveProfile = async ({ fullName, phoneNumber }) => {
         try {
             const { data, error } = await supabase

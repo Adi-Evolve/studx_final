@@ -225,24 +225,6 @@ export default function NewestProductsSlider({ newestProducts, showDistance = fa
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                 </button>
-
-                {/* Dots indicator */}
-                {scrollSnaps.length > 1 && (
-                    <div className="flex justify-center mt-6 space-x-2">
-                        {scrollSnaps.map((_, index) => (
-                            <button
-                                key={index}
-                                onClick={() => scrollTo(index)}
-                                className={`h-2 rounded-full transition-all duration-300 ${
-                                    index === selectedIndex 
-                                        ? 'bg-blue-600 w-8' 
-                                        : 'bg-gray-300 hover:bg-gray-400 w-2'
-                                }`}
-                                aria-label={`Go to slide ${index + 1}`}
-                            />
-                        ))}
-                    </div>
-                )}
             </div>
         </section>
     );
