@@ -1383,32 +1383,6 @@
             color: white;
         }
 
-        .item-card.sponsored {
-            border-color: #ffc107;
-            background-color: #fff9e6;
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
-
-        .item-card.sponsored:hover {
-            transform: none;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-            border-color: #ffc107;
-        }
-
-        .sponsored-badge {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            background: linear-gradient(135deg, #ffc107 0%, #ff8c00 100%);
-            color: white;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: bold;
-            z-index: 10;
-        }
-
         /* Sponsor Slots Container */
         .sponsor-slots-container {
             background: #f8f9fa;
@@ -2684,35 +2658,167 @@
             loadTransactionHistory();
         } else if (page === 'sponsorship') {
             contentDiv.innerHTML = `
-                <div class="sponsorship-management-container">
-                    <!-- Header -->
+                <div class="sponsorship-container">
+                    <!-- Header Section -->
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div>
-                            <h2 class="mb-1"><i class="fas fa-star text-warning"></i> Sponsorship Management</h2>
-                            <p class="text-muted mb-0">Manage featured items with sequence control</p>
+                            <h2 class="mb-1"><i class="fas fa-star text-warning"></i> Sponsorship Center</h2>
+                            <p class="text-muted mb-0">Manage featured listings and boost visibility</p>
                         </div>
-                        <button class="btn btn-primary btn-lg" onclick="openAddSponsorModal()">
-                            <i class="fas fa-plus me-2"></i>Add Sponsor Products
+                        <button class="btn btn-gradient-primary btn-lg" onclick="openSponsorshipModal()">
+                            <i class="fas fa-plus me-2"></i>Add New Sponsor
                         </button>
                     </div>
 
-                    <!-- Current Sponsored Items -->
-                    <div class="row mb-4">
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="card-header bg-light">
-                                    <h5 class="mb-0">
-                                        <i class="fas fa-list-ol me-2"></i>Current Sponsored Items
-                                        <button class="btn btn-sm btn-outline-primary ms-2" onclick="refreshCurrentSponsors()">
-                                            <i class="fas fa-refresh"></i>
-                                        </button>
-                                    </h5>
+                    <!-- Quick Stats Cards -->
+                    <div class="row g-4 mb-5">
+                        <div class="col-lg-3 col-md-6">
+                            <div class="stat-card bg-gradient-primary">
+                                <div class="stat-icon">
+                                    <i class="fas fa-star"></i>
                                 </div>
-                                <div class="card-body">
-                                    <div id="currentSponsoredItems">
-                                        <div class="text-center py-4">
-                                            <div class="spinner-border text-primary" role="status"></div>
-                                            <p class="mt-2">Loading current sponsored items...</p>
+                                <div class="stat-content">
+                                    <h3 id="activeSponsorCount">-</h3>
+                                    <p>Active Sponsors</p>
+                                    <div class="stat-trend">
+                                        <i class="fas fa-arrow-up"></i> 12% from last month
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <div class="stat-card bg-gradient-success">
+                                <div class="stat-icon">
+                                    <i class="fas fa-rupee-sign"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 id="sponsorRevenue">₹0</h3>
+                                    <p>Revenue This Month</p>
+                                    <div class="stat-trend">
+                                        <i class="fas fa-arrow-up"></i> 8% increase
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <div class="stat-card bg-gradient-info">
+                                <div class="stat-icon">
+                                    <i class="fas fa-eye"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 id="sponsorViews">-</h3>
+                                    <p>Total Impressions</p>
+                                    <div class="stat-trend">
+                                        <i class="fas fa-arrow-up"></i> 15% boost
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <div class="stat-card bg-gradient-warning">
+                                <div class="stat-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 id="expiringSponsorships">-</h3>
+                                    <p>Expiring Soon</p>
+                                    <div class="stat-trend">
+                                        <i class="fas fa-exclamation-triangle"></i> Needs attention
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Main Content -->
+                    <div class="row g-4">
+                        <!-- Sponsorship Sequence -->
+                        <div class="col-lg-8">
+                            <div class="modern-card">
+                                <div class="card-header-modern">
+                                    <div class="d-flex align-items-center">
+                                        <div class="header-icon bg-primary">
+                                            <i class="fas fa-list"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="mb-1">Featured Sequence</h5>
+                                            <p class="text-muted mb-0">Drag & drop to reorder priority</p>
+                                        </div>
+                                    </div>
+                                    <div class="header-actions">
+                                        <button class="btn btn-outline-primary btn-sm me-2" onclick="refreshSponsorshipSequence()">
+                                            <i class="fas fa-sync-alt"></i> Refresh
+                                        </button>
+                                        <button class="btn btn-outline-success btn-sm" onclick="bulkAction('enable')">
+                                            <i class="fas fa-play"></i> Enable All
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-body-modern">
+                                    <div id="sponsorshipSequence" class="sponsorship-grid">
+                                        <div class="loading-state">
+                                            <div class="spinner"></div>
+                                            <p>Loading sponsorship sequence...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Control Panel -->
+                        <div class="col-lg-4">
+                            <div class="modern-card mb-4">
+                                <div class="card-header-modern">
+                                    <div class="d-flex align-items-center">
+                                        <div class="header-icon bg-info">
+                                            <i class="fas fa-control-panel"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="mb-1">Quick Actions</h5>
+                                            <p class="text-muted mb-0">Manage sponsors easily</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body-modern">
+                                    <div class="quick-actions-grid">
+                                        <button class="quick-action-btn" onclick="openSponsorshipModal()">
+                                            <i class="fas fa-plus"></i>
+                                            <span>Add Sponsor</span>
+                                        </button>
+                                        <button class="quick-action-btn" onclick="showAnalytics()">
+                                            <i class="fas fa-chart-line"></i>
+                                            <span>Analytics</span>
+                                        </button>
+                                        <button class="quick-action-btn" onclick="exportSponsors()">
+                                            <i class="fas fa-download"></i>
+                                            <span>Export Data</span>
+                                        </button>
+                                        <button class="quick-action-btn" onclick="showSettings()">
+                                            <i class="fas fa-cog"></i>
+                                            <span>Settings</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Performance Insights -->
+                            <div class="modern-card">
+                                <div class="card-header-modern">
+                                    <div class="d-flex align-items-center">
+                                        <div class="header-icon bg-success">
+                                            <i class="fas fa-chart-bar"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="mb-1">Performance</h5>
+                                            <p class="text-muted mb-0">Top performing sponsors</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body-modern">
+                                    <div class="performance-list" id="topPerformers">
+                                        <div class="loading-state">
+                                            <div class="spinner-sm"></div>
+                                            <p>Loading performance data...</p>
                                         </div>
                                     </div>
                                 </div>
@@ -2721,57 +2827,55 @@
                     </div>
                 </div>
 
-                <!-- Add Sponsorship Modal -->
-                <div class="modal fade" id="newSponsorshipModal" tabindex="-1">
-                    <div class="modal-dialog modal-xl">
+                <!-- Simple Sponsorship Modal -->
+                <div class="modal fade" id="sponsorshipModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
                         <div class="modal-content">
                             <div class="modal-header bg-primary text-white">
                                 <h5 class="modal-title">
-                                    <i class="fas fa-star me-2"></i>Add New Sponsored Items
+                                    <i class="fas fa-star me-2"></i>Add Sponsored Item
                                 </h5>
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                             </div>
                             <div class="modal-body">
-                                <!-- Search and Filter -->
+                                <!-- Simple Instructions -->
+                                <div class="alert alert-info mb-3">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <strong>Easy Steps:</strong> 
+                                    1️⃣ Search below  
+                                    2️⃣ Click any item to select  
+                                    3️⃣ Click "Add as Sponsor"
+                                </div>
+                                
+                                <!-- Quick Search -->
                                 <div class="row mb-3">
-                                    <div class="col-md-6">
+                                    <div class="col-md-8">
                                         <div class="input-group">
                                             <span class="input-group-text">
                                                 <i class="fas fa-search"></i>
                                             </span>
-                                            <input type="text" id="itemSearchInput" class="form-control" 
-                                                   placeholder="Search by name, title, or description..." 
-                                                   oninput="filterAvailableItems()">
+                                            <input type="text" id="itemSearch" class="form-control" 
+                                                   placeholder="Type to search notes, products, rooms..." 
+                                                   oninput="searchItems()">
                                         </div>
                                     </div>
-                                    <div class="col-md-3">
-                                        <select id="itemTypeFilter" class="form-select" onchange="filterAvailableItems()">
-                                            <option value="">All Types</option>
-                                            <option value="product">Products</option>
-                                            <option value="note">Notes</option>
-                                            <option value="room">Rooms</option>
+                                    <div class="col-md-4">
+                                        <select id="typeFilter" class="form-select" onchange="searchItems()">
+                                            <option value="">🔍 All Types</option>
+                                            <option value="note">📝 Notes</option>
+                                            <option value="product">🛍️ Products</option>
+                                            <option value="room">🏠 Rooms</option>
                                         </select>
                                     </div>
-                                    <div class="col-md-3">
-                                        <button class="btn btn-outline-secondary" onclick="clearAllNewSelections()">
-                                            <i class="fas fa-times me-1"></i>Clear All
-                                        </button>
-                                    </div>
                                 </div>
 
-                                <!-- Available Items Grid -->
-                                <div id="availableItemsGrid" class="row g-3" style="max-height: 400px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 8px; padding: 15px;">
+                                <!-- Available Items -->
+                                <div id="availableItems" class="row g-3" style="max-height: 400px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 8px; padding: 15px;">
                                     <div class="col-12 text-center py-4">
-                                        <div class="spinner-border text-primary" role="status"></div>
-                                        <p class="mt-2">Loading available items...</p>
-                                    </div>
-                                </div>
-
-                                <!-- Selected Items Preview -->
-                                <div id="selectedItemsPreview" class="mt-3" style="display: none;">
-                                    <div class="alert alert-success">
-                                        <h6><i class="fas fa-check-circle me-2"></i>Selected Items for Sponsorship:</h6>
-                                        <div id="selectedItemsContainer" class="row g-2"></div>
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        <p class="mt-2 text-muted">Loading available items...</p>
                                     </div>
                                 </div>
                             </div>
@@ -2779,40 +2883,21 @@
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                                     <i class="fas fa-times me-2"></i>Cancel
                                 </button>
-                                <button type="button" id="addSelectedSponsors" class="btn btn-success btn-lg" onclick="processSelectedSponsors()" disabled>
-                                    <i class="fas fa-star me-2"></i>Select Items First
+                                <button type="button" id="confirmAddSponsor" class="btn btn-success btn-lg" onclick="confirmAddSponsor()" disabled>
+                                    <i class="fas fa-star me-2"></i>Select an Item First
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Sequence Setting Modal -->
-                <div class="modal fade" id="sequenceModal" tabindex="-1">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header bg-info text-white">
-                                <h5 class="modal-title">
-                                    <i class="fas fa-sort-numeric-up me-2"></i>Set Sequence Order
-                                </h5>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                            </div>
-                            <div class="modal-body">
-                                <div id="sequenceItemsContainer">
-                                    <!-- Items with sequence inputs will be populated here -->
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                <button type="button" class="btn btn-success" onclick="saveSponsorsWithSequence()">
-                                    <i class="fas fa-save me-2"></i>Save Sponsors
                                 </button>
+                            </div>
                             </div>
                         </div>
                     </div>
                 </div>
             `;
-            loadCurrentSponsoredItems();
+            renderSponsorshipPage();
         } else if (page === 'settings') {
         } else if (page === 'settings') {
             contentDiv.innerHTML = `
@@ -3021,14 +3106,9 @@
                 new Date(user.created_at) >= today
             ).length;
 
-            // Update dashboard stats with null checks
-            const todayListingsEl = document.getElementById('todayListings');
-            const todaySignupsEl = document.getElementById('todaySignups');
-            const onlineUsersEl = document.getElementById('onlineUsers');
-            
-            if (todayListingsEl) todayListingsEl.textContent = todayListings;
-            if (todaySignupsEl) todaySignupsEl.textContent = todaySignups;
-            if (onlineUsersEl) onlineUsersEl.textContent = Math.floor(Math.random() * 50) + 10; // Simulated
+            document.getElementById('todayListings').textContent = todayListings;
+            document.getElementById('todaySignups').textContent = todaySignups;
+            document.getElementById('onlineUsers').textContent = Math.floor(Math.random() * 50) + 10; // Simulated
 
             // Update activity feed
             const recentActivity = [...products, ...notes, ...rooms, ...users]
@@ -4005,33 +4085,36 @@
     // Enhanced Sponsorship Management Functions
     async function renderSponsorshipPage() {
         try {
-            console.log('🌟 Loading sponsorship interface...');
+            console.log('🌟 Loading modern sponsorship interface...');
             
-            // Initialize selected items array
-            window.selectedItems = [];
+            // Load sponsorship sequence with modern design
+            await loadModernSponsorshipSequence();
             
-            // Load current sponsored items
-            await loadCurrentSponsoredItems();
+            // Load sponsorship metrics
+            await loadSponsorshipMetrics();
             
-            console.log('✅ Sponsorship interface loaded successfully!');
+            // Load performance insights
+            await loadPerformanceInsights();
+            
+            console.log('✅ Modern sponsorship interface loaded successfully!');
             
         } catch (error) {
             console.error('Error loading sponsorship page:', error);
-            document.getElementById('currentSponsoredItems').innerHTML = 
-                '<div class="text-center py-4"><i class="fas fa-exclamation-triangle text-danger" style="font-size: 2rem;"></i><p class="text-danger mt-2">Error loading sponsored items</p></div>';
+            document.getElementById('sponsorshipSequence').innerHTML = 
+                '<div class="loading-state"><i class="fas fa-exclamation-triangle text-danger" style="font-size: 3rem; margin-bottom: 20px;"></i><p class="text-danger">Error loading sponsorship data</p></div>';
         }
     }
 
-    // Load current sponsored items
-    async function loadCurrentSponsoredItems() {
-        const container = document.getElementById('currentSponsoredItems');
+    // Load modern sponsorship sequence
+    async function loadModernSponsorshipSequence() {
+        const container = document.getElementById('sponsorshipSequence');
         
         try {
             // Show loading state
             container.innerHTML = `
-                <div class="text-center py-4">
-                    <div class="spinner-border text-primary" role="status"></div>
-                    <p class="mt-2 text-muted">Loading sponsored items...</p>
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                    <p>Loading featured items...</p>
                 </div>
             `;
 
@@ -4045,11 +4128,11 @@
 
             if (!sponsorships || sponsorships.length === 0) {
                 container.innerHTML = `
-                    <div class="text-center py-4">
-                        <i class="fas fa-star" style="font-size: 3rem; color: #dee2e6;"></i>
-                        <p class="text-muted mt-3">No sponsored items yet</p>
-                        <button class="btn btn-primary" onclick="openAddSponsorModal()">
-                            <i class="fas fa-plus me-2"></i>Add First Sponsor
+                    <div class="loading-state">
+                        <i class="fas fa-star" style="font-size: 3rem; margin-bottom: 20px; color: #dee2e6;"></i>
+                        <p>No featured items yet</p>
+                        <button class="btn btn-gradient-primary mt-3" onclick="openSponsorshipModal()">
+                            <i class="fas fa-plus me-2"></i>Add Your First Featured Item
                         </button>
                     </div>
                 `;
@@ -4060,16 +4143,28 @@
             const enrichedSponsorships = await Promise.all(sponsorships.map(async (sponsor) => {
                 let itemData = null;
                 try {
-                    const table = sponsor.item_type === 'note' ? 'notes' : 
-                                 sponsor.item_type === 'room' ? 'rooms' : 'products';
-                    
-                    const { data } = await supabase
-                        .from(table)
-                        .select('*')
-                        .eq('id', sponsor.item_id)
-                        .single();
-                    
-                    itemData = data ? { ...data, type: sponsor.item_type } : null;
+                    if (sponsor.item_type === 'note') {
+                        const { data } = await supabase
+                            .from('notes')
+                            .select('*')
+                            .eq('id', sponsor.item_id)
+                            .single();
+                        itemData = data ? { ...data, type: 'note' } : null;
+                    } else if (sponsor.item_type === 'room') {
+                        const { data } = await supabase
+                            .from('rooms')
+                            .select('*')
+                            .eq('id', sponsor.item_id)
+                            .single();
+                        itemData = data ? { ...data, type: 'room' } : null;
+                    } else {
+                        const { data } = await supabase
+                            .from('products')
+                            .select('*')
+                            .eq('id', sponsor.item_id)
+                            .single();
+                        itemData = data ? { ...data, type: 'product' } : null;
+                    }
                 } catch (error) {
                     console.error('Error fetching item details:', error);
                 }
@@ -4077,28 +4172,10 @@
                 return { ...sponsor, itemData };
             }));
 
-            // Render sponsored items
-            container.innerHTML = enrichedSponsorships.map((sponsor) => {
+            // Render modern sponsor cards
+            container.innerHTML = enrichedSponsorships.map((sponsor, index) => {
                 const item = sponsor.itemData;
-                if (!item) {
-                    return `
-                        <div class="col-md-4 mb-3">
-                            <div class="card border-danger">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between">
-                                        <span class="badge bg-warning">Slot ${sponsor.slot}</span>
-                                        <button class="btn btn-sm btn-outline-danger" onclick="removeSponsor(${sponsor.id})">Remove</button>
-                                    </div>
-                                    <div class="text-center text-danger mt-3">
-                                        <i class="fas fa-exclamation-triangle fa-2x"></i>
-                                        <p class="mt-2">Item not found</p>
-                                        <small>ID: ${sponsor.item_id} | Type: ${sponsor.item_type}</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }
+                if (!item) return '';
 
                 const title = item.title || item.name || item.hostel_name || 'Untitled';
                 const price = item.price || item.fees || 0;
@@ -4112,64 +4189,700 @@
                     'product': 'bg-success'
                 };
 
+                const typeIcons = {
+                    'note': 'fas fa-book',
+                    'room': 'fas fa-home',
+                    'product': 'fas fa-shopping-bag'
+                };
+
                 return `
-                    <div class="col-md-4 mb-3">
-                        <div class="card h-100">
-                            <div class="position-relative">
-                                <img src="${imageUrl}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="${title}">
-                                <span class="position-absolute top-0 start-0 badge bg-primary m-2">Slot ${sponsor.slot}</span>
-                                <span class="position-absolute top-0 end-0 badge ${typeColors[item.type]} m-2">${item.type}</span>
-                            </div>
-                            <div class="card-body">
-                                <h6 class="card-title">${title}</h6>
-                                <p class="text-success fw-bold">₹${price.toLocaleString()}</p>
-                                <small class="text-muted">Added: ${new Date(sponsor.created_at).toLocaleDateString()}</small>
-                            </div>
-                            <div class="card-footer d-flex justify-content-between">
-                                <button class="btn btn-sm btn-outline-primary" onclick="editSequence('${sponsor.id}', ${sponsor.slot})">
-                                    <i class="fas fa-edit"></i> Edit
+                    <div class="sponsor-item-card" draggable="true" data-sponsor-id="${sponsor.id}" data-slot="${sponsor.slot}">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="slot-number">${sponsor.slot}</div>
+                            <div class="dropdown">
+                                <button class="btn btn-link text-muted p-0" data-bs-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-v"></i>
                                 </button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="removeSponsor('${sponsor.id}')">
-                                    <i class="fas fa-trash"></i> Remove
-                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" onclick="editSponsor(${sponsor.id})">
+                                        <i class="fas fa-edit me-2"></i>Edit
+                                    </a></li>
+                                    <li><a class="dropdown-item text-danger" href="#" onclick="removeSponsor(${sponsor.id})">
+                                        <i class="fas fa-trash me-2"></i>Remove
+                                    </a></li>
+                                </ul>
                             </div>
+                        </div>
+                        
+                        <div class="item-image mb-3">
+                            <img src="${imageUrl}" alt="${title}" class="img-fluid rounded" style="width: 100%; height: 150px; object-fit: cover;">
+                        </div>
+                        
+                        <div class="item-details">
+                            <span class="badge ${typeColors[item.type]} mb-2">
+                                <i class="${typeIcons[item.type]} me-1"></i>
+                                ${item.type.charAt(0).toUpperCase() + item.type.slice(1)}
+                            </span>
+                            <h6 class="item-title mb-2">${title}</h6>
+                            <div class="item-price text-success fw-bold mb-2">₹${price.toLocaleString()}</div>
+                            <div class="item-stats">
+                                <small class="text-muted">
+                                    <i class="fas fa-eye me-1"></i> 
+                                    Views: ${Math.floor(Math.random() * 500) + 100}
+                                </small>
+                                <small class="text-muted ms-3">
+                                    <i class="fas fa-clock me-1"></i>
+                                    ${new Date(sponsor.created_at).toLocaleDateString()}
+                                </small>
+                            </div>
+                        </div>
+                        
+                        <div class="item-actions mt-3">
+                            <button class="btn btn-outline-primary btn-sm me-2" onclick="viewItem('${item.type}', '${item.id}')">
+                                <i class="fas fa-eye me-1"></i>View
+                            </button>
+                            <button class="btn btn-outline-success btn-sm" onclick="boostItem(${sponsor.id})">
+                                <i class="fas fa-rocket me-1"></i>Boost
+                            </button>
                         </div>
                     </div>
                 `;
             }).join('');
 
+            // Initialize drag and drop
+            initializeDragAndDrop();
+
         } catch (error) {
-            console.error('Error loading sponsored items:', error);
+            console.error('Error loading sponsorship sequence:', error);
             container.innerHTML = `
-                <div class="text-center py-4">
-                    <i class="fas fa-exclamation-triangle text-danger" style="font-size: 2rem;"></i>
-                    <p class="text-danger mt-2">Error loading sponsored items</p>
-                    <button class="btn btn-outline-primary mt-2" onclick="loadCurrentSponsoredItems()">
-                        <i class="fas fa-sync me-1"></i>Try Again
+                <div class="loading-state">
+                    <i class="fas fa-exclamation-triangle text-danger" style="font-size: 3rem; margin-bottom: 20px;"></i>
+                    <p class="text-danger">Error loading featured items</p>
+                    <button class="btn btn-outline-primary mt-3" onclick="loadModernSponsorshipSequence()">
+                        <i class="fas fa-sync me-2"></i>Try Again
                     </button>
                 </div>
             `;
         }
     }
 
-    // Open add sponsor modal
-    function openAddSponsorModal() {
-        // Clear any previous selections
-        window.selectedItems = [];
+    // Load performance insights
+    async function loadPerformanceInsights() {
+        const container = document.getElementById('topPerformers');
         
-        // Load available items
-        loadAvailableItemsForSponsor();
+        try {
+            // Simulate performance data (replace with real analytics)
+            const performanceData = [
+                { rank: 1, title: 'JEE Physics Notes', views: 1250, type: 'note' },
+                { rank: 2, title: 'MacBook Pro 13"', views: 980, type: 'product' },
+                { rank: 3, title: 'Hostel Room - Deluxe', views: 756, type: 'room' }
+            ];
+
+            container.innerHTML = performanceData.map(item => `
+                <div class="performance-item">
+                    <div class="performance-rank">${item.rank}</div>
+                    <div class="flex-grow-1">
+                        <div class="fw-bold">${item.title}</div>
+                        <small class="text-muted">${item.views} views • ${item.type}</small>
+                    </div>
+                    <div class="text-success fw-bold">
+                        <i class="fas fa-arrow-up"></i> ${Math.floor(Math.random() * 20) + 5}%
+                    </div>
+                </div>
+            `).join('');
+
+        } catch (error) {
+            container.innerHTML = `
+                <div class="loading-state">
+                    <div class="spinner-sm"></div>
+                    <p>Unable to load performance data</p>
+                </div>
+            `;
+        }
+    }
+
+    // Initialize drag and drop functionality
+    function initializeDragAndDrop() {
+        const cards = document.querySelectorAll('.sponsor-item-card');
         
-        // Show modal - use the correct modal ID
-        const modal = new bootstrap.Modal(document.getElementById('newSponsorshipModal'));
+        cards.forEach(card => {
+            card.addEventListener('dragstart', handleDragStart);
+            card.addEventListener('dragover', handleDragOver);
+            card.addEventListener('drop', handleDrop);
+            card.addEventListener('dragend', handleDragEnd);
+        });
+    }
+
+    function handleDragStart(e) {
+        e.target.classList.add('dragging');
+        e.dataTransfer.setData('text/plain', e.target.dataset.sponsorId);
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault();
+    }
+
+    function handleDrop(e) {
+        e.preventDefault();
+        const draggedId = e.dataTransfer.getData('text/plain');
+        const targetId = e.target.closest('.sponsor-item-card')?.dataset.sponsorId;
+        
+        if (draggedId !== targetId) {
+            // Implement reordering logic here
+            console.log('Reorder:', draggedId, 'to position of', targetId);
+            showNotification('Reordering feature coming soon!', 'info');
+        }
+    }
+
+    function handleDragEnd(e) {
+        e.target.classList.remove('dragging');
+    }
+
+    // Global utility functions
+    window.showNotification = function(message, type = 'info') {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed`;
+        notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; max-width: 400px;';
+        
+        notification.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 5000);
+    };
+
+    // Enhanced Modern Sponsorship Modal Functions
+    window.openSponsorshipModal = function() {
+        const modal = new bootstrap.Modal(document.getElementById('sponsorshipModal'));
+        
+        // Initialize modern modal
+        initializeModernModal();
+        
+        // Load available items in the modern search panel
+        loadAvailableItems();
+        modal.show();
+    };
+
+    // Initialize modern modal elements
+    function initializeModernModal() {
+        // Reset selection state
+        window.selectedItem = null;
+        
+        // Reset search
+        const searchInput = document.getElementById('itemSearch');
+        const typeFilter = document.getElementById('typeFilter');
+        const confirmBtn = document.getElementById('confirmAddSponsor');
+        
+        if (searchInput) searchInput.value = '';
+        if (typeFilter) typeFilter.value = '';
+        if (confirmBtn) {
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<i class="fas fa-star me-2"></i>Select an Item';
+        }
+    }
+
+    // Load available items with modern design
+    async function loadAvailableItems() {
+        const container = document.getElementById('availableItems');
+        if (!container) return;
+        
+        try {
+            // Show loading state
+            container.innerHTML = `
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                    <p>Loading available items...</p>
+                </div>
+            `;
+
+            // Load all items in parallel
+            const [notesResult, roomsResult, productsResult] = await Promise.all([
+                supabase.from('notes').select('*').order('created_at', { ascending: false }),
+                supabase.from('rooms').select('*').order('created_at', { ascending: false }),
+                supabase.from('products').select('*').order('created_at', { ascending: false })
+            ]);
+
+            const allItems = [
+                ...(notesResult.data || []).map(item => ({ ...item, type: 'note' })),
+                ...(roomsResult.data || []).map(item => ({ ...item, type: 'room' })),
+                ...(productsResult.data || []).map(item => ({ ...item, type: 'product' }))
+            ];
+
+            if (allItems.length === 0) {
+                container.innerHTML = `
+                    <div class="loading-state">
+                        <i class="fas fa-box-open" style="font-size: 3rem; margin-bottom: 20px; color: #dee2e6;"></i>
+                        <p>No items available for featuring</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Render items in modern grid
+            container.innerHTML = `
+                <div class="items-grid">
+                    ${allItems.map(item => {
+                        const title = item.title || item.name || item.hostel_name || 'Untitled';
+                        const price = item.price || item.fees || 0;
+                        const imageUrl = (Array.isArray(item.images) && item.images[0]) || 
+                                       (Array.isArray(item.image_urls) && item.image_urls[0]) || 
+                                       'https://via.placeholder.com/200x150?text=No+Image';
+
+                        const typeColors = {
+                            'note': 'bg-info',
+                            'room': 'bg-warning',
+                            'product': 'bg-success'
+                        };
+
+                        const typeIcons = {
+                            'note': 'fas fa-book',
+                            'room': 'fas fa-home',
+                            'product': 'fas fa-shopping-bag'
+                        };
+
+                        return `
+                            <div class="item-card" onclick="selectItem('${item.type}', '${item.id}', '${title.replace(/'/g, "\\'")}')">
+                                <div class="item-image">
+                                    <img src="${imageUrl}" alt="${title}" class="img-fluid">
+                                    <span class="badge ${typeColors[item.type]} type-badge">
+                                        <i class="${typeIcons[item.type]} me-1"></i>
+                                        ${item.type.charAt(0).toUpperCase() + item.type.slice(1)}
+                                    </span>
+                                </div>
+                                <div class="item-info">
+                                    <h6 class="item-title">${title}</h6>
+                                    <div class="item-price text-success fw-bold">₹${price.toLocaleString()}</div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+
+        } catch (error) {
+            console.error('Error loading available items:', error);
+            container.innerHTML = `
+                <div class="loading-state">
+                    <i class="fas fa-exclamation-triangle text-danger" style="font-size: 3rem; margin-bottom: 20px;"></i>
+                    <p class="text-danger">Error loading items</p>
+                    <button class="btn btn-outline-primary mt-3" onclick="loadAvailableItems()">
+                        <i class="fas fa-sync me-2"></i>Try Again
+                    </button>
+                </div>
+            `;
+        }
+    }
+
+    // Modern item selection handler  
+    function selectItem(type, id, title) {
+        try {
+            console.log('selectItem called with:', { type, id, title });
+            
+            // Remove previous selection
+            document.querySelectorAll('.item-card').forEach(card => {
+                card.classList.remove('selected');
+                card.style.borderColor = '';
+                card.style.backgroundColor = '';
+            });
+
+            // Add selection to clicked item
+            const clickedCard = event.currentTarget || event.target.closest('.item-card');
+            if (clickedCard) {
+                clickedCard.classList.add('selected');
+                clickedCard.style.borderColor = '#28a745';
+                clickedCard.style.backgroundColor = '#d4edda';
+            }
+
+            // Store selection
+            window.selectedItem = { type, id, title };
+
+            // Update confirm button
+            const confirmBtn = document.getElementById('confirmAddSponsor');
+            if (confirmBtn) {
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = `<i class="fas fa-star me-2"></i>Add "${title}" as Sponsor`;
+                confirmBtn.classList.remove('btn-secondary');
+                confirmBtn.classList.add('btn-success');
+            }
+
+            console.log('Selected item:', { type, id, title });
+        } catch (error) {
+            console.error('Error in selectItem:', error);
+        }
+    }
+
+    // Make selectItem globally available
+    window.selectItem = selectItem;
+
+    // Debug: Check if selectItem is accessible
+    console.log('selectItem function available:', typeof window.selectItem === 'function');
+
+    // Enhanced search functionality
+    function searchItems() {
+        const searchTerm = document.getElementById('itemSearch')?.value.toLowerCase() || '';
+        const typeFilter = document.getElementById('typeFilter')?.value || '';
+        const items = document.querySelectorAll('.item-card');
+
+        items.forEach(item => {
+            const title = item.querySelector('.item-title')?.textContent.toLowerCase() || '';
+            const type = item.querySelector('.type-badge')?.textContent.toLowerCase().trim() || '';
+            
+            const matchesSearch = !searchTerm || title.includes(searchTerm);
+            const matchesType = !typeFilter || type.includes(typeFilter.toLowerCase());
+
+            item.style.display = matchesSearch && matchesType ? 'block' : 'none';
+        });
+    }
+
+    // Modern sponsorship confirmation
+    async function confirmAddSponsor() {
+        if (!window.selectedItem) {
+            showNotification('Please select an item to feature', 'warning');
+            return;
+        }
+
+        const confirmBtn = document.getElementById('confirmAddSponsor');
+        const originalContent = confirmBtn?.innerHTML || '';
+        
+        try {
+            // Show loading state
+            if (confirmBtn) {
+                confirmBtn.disabled = true;
+                confirmBtn.innerHTML = '<div class="spinner-sm me-2"></div>Adding...';
+            }
+
+            // Find next available slot
+            const { data: existingSponsors } = await supabase
+                .from('sponsorship_sequences')
+                .select('slot')
+                .order('slot', { ascending: false })
+                .limit(1);
+
+            const nextSlot = existingSponsors && existingSponsors.length > 0 
+                ? existingSponsors[0].slot + 1 
+                : 1;
+
+            // Insert new sponsorship
+            const { error } = await supabase
+                .from('sponsorship_sequences')
+                .insert({
+                    item_id: window.selectedItem.id,
+                    item_type: window.selectedItem.type,
+                    slot: nextSlot,
+                    is_active: true,
+                    user_id: currentUser.id
+                });
+
+            if (error) throw error;
+
+            // Success feedback
+            showNotification(`"${window.selectedItem.title}" has been featured successfully!`, 'success');
+            
+            // Close modal and refresh
+            const modalElement = document.getElementById('sponsorshipModal');
+            if (modalElement) {
+                const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                if (modalInstance) modalInstance.hide();
+            }
+            
+            await loadModernSponsorshipSequence();
+            await loadSponsorshipMetrics();
+
+        } catch (error) {
+            console.error('Error adding sponsorship:', error);
+            showNotification('Error featuring item: ' + error.message, 'error');
+        } finally {
+            if (confirmBtn) {
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = originalContent;
+            }
+        }
+    }
+
+    // Additional Modern Helper Functions
+    function editSponsor(sponsorId) {
+        showNotification('Edit feature coming soon!', 'info');
+    }
+
+    async function removeSponsor(sponsorId) {
+        if (!confirm('Are you sure you want to remove this featured item?')) return;
+
+        try {
+            const { error } = await supabase
+                .from('sponsorship_sequences')
+                .delete()
+                .eq('id', sponsorId);
+
+            if (error) throw error;
+
+            showNotification('Featured item removed successfully!', 'success');
+            await loadModernSponsorshipSequence();
+            await loadSponsorshipMetrics();
+
+        } catch (error) {
+            console.error('Error removing sponsorship:', error);
+            showNotification('Error removing featured item: ' + error.message, 'error');
+        }
+    }
+
+    function viewItem(type, id) {
+        const urls = {
+            'note': `note.html?id=${id}`,
+            'room': `room.html?id=${id}`,
+            'product': `product.html?id=${id}`
+        };
+        
+        if (urls[type]) {
+            window.open(urls[type], '_blank');
+        }
+    }
+
+    function boostItem(sponsorId) {
+        showNotification('Boost feature coming soon!', 'info');
+    }
+
+    // Enhanced notification system
+    function showNotification(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `toast align-items-center text-bg-${type === 'error' ? 'danger' : type} border-0`;
+        toast.setAttribute('role', 'alert');
+        toast.setAttribute('aria-live', 'assertive');
+        toast.setAttribute('aria-atomic', 'true');
+        
+        toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
+                    ${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        `;
+        
+        // Create toast container if it doesn't exist
+        let toastContainer = document.getElementById('toast-container');
+        if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.id = 'toast-container';
+            toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+            toastContainer.style.zIndex = '9999';
+            document.body.appendChild(toastContainer);
+        }
+        
+        toastContainer.appendChild(toast);
+        const bsToast = new bootstrap.Toast(toast);
+        bsToast.show();
+        
+        // Remove toast element after it's hidden
+        toast.addEventListener('hidden.bs.toast', () => {
+            toast.remove();
+        });
+    }
+
+    window.searchModalItems = function() {
+        searchItems();
+    };
+
+    window.saveSponsorshipChanges = async function() {
+        try {
+            const slots = document.querySelectorAll('.sponsor-slot');
+            const sponsorships = [];
+            
+            slots.forEach(slot => {
+                const sponsoredItem = slot.querySelector('.sponsored-item');
+                if (sponsoredItem) {
+                    sponsorships.push({
+                        slot: parseInt(slot.dataset.slot),
+                        item_id: sponsoredItem.dataset.itemId,
+                        item_type: sponsoredItem.dataset.itemType
+                    });
+                }
+            });
+
+            // Clear existing sponsorships
+            await supabase.from('sponsorship_sequences').delete().neq('id', 0);
+            
+            // Insert new sponsorships
+            if (sponsorships.length > 0) {
+                const { error } = await supabase
+                    .from('sponsorship_sequences')
+                    .insert(sponsorships);
+                    
+                if (error) throw error;
+            }
+
+            // Close modal and refresh
+            const modal = bootstrap.Modal.getInstance(document.getElementById('sponsorshipModal'));
+            modal.hide();
+            
+            showNotification('Sponsorship changes saved successfully!', 'success');
+            await loadSponsorshipSequence();
+            
+        } catch (error) {
+            console.error('Error saving sponsorship changes:', error);
+            showNotification('Error saving changes: ' + error.message, 'error');
+        }
+    };
+
+    // Initialize modern sponsorship interface when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize sponsorship page if we're on the right section
+        if (document.getElementById('sponsorshipSequence')) {
+            console.log('🚀 Initializing modern sponsorship interface...');
+            setTimeout(renderSponsorshipPage, 500);
+        }
+
+        // Add event listeners for search functionality
+        const itemSearch = document.getElementById('itemSearch');
+        const typeFilter = document.getElementById('typeFilter');
+        
+        if (itemSearch) {
+            itemSearch.addEventListener('input', searchItems);
+        }
+        
+        if (typeFilter) {
+            typeFilter.addEventListener('change', searchItems);
+        }
+
+        // Add event listener for modal confirm button
+        const confirmBtn = document.getElementById('confirmAddSponsor');
+        if (confirmBtn) {
+            confirmBtn.addEventListener('click', confirmAddSponsor);
+        }
+    });
+
+    // Initialize drag and drop functionality
+    function initializeDragAndDrop() {
+        const cards = document.querySelectorAll('.sponsor-item-card');
+        
+        cards.forEach(card => {
+            card.addEventListener('dragstart', handleDragStart);
+            card.addEventListener('dragover', handleDragOver);
+            card.addEventListener('drop', handleDrop);
+            card.addEventListener('dragend', handleDragEnd);
+        });
+    }
+
+    function handleDragStart(e) {
+        e.target.classList.add('dragging');
+        e.dataTransfer.setData('text/plain', e.target.dataset.sponsorId);
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault();
+        e.target.closest('.sponsor-item-card')?.classList.add('drag-over');
+    }
+
+    function handleDrop(e) {
+        e.preventDefault();
+        const draggedId = e.dataTransfer.getData('text/plain');
+        const targetCard = e.target.closest('.sponsor-item-card');
+        const targetId = targetCard?.dataset.sponsorId;
+        
+        // Remove drag-over class
+        targetCard?.classList.remove('drag-over');
+        
+        if (draggedId !== targetId && targetId) {
+            // Implement reordering logic here
+            console.log('Reorder:', draggedId, 'to position of', targetId);
+            showNotification('Reordering feature will be available soon!', 'info');
+        }
+    }
+
+    function handleDragEnd(e) {
+        e.target.classList.remove('dragging');
+        document.querySelectorAll('.sponsor-item-card').forEach(card => {
+            card.classList.remove('drag-over');
+        });
+    }
+
+    // Enhanced sponsorship analytics
+    async function loadSponsorshipMetrics() {
+        try {
+            // Get total sponsored items
+            const { data: totalSponsored, error: totalError } = await supabase
+                .from('sponsorship_sequences')
+                .select('id', { count: 'exact' });
+
+            if (totalError) throw totalError;
+
+            // Get active sponsored items
+            const { data: activeSponsored, error: activeError } = await supabase
+                .from('sponsorship_sequences')
+                .select('id', { count: 'exact' })
+                .eq('is_active', true);
+
+            if (activeError) throw activeError;
+
+            // Simulate other metrics (replace with real analytics)
+            const metrics = {
+                total: totalSponsored?.length || 0,
+                active: activeSponsored?.length || 0,
+                totalViews: Math.floor(Math.random() * 10000) + 5000,
+                clickThrough: (Math.random() * 5 + 2).toFixed(1)
+            };
+
+            // Update metric displays
+            updateMetricDisplay('totalSponsoredItems', metrics.total);
+            updateMetricDisplay('activeSponsoredItems', metrics.active);
+            updateMetricDisplay('totalSponsorViews', metrics.totalViews.toLocaleString());
+            updateMetricDisplay('sponsorClickRate', metrics.clickThrough + '%');
+
+        } catch (error) {
+            console.error('Error loading sponsorship metrics:', error);
+        }
+    }
+
+    function updateMetricDisplay(elementId, value) {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.textContent = value;
+        }
+    }
+
+    console.log('✅ Modern sponsorship management system loaded successfully!');
+
+    window.removeSponsorFromSlot = function(button) {
+        const slot = button.closest('.sponsor-slot');
+        const slotNumber = slot.dataset.slot;
+        const slotContent = slot.querySelector('.slot-content');
+        
+        slotContent.innerHTML = `
+            <div class="text-center text-muted">
+                <i class="fas fa-plus"></i>
+                <br><small>Drop item here</small>
+            </div>
+        `;
+        
+        showNotification(`Item removed from sponsor slot ${slotNumber}`, 'info');
+    };
+
+    // Open sponsorship modal - legacy function name
+    function openSponsorshipModal() {
+        // Load data and open modal
+        loadModalItems();
+        
+        // Show the modal
+        const modal = new bootstrap.Modal(document.getElementById('sponsorshipModal'));
         modal.show();
     }
 
-    // Load available items for sponsorship
-    async function loadAvailableItemsForSponsor() {
-        const container = document.getElementById('availableItemsGrid');
-        
+    // Load modal items function
+    // Simple load modal items function
+    async function loadModalItems() {
         try {
+            const container = document.getElementById('availableItems');
+            if (!container) return;
+
             // Show loading
             container.innerHTML = `
                 <div class="col-12 text-center py-4">
@@ -4178,62 +4891,17 @@
                 </div>
             `;
 
-            // Load existing sponsorships to check for duplicates
-            const { data: existingSponsors } = await supabase
-                .from('sponsorship_sequences')
-                .select('item_id, item_type');
-            
-            const sponsoredItems = new Set(
-                (existingSponsors || []).map(sponsor => `${sponsor.item_type}-${sponsor.item_id}`)
-            );
-
-            // Load all items with better error handling
-            const results = await Promise.allSettled([
-                supabase.from('notes').select('*').limit(50),
-                supabase.from('rooms').select('*').limit(50),
-                supabase.from('products').select('*').limit(50)
+            // Load all items
+            const [notesResult, roomsResult, productsResult] = await Promise.all([
+                supabase.from('notes').select('*').limit(20),
+                supabase.from('rooms').select('*').limit(20),
+                supabase.from('products').select('*').limit(20)
             ]);
 
-            // Handle results safely
-            const notesResult = results[0].status === 'fulfilled' ? results[0].value : { data: [] };
-            const roomsResult = results[1].status === 'fulfilled' ? results[1].value : { data: [] };
-            const productsResult = results[2].status === 'fulfilled' ? results[2].value : { data: [] };
-
-            // Log any errors
-            results.forEach((result, index) => {
-                if (result.status === 'rejected') {
-                    const tableName = ['notes', 'rooms', 'products'][index];
-                    console.error(`Error loading ${tableName}:`, result.reason);
-                }
-            });
-
-            // Log the data we're getting for debugging
-            console.log('Notes data:', notesResult.data?.length || 0, 'items');
-            console.log('Rooms data:', roomsResult.data?.length || 0, 'items');
-            console.log('Products data:', productsResult.data?.length || 0, 'items');
-
             const allItems = [
-                ...(notesResult.data || []).map(item => ({ 
-                    ...item, 
-                    type: 'note',
-                    title: item.title || item.name || 'Untitled Note',
-                    price: item.price || 0,
-                    images: item.images || []
-                })),
-                ...(roomsResult.data || []).map(item => ({ 
-                    ...item, 
-                    type: 'room', 
-                    title: item.hostel_name || item.title || item.name || 'Untitled Room',
-                    price: item.fees || item.price || 0,
-                    images: item.image_urls || item.images || []
-                })),
-                ...(productsResult.data || []).map(item => ({ 
-                    ...item, 
-                    type: 'product', 
-                    title: item.name || item.title || 'Untitled Product',
-                    price: item.price || 0,
-                    images: item.images || []
-                }))
+                ...(notesResult.data || []).map(item => ({ ...item, type: 'note' })),
+                ...(roomsResult.data || []).map(item => ({ ...item, type: 'room' })),
+                ...(productsResult.data || []).map(item => ({ ...item, type: 'product' }))
             ];
 
             if (allItems.length === 0) {
@@ -4246,16 +4914,11 @@
                 return;
             }
 
-            // Render items
+            // Simple item cards
             const itemsHTML = allItems.map(item => {
-                const originalTitle = item.title || 'Untitled';
-                const safeTitleForJs = originalTitle.replace(/'/g, "\\'");
-                const price = item.price || 0;
-                const image = (Array.isArray(item.images) && item.images[0]) || 'https://via.placeholder.com/150';
-                
-                // Check if this item is already sponsored
-                const dbType = item.type === 'product' ? 'product' : item.type;
-                const isSponsored = sponsoredItems.has(`${dbType}-${item.id}`);
+                const title = item.title || item.name || 'Untitled';
+                const price = item.price || item.fees || 0;
+                const image = item.image || (Array.isArray(item.images) ? item.images[0] : null) || 'https://via.placeholder.com/150';
                 
                 const typeColors = {
                     'note': 'primary',
@@ -4263,20 +4926,22 @@
                     'product': 'success'
                 };
 
-                const onclickHandler = isSponsored ? 'void(0)' : `selectItemForSponsor('${item.type}', '${item.id}', '${safeTitleForJs}')`;
+                const typeIcons = {
+                    'note': 'fa-book',
+                    'room': 'fa-home',
+                    'product': 'fa-shopping-bag'
+                };
 
                 return `
                     <div class="col-md-6 col-lg-4 mb-3">
-                        <div class="card item-card h-100 ${isSponsored ? 'border-warning bg-light' : ''}" 
-                             onclick="${onclickHandler}"
-                             style="${isSponsored ? 'cursor: not-allowed; opacity: 0.7;' : 'cursor: pointer;'}">
-                            ${isSponsored ? '<div class="position-absolute top-0 end-0 p-2"><i class="fas fa-star text-warning" title="Already Sponsored"></i></div>' : ''}
-                            <img src="${image}" class="card-img-top" style="height: 120px; object-fit: cover;" alt="${originalTitle}">
+                        <div class="card item-card h-100" onclick="selectItem('${item.type}', '${item.id}', '${title.replace(/'/g, "\\'")}')">
+                            <img src="${image}" class="card-img-top" style="height: 120px; object-fit: cover;" alt="${title}">
                             <div class="card-body p-2">
-                                <h6 class="card-title text-truncate">${originalTitle}</h6>
-                                <span class="badge bg-${typeColors[item.type]} mb-2">${item.type}</span>
+                                <h6 class="card-title text-truncate">${title}</h6>
+                                <span class="badge bg-${typeColors[item.type]} mb-2">
+                                    <i class="fas ${typeIcons[item.type]} me-1"></i>${item.type}
+                                </span>
                                 ${price > 0 ? `<div class="fw-bold text-success">₹${price}</div>` : ''}
-                                ${isSponsored ? '<small class="text-warning"><i class="fas fa-star me-1"></i>Already Sponsored</small>' : ''}
                             </div>
                         </div>
                     </div>
@@ -4287,270 +4952,749 @@
 
         } catch (error) {
             console.error('Error loading items:', error);
-            container.innerHTML = `
-                <div class="col-12 text-center py-4">
-                    <i class="fas fa-exclamation-triangle fa-2x text-danger mb-2"></i>
-                    <p class="text-danger">Error loading items</p>
+            const container = document.getElementById('availableItems');
+            if (container) {
+                container.innerHTML = `
+                    <div class="col-12 text-center py-4">
+                        <i class="fas fa-exclamation-triangle fa-2x text-danger mb-2"></i>
+                        <p class="text-danger">Error loading items</p>
+                    </div>
+                `;
+            }
+        }
+    }
+
+    // Generate sponsor slots
+    function generateSponsorSlots() {
+        const container = document.getElementById('sponsorSlotsList');
+        if (!container) return;
+
+        let slotsHTML = '';
+        for (let i = 1; i <= 12; i++) {
+            slotsHTML += `
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <div class="sponsor-slot border rounded p-3" 
+                         data-slot="${i}"
+                         ondrop="handleDrop(event)" 
+                         ondragover="handleDragOver(event)">
+                        <h6 class="text-center mb-3">Sponsor Slot ${i}</h6>
+                        <div class="slot-content text-center text-muted">
+                            <i class="fas fa-plus"></i>
+                            <br><small>Drop item here</small>
+                        </div>
+                    </div>
                 </div>
             `;
         }
+        container.innerHTML = slotsHTML;
     }
 
-    // Select item for sponsorship (supports multi-select)
-    function selectItemForSponsor(type, id, title) {
-        try {
-            // Initialize if needed
-            if (!window.selectedItems) {
-                window.selectedItems = [];
-            }
+    // Drag and drop handlers
+    window.handleDragStart = function(event) {
+        const itemCard = event.target.closest('.item-card');
+        event.dataTransfer.setData('text/plain', JSON.stringify({
+            itemId: itemCard.dataset.itemId,
+            itemType: itemCard.dataset.itemType,
+            title: itemCard.querySelector('h6').textContent,
+            description: itemCard.querySelector('p').textContent
+        }));
+    };
 
-            const itemKey = `${type}-${id}`;
-            const clickedCard = event.currentTarget || event.target.closest('.item-card');
-            
-            // Check if item is already selected
-            const existingIndex = window.selectedItems.findIndex(item => `${item.type}-${item.id}` === itemKey);
-            
-            if (existingIndex >= 0) {
-                // Deselect item
-                window.selectedItems.splice(existingIndex, 1);
-                if (clickedCard) {
-                    clickedCard.style.borderColor = '';
-                    clickedCard.style.backgroundColor = '';
-                    clickedCard.classList.remove('selected');
-                }
-            } else {
-                // Select item
-                window.selectedItems.push({ type, id, title });
-                if (clickedCard) {
-                    clickedCard.style.borderColor = '#28a745';
-                    clickedCard.style.backgroundColor = '#d4edda';
-                    clickedCard.classList.add('selected');
-                }
-            }
+    window.handleDragOver = function(event) {
+        event.preventDefault();
+        event.currentTarget.classList.add('drag-over');
+    };
 
-            // Update button state
-            updateAddSponsorButton();
-
-        } catch (error) {
-            console.error('Error in selectItemForSponsor:', error);
-        }
-    }
-
-    // Update add sponsor button
-    function updateAddSponsorButton() {
-        const button = document.getElementById('addSelectedSponsors');
-        const count = window.selectedItems ? window.selectedItems.length : 0;
+    window.handleDrop = function(event) {
+        event.preventDefault();
+        event.currentTarget.classList.remove('drag-over');
         
-        if (button) {
-            if (count === 0) {
-                button.disabled = true;
-                button.innerHTML = '<i class="fas fa-star me-2"></i>Select Items First';
-                button.className = 'btn btn-success btn-lg';
-            } else {
-                button.disabled = false;
-                button.innerHTML = `<i class="fas fa-star me-2"></i>Add ${count} Item${count > 1 ? 's' : ''} as Sponsor${count > 1 ? 's' : ''}`;
-                button.className = 'btn btn-success btn-lg';
-            }
+        try {
+            const data = JSON.parse(event.dataTransfer.getData('text/plain'));
+            const slot = event.currentTarget;
+            const slotContent = slot.querySelector('.slot-content');
+            
+            slotContent.innerHTML = `
+                <div class="sponsored-item" data-item-id="${data.itemId}" data-item-type="${data.itemType}">
+                    <h6 class="text-truncate mb-1">${data.title}</h6>
+                    <p class="small text-muted mb-2 text-truncate">${data.description}</p>
+                    <span class="badge bg-${data.itemType === 'note' ? 'primary' : data.itemType === 'product' ? 'success' : 'info'}">${data.itemType}</span>
+                    <button class="btn btn-sm btn-outline-danger mt-2" onclick="removeSponsorFromSlot(this)">
+                        <i class="fas fa-times"></i> Remove
+                    </button>
+                </div>
+            `;
+            
+            showNotification(`Item added to sponsor slot ${slot.dataset.slot}`, 'success');
+        } catch (error) {
+            console.error('Error handling drop:', error);
+            showNotification('Error adding item to slot', 'error');
+        }
+    };
+
+    // Load items for modal selection
+    async function loadModalItems() {
+        try {
+            const [
+                { data: products = [] },
+                { data: notes = [] },
+                { data: rooms = [] }
+            ] = await Promise.all([
+                supabase.from('products').select('*'),
+                supabase.from('notes').select('*'),
+                supabase.from('rooms').select('*')
+            ]);
+
+            const allItems = [
+                ...products.map(p => ({...p, type: 'product'})),
+                ...notes.map(n => ({...n, type: 'note'})),
+                ...rooms.map(r => ({...r, type: 'room'}))
+            ];
+
+            displayModalItems(allItems);
+        } catch (error) {
+            console.error('Error loading modal items:', error);
+            document.getElementById('modalItemsList').innerHTML = 
+                '<div class="alert alert-danger">Error loading items</div>';
         }
     }
 
-    // Process selected sponsors (called by the modal button)
-    function processSelectedSponsors() {
-        return addSelectedSponsors();
-    }
-
-    // Clear all new selections (called by the clear button)
-    function clearAllNewSelections() {
-        return clearAllSelections();
-    }
-
-    // Filter available items (called by search input and filter)
-    function filterAvailableItems() {
-        return searchSponsorItems();
-    }
-
-    // Add selected items as sponsors
-    async function addSelectedSponsors() {
-        if (!window.selectedItems || window.selectedItems.length === 0) {
-            alert('Please select at least one item first');
+    // Display items in modal
+    function displayModalItems(items) {
+        const container = document.getElementById('modalItemsList');
+        
+        if (items.length === 0) {
+            container.innerHTML = '<div class="text-center py-4 text-muted">No items found</div>';
             return;
         }
 
-        const button = document.getElementById('addSelectedSponsors');
-        const originalText = button?.innerHTML || '';
-        
-        try {
-            // Show loading
-            if (button) {
-                button.disabled = true;
-                button.innerHTML = '<div class="spinner-border spinner-border-sm me-2"></div>Adding...';
-            }
+        const itemsHTML = items.map(item => `
+            <div class="item-card" draggable="true" data-item-id="${item.id}" data-item-type="${item.type}">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">${item.title || item.name || 'Untitled'}</h6>
+                        <p class="mb-1 text-muted small">${item.description || 'No description'}</p>
+                        <div class="d-flex gap-2">
+                            <span class="badge bg-primary">${item.type}</span>
+                            ${item.college ? `<span class="badge bg-secondary">${item.college}</span>` : ''}
+                            ${item.price ? `<span class="badge bg-success">₹${item.price}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <small class="text-muted">ID: ${item.id}</small>
+                    </div>
+                </div>
+            </div>
+        `).join('');
 
-            // Get next available slot
-            const { data: existingSponsors } = await supabase
-                .from('sponsorship_sequences')
-                .select('slot')
-                .order('slot', { ascending: false })
-                .limit(1);
+        container.innerHTML = itemsHTML;
 
-            let nextSlot = existingSponsors && existingSponsors.length > 0 ? existingSponsors[0].slot + 1 : 1;
+        // Add drag event listeners
+        container.querySelectorAll('.item-card').forEach(card => {
+            card.addEventListener('dragstart', handleDragStart);
+            card.addEventListener('dragend', handleDragEnd);
+        });
+    }
 
-            // Add each selected item
-            const sponsorshipData = window.selectedItems.map(item => ({
-                item_id: item.id,
-                item_type: item.type,
-                slot: nextSlot++,
-                created_at: new Date().toISOString()
-            }));
+    // Generate sponsor slots
+    function generateSponsorSlots() {
+        const container = document.getElementById('sponsorSlots');
+        const slotsHTML = Array.from({length: 10}, (_, i) => `
+            <div class="sponsor-slot drop-zone" data-slot="${i + 1}">
+                <div class="slot-number">${i + 1}</div>
+                <div class="slot-content">
+                    <div class="text-center text-muted">
+                        <i class="fas fa-plus"></i>
+                        <br><small>Drop item here</small>
+                    </div>
+                </div>
+            </div>
+        `).join('');
 
-            const { error } = await supabase
-                .from('sponsorship_sequences')
-                .insert(sponsorshipData);
+        container.innerHTML = slotsHTML;
 
-            if (error) throw error;
+        // Add drop event listeners
+        container.querySelectorAll('.sponsor-slot').forEach(slot => {
+            slot.addEventListener('dragover', handleDragOver);
+            slot.addEventListener('drop', handleDrop);
+            slot.addEventListener('dragenter', handleDragEnter);
+            slot.addEventListener('dragleave', handleDragLeave);
+        });
+    }
 
-            // Success
-            const count = window.selectedItems.length;
-            const message = count === 1 ? 
-                `"${window.selectedItems[0].title}" added as sponsor!` : 
-                `${count} items added as sponsors!`;
-            
-            alert(message);
+    // Drag and drop handlers
+    function handleDragStart(e) {
+        e.target.classList.add('dragging');
+        e.dataTransfer.setData('text/plain', JSON.stringify({
+            id: e.target.dataset.itemId,
+            type: e.target.dataset.itemType,
+            title: e.target.querySelector('h6').textContent
+        }));
+    }
 
-            // Close modal
-            const modal = bootstrap.Modal.getInstance(document.getElementById('newSponsorshipModal'));
-            if (modal) modal.hide();
+    function handleDragEnd(e) {
+        e.target.classList.remove('dragging');
+    }
 
-            // Refresh the page
-            await loadCurrentSponsoredItems();
+    function handleDragOver(e) {
+        e.preventDefault();
+    }
 
-            // Clear selections
-            window.selectedItems = [];
+    function handleDragEnter(e) {
+        e.preventDefault();
+        e.target.closest('.sponsor-slot').classList.add('drag-over');
+    }
 
-        } catch (error) {
-            console.error('Error adding sponsors:', error);
-            alert('Error adding sponsors: ' + error.message);
-        } finally {
-            // Reset button
-            if (button) {
-                button.disabled = false;
-                button.innerHTML = originalText;
-            }
+    function handleDragLeave(e) {
+        if (!e.target.closest('.sponsor-slot').contains(e.relatedTarget)) {
+            e.target.closest('.sponsor-slot').classList.remove('drag-over');
         }
     }
 
-    // Remove sponsor
-    async function removeSponsor(sponsorId) {
-        if (!confirm('Are you sure you want to remove this sponsored item?')) return;
+    function handleDrop(e) {
+        e.preventDefault();
+        const slot = e.target.closest('.sponsor-slot');
+        slot.classList.remove('drag-over');
+        
+        const itemData = JSON.parse(e.dataTransfer.getData('text/plain'));
+        const slotNumber = slot.dataset.slot;
+        
+        // Update slot content
+        const slotContent = slot.querySelector('.slot-content');
+        slotContent.innerHTML = `
+            <div class="sponsored-item" data-item-id="${itemData.id}" data-item-type="${itemData.type}">
+                <div>
+                    <strong>${itemData.title}</strong>
+                    <br><small class="text-muted">${itemData.type} • ID: ${itemData.id}</small>
+                </div>
+                <button class="remove-sponsor" onclick="removeSponsorFromSlot(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+        
+        showNotification(`Item added to sponsor slot ${slotNumber}`, 'success');
+    }
 
+    // Remove sponsor from slot
+    function removeSponsorFromSlot(button) {
+        const slot = button.closest('.sponsor-slot');
+        const slotNumber = slot.dataset.slot;
+        const slotContent = slot.querySelector('.slot-content');
+        
+        slotContent.innerHTML = `
+            <div class="text-center text-muted">
+                <i class="fas fa-plus"></i>
+                <br><small>Drop item here</small>
+            </div>
+        `;
+        
+        showNotification(`Item removed from sponsor slot ${slotNumber}`, 'info');
+    }
+
+    // Save sponsorship changes
+    async function saveSponsorshipChanges() {
+        try {
+            const slots = document.querySelectorAll('.sponsor-slot');
+            const sponsorships = [];
+            
+            slots.forEach(slot => {
+                const sponsoredItem = slot.querySelector('.sponsored-item');
+                if (sponsoredItem) {
+                    sponsorships.push({
+                        slot: parseInt(slot.dataset.slot),
+                        item_id: sponsoredItem.dataset.itemId,
+                        item_type: sponsoredItem.dataset.itemType
+                    });
+                }
+            });
+
+            // Clear existing sponsorships
+            await supabase.from('sponsorship_sequences').delete().neq('id', 0);
+            
+            // Insert new sponsorships
+            if (sponsorships.length > 0) {
+                const { error } = await supabase
+                    .from('sponsorship_sequences')
+                    .insert(sponsorships);
+                    
+                if (error) throw error;
+            }
+
+            // Close modal and refresh
+            const modal = bootstrap.Modal.getInstance(document.getElementById('sponsorshipModal'));
+            modal.hide();
+            
+            showNotification('Sponsorship changes saved successfully!', 'success');
+            await loadSponsorshipSequence();
+            
+        } catch (error) {
+            console.error('Error saving sponsorship changes:', error);
+            showNotification('Error saving changes: ' + error.message, 'error');
+        }
+    }
+
+    // Search items in modal
+    function searchModalItems() {
+        const searchTerm = document.getElementById('modalItemSearch').value.toLowerCase();
+        const typeFilter = document.getElementById('modalItemType').value;
+        
+        const itemCards = document.querySelectorAll('.item-card');
+        
+        itemCards.forEach(card => {
+            const title = card.querySelector('h6').textContent.toLowerCase();
+            const description = card.querySelector('p').textContent.toLowerCase();
+            const type = card.dataset.itemType;
+            
+            const matchesSearch = title.includes(searchTerm) || description.includes(searchTerm);
+            const matchesType = typeFilter === 'all' || type === typeFilter;
+            
+            card.style.display = matchesSearch && matchesType ? 'block' : 'none';
+        });
+    }
+
+    async function loadSponsorshipSequence() {
+        try {
+            const { data: sponsorshipSeq, error } = await supabase
+                .from('sponsorship_sequences')
+                .select('*')
+                .order('slot', { ascending: true });
+                
+            if (error) {
+                console.error('Error loading sponsorship sequence:', error);
+                document.getElementById('sponsorshipSequence').innerHTML = 
+                    '<div class="alert alert-danger">Error loading sponsorship data</div>';
+                return;
+            }
+            
+            if (!sponsorshipSeq || sponsorshipSeq.length === 0) {
+                document.getElementById('sponsorshipSequence').innerHTML = 
+                    '<div class="alert alert-info">No sponsored items found. Add some to get started!</div>';
+                document.getElementById('activeSponsorCount').textContent = '0';
+                return;
+            }
+            
+            // Update count
+            document.getElementById('activeSponsorCount').textContent = sponsorshipSeq.length;
+            
+            // Get details for each sponsored item
+            const sponsorDetails = await Promise.all(sponsorshipSeq.map(async (sponsor) => {
+                let itemData = null;
+                let itemError = null;
+                
+                try {
+                    const table = sponsor.item_type === 'note' ? 'notes' : 
+                                 sponsor.item_type === 'room' ? 'rooms' : 'products';
+                    
+                    const { data, error } = await supabase
+                        .from(table)
+                        .select('*')
+                        .eq('id', sponsor.item_id)
+                        .single();
+                        
+                    if (error) {
+                        itemError = error.message;
+                    } else {
+                        itemData = data;
+                    }
+                } catch (err) {
+                    itemError = err.message;
+                }
+                
+                return {
+                    ...sponsor,
+                    itemData,
+                    itemError
+                };
+            }));
+            
+            // Render sponsorship sequence
+            const sequenceHTML = sponsorDetails.map(sponsor => {
+                const item = sponsor.itemData;
+                const hasError = sponsor.itemError || !item;
+                
+                return `
+                    <div class="sponsorship-item d-flex align-items-center justify-content-between p-3 mb-2 border rounded ${hasError ? 'border-danger bg-light' : 'border-success bg-light'}">
+                        <div class="d-flex align-items-center">
+                            <div class="sponsor-slot badge bg-primary me-3">${sponsor.slot}</div>
+                            <div>
+                                ${hasError ? `
+                                    <h6 class="mb-1 text-danger">
+                                        <i class="fas fa-exclamation-triangle"></i> Error: Item not found
+                                    </h6>
+                                    <small class="text-muted">
+                                        Type: ${sponsor.item_type} | ID: ${sponsor.item_id}
+                                    </small>
+                                ` : `
+                                    <h6 class="mb-1">${item.title || item.name || 'Untitled'}</h6>
+                                    <small class="text-muted">
+                                        <span class="badge bg-secondary me-1">${sponsor.item_type}</span>
+                                        ID: ${sponsor.item_id}
+                                        ${item.college ? ` | ${item.college}` : ''}
+                                        ${item.price ? ` | Rs.${item.price}` : ''}
+                                    </small>
+                                `}
+                            </div>
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-outline-primary me-2" onclick="editSponsorshipSlot('${sponsor.item_id}', ${sponsor.slot})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="removeSponsorshipItem('${sponsor.item_id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('sponsorshipSequence').innerHTML = sequenceHTML;
+            
+        } catch (error) {
+            console.error('Error in loadSponsorshipSequence:', error);
+            document.getElementById('sponsorshipSequence').innerHTML = 
+                '<div class="alert alert-danger">Failed to load sponsorship data</div>';
+        }
+    }
+
+    function setupSponsorshipForm() {
+        const form = document.getElementById('addSponsorshipForm');
+        if (!form) return;
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const itemType = document.getElementById('itemType').value;
+            const itemId = document.getElementById('itemId').value;
+            const slot = parseInt(document.getElementById('sponsorSlot').value);
+            
+            if (!itemType || !itemId || !slot) {
+                alert('Please fill all fields');
+                return;
+            }
+            
+            try {
+                // Check if item exists
+                const table = itemType === 'note' ? 'notes' : 
+                             itemType === 'room' ? 'rooms' : 'products';
+                
+                const { data: itemCheck, error: itemError } = await supabase
+                    .from(table)
+                    .select('id, title, name')
+                    .eq('id', itemId)
+                    .single();
+                    
+                if (itemError || !itemCheck) {
+                    alert('Item not found! Please check the ID and type.');
+                    return;
+                }
+                
+                // Add to sponsorship sequence
+                const { error: insertError } = await supabase
+                    .from('sponsorship_sequences')
+                    .insert({
+                        item_id: itemId,
+                        item_type: itemType,
+                        slot: slot
+                    });
+                    
+                if (insertError) {
+                    alert('Failed to add sponsorship: ' + insertError.message);
+                    return;
+                }
+                
+                alert('Item added to sponsors successfully!');
+                form.reset();
+                await loadSponsorshipSequence();
+                
+            } catch (error) {
+                console.error('Error adding sponsorship:', error);
+                alert('Error adding sponsorship: ' + error.message);
+            }
+        });
+    }
+
+    function setupItemSearch() {
+        const searchBtn = document.querySelector('button[onclick="searchItems()"]');
+        if (searchBtn) {
+            searchBtn.onclick = searchItems;
+        }
+        
+        // Add enter key support
+        const searchInput = document.getElementById('itemSearchInput');
+        if (searchInput) {
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    searchItems();
+                }
+            });
+        }
+    }
+
+    async function searchItems() {
+        const searchTerm = document.getElementById('itemSearch')?.value?.trim() || '';
+        const typeFilter = document.getElementById('typeFilter')?.value || '';
+        
+        // For the modal search functionality
+        const items = document.querySelectorAll('.item-card');
+        
+        items.forEach(item => {
+            const title = item.querySelector('.card-title')?.textContent.toLowerCase() || '';
+            const type = item.querySelector('.badge')?.textContent.toLowerCase().trim() || '';
+            
+            const matchesSearch = !searchTerm || title.includes(searchTerm.toLowerCase());
+            const matchesType = !typeFilter || type.includes(typeFilter.toLowerCase());
+
+            if (matchesSearch && matchesType) {
+                item.style.display = 'block';
+                item.parentElement.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+                item.parentElement.style.display = 'none';
+            }
+        });
+    }
+
+    async function addToSponsorship(itemId, itemType) {
+        const slot = prompt('Enter sponsorship slot (1-10):', '1');
+        if (!slot || isNaN(slot) || slot < 1 || slot > 10) {
+            alert('Please enter a valid slot number (1-10)');
+            return;
+        }
+        
+        try {
+            const { error } = await supabase
+                .from('sponsorship_sequences')
+                .insert({
+                    item_id: itemId,
+                    item_type: itemType,
+                    slot: parseInt(slot)
+                });
+                
+            if (error) {
+                alert('Failed to add to sponsorship: ' + error.message);
+                return;
+            }
+            
+            showNotification('Item added to sponsors successfully!', 'success');
+            await loadSponsorshipSequence();
+            
+        } catch (error) {
+            console.error('Error adding to sponsorship:', error);
+            alert('Error: ' + error.message);
+        }
+    }
+
+    // Remove sponsorship item
+    async function removeSponsorshipItem(itemId) {
+        if (!confirm('Are you sure you want to remove this item from sponsors?')) return;
+        
         try {
             const { error } = await supabase
                 .from('sponsorship_sequences')
                 .delete()
-                .eq('id', sponsorId);
-
-            if (error) throw error;
-
-            alert('Sponsored item removed successfully!');
-            await loadCurrentSponsoredItems();
-
+                .eq('item_id', itemId);
+                
+            if (error) {
+                alert('Failed to remove from sponsorship: ' + error.message);
+                return;
+            }
+            
+            showNotification('Item removed from sponsors', 'success');
+            await loadSponsorshipSequence();
+            
         } catch (error) {
-            console.error('Error removing sponsor:', error);
-            alert('Error removing sponsor: ' + error.message);
+            console.error('Error removing sponsorship:', error);
+            alert('Error: ' + error.message);
         }
     }
 
-    // Edit sequence (change slot number)
-    async function editSequence(sponsorId, currentSlot) {
-        const newSlot = prompt(`Enter new sequence number (current: ${currentSlot}):`);
-        if (!newSlot || isNaN(newSlot) || newSlot < 1) return;
-
+    // Edit sponsorship slot
+    async function editSponsorshipSlot(itemId, currentSlot) {
+        const newSlot = prompt(`Enter new slot number (current: ${currentSlot}):`);
+        if (!newSlot || isNaN(newSlot) || newSlot < 1 || newSlot > 10) return;
+        
         try {
             const { error } = await supabase
                 .from('sponsorship_sequences')
                 .update({ slot: parseInt(newSlot) })
-                .eq('id', sponsorId);
+                .eq('item_id', itemId);
+                
+            if (error) {
+                alert('Failed to update slot: ' + error.message);
+                return;
+            }
+            
+            showNotification('Slot updated successfully!', 'success');
+            await loadSponsorshipSequence();
+            
+        } catch (error) {
+            console.error('Error updating slot:', error);
+            alert('Error: ' + error.message);
+        }
+    }
+
+    // Load sponsorship metrics
+    async function loadSponsorshipMetrics() {
+        try {
+            const { data: sponsorships, error } = await supabase
+                .from('sponsorship_sequences')
+                .select('*');
+                
+            if (!error && sponsorships) {
+                document.getElementById('activeSponsorCount').textContent = sponsorships.length;
+                
+                // Calculate estimated revenue (placeholder)
+                const estimatedRevenue = sponsorships.length * 100; // Rs. 100 per sponsor
+                document.getElementById('sponsorRevenue').textContent = `₹${estimatedRevenue}`;
+            }
+        } catch (error) {
+            console.error('Error loading sponsorship metrics:', error);
+        }
+    }
+
+    async function removeSponsorshipItem(itemId) {
+        console.log('🗑️ Removing sponsorship item:', itemId);
+        
+        if (!confirm('Are you sure you want to remove this item from sponsors?')) return;
+        
+        try {
+            const { error } = await supabase
+                .from('sponsorship_sequences')
+                .delete()
+                .eq('item_id', itemId);
+                
+            if (error) {
+                console.error('❌ Delete error:', error);
+                alert('Failed to remove sponsorship: ' + error.message);
+                return;
+            }
+            
+            console.log('✅ Item removed successfully');
+            alert('Item removed from sponsors successfully!');
+            await loadSponsorshipSequence();
+            
+        } catch (error) {
+            console.error('❌ Error removing sponsorship:', error);
+            alert('Error: ' + error.message);
+        }
+    }
+
+    async function editSponsorshipSlot(itemId, currentSlot) {
+        console.log('✏️ Editing sponsorship slot for:', itemId, 'current slot:', currentSlot);
+        
+        const newSlot = prompt(`Enter new slot for this item (current: ${currentSlot}):`, currentSlot);
+        if (!newSlot || isNaN(newSlot) || newSlot < 1 || newSlot > 10) {
+            alert('Please enter a valid slot number (1-10)');
+            return;
+        }
+        
+        if (parseInt(newSlot) === currentSlot) return;
+        
+        try {
+            const { error } = await supabase
+                .from('sponsorship_sequences')
+                .update({ slot: parseInt(newSlot) })
+                .eq('item_id', itemId);
+                
+            if (error) {
+                console.error('❌ Update error:', error);
+                alert('Failed to update slot: ' + error.message);
+                return;
+            }
+            
+            console.log('✅ Slot updated successfully');
+            alert('Slot updated successfully!');
+            await loadSponsorshipSequence();
+            
+        } catch (error) {
+            console.error('❌ Error updating slot:', error);
+            alert('Error: ' + error.message);
+        }
+    }
+
+    async function refreshSponsorshipSequence() {
+        console.log('🔄 Refreshing sponsorship sequence...');
+        try {
+            await loadSponsorshipSequence();
+            console.log('✅ Sponsorship sequence refreshed');
+        } catch (error) {
+            console.error('❌ Error refreshing:', error);
+            alert('Failed to refresh: ' + error.message);
+        }
+    }
+
+    async function exportSponsors() {
+        try {
+            const { data: sponsors, error } = await supabase
+                .from('sponsorships')
+                .select(`
+                    *,
+                    notes:notes(id, title, content),
+                    products:products(id, name, description)
+                `)
+                .order('created_at', { ascending: false });
 
             if (error) throw error;
 
-            alert('Sequence updated successfully!');
-            await loadCurrentSponsoredItems();
+            // Create CSV content
+            const csvContent = [
+                ['ID', 'Type', 'Item Title', 'Priority', 'Status', 'Created Date', 'Content Preview'].join(','),
+                ...sponsors.map(sponsor => [
+                    sponsor.id,
+                    sponsor.item_type,
+                    sponsor.notes?.title || sponsor.products?.name || 'Unknown',
+                    sponsor.priority || 1,
+                    sponsor.is_active ? 'Active' : 'Inactive',
+                    new Date(sponsor.created_at).toLocaleDateString(),
+                    (sponsor.notes?.content || sponsor.products?.description || '').substring(0, 50) + '...'
+                ].join(','))
+            ].join('\n');
 
+            // Download CSV
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `sponsors_export_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+
+            showNotification('Sponsors exported successfully!', 'success');
         } catch (error) {
-            console.error('Error updating sequence:', error);
-            alert('Error updating sequence: ' + error.message);
+            console.error('Export error:', error);
+            showNotification('Failed to export sponsors', 'error');
         }
     }
 
-    // Search functionality for modal
-    function searchSponsorItems() {
-        const searchTerm = document.getElementById('itemSearchInput')?.value.toLowerCase() || '';
-        const typeFilter = document.getElementById('itemTypeFilter')?.value || '';
-        
-        const items = document.querySelectorAll('#availableItemsGrid .item-card');
-        
-        items.forEach(card => {
-            const title = card.querySelector('.card-title')?.textContent.toLowerCase() || '';
-            const type = card.querySelector('.badge')?.textContent.toLowerCase().trim() || '';
+    async function loadSponsorshipMetrics() {
+        try {
+            // Simulated metrics (in a real app, these would come from analytics)
+            document.getElementById('sponsorRevenue').textContent = 'Rs.2,500';
+            document.getElementById('sponsorViews').textContent = '12,450';
+            document.getElementById('expiringSponsorships').textContent = '0';
             
-            const matchesSearch = !searchTerm || title.includes(searchTerm);
-            const matchesType = !typeFilter || type.includes(typeFilter.toLowerCase());
-
-            if (matchesSearch && matchesType) {
-                card.parentElement.style.display = 'block';
-            } else {
-                card.parentElement.style.display = 'none';
-            }
-        });
-    }
-
-    // Make functions globally available
-    window.openAddSponsorModal = openAddSponsorModal;
-    window.selectItemForSponsor = selectItemForSponsor;
-    window.addSelectedSponsors = addSelectedSponsors;
-    window.removeSponsor = removeSponsor;
-    window.editSequence = editSequence;
-    window.searchSponsorItems = searchSponsorItems;
-    window.loadCurrentSponsoredItems = loadCurrentSponsoredItems;
-
-    console.log('✅ Sponsorship management system loaded successfully!');
-
-    // Simple notification function
-    function showNotification(message, type = 'info') {
-        alert(message);
-    }
-
-    // Missing function definitions for compatibility
-    function confirmAddSponsor() {
-        // Redirect to our new function
-        return addSelectedSponsors();
-    }
-
-    function openSponsorshipModal() {
-        // Redirect to our new function
-        return openAddSponsorModal();
-    }
-
-    function clearAllSelections() {
-        // Clear selections
-        if (window.selectedItems) {
-            window.selectedItems = [];
+        } catch (error) {
+            console.error('Error loading sponsorship metrics:', error);
         }
-        
-        // Remove visual selection from all cards
-        document.querySelectorAll('.item-card').forEach(card => {
-            card.classList.remove('selected');
-            card.style.borderColor = '';
-            card.style.backgroundColor = '';
-        });
-        
-        updateAddSponsorButton();
-        showNotification('All selections cleared', 'info');
     }
 
-    function searchItems() {
-        return searchSponsorItems();
-    }
+    // Make sponsorship functions globally accessible for onclick handlers
+    window.refreshSponsorshipSequence = refreshSponsorshipSequence;
+    window.removeSponsorshipItem = removeSponsorshipItem;
+    window.editSponsorshipSlot = editSponsorshipSlot;
+    window.searchItems = searchItems;
+    window.addToSponsorship = addToSponsorship;
+    
+    // Debug function availability
+    console.log('🔧 Sponsorship functions attached to window:');
+    console.log('- refreshSponsorshipSequence:', typeof window.refreshSponsorshipSequence);
+    console.log('- removeSponsorshipItem:', typeof window.removeSponsorshipItem);
+    console.log('- editSponsorshipSlot:', typeof window.editSponsorshipSlot);
+    console.log('- searchItems:', typeof window.searchItems);
+    console.log('- addToSponsorship:', typeof window.addToSponsorship);
 
     // ========================================
     // ENHANCED ADMIN PANEL FEATURES
@@ -4771,22 +5915,14 @@
         const password = document.getElementById('password').value;
         
         if (username === 'admin' && password === 'admin123') {
-            localStorage.setItem('isLoggedIn', 'true');
-            
-            const loginContainer = document.getElementById('loginContainer');
-            const mainContent = document.getElementById('mainContent');
-            
-            if (loginContainer) loginContainer.style.display = 'none';
-            if (mainContent) mainContent.style.display = 'block';
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'block';
             
             loadPage('dashboard');
             showNotification('Welcome back to StudX Admin!', 'success');
         } else {
-            const errorMsg = document.querySelector('.error-message');
-            if (errorMsg) {
-                errorMsg.style.display = 'block';
-                errorMsg.textContent = 'Invalid credentials. Please try again.';
-            }
+            document.querySelector('.error-message').style.display = 'block';
+            document.querySelector('.error-message').textContent = 'Invalid credentials. Please try again.';
         }
     });
 
@@ -4794,184 +5930,14 @@
     function checkLogin() {
         const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
         if (isLoggedIn) {
-            const loginContainer = document.getElementById('loginContainer');
-            const mainContent = document.getElementById('mainContent');
-            
-            if (loginContainer) loginContainer.style.display = 'none';
-            if (mainContent) mainContent.style.display = 'block';
-            
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'block';
             loadPage('dashboard');
         }
     }
 
     // Initialize
     checkLogin();
-
-    // Category-specific sponsorship management
-    function getCategorySpecificSponsors(category) {
-        // Get sponsorships from database or localStorage
-        const localSponsors = JSON.parse(localStorage.getItem('sponsorships') || '[]');
-        
-        // Filter by category
-        return localSponsors.filter(sponsor => {
-            // Match sponsor type with category
-            const categoryMapping = {
-                'room': 'room',
-                'rooms': 'room',
-                'note': 'note', 
-                'notes': 'note',
-                'product': 'product',
-                'products': 'product'
-            };
-            
-            const expectedType = categoryMapping[category.toLowerCase()];
-            return expectedType && sponsor.item_type === expectedType;
-        });
-    }
-
-    // Create category-specific sponsorship query for main app
-    window.getSponsorsForCategory = function(category) {
-        return getCategorySpecificSponsors(category);
-    };
-
-    // Enhanced sponsorship with category filtering
-    async function createCategorySpecificSponsorshipTable() {
-        try {
-            // This would be called in the main app to ensure proper category filtering
-            // NOTE: Database function create_category_sponsorship_view is not available
-            // Commenting out to avoid 404 errors
-            /*
-            const result = await supabase.rpc('create_category_sponsorship_view', {
-                sql: `
-                CREATE OR REPLACE VIEW category_sponsorships AS
-                SELECT 
-                    s.*,
-                    CASE 
-                        WHEN s.item_type = 'room' THEN 'room'
-                        WHEN s.item_type = 'note' THEN 'note'
-                        WHEN s.item_type = 'product' THEN 'product'
-                        ELSE s.item_type
-                    END as category
-                FROM sponsorship_sequences s
-                WHERE s.is_active = true
-                ORDER BY s.slot ASC
-                `
-            });
-            */
-            console.log('Category-specific sponsorship view creation skipped (function not available)');
-        } catch (error) {
-            console.log('View creation skipped (likely already exists):', error.message);
-        }
-    }
-
-    // Initialize category system
-    createCategorySpecificSponsorshipTable();
-
-    // Logout function
-    function logout() {
-        localStorage.removeItem('isLoggedIn');
-        const loginContainer = document.getElementById('loginContainer');
-        const mainContent = document.getElementById('mainContent');
-        
-        if (loginContainer) loginContainer.style.display = 'block';
-        if (mainContent) mainContent.style.display = 'none';
-        
-        showNotification('Logged out successfully!', 'info');
-    }
-
-    // Make ALL functions globally accessible for onclick handlers
-    window.loadPage = loadPage;
-    window.confirmAddSponsor = confirmAddSponsor;
-    window.openSponsorshipModal = openSponsorshipModal;
-    window.searchItems = searchItems;
-    window.clearAllSelections = clearAllSelections;
-    window.showNotification = showNotification;
-    window.logout = logout;
-    
-    // New sponsorship functions
-    window.openAddSponsorModal = openAddSponsorModal;
-    window.selectItemForSponsor = selectItemForSponsor;
-    window.addSelectedSponsors = addSelectedSponsors;
-    window.removeSponsor = removeSponsor;
-    window.editSequence = editSequence;
-    window.searchSponsorItems = searchSponsorItems;
-    window.loadCurrentSponsoredItems = loadCurrentSponsoredItems;
-    window.processSelectedSponsors = processSelectedSponsors;
-    window.clearAllNewSelections = clearAllNewSelections;
-    window.filterAvailableItems = filterAvailableItems;
-    window.updateAddSponsorButton = updateAddSponsorButton;
-    
-    // Category-specific sponsorship functions for main app
-    window.getSponsorsForCategory = getCategorySpecificSponsors;
-    window.loadCategoryItems = async function(category) {
-        try {
-            // This function can be called from main StudX app
-            const tableMap = {
-                'rooms': 'rooms',
-                'room': 'rooms', 
-                'notes': 'notes',
-                'note': 'notes',
-                'products': 'products',
-                'product': 'products'
-            };
-            
-            const tableName = tableMap[category.toLowerCase()];
-            if (!tableName) return [];
-            
-            // Get regular items
-            const { data: items } = await supabase
-                .from(tableName)
-                .select('*')
-                .order('created_at', { ascending: false })
-                .limit(50);
-            
-            // Get sponsored items for this category only
-            const itemType = tableName.slice(0, -1); // remove 's' to get singular
-            const { data: sponsors } = await supabase
-                .from('sponsorship_sequences')
-                .select('*')
-                .eq('item_type', itemType)
-                .eq('is_active', true)
-                .order('slot', { ascending: true });
-            
-            // Prioritize sponsored items
-            if (sponsors && sponsors.length > 0) {
-                const sponsoredIds = new Set(sponsors.map(s => s.item_id));
-                const sponsoredItems = items.filter(item => sponsoredIds.has(item.id));
-                const regularItems = items.filter(item => !sponsoredIds.has(item.id));
-                
-                // Sort sponsored items by slot
-                sponsoredItems.sort((a, b) => {
-                    const aSlot = sponsors.find(s => s.item_id === a.id)?.slot || 999;
-                    const bSlot = sponsors.find(s => s.item_id === b.id)?.slot || 999;
-                    return aSlot - bSlot;
-                });
-                
-                // Mark sponsored items
-                sponsoredItems.forEach(item => item.isSponsored = true);
-                
-                return [...sponsoredItems, ...regularItems];
-            }
-            
-            return items || [];
-            
-        } catch (error) {
-            console.error('Error loading category items:', error);
-            
-            // Fallback to localStorage
-            const localSponsors = JSON.parse(localStorage.getItem('sponsorships') || '[]');
-            const categorySponsors = localSponsors.filter(s => s.item_type === category.replace('s', ''));
-            
-            return categorySponsors.map(sponsor => ({
-                id: sponsor.item_id,
-                title: sponsor.title,
-                isSponsored: true
-            }));
-        }
-    };
-    
-    // Also make the main objects global for debugging
-    window.supabase = supabase;
 
 })(); // Close the async IIFE
 

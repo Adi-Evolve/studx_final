@@ -19,8 +19,18 @@ export default async function CategoryPage({ params }) {
     // Helper to get category type for sponsorship filtering
     const getCategoryType = (categoryName) => {
         const lowerCategory = categoryName.toLowerCase();
-        if (lowerCategory.includes('room')) return 'room';
-        if (lowerCategory.includes('note')) return 'note';
+        
+        // Room categories
+        if (lowerCategory.includes('room') || lowerCategory === 'rooms') {
+            return 'room';
+        }
+        
+        // Note categories  
+        if (lowerCategory.includes('note') || lowerCategory === 'notes') {
+            return 'note';
+        }
+        
+        // All other categories are products
         return 'regular';
     };
 
@@ -29,16 +39,29 @@ export default async function CategoryPage({ params }) {
         try {
             const categoryType = getCategoryType(categoryName);
             
-            // Get relevant sponsored items for this category
-            const sponsoredItems = await sponsorshipManager.getSponsoredItems(categoryType);
+            // Get relevant sponsored items for this category ONLY
+            const sponsoredItems = await sponsorshipManager.getSponsoredItems({
+                type: categoryType,
+                category: categoryName,
+                limit: 2
+            });
             
             if (!sponsoredItems || sponsoredItems.length === 0) {
                 return regularListings;
             }
 
+            // Filter to only show sponsored items that match the current category type
+            const categorySpecificSponsored = sponsoredItems.filter(item => {
+                // Ensure sponsored rooms only appear in room categories
+                if (categoryType === 'room' && item.type === 'room') return true;
+                if (categoryType === 'note' && item.type === 'note') return true;
+                if (categoryType === 'regular' && item.type === 'regular') return true;
+                return false;
+            });
+
             // For category pages, show 1-2 sponsored items at the top
-            const numSponsoredToShow = Math.min(2, sponsoredItems.length);
-            const selectedSponsored = sponsoredItems.slice(0, numSponsoredToShow).map(item => ({
+            const numSponsoredToShow = Math.min(2, categorySpecificSponsored.length);
+            const selectedSponsored = categorySpecificSponsored.slice(0, numSponsoredToShow).map(item => ({
                 ...item,
                 is_sponsored: true,
                 type: categoryType
