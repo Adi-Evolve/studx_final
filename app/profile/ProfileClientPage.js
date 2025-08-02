@@ -5,7 +5,6 @@ import Image from 'next/image';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import ListingCard from '@/components/ListingCard';
 import BulkUpload from '@/components/BulkUpload';
-import UserRatingSystem from '@/components/UserRatingSystem';
 import BulkOperationsPanel from '@/components/BulkOperationsPanel';
 import RegularProductForm from '@/components/forms/RegularProductForm';
 // Reusable UI Components
@@ -322,9 +321,6 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
                             >
                                 ✏️ Edit Profile
                             </button>
-                        </div>
-                        <div className="w-full sm:w-auto">
-                            <UserRatingSystem sellerId={user.id} />
                         </div>
                     </div>
                 </div>

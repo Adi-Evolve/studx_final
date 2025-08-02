@@ -67,8 +67,16 @@ export default async function CategoryPage({ params }) {
                 type: categoryType
             }));
 
-            // Mix sponsored items at the beginning
-            return [...selectedSponsored, ...regularListings];
+            // CRITICAL: Create a Set of sponsored item IDs to prevent duplication
+            const sponsoredItemIds = new Set(selectedSponsored.map(item => item.id));
+            
+            // Filter out sponsored items from regular listings to prevent duplication
+            const filteredRegularListings = regularListings.filter(item => 
+                !sponsoredItemIds.has(item.id)
+            );
+
+            // Mix sponsored items at the beginning with deduplicated regular items
+            return [...selectedSponsored, ...filteredRegularListings];
         } catch (error) {
             console.error('Error mixing sponsored items:', error);
             return regularListings;
