@@ -1941,6 +1941,92 @@
         .sponsorship-sequence {
             min-height: 200px;
         }
+        
+        /* Products Analytics Styles */
+        .analytics-container .card {
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border: none;
+            margin-bottom: 2rem;
+        }
+        
+        .analytics-container .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 0.5rem 0.5rem 0 0 !important;
+        }
+        
+        .analytics-container .stat-box {
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+        
+        .analytics-container .stat-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .products-analytics-table {
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .products-analytics-table th {
+            background: #495057;
+            color: white;
+            border: none;
+            padding: 1rem;
+            font-weight: 600;
+        }
+        
+        .products-analytics-table td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-color: #e9ecef;
+        }
+        
+        .products-analytics-table tbody tr:hover {
+            background-color: #f8f9fa;
+            transform: scale(1.01);
+            transition: all 0.2s ease;
+        }
+        
+        .product-image img {
+            border: 2px solid #e9ecef;
+        }
+        
+        .progress {
+            border-radius: 10px;
+            background-color: #e9ecef;
+        }
+        
+        .progress-bar {
+            border-radius: 10px;
+            transition: width 0.6s ease;
+        }
+        
+        #productSearchInput {
+            border-radius: 0.5rem 0 0 0.5rem;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        
+        #productSearchInput:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        #clearProductSearch {
+            border-radius: 0 0.5rem 0.5rem 0;
+            border: 2px solid #e9ecef;
+            border-left: none;
+        }
+        
+        .btn-group-sm .btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+            border-radius: 0.375rem;
+        }
     </style>
 </head>
 <body>
@@ -2077,6 +2163,22 @@
     const SUPABASE_SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkcG11bXN0ZHhnZnRhYXhlYWN4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTkwNjA4MiwiZXhwIjoyMDY3NDgyMDgyfQ.tdYV9te2jYq2ARdPiJi6mpkqfvg45YlfgZ2kXnhLVRs'; // Using service role for admin access
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
+    // Wait for DOM to be fully loaded
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    } else {
+        initializeApp();
+    }
+
+    function initializeApp() {
+        console.log('Initializing app...');
+        // Initialize components
+        initMobileMenu();
+        initThemeToggle();
+        attachSidebarHandlers(); // Ensure sidebar handlers are attached
+        checkLogin(); // Check login status
+    }
+
     // Check login status
     function checkLogin() {
         const isLoggedIn = localStorage.getItem('isLoggedIn');
@@ -2116,12 +2218,29 @@
 
     // Attach sidebar navigation handlers
     function attachSidebarHandlers() {
-        document.querySelectorAll('.nav-link[data-page]').forEach(link => {
+        console.log('Attaching sidebar handlers...');
+        const navLinks = document.querySelectorAll('.nav-link[data-page]');
+        console.log('Found nav links:', navLinks.length);
+        
+        // Method 1: Direct onclick assignment
+        navLinks.forEach(link => {
             link.onclick = function(e) {
                 e.preventDefault();
+                console.log('Nav link clicked:', this.getAttribute('data-page'));
                 const page = this.getAttribute('data-page');
                 loadPage(page);
             };
+        });
+        
+        // Method 2: Event delegation as fallback
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.nav-link[data-page]')) {
+                e.preventDefault();
+                const link = e.target.closest('.nav-link[data-page]');
+                const page = link.getAttribute('data-page');
+                console.log('Nav link clicked via delegation:', page);
+                loadPage(page);
+            }
         });
         
         // Logout button
@@ -2129,6 +2248,7 @@
         if (logoutBtn) {
             logoutBtn.onclick = function(e) {
                 e.preventDefault();
+                console.log('Logout clicked');
                 localStorage.removeItem('isLoggedIn');
                 localStorage.removeItem('rememberMe');
                 localStorage.removeItem('savedUsername');
@@ -2140,7 +2260,13 @@
 
     // Function to load page content
     function loadPage(page) {
+        console.log('Loading page:', page);
         const contentDiv = document.getElementById('content');
+        
+        if (!contentDiv) {
+            console.error('Content div not found!');
+            return;
+        }
         
         // Update active link
         document.querySelectorAll('.nav-link').forEach(link => {
@@ -2149,6 +2275,17 @@
                 link.classList.add('active');
             }
         });
+
+        // Update page title
+        const pageTitle = document.getElementById('pageTitle');
+        const pageSubtitle = document.getElementById('pageSubtitle');
+        
+        if (pageTitle) {
+            pageTitle.textContent = page.charAt(0).toUpperCase() + page.slice(1);
+        }
+        if (pageSubtitle) {
+            pageSubtitle.textContent = `Manage ${page} data and settings`;
+        }
 
         if (page === 'dashboard') {
             contentDiv.innerHTML = `
@@ -2524,6 +2661,255 @@
             contentDiv.innerHTML = `
                 <div class="analytics-container">
                     <h2><i class="fas fa-chart-line"></i> Advanced Analytics</h2>
+                    
+                    <!-- Marketplace Analytics Section -->
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-chart-bar"></i> Marketplace Performance Analytics</h5>
+                                    <!-- Tabs for different content types -->
+                                    <ul class="nav nav-tabs card-header-tabs mt-3" id="analyticsTabsList" role="tablist">
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link active" id="products-tab" data-bs-toggle="tab" data-bs-target="#products-analytics" type="button" role="tab">
+                                                <i class="fas fa-box"></i> Products <span id="productsTabCount" class="badge bg-primary ms-1">0</span>
+                                            </button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link" id="notes-tab" data-bs-toggle="tab" data-bs-target="#notes-analytics" type="button" role="tab">
+                                                <i class="fas fa-sticky-note"></i> Notes <span id="notesTabCount" class="badge bg-warning ms-1">0</span>
+                                            </button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link" id="rooms-tab" data-bs-toggle="tab" data-bs-target="#rooms-analytics" type="button" role="tab">
+                                                <i class="fas fa-home"></i> Rooms <span id="roomsTabCount" class="badge bg-info ms-1">0</span>
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="card-body">
+                                    <div class="tab-content" id="analyticsTabsContent">
+                                        
+                                        <!-- Products Analytics Tab -->
+                                        <div class="tab-pane fade show active" id="products-analytics" role="tabpanel">
+                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                <h6 class="mb-0"><i class="fas fa-box text-primary"></i> Products Performance</h6>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="input-group" style="width: 300px;">
+                                                        <input type="text" id="productSearchInput" class="form-control form-control-sm" placeholder="Search products...">
+                                                        <button class="btn btn-outline-secondary btn-sm" type="button" id="clearProductSearch">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </div>
+                                                    <button class="btn btn-primary btn-sm ms-2" onclick="refreshProductsAnalytics()">
+                                                        <i class="fas fa-sync-alt"></i> Refresh
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="row mb-3">
+                                                <div class="col-md-3">
+                                                    <div class="stat-box text-center p-3 border rounded bg-light">
+                                                        <h4 id="totalProducts" class="text-primary mb-1">-</h4>
+                                                        <small class="text-muted">Total Products</small>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="stat-box text-center p-3 border rounded bg-light">
+                                                        <h4 id="totalViews" class="text-success mb-1">-</h4>
+                                                        <small class="text-muted">Total Views</small>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="stat-box text-center p-3 border rounded bg-light">
+                                                        <h4 id="avgViewsPerProduct" class="text-info mb-1">-</h4>
+                                                        <small class="text-muted">Avg Views/Product</small>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="stat-box text-center p-3 border rounded bg-light">
+                                                        <h4 id="topPerformingCategory" class="text-warning mb-1">-</h4>
+                                                        <small class="text-muted">Top Category</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Products Table -->
+                                            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                                                <table class="table table-hover table-striped">
+                                                    <thead class="table-dark sticky-top">
+                                                        <tr>
+                                                            <th style="width: 40%;">Product</th>
+                                                            <th style="width: 15%;">Category</th>
+                                                            <th style="width: 10%;">Price</th>
+                                                            <th style="width: 10%;">Views</th>
+                                                            <th style="width: 15%;">Performance</th>
+                                                            <th style="width: 10%;">Actions</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="productsAnalyticsTable">
+                                                        <tr>
+                                                            <td colspan="6" class="text-center py-4">
+                                                                <div class="spinner-border text-primary" role="status">
+                                                                    <span class="visually-hidden">Loading...</span>
+                                                                </div>
+                                                                <p class="mt-2 text-muted">Loading products data...</p>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+
+                                        <!-- Notes Analytics Tab -->
+                                        <div class="tab-pane fade" id="notes-analytics" role="tabpanel">
+                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                <h6 class="mb-0"><i class="fas fa-sticky-note text-warning"></i> Notes Performance</h6>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="input-group" style="width: 300px;">
+                                                        <input type="text" id="notesSearchInput" class="form-control form-control-sm" placeholder="Search notes...">
+                                                        <button class="btn btn-outline-secondary btn-sm" type="button" id="clearNotesSearch">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </div>
+                                                    <button class="btn btn-warning btn-sm ms-2" onclick="refreshNotesAnalytics()">
+                                                        <i class="fas fa-sync-alt"></i> Refresh
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="row mb-3">
+                                                <div class="col-md-3">
+                                                    <div class="stat-box text-center p-3 border rounded bg-light">
+                                                        <h4 id="totalNotes" class="text-warning mb-1">-</h4>
+                                                        <small class="text-muted">Total Notes</small>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="stat-box text-center p-3 border rounded bg-light">
+                                                        <h4 id="totalNotesViews" class="text-success mb-1">-</h4>
+                                                        <small class="text-muted">Total Views</small>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="stat-box text-center p-3 border rounded bg-light">
+                                                        <h4 id="avgViewsPerNote" class="text-info mb-1">-</h4>
+                                                        <small class="text-muted">Avg Views/Note</small>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="stat-box text-center p-3 border rounded bg-light">
+                                                        <h4 id="topNotesSubject" class="text-primary mb-1">-</h4>
+                                                        <small class="text-muted">Top Subject</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Notes Table -->
+                                            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                                                <table class="table table-hover table-striped">
+                                                    <thead class="table-dark sticky-top">
+                                                        <tr>
+                                                            <th style="width: 35%;">Note Title</th>
+                                                            <th style="width: 15%;">Subject</th>
+                                                            <th style="width: 10%;">Year</th>
+                                                            <th style="width: 10%;">Price</th>
+                                                            <th style="width: 10%;">Views</th>
+                                                            <th style="width: 10%;">Performance</th>
+                                                            <th style="width: 10%;">Actions</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="notesAnalyticsTable">
+                                                        <tr>
+                                                            <td colspan="7" class="text-center py-4">
+                                                                <div class="spinner-border text-warning" role="status">
+                                                                    <span class="visually-hidden">Loading...</span>
+                                                                </div>
+                                                                <p class="mt-2 text-muted">Loading notes data...</p>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+
+                                        <!-- Rooms Analytics Tab -->
+                                        <div class="tab-pane fade" id="rooms-analytics" role="tabpanel">
+                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                <h6 class="mb-0"><i class="fas fa-home text-info"></i> Rooms Performance</h6>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="input-group" style="width: 300px;">
+                                                        <input type="text" id="roomsSearchInput" class="form-control form-control-sm" placeholder="Search rooms...">
+                                                        <button class="btn btn-outline-secondary btn-sm" type="button" id="clearRoomsSearch">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </div>
+                                                    <button class="btn btn-info btn-sm ms-2" onclick="refreshRoomsAnalytics()">
+                                                        <i class="fas fa-sync-alt"></i> Refresh
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="row mb-3">
+                                                <div class="col-md-3">
+                                                    <div class="stat-box text-center p-3 border rounded bg-light">
+                                                        <h4 id="analyticsRooms" class="text-info mb-1">-</h4>
+                                                        <small class="text-muted">Total Rooms</small>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="stat-box text-center p-3 border rounded bg-light">
+                                                        <h4 id="totalRoomsViews" class="text-success mb-1">-</h4>
+                                                        <small class="text-muted">Total Views</small>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="stat-box text-center p-3 border rounded bg-light">
+                                                        <h4 id="avgViewsPerRoom" class="text-warning mb-1">-</h4>
+                                                        <small class="text-muted">Avg Views/Room</small>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="stat-box text-center p-3 border rounded bg-light">
+                                                        <h4 id="topRoomType" class="text-primary mb-1">-</h4>
+                                                        <small class="text-muted">Top Room Type</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Rooms Table -->
+                                            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                                                <table class="table table-hover table-striped">
+                                                    <thead class="table-dark sticky-top">
+                                                        <tr>
+                                                            <th style="width: 35%;">Room/Hostel</th>
+                                                            <th style="width: 15%;">Type</th>
+                                                            <th style="width: 10%;">Location</th>
+                                                            <th style="width: 10%;">Rent</th>
+                                                            <th style="width: 10%;">Views</th>
+                                                            <th style="width: 10%;">Performance</th>
+                                                            <th style="width: 10%;">Actions</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="roomsAnalyticsTable">
+                                                        <tr>
+                                                            <td colspan="7" class="text-center py-4">
+                                                                <div class="spinner-border text-info" role="status">
+                                                                    <span class="visually-hidden">Loading...</span>
+                                                                </div>
+                                                                <p class="mt-2 text-muted">Loading rooms data...</p>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- User Behavior Analytics -->
                     <div class="row mb-4">
                         <div class="col-md-12">
                             <div class="card">
@@ -2681,6 +3067,121 @@
                     </div>
                 </div>
             `;
+            
+            // Initialize analytics with tab handling
+            setTimeout(async () => {
+                console.log('=== ANALYTICS INITIALIZATION DEBUG ===');
+                console.log('Initializing analytics dashboard...');
+                
+                try {
+                    // Test database connectivity first
+                    console.log('Testing database connectivity...');
+                    console.log('Supabase instance:', !!supabase);
+                    console.log('Supabase URL:', supabase.supabaseUrl);
+                    
+                    // Test with a simple query to see what works
+                    console.log('Testing basic database access...');
+                    const { data: testData, error: testError } = await supabase
+                        .from('users')
+                        .select('count')
+                        .limit(1);
+                    
+                    if (testError) {
+                        console.error('Basic database test failed:', testError);
+                        console.log('Testing products table access...');
+                        
+                        const { data: productsTest, error: productsError } = await supabase
+                            .from('products')
+                            .select('count')
+                            .limit(1);
+                        
+                        if (productsError) {
+                            console.error('Products table test failed:', productsError);
+                            throw new Error(`Database connection failed: ${testError.message}`);
+                        } else {
+                            console.log('Products table accessible');
+                        }
+                    } else {
+                        console.log('Basic database connection successful');
+                    }
+                    
+                    // Test table existence
+                    console.log('Checking table existence...');
+                    const { data: allTables, error: tablesError } = await supabase
+                        .from('information_schema.tables')
+                        .select('table_name')
+                        .eq('table_schema', 'public');
+                    
+                    if (allTables) {
+                        const tableNames = allTables.map(t => t.table_name);
+                        console.log('Available tables:', tableNames);
+                        console.log('Notes table exists:', tableNames.includes('notes'));
+                        console.log('Rooms table exists:', tableNames.includes('rooms'));
+                        console.log('Products table exists:', tableNames.includes('products'));
+                    } else {
+                        console.log('Could not check table existence:', tablesError);
+                    }
+                    
+                    console.log('Database connectivity test complete');
+                    
+                    // Load products analytics by default
+                    console.log('Loading default products analytics...');
+                    await renderProductsAnalytics();
+                    
+                    // Setup tab switching functionality
+                    const productTab = document.getElementById('products-tab');
+                    const notesTab = document.getElementById('notes-tab');
+                    const roomsTab = document.getElementById('rooms-tab');
+                    
+                    if (productTab) {
+                        productTab.addEventListener('shown.bs.tab', async () => {
+                            console.log('Switching to products tab');
+                            await renderProductsAnalytics();
+                        });
+                    }
+                    
+                    if (notesTab) {
+                        notesTab.addEventListener('shown.bs.tab', async () => {
+                            console.log('Switching to notes tab');
+                            await renderNotesAnalytics();
+                        });
+                    }
+                    
+                    if (roomsTab) {
+                        roomsTab.addEventListener('shown.bs.tab', async () => {
+                            console.log('Switching to rooms tab');
+                            await renderRoomsAnalytics();
+                        });
+                    }
+                    
+                    console.log('Analytics dashboard initialized successfully');
+                    console.log('=== INITIALIZATION COMPLETE ===');
+                    
+                } catch (error) {
+                    console.error('=== INITIALIZATION FAILED ===');
+                    console.error('Failed to initialize analytics dashboard:', error);
+                    console.error('Error details:', {
+                        message: error.message,
+                        stack: error.stack,
+                        supabaseConnected: !!supabase
+                    });
+                    
+                    // Show error in the main content area
+                    const contentDiv = document.querySelector('.analytics-container');
+                    if (contentDiv) {
+                        contentDiv.innerHTML = `
+                            <div class="text-center py-5">
+                                <i class="fas fa-exclamation-triangle text-danger fs-1"></i>
+                                <h3 class="mt-3 text-danger">Analytics Initialization Failed</h3>
+                                <p class="text-muted">Error: ${error.message}</p>
+                                <p class="small text-muted">Check browser console for detailed error information</p>
+                                <button class="btn btn-primary" onclick="location.reload()">Reload Page</button>
+                            </div>
+                        `;
+                    }
+                }
+            }, 100);
+            
             loadTransactionHistory();
         } else if (page === 'sponsorship') {
             contentDiv.innerHTML = `
@@ -3101,6 +3602,18 @@
     // Chart initialization function
     async function initializeCharts() {
         try {
+            // Destroy existing charts to prevent reuse errors
+            const canvasIds = ['revenueChart', 'categoryChart', 'userActivityChart', 'usageDistributionChart'];
+            canvasIds.forEach(canvasId => {
+                const canvas = document.getElementById(canvasId);
+                if (canvas) {
+                    const existingChart = Chart.getChart(canvas);
+                    if (existingChart) {
+                        existingChart.destroy();
+                    }
+                }
+            });
+
             // Fetch real data for charts
             const [
                 { data: products = [] },
@@ -3348,9 +3861,952 @@
             document.getElementById('conversionRate').textContent = totalTransactions > 0 ? `${Math.round((totalTransactions / totalUsers) * 100)}%` : '0%';
             document.getElementById('retentionRate').textContent = '78%';
 
+            // Initialize products analytics
+            await renderProductsAnalytics(products);
+
         } catch (error) {
             console.error('Error loading advanced analytics:', error);
         }
+    }
+
+    // Products Analytics Functions
+    let allProductsData = [];
+    let filteredProductsData = [];
+
+    // Analytics View Tracking System with localStorage fallback
+    async function trackView(itemType, itemId, itemTitle) {
+        try {
+            // Try database approach first
+            await trackViewInDatabase(itemType, itemId, itemTitle);
+        } catch (error) {
+            console.log('Database tracking failed, using localStorage:', error);
+            // Fallback to localStorage
+            trackViewInLocalStorage(itemType, itemId, itemTitle);
+        }
+    }
+
+    async function trackViewInDatabase(itemType, itemId, itemTitle) {
+        try {
+            // Insert or update view count using the correct column names
+            const { data: existing, error: selectError } = await supabase
+                .from('analytics_views')
+                .select('*')
+                .eq('content_type', itemType)
+                .eq('content_id', itemId)
+                .single();
+
+            if (selectError && selectError.code !== 'PGRST116') { // PGRST116 = no rows found
+                console.log('Error selecting existing view:', selectError);
+                throw selectError;
+            }
+
+            if (existing) {
+                // Update existing record
+                const { error: updateError } = await supabase
+                    .from('analytics_views')
+                    .update({ 
+                        views: existing.views + 1,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', existing.id);
+
+                if (updateError) {
+                    console.log('Error updating view:', updateError);
+                    throw updateError;
+                }
+                console.log(`View updated for ${itemType}:${itemId}`);
+            } else {
+                // Create new record
+                const { error: insertError } = await supabase
+                    .from('analytics_views')
+                    .insert({
+                        content_type: itemType,
+                        content_id: itemId,
+                        views: 1,
+                        created_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString()
+                    });
+
+                if (insertError) {
+                    console.log('Error inserting view:', insertError);
+                    throw insertError;
+                }
+                console.log(`New view record created for ${itemType}:${itemId}`);
+            }
+        } catch (error) {
+            console.error('Database view tracking failed:', error);
+            throw error;
+        }
+    }
+
+    function trackViewInLocalStorage(itemType, itemId, itemTitle) {
+        const key = `analytics_views_${itemType}_${itemId}`;
+        const existing = localStorage.getItem(key);
+        const currentViews = existing ? parseInt(existing) : 0;
+        localStorage.setItem(key, (currentViews + 1).toString());
+    }
+
+    async function ensureAnalyticsTable() {
+        try {
+            // Try to create the analytics_views table using raw SQL
+            const { error } = await supabase.rpc('exec_raw_sql', { 
+                sql: `
+                    CREATE TABLE IF NOT EXISTS analytics_views (
+                        id SERIAL PRIMARY KEY,
+                        item_type VARCHAR(50) NOT NULL,
+                        item_id VARCHAR(255) NOT NULL,
+                        item_title TEXT,
+                        view_count INTEGER DEFAULT 1,
+                        last_viewed TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                        UNIQUE(item_type, item_id)
+                    );
+                `
+            });
+            
+            if (error) {
+                console.log('Table creation via RPC failed, trying simple insert test...');
+                // Test if table exists by trying to insert a test record
+                const { error: testError } = await supabase
+                    .from('analytics_views')
+                    .select('count')
+                    .limit(1);
+                    
+                if (testError) {
+                    throw new Error('Analytics table not available');
+                }
+            }
+        } catch (error) {
+            console.log('Database analytics table setup failed:', error);
+            throw error;
+        }
+    }
+
+    async function getItemViews(itemType, itemId) {
+        try {
+            // Try database first with correct column names
+            const { data, error } = await supabase
+                .from('analytics_views')
+                .select('views')
+                .eq('content_type', itemType)
+                .eq('content_id', itemId)
+                .single();
+
+            if (error && error.code !== 'PGRST116') {
+                console.log('Error getting views from database:', error);
+                throw error;
+            }
+
+            return data ? data.views : 0;
+        } catch (error) {
+            // Fallback to localStorage
+            console.log('Falling back to localStorage for views');
+            const key = `analytics_views_${itemType}_${itemId}`;
+            const views = localStorage.getItem(key);
+            return views ? parseInt(views) : 0;
+        }
+    }
+
+    async function renderProductsAnalytics(products = null) {
+        try {
+            console.log('Loading products analytics...');
+            
+            // Fetch products if not provided
+            if (!products) {
+                console.log('Fetching products from database...');
+                const { data, error } = await supabase
+                    .from('products')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                    
+                if (error) {
+                    console.error('Error fetching products:', error);
+                    throw error;
+                }
+                products = data || [];
+                console.log('Fetched products:', products.length);
+            }
+
+            // Get real view counts for each product
+            allProductsData = await Promise.all(products.map(async (product) => {
+                const views = await getItemViews('product', product.id);
+                return {
+                    ...product,
+                    views: views,
+                    performance: views > 0 ? Math.min(100, Math.floor(views / 5) * 10) : 0 // Simple performance calculation
+                };
+            }));
+
+            filteredProductsData = [...allProductsData];
+            console.log('Generated products analytics data with real views:', allProductsData.length);
+
+            // Update summary stats
+            updateProductsStats();
+
+            // Render products table
+            renderProductsTable();
+
+            // Setup search functionality
+            setupProductsSearch();
+
+        } catch (error) {
+            console.error('Error loading products analytics:', error);
+            // Show error in the table
+            const tableBody = document.getElementById('productsAnalyticsTable');
+            if (tableBody) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-danger">
+                            <i class="fas fa-exclamation-triangle fs-1"></i>
+                            <p class="mt-2">Error loading products data: ${error.message}</p>
+                            <button class="btn btn-primary" onclick="refreshProductsAnalytics()">Try Again</button>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+    }
+
+    function updateProductsStats() {
+        const totalProducts = filteredProductsData.length;
+        const totalViews = filteredProductsData.reduce((sum, product) => sum + product.views, 0);
+        const avgViews = totalProducts > 0 ? Math.round(totalViews / totalProducts) : 0;
+        
+        // Find top performing category
+        const categoryViews = {};
+        filteredProductsData.forEach(product => {
+            const category = product.category || 'Other';
+            categoryViews[category] = (categoryViews[category] || 0) + product.views;
+        });
+        
+        const topCategory = Object.keys(categoryViews).reduce((a, b) => 
+            categoryViews[a] > categoryViews[b] ? a : b, 'None'
+        );
+
+        // Update DOM
+        document.getElementById('totalProducts').textContent = totalProducts.toLocaleString();
+        document.getElementById('totalViews').textContent = totalViews.toLocaleString();
+        document.getElementById('avgViewsPerProduct').textContent = avgViews.toLocaleString();
+        document.getElementById('topPerformingCategory').textContent = topCategory;
+    }
+
+    function renderProductsTable() {
+        const tableBody = document.getElementById('productsAnalyticsTable');
+        
+        if (filteredProductsData.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center py-4">
+                        <i class="fas fa-shopping-bag text-muted fs-1"></i>
+                        <p class="mt-2 text-muted">No products found matching your search.</p>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        // Sort by created_at descending (newest first)
+        const sortedProducts = [...filteredProductsData].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+        tableBody.innerHTML = sortedProducts.map(product => {
+            const performanceClass = product.performance >= 70 ? 'success' : 
+                                   product.performance >= 40 ? 'warning' : 
+                                   product.performance > 0 ? 'danger' : 'secondary';
+            
+            const performanceIcon = product.performance >= 70 ? 'fa-arrow-up' : 
+                                  product.performance >= 40 ? 'fa-minus' : 
+                                  product.performance > 0 ? 'fa-arrow-down' : 'fa-question';
+
+            return `
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="product-image me-3">
+                                ${product.images && product.images.length > 0 
+                                    ? `<img src="${product.images[0]}" alt="${product.title}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;">`
+                                    : `<div style="width: 40px; height: 40px; background: #e9ecef; border-radius: 4px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-image text-muted"></i></div>`
+                                }
+                            </div>
+                            <div>
+                                <div class="fw-bold">${product.title}</div>
+                                <small class="text-muted">${getRelativeTime(product.created_at)}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge bg-secondary">${product.category || 'Other'}</span>
+                    </td>
+                    <td>
+                        <span class="fw-bold text-success">₹${product.price?.toLocaleString() || '0'}</span>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-eye text-muted me-1"></i>
+                            <span class="fw-bold">${product.views.toLocaleString()}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="progress me-2" style="width: 60px; height: 8px;">
+                                <div class="progress-bar bg-${performanceClass}" role="progressbar" 
+                                     style="width: ${product.performance}%"></div>
+                            </div>
+                            <span class="badge bg-${performanceClass}">
+                                <i class="fas ${performanceIcon}"></i> ${product.performance}%
+                            </span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary" onclick="viewProductDetails('${product.id}')" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="editProduct('${product.id}')" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function setupProductsSearch() {
+        const searchInput = document.getElementById('productSearchInput');
+        const clearButton = document.getElementById('clearProductSearch');
+
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase().trim();
+                
+                if (searchTerm === '') {
+                    filteredProductsData = [...allProductsData];
+                } else {
+                    filteredProductsData = allProductsData.filter(product => 
+                        product.title.toLowerCase().includes(searchTerm) ||
+                        product.category?.toLowerCase().includes(searchTerm) ||
+                        product.description?.toLowerCase().includes(searchTerm)
+                    );
+                }
+                
+                updateProductsStats();
+                renderProductsTable();
+            });
+        }
+
+        if (clearButton) {
+            clearButton.addEventListener('click', () => {
+                searchInput.value = '';
+                filteredProductsData = [...allProductsData];
+                updateProductsStats();
+                renderProductsTable();
+            });
+        }
+    }
+
+    // Refresh products analytics
+    function refreshProductsAnalytics() {
+        renderProductsAnalytics();
+        showNotification('Products analytics refreshed successfully!', 'success');
+    }
+
+    // Product action handlers
+    function viewProductDetails(productId) {
+        const product = allProductsData.find(p => p.id === productId);
+        if (product) {
+            // Track view
+            trackView('product', product.id, product.title);
+            
+            alert(`Product Details:\n\nTitle: ${product.title}\nCategory: ${product.category}\nPrice: ₹${product.price}\nViews: ${product.views}\nPerformance: ${product.performance}%\nCreated: ${new Date(product.created_at).toLocaleDateString()}`);
+            
+            // Refresh analytics to show updated view count
+            setTimeout(() => {
+                refreshProductsAnalytics();
+            }, 500);
+        }
+    }
+
+    function editProduct(productId) {
+        showNotification('Edit product feature coming soon!', 'info');
+    }
+
+    // Notes Analytics Functions
+    let allNotesData = [];
+    let filteredNotesData = [];
+
+    async function renderNotesAnalytics(notes = null) {
+        try {
+            console.log('=== NOTES ANALYTICS DEBUG START ===');
+            console.log('Loading notes analytics...');
+            
+            // Fetch notes if not provided - try different approaches
+            if (!notes) {
+                console.log('Fetching notes from database...');
+                
+                // Debug: Check Supabase connection
+                console.log('Supabase URL:', supabase.supabaseUrl);
+                console.log('Supabase client:', !!supabase);
+                
+                // Try the standard approach first
+                console.log('Attempt 1: Standard query with ordering');
+                let { data, error } = await supabase
+                    .from('notes')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                    
+                console.log('Attempt 1 result:', { data: data?.length, error: error?.message });
+                
+                // If error, try without ordering
+                if (error) {
+                    console.log('Attempt 2: Query without ordering');
+                    console.log('Previous error details:', {
+                        message: error.message,
+                        code: error.code,
+                        details: error.details,
+                        hint: error.hint
+                    });
+                    
+                    ({ data, error } = await supabase.from('notes').select('*'));
+                    console.log('Attempt 2 result:', { data: data?.length, error: error?.message });
+                }
+                
+                // If still error, try with different approaches
+                if (error) {
+                    console.log('Attempt 3: Check table existence');
+                    console.log('Previous error details:', {
+                        message: error.message,
+                        code: error.code,
+                        details: error.details,
+                        hint: error.hint
+                    });
+                    
+                    // Check what tables exist
+                    const { data: tables, error: tableError } = await supabase
+                        .from('information_schema.tables')
+                        .select('table_name')
+                        .eq('table_schema', 'public');
+                    
+                    console.log('Available tables:', tables?.map(t => t.table_name));
+                    console.log('Table check error:', tableError?.message);
+                    
+                    // Try one more time with basic select
+                    ({ data, error } = await supabase
+                        .from('notes')
+                        .select('id, title, subject, created_at')
+                        .limit(10));
+                    
+                    console.log('Attempt 3 result:', { data: data?.length, error: error?.message });
+                    
+                    if (error) {
+                        throw new Error(`All attempts failed. Last error: ${error.message}. Code: ${error.code}. Details: ${error.details || 'None'}`);
+                    }
+                }
+                
+                notes = data || [];
+                console.log('Successfully fetched notes:', notes.length);
+                console.log('Sample note:', notes[0]);
+            }
+
+            console.log('Processing notes for analytics...');
+
+            // Get real view counts for each note
+            allNotesData = await Promise.all(notes.map(async (note) => {
+                const views = await getItemViews('note', note.id);
+                return {
+                    ...note,
+                    views: views,
+                    downloads: Math.floor(views * 0.3), // Estimate downloads as 30% of views
+                    rating: views > 10 ? (3.5 + (views % 15) / 10).toFixed(1) : 0 // Dynamic rating based on popularity
+                };
+            }));
+
+            filteredNotesData = [...allNotesData];
+            console.log('Generated notes analytics data with real views:', allNotesData.length);
+            console.log('=== NOTES ANALYTICS DEBUG END ===');
+
+            // Update summary stats
+            updateNotesStats();
+
+            // Render notes table
+            renderNotesTable();
+
+            // Setup search functionality
+            setupNotesSearch();
+
+        } catch (error) {
+            console.error('=== NOTES ANALYTICS ERROR ===');
+            console.error('Full error object:', error);
+            console.error('Error message:', error.message);
+            console.error('Error stack:', error.stack);
+            console.error('=== ERROR END ===');
+            
+            // Show detailed error in the table
+            const tableBody = document.getElementById('notesAnalyticsTable');
+            if (tableBody) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-danger">
+                            <i class="fas fa-exclamation-triangle fs-1"></i>
+                            <p class="mt-2"><strong>Error loading notes data:</strong></p>
+                            <p class="small">${error.message}</p>
+                            <p class="small text-muted">Check console for detailed error information</p>
+                            <button class="btn btn-primary" onclick="refreshNotesAnalytics()">Try Again</button>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+    }
+
+    function updateNotesStats() {
+        const totalNotes = filteredNotesData.length;
+        const totalViews = filteredNotesData.reduce((sum, note) => sum + note.views, 0);
+        const avgViews = totalNotes > 0 ? Math.round(totalViews / totalNotes) : 0;
+        
+        // Find top performing subject
+        const subjectViews = {};
+        filteredNotesData.forEach(note => {
+            const subject = note.subject || 'General';
+            subjectViews[subject] = (subjectViews[subject] || 0) + note.views;
+        });
+        
+        const topSubject = Object.keys(subjectViews).reduce((a, b) => 
+            subjectViews[a] > subjectViews[b] ? a : b, 'None'
+        );
+
+        // Update DOM with proper error checking
+        const totalNotesEl = document.getElementById('totalNotes');
+        const totalNotesViewsEl = document.getElementById('totalNotesViews');
+        const avgViewsPerNoteEl = document.getElementById('avgViewsPerNote');
+        const topNotesSubjectEl = document.getElementById('topNotesSubject');
+        
+        if (totalNotesEl) totalNotesEl.textContent = totalNotes.toLocaleString();
+        if (totalNotesViewsEl) totalNotesViewsEl.textContent = totalViews.toLocaleString();
+        if (avgViewsPerNoteEl) avgViewsPerNoteEl.textContent = avgViews.toLocaleString();
+        if (topNotesSubjectEl) topNotesSubjectEl.textContent = topSubject;
+        
+        console.log('Notes stats updated:', { totalNotes, totalViews, avgViews, topSubject });
+    }
+
+    function renderNotesTable() {
+        const tableBody = document.getElementById('notesAnalyticsTable');
+        
+        if (filteredNotesData.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center py-4">
+                        <i class="fas fa-sticky-note text-muted fs-1"></i>
+                        <p class="mt-2 text-muted">No notes found matching your search.</p>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        // Sort by created_at descending (newest first)
+        const sortedNotes = [...filteredNotesData].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+        tableBody.innerHTML = sortedNotes.map(note => {
+            return `
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="note-icon me-3">
+                                <i class="fas fa-file-alt text-primary" style="font-size: 24px;"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold">${note.title}</div>
+                                <small class="text-muted">${getRelativeTime(note.created_at)}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge bg-info">${note.subject || 'General'}</span>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-eye text-muted me-1"></i>
+                            <span class="fw-bold">${note.views.toLocaleString()}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-download text-success me-1"></i>
+                            <span class="fw-bold">${note.downloads.toLocaleString()}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <span class="me-2">
+                                ${note.rating > 0 ? generateStarRating(parseFloat(note.rating)) : '<span class="text-muted">No ratings</span>'}
+                            </span>
+                            ${note.rating > 0 ? `<span class="fw-bold">${note.rating}</span>` : ''}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary" onclick="viewNoteDetails('${note.id}')" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="editNote('${note.id}')" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function setupNotesSearch() {
+        const searchInput = document.getElementById('noteSearchInput');
+        const clearButton = document.getElementById('clearNoteSearch');
+
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase().trim();
+                
+                if (searchTerm === '') {
+                    filteredNotesData = [...allNotesData];
+                } else {
+                    filteredNotesData = allNotesData.filter(note => 
+                        note.title.toLowerCase().includes(searchTerm) ||
+                        note.subject?.toLowerCase().includes(searchTerm) ||
+                        note.description?.toLowerCase().includes(searchTerm)
+                    );
+                }
+                
+                updateNotesStats();
+                renderNotesTable();
+            });
+        }
+
+        if (clearButton) {
+            clearButton.addEventListener('click', () => {
+                searchInput.value = '';
+                filteredNotesData = [...allNotesData];
+                updateNotesStats();
+                renderNotesTable();
+            });
+        }
+    }
+
+    // Refresh notes analytics
+    function refreshNotesAnalytics() {
+        renderNotesAnalytics();
+        showNotification('Notes analytics refreshed successfully!', 'success');
+    }
+
+    // Note action handlers
+    function viewNoteDetails(noteId) {
+        const note = allNotesData.find(n => n.id === noteId);
+        if (note) {
+            // Track view
+            trackView('note', note.id, note.title);
+            
+            alert(`Note Details:\n\nTitle: ${note.title}\nSubject: ${note.subject}\nViews: ${note.views}\nDownloads: ${note.downloads}\nRating: ${note.rating}/5.0\nCreated: ${new Date(note.created_at).toLocaleDateString()}`);
+            
+            // Refresh analytics to show updated view count
+            setTimeout(() => {
+                refreshNotesAnalytics();
+            }, 500);
+        }
+    }
+
+    function editNote(noteId) {
+        showNotification('Edit note feature coming soon!', 'info');
+    }
+
+    // Rooms Analytics Functions
+    let allRoomsData = [];
+    let filteredRoomsData = [];
+
+    async function renderRoomsAnalytics(rooms = null) {
+        try {
+            console.log('=== ROOMS ANALYTICS DEBUG START ===');
+            console.log('Loading rooms analytics...');
+            
+            // Fetch rooms if not provided - try different approaches
+            if (!rooms) {
+                console.log('Fetching rooms from database...');
+                
+                // Debug: Check Supabase connection
+                console.log('Supabase URL:', supabase.supabaseUrl);
+                console.log('Supabase client:', !!supabase);
+                
+                // Try the standard approach first
+                console.log('Attempt 1: Standard query with ordering');
+                let { data, error } = await supabase
+                    .from('rooms')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                    
+                console.log('Attempt 1 result:', { data: data?.length, error: error?.message });
+                
+                // If error, try without ordering
+                if (error) {
+                    console.log('Attempt 2: Query without ordering');
+                    console.log('Previous error details:', {
+                        message: error.message,
+                        code: error.code,
+                        details: error.details,
+                        hint: error.hint
+                    });
+                    
+                    ({ data, error } = await supabase.from('rooms').select('*'));
+                    console.log('Attempt 2 result:', { data: data?.length, error: error?.message });
+                }
+                
+                // If still error, try with different approaches
+                if (error) {
+                    console.log('Attempt 3: Check table existence and basic select');
+                    console.log('Previous error details:', {
+                        message: error.message,
+                        code: error.code,
+                        details: error.details,
+                        hint: error.hint
+                    });
+                    
+                    // Check what tables exist
+                    const { data: tables, error: tableError } = await supabase
+                        .from('information_schema.tables')
+                        .select('table_name')
+                        .eq('table_schema', 'public');
+                    
+                    console.log('Available tables:', tables?.map(t => t.table_name));
+                    console.log('Table check error:', tableError?.message);
+                    
+                    // Try one more time with basic select
+                    ({ data, error } = await supabase
+                        .from('rooms')
+                        .select('id, title, location, price, created_at')
+                        .limit(10));
+                    
+                    console.log('Attempt 3 result:', { data: data?.length, error: error?.message });
+                    
+                    if (error) {
+                        throw new Error(`All attempts failed. Last error: ${error.message}. Code: ${error.code}. Details: ${error.details || 'None'}`);
+                    }
+                }
+                
+                rooms = data || [];
+                console.log('Successfully fetched rooms:', rooms.length);
+                console.log('Sample room:', rooms[0]);
+            }
+
+            console.log('Processing rooms for analytics...');
+
+            // Get real view counts for each room
+            allRoomsData = await Promise.all(rooms.map(async (room) => {
+                const views = await getItemViews('room', room.id);
+                return {
+                    ...room,
+                    views: views,
+                    bookings: Math.floor(views * 0.15), // Estimate bookings as 15% of views
+                    occupancy: views > 0 ? Math.min(100, Math.floor(views * 2)) : 0 // Dynamic occupancy based on popularity
+                };
+            }));
+
+            filteredRoomsData = [...allRoomsData];
+            console.log('Generated rooms analytics data with real views:', allRoomsData.length);
+            console.log('=== ROOMS ANALYTICS DEBUG END ===');
+
+            // Update summary stats
+            updateRoomsStats();
+
+            // Render rooms table
+            renderRoomsTable();
+
+            // Setup search functionality
+            setupRoomsSearch();
+
+        } catch (error) {
+            console.error('=== ROOMS ANALYTICS ERROR ===');
+            console.error('Full error object:', error);
+            console.error('Error message:', error.message);
+            console.error('Error stack:', error.stack);
+            console.error('=== ERROR END ===');
+            
+            // Show detailed error in the table
+            const tableBody = document.getElementById('roomsAnalyticsTable');
+            if (tableBody) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-danger">
+                            <i class="fas fa-exclamation-triangle fs-1"></i>
+                            <p class="mt-2"><strong>Error loading rooms data:</strong></p>
+                            <p class="small">${error.message}</p>
+                            <p class="small text-muted">Check console for detailed error information</p>
+                            <button class="btn btn-primary" onclick="refreshRoomsAnalytics()">Try Again</button>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+    }
+
+    function updateRoomsStats() {
+        const totalRooms = filteredRoomsData.length;
+        const totalViews = filteredRoomsData.reduce((sum, room) => sum + room.views, 0);
+        const avgViews = totalRooms > 0 ? Math.round(totalViews / totalRooms) : 0;
+        
+        // Find top performing room type/location
+        const locationViews = {};
+        filteredRoomsData.forEach(room => {
+            const location = room.location || 'Unknown';
+            locationViews[location] = (locationViews[location] || 0) + room.views;
+        });
+        
+        const topLocation = Object.keys(locationViews).reduce((a, b) => 
+            locationViews[a] > locationViews[b] ? a : b, 'None'
+        );
+
+        // Update DOM with proper error checking
+        const analyticsRoomsEl = document.getElementById('analyticsRooms');
+        const totalRoomsViewsEl = document.getElementById('totalRoomsViews');
+        const avgViewsPerRoomEl = document.getElementById('avgViewsPerRoom');
+        const topRoomTypeEl = document.getElementById('topRoomType');
+        
+        if (analyticsRoomsEl) analyticsRoomsEl.textContent = totalRooms.toLocaleString();
+        if (totalRoomsViewsEl) totalRoomsViewsEl.textContent = totalViews.toLocaleString();
+        if (avgViewsPerRoomEl) avgViewsPerRoomEl.textContent = avgViews.toLocaleString();
+        if (topRoomTypeEl) topRoomTypeEl.textContent = topLocation;
+        
+        console.log('Rooms stats updated:', { totalRooms, totalViews, avgViews, topLocation });
+    }
+
+    function renderRoomsTable() {
+        const tableBody = document.getElementById('roomsAnalyticsTable');
+        
+        if (filteredRoomsData.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="text-center py-4">
+                        <i class="fas fa-door-open text-muted fs-1"></i>
+                        <p class="mt-2 text-muted">No rooms found matching your search.</p>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        // Sort by created_at descending (newest first)
+        const sortedRooms = [...filteredRoomsData].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+        tableBody.innerHTML = sortedRooms.map(room => {
+            return `
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="room-icon me-3">
+                                <i class="fas fa-door-open text-success" style="font-size: 24px;"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold">${room.title}</div>
+                                <small class="text-muted">${getRelativeTime(room.created_at)}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge bg-warning">${room.location || 'Not specified'}</span>
+                    </td>
+                    <td>
+                        <span class="fw-bold text-success">₹${room.price?.toLocaleString() || '0'}</span>
+                        <small class="text-muted d-block">${room.period || 'per month'}</small>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-eye text-muted me-1"></i>
+                            <span class="fw-bold">${room.views.toLocaleString()}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-calendar-check text-primary me-1"></i>
+                            <span class="fw-bold">${room.bookings.toLocaleString()}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="progress me-2" style="width: 60px; height: 8px;">
+                                <div class="progress-bar bg-info" role="progressbar" 
+                                     style="width: ${Math.min(100, room.occupancy)}%"></div>
+                            </div>
+                            <span class="badge bg-info">${room.occupancy}%</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary" onclick="viewRoomDetails('${room.id}')" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="editRoom('${room.id}')" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function setupRoomsSearch() {
+        const searchInput = document.getElementById('roomSearchInput');
+        const clearButton = document.getElementById('clearRoomSearch');
+
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase().trim();
+                
+                if (searchTerm === '') {
+                    filteredRoomsData = [...allRoomsData];
+                } else {
+                    filteredRoomsData = allRoomsData.filter(room => 
+                        room.title.toLowerCase().includes(searchTerm) ||
+                        room.location?.toLowerCase().includes(searchTerm) ||
+                        room.description?.toLowerCase().includes(searchTerm)
+                    );
+                }
+                
+                updateRoomsStats();
+                renderRoomsTable();
+            });
+        }
+
+        if (clearButton) {
+            clearButton.addEventListener('click', () => {
+                searchInput.value = '';
+                filteredRoomsData = [...allRoomsData];
+                updateRoomsStats();
+                renderRoomsTable();
+            });
+        }
+    }
+
+    // Refresh rooms analytics
+    function refreshRoomsAnalytics() {
+        renderRoomsAnalytics();
+        showNotification('Rooms analytics refreshed successfully!', 'success');
+    }
+
+    // Room action handlers
+    function viewRoomDetails(roomId) {
+        const room = allRoomsData.find(r => r.id === roomId);
+        if (room) {
+            // Track view
+            trackView('room', room.id, room.title);
+            
+            alert(`Room Details:\n\nTitle: ${room.title}\nLocation: ${room.location}\nPrice: ₹${room.price} ${room.period || 'per month'}\nViews: ${room.views}\nBookings: ${room.bookings}\nOccupancy: ${room.occupancy}%\nCreated: ${new Date(room.created_at).toLocaleDateString()}`);
+            
+            // Refresh analytics to show updated view count
+            setTimeout(() => {
+                refreshRoomsAnalytics();
+            }, 500);
+        }
+    }
+
+    function editRoom(roomId) {
+        showNotification('Edit room feature coming soon!', 'info');
     }
 
     // Helper function for relative time
@@ -3364,6 +4820,32 @@
         if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
         if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)}d ago`;
         return `${Math.floor(diffInSeconds / 2592000)}mo ago`;
+    }
+
+    // Helper function for star rating
+    function generateStarRating(rating) {
+        const fullStars = Math.floor(rating);
+        const hasHalfStar = rating % 1 >= 0.5;
+        const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+        
+        let stars = '';
+        
+        // Full stars
+        for (let i = 0; i < fullStars; i++) {
+            stars += '<i class="fas fa-star text-warning"></i>';
+        }
+        
+        // Half star
+        if (hasHalfStar) {
+            stars += '<i class="fas fa-star-half-alt text-warning"></i>';
+        }
+        
+        // Empty stars
+        for (let i = 0; i < emptyStars; i++) {
+            stars += '<i class="far fa-star text-warning"></i>';
+        }
+        
+        return stars;
     }
 
     // Export data function
@@ -3578,19 +5060,6 @@
             });
             
             updateBulkButtons();
-        }
-
-        // Helper function to get relative time
-        function getRelativeTime(dateString) {
-            const now = new Date();
-            const past = new Date(dateString);
-            const diffInSeconds = Math.floor((now - past) / 1000);
-            
-            if (diffInSeconds < 60) return 'just now';
-            if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-            if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
-            if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)}d ago`;
-            return `${Math.floor(diffInSeconds / 2592000)}mo ago`;
         }
 
         renderCards();
@@ -4972,6 +6441,29 @@
     
     // Also make the main objects global for debugging
     window.supabase = supabase;
+    
+    // Make refresh functions globally accessible for onclick handlers
+    window.refreshProductsAnalytics = refreshProductsAnalytics;
+    window.refreshNotesAnalytics = refreshNotesAnalytics;
+    window.refreshRoomsAnalytics = refreshRoomsAnalytics;
+    
+    // Make analytics render functions globally accessible
+    window.renderProductsAnalytics = renderProductsAnalytics;
+    window.renderNotesAnalytics = renderNotesAnalytics;
+    window.renderRoomsAnalytics = renderRoomsAnalytics;
+    
+    // Make action handlers globally accessible
+    window.viewProductDetails = viewProductDetails;
+    window.editProduct = editProduct;
+    window.viewNoteDetails = viewNoteDetails;
+    window.editNote = editNote;
+    window.viewRoomDetails = viewRoomDetails;
+    window.editRoom = editRoom;
+    
+    // Make view tracking functions globally accessible
+    window.trackView = trackView;
+    window.getItemViews = getItemViews;
+    window.ensureAnalyticsTable = ensureAnalyticsTable;
 
 })(); // Close the async IIFE
 

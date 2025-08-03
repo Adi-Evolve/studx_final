@@ -39,11 +39,23 @@ export default function ListingCard({ item, onClick, isSelectMode = false, isSpo
                 : 'border-transparent hover:border-emerald-200 dark:hover:border-emerald-600'
         }`}
         >
-            {/* Enhanced Featured Badge */}
+            {/* Enhanced Sponsored Badge with Better Visibility */}
             {(isSponsored || item.is_sponsored || item.isFeatured) && (
-                <div className="absolute top-3 right-3 z-20">
-                    <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg animate-pulse">
-                        ⭐ FEATURED
+                <div className="absolute top-2 right-2 z-20">
+                    <div className="bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg border-2 border-white dark:border-gray-800">
+                        <span className="flex items-center gap-1">
+                            <span className="animate-pulse">⭐</span>
+                            <span>SPONSORED</span>
+                        </span>
+                    </div>
+                </div>
+            )}
+            
+            {/* Priority Rank for Sponsored Items */}
+            {item.sponsored_rank && (
+                <div className="absolute top-2 left-2 z-20">
+                    <div className="bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shadow-lg border-2 border-white dark:border-gray-800">
+                        #{item.sponsored_rank}
                     </div>
                 </div>
             )}

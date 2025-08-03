@@ -397,34 +397,16 @@ export async function searchListings({ query }) {
     if (!query || query.trim().length === 0) return [];
 
     const supabase = createSupabaseServerClient();
-    // console.log(`[searchListings] Starting search for: "${query}"`);
+    console.log(`[searchListings] Starting enhanced search for: "${query}"`);
     
     try {
-        // 1. Get featured items that match the search
-        const featuredItems = await fetchSponsoredListings();
         const searchTerm = `%${query.trim()}%`;
         const lowerQuery = query.toLowerCase().trim();
+        const searchWords = lowerQuery.split(' ').filter(word => word.length > 0);
         
-        // Filter featured items that match the search query
-        const matchingFeatured = featuredItems.filter(item => {
-            const title = (item.title || '').toLowerCase();
-            const description = (item.description || '').toLowerCase();
-            const category = (item.category || '').toLowerCase();
-            const courseSubject = (item.course_subject || '').toLowerCase();
-            
-            return title.includes(lowerQuery) || 
-                   description.includes(lowerQuery) || 
-                   category.includes(lowerQuery) ||
-                   courseSubject.includes(lowerQuery);
-        });
-
-        // 2. Regular search in all three tables
-        // Simple, direct search approach - case insensitive
-        // (searchTerm already defined above)
-        
-        // Search in all three tables directly with ilike (case-insensitive)
+        // Enhanced search in all three tables with better relevance
         const [productsRes, notesRes, roomsRes] = await Promise.all([
-            // Products table - search title, description, category
+            // Products table - comprehensive search
             supabase
                 .from('products')
                 .select(`
@@ -432,9 +414,10 @@ export async function searchListings({ query }) {
                     location, images, is_sold, seller_id, created_at
                 `)
                 .or(`title.ilike.${searchTerm},description.ilike.${searchTerm},category.ilike.${searchTerm}`)
+                .eq('is_sold', false)
                 .order('created_at', { ascending: false }),
             
-            // Notes table - search title, description, category, course_subject
+            // Notes table - enhanced search including course subjects
             supabase
                 .from('notes')
                 .select(`
@@ -442,110 +425,114 @@ export async function searchListings({ query }) {
                     academic_year, course_subject, images, pdf_urls, 
                     seller_id, created_at
                 `)
-                .or(`title.ilike.${searchTerm},description.ilike.${searchTerm},category.ilike.${searchTerm},course_subject.ilike.${searchTerm}`)
+                .or(`title.ilike.${searchTerm},description.ilike.${searchTerm},category.ilike.${searchTerm},course_subject.ilike.${searchTerm},academic_year.ilike.${searchTerm}`)
                 .order('created_at', { ascending: false }),
             
-            // Rooms table - search title, description, category
+            // Rooms table - comprehensive search including amenities
             supabase
                 .from('rooms')
                 .select(`
                     id, title, description, price, category, college, location, 
                     images, room_type, occupancy, distance, deposit, fees_include_mess, 
-                    mess_fees, owner_name, contact1, contact2, amenities, seller_id, created_at
+                    mess_fees, owner_name, contact1, contact2, amenities, seller_id, created_at,
+                    hostel_name
                 `)
-                .or(`title.ilike.${searchTerm},description.ilike.${searchTerm},category.ilike.${searchTerm}`)
+                .or(`title.ilike.${searchTerm},description.ilike.${searchTerm},category.ilike.${searchTerm},room_type.ilike.${searchTerm},location.ilike.${searchTerm},hostel_name.ilike.${searchTerm}`)
                 .order('created_at', { ascending: false })
         ]);
 
-        // Log search results for debugging
-        // console.log(`[searchListings] Products found: ${productsRes.data?.length || 0}`);
-        // console.log(`[searchListings] Notes found: ${notesRes.data?.length || 0}`);
-        // console.log(`[searchListings] Rooms found: ${roomsRes.data?.length || 0}`);
+        console.log(`[searchListings] Products found: ${productsRes.data?.length || 0}`);
+        console.log(`[searchListings] Notes found: ${notesRes.data?.length || 0}`);
+        console.log(`[searchListings] Rooms found: ${roomsRes.data?.length || 0}`);
 
-        // Check for errors and log them
+        // Check for errors
         if (productsRes.error) {
-            // console.error('[searchListings] Products search error:', productsRes.error);
+            console.error('[searchListings] Products search error:', productsRes.error);
         }
         if (notesRes.error) {
-            // console.error('[searchListings] Notes search error:', notesRes.error);
+            console.error('[searchListings] Notes search error:', notesRes.error);
         }
         if (roomsRes.error) {
-            // console.error('[searchListings] Rooms search error:', roomsRes.error);
+            console.error('[searchListings] Rooms search error:', roomsRes.error);
         }
 
-        // Combine all search results and add type information
+        // Combine all search results with enhanced type information
         const allResults = [
             ...(productsRes.data || []).map(item => ({ ...item, type: 'regular' })),
             ...(notesRes.data || []).map(item => ({ ...item, type: 'note' })),
             ...(roomsRes.data || []).map(item => ({ ...item, type: 'room' }))
         ];
 
-        // Remove featured items from regular results to avoid duplicates
-        const featuredIds = new Set(matchingFeatured.map(item => `${item.type}-${item.id}`));
-        const regularResults = allResults.filter(item => 
-            !featuredIds.has(`${item.type}-${item.id}`)
-        );
-
-        // Simple relevance scoring for regular results
-        const scoredResults = regularResults.map(item => {
+        // Enhanced relevance scoring algorithm
+        const scoredResults = allResults.map(item => {
             let score = 0;
-            const lowerQuery = query.toLowerCase().trim();
             
             // Get searchable text based on item type
             const title = (item.title || item.hostel_name || '').toLowerCase();
             const description = (item.description || '').toLowerCase();
             const category = (item.category || '').toLowerCase();
+            const courseSubject = (item.course_subject || '').toLowerCase();
+            const location = (item.location || '').toLowerCase();
+            const roomType = (item.room_type || '').toLowerCase();
+            const academicYear = (item.academic_year || '').toLowerCase();
             
-            // Title matches get highest score
-            if (title.includes(lowerQuery)) score += 50;
-            
-            // Category matches get high score
-            if (category.includes(lowerQuery)) score += 30;
-            
-            // Description matches get medium score
-            if (description.includes(lowerQuery)) score += 20;
-            
-            // Word-by-word matching
-            const queryWords = lowerQuery.split(' ').filter(word => word.length > 1);
-            queryWords.forEach(word => {
-                if (title.includes(word)) score += 10;
-                if (category.includes(word)) score += 8;
-                if (description.includes(word)) score += 5;
+            // Multi-field relevance scoring
+            searchWords.forEach(word => {
+                // Exact title match gets highest score
+                if (title === word) score += 100;
+                else if (title.includes(word)) score += 50;
+                
+                // Category matches are highly relevant
+                if (category === word) score += 80;
+                else if (category.includes(word)) score += 40;
+                
+                // Description matches
+                if (description.includes(word)) score += 20;
+                
+                // Course/subject matches for notes
+                if (courseSubject.includes(word)) score += 60;
+                if (academicYear.includes(word)) score += 30;
+                
+                // Location and room type for rooms
+                if (location.includes(word)) score += 40;
+                if (roomType.includes(word)) score += 35;
             });
             
-            // Recency bonus
-            const daysSinceCreated = (new Date() - new Date(item.created_at)) / (1000 * 60 * 60 * 24);
-            if (daysSinceCreated < 7) score += 5;
+            // Boost score for exact phrase matches
+            if (title.includes(lowerQuery)) score += 75;
+            if (description.includes(lowerQuery)) score += 30;
+            if (category.includes(lowerQuery)) score += 60;
             
-            return { ...item, relevanceScore: score };
+            // Boost recent items slightly
+            const daysSinceCreated = (Date.now() - new Date(item.created_at).getTime()) / (1000 * 60 * 60 * 24);
+            if (daysSinceCreated < 7) score += 10; // Recent items get small boost
+            if (daysSinceCreated < 1) score += 20; // Very recent items get bigger boost
+            
+            // Price-based relevance (items with reasonable prices get slight boost)
+            const price = item.price || item.fees || 0;
+            if (price > 0 && price < 50000) score += 5; // Reasonable price range
+            
+            return { ...item, relevance_score: score };
         });
 
-        // Sort by relevance score first, then by created_at date
-        scoredResults.sort((a, b) => {
-            if (b.relevanceScore !== a.relevanceScore) {
-                return b.relevanceScore - a.relevanceScore;
-            }
-            return new Date(b.created_at) - new Date(a.created_at);
-        });
+        // Sort by relevance score (highest first)
+        const sortedResults = scoredResults
+            .filter(item => item.relevance_score > 0) // Only items with matches
+            .sort((a, b) => {
+                // Primary sort: relevance score
+                if (b.relevance_score !== a.relevance_score) {
+                    return b.relevance_score - a.relevance_score;
+                }
+                // Secondary sort: creation date (newer first)
+                return new Date(b.created_at) - new Date(a.created_at);
+            });
 
-        // Add featured flag to matching featured items and give them top priority
-        const featuredWithFlag = matchingFeatured.map(item => ({
-            ...item,
-            isFeatured: true,
-            relevanceScore: 1000 // Featured items always get top relevance
-        }));
-
-        // Combine: Featured items first, then regular results
-        const finalResults = [
-            ...featuredWithFlag,
-            ...scoredResults
-        ];
-
-        // console.log(`[searchListings] Total results: ${finalResults.length} (${featuredWithFlag.length} featured, ${scoredResults.length} regular)`);
-        return finalResults;
+        console.log(`[searchListings] Total relevant results: ${sortedResults.length}`);
+        
+        return sortedResults;
 
     } catch (error) {
-        // console.error('[searchListings] Critical error:', error);
+        console.error('[searchListings] Critical error:', error);
         return [];
     }
 }
@@ -566,6 +553,11 @@ export async function createOrGetConversation({ listingId, sellerId, listingType
             .eq('buyer_id', user.id)
             .eq('seller_id', sellerId)
             .single();
+
+        if (fetchError && fetchError.code !== 'PGRST116') {
+            // PGRST116 is "not found" error, which is expected if no conversation exists
+            throw fetchError;
+        }
 
         if (existingConversation) {
             return existingConversation;
