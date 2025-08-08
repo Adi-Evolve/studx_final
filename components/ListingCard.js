@@ -113,7 +113,7 @@ export default function ListingCard({ item, onClick, isSelectMode = false, isSpo
                             />
                             {item.type === 'room' && (
                                 <span className="text-xs text-slate-500 dark:text-slate-400">
-                                    /{(item.fees_period || 'Monthly').toLowerCase()}
+                                    /{(item.duration || 'monthly').toLowerCase()}
                                 </span>
                             )}
                         </div>

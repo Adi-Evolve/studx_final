@@ -111,7 +111,7 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
                 supabase.from('rooms').select(`
                     id, title, description, price, category, college, location, 
                     images, room_type, occupancy, distance, deposit, fees_include_mess, 
-                    mess_fees, owner_name, contact1, contact2, amenities, seller_id, created_at
+                    mess_fees, owner_name, contact1, contact2, amenities, duration, seller_id, created_at
                 `).eq('seller_id', user.id)
             ]);
             // Log results

@@ -95,7 +95,7 @@ export async function fetchSellerListings({ sellerId, excludeId, excludeType }) 
             supabase.from('rooms').select(`
                 id, title, description, price, category, college, location, 
                 images, room_type, occupancy, distance, deposit, fees_include_mess, 
-                mess_fees, owner_name, contact1, contact2, amenities, fees_period, seller_id, created_at
+                mess_fees, owner_name, contact1, contact2, amenities, duration, seller_id, created_at
             `).eq('seller_id', sellerId)
         ]);
 
@@ -151,7 +151,7 @@ export async function fetchSimilarListings({ type, category, college, excludeId,
             .select(`
                 id, title, description, price, category, college, location, 
                 images, room_type, occupancy, distance, deposit, fees_include_mess, 
-                mess_fees, owner_name, contact1, contact2, amenities, seller_id, created_at
+                mess_fees, owner_name, contact1, contact2, amenities, duration, seller_id, created_at
             `)
             .eq('college', college);
     } else {
@@ -283,7 +283,7 @@ export async function fetchSponsoredListings() {
                 .select(`
                     id, title, description, price, category, college, location, 
                     images, room_type, occupancy, distance, deposit, fees_include_mess, 
-                    mess_fees, owner_name, contact1, contact2, amenities, seller_id, created_at
+                    mess_fees, owner_name, contact1, contact2, amenities, duration, seller_id, created_at
                 `)
                 .in('id', roomIds) : { data: [], error: null }
         ]);
@@ -352,7 +352,7 @@ export async function fetchListings({ page = 1, limit = 12 } = {}) {
                     .select(`
                         id, title, description, price, category, college, location, 
                         images, room_type, occupancy, distance, deposit, fees_include_mess, 
-                        mess_fees, owner_name, contact1, contact2, amenities, seller_id, created_at
+                        mess_fees, owner_name, contact1, contact2, amenities, duration, seller_id, created_at
                     `)
                     .order('created_at', { ascending: false })
         ]);
@@ -434,7 +434,7 @@ export async function searchListings({ query }) {
                 .select(`
                     id, title, description, price, category, college, location, 
                     images, room_type, occupancy, distance, deposit, fees_include_mess, 
-                    mess_fees, owner_name, contact1, contact2, amenities, seller_id, created_at,
+                    mess_fees, owner_name, contact1, contact2, amenities, duration, seller_id, created_at,
                     hostel_name
                 `)
                 .or(`title.ilike.${searchTerm},description.ilike.${searchTerm},category.ilike.${searchTerm},room_type.ilike.${searchTerm},location.ilike.${searchTerm},hostel_name.ilike.${searchTerm}`)
@@ -738,7 +738,7 @@ export async function fetchNewestProducts(limit = 4) {
                 .select(`
                     id, title, description, price, category, college, location, 
                     images, room_type, occupancy, distance, deposit, fees_include_mess, 
-                    mess_fees, owner_name, contact1, contact2, amenities, seller_id, created_at
+                    mess_fees, owner_name, contact1, contact2, amenities, duration, seller_id, created_at
                 `)
                 .order('created_at', { ascending: false })
                 .limit(limit)
@@ -799,7 +799,7 @@ export async function fetchNewestProductsWithLocation(userLat, userLng, limit = 
                 .select(`
                     id, title, description, price, category, college, location, 
                     images, room_type, occupancy, distance, deposit, fees_include_mess, 
-                    mess_fees, owner_name, contact1, contact2, amenities, seller_id, created_at
+                    mess_fees, owner_name, contact1, contact2, amenities, duration, seller_id, created_at
                 `)
                 .order('created_at', { ascending: false })
                 .limit(limit * 2)

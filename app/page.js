@@ -225,7 +225,7 @@ async function ExploreListingsSection() {
                       </h3>
                       <p className="text-lg font-bold text-blue-600 dark:text-blue-400">
                         ₹{(item.price || item.fees || 0).toLocaleString()}
-                        {item.type === 'room' && `/${(item.fees_period || 'Monthly').toLowerCase()}`}
+                        {item.type === 'room' && `/${(item.duration || 'monthly').toLowerCase()}`}
                       </p>
                     </div>
                   </div>

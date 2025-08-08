@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test POST to /api/sell</title>
+</head>
+<body>
+    <h1>Test POST Request to /api/sell</h1>
+    <button onclick="testPost()">Test POST</button>
+    <div id="result"></div>
+
+    <script>
+        async function testPost() {
+            try {
+                console.log('Sending test POST request...');
+                
+                const formData = new FormData();
+                formData.append('type', 'room');
+                formData.append('userEmail', 'test@example.com');
+                formData.append('title', 'Test Room');
+                formData.append('user', JSON.stringify({email: 'test@example.com'}));
+                
+                const response = await fetch('/api/sell', {
+                    method: 'POST',
+                    body: formData,
+                });
+                
+                console.log('Response status:', response.status);
+                const result = await response.text();
+                console.log('Response:', result);
+                
+                document.getElementById('result').innerHTML = `
+                    <h3>Response (${response.status}):</h3>
+                    <pre>${result}</pre>
+                `;
+                
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('result').innerHTML = `
+                    <h3>Error:</h3>
+                    <pre>${error.message}</pre>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

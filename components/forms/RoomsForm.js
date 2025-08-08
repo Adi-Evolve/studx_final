@@ -26,7 +26,7 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
         room_type: initialData.room_type || '',
         deposit: initialData.deposit || '',
         fees: initialData.fees || '',
-        fees_period: initialData.fees_period || 'Monthly',
+        duration: initialData.duration || initialData.fees_period || 'monthly',
         mess_included: initialData.mess_included || false,
         mess_fees: initialData.mess_fees || '',
         description: initialData.description || '',
@@ -56,7 +56,7 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
                 room_type: initialData.room_type || '',
                 deposit: initialData.deposit || '',
                 fees: initialData.fees || '',
-                fees_period: initialData.fees_period || 'Monthly',
+                duration: initialData.duration || initialData.fees_period || 'monthly',
                 mess_included: initialData.mess_included || false,
                 mess_fees: initialData.mess_fees || '',
                 description: initialData.description || '',
@@ -257,6 +257,7 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
             formDataToSend.append('title', formData.hostel_name);
             formDataToSend.append('description', formData.description);
             formDataToSend.append('price', parseFloat(formData.fees));
+            formDataToSend.append('duration', formData.duration);
             formDataToSend.append('college', formData.college);
             formDataToSend.append('location', JSON.stringify(formData.location));
             formDataToSend.append('roomType', formData.room_type);
@@ -335,7 +336,7 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
                 room_type: '',
                 deposit: '',
                 fees: '',
-                fees_period: 'Monthly',
+                duration: 'monthly',
                 mess_included: false,
                 mess_fees: '',
                 description: '',
@@ -453,13 +454,13 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-l-md shadow-sm text-black dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
                         />
                         <select 
-                            name="fees_period" 
-                            value={formData.fees_period} 
+                            name="duration" 
+                            value={formData.duration} 
                             onChange={handleChange} 
                             className="mt-1 block px-3 py-2 border border-gray-300 dark:border-gray-600 border-l-0 rounded-r-md shadow-sm text-black dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         >
-                            <option>Monthly</option>
-                            <option>Yearly</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="yearly">Yearly</option>
                         </select>
                     </div>
                 </div>

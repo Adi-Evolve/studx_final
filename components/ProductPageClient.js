@@ -207,7 +207,14 @@ export default function ProductPageClient({ product, seller, type }) {
                     <div className="lg:col-span-2">
                         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 sticky top-24">
                             <h1 className="text-3xl font-bold text-primary dark:text-white mb-2 leading-tight">{product.title}</h1>
-                            <p className="text-3xl font-bold text-accent dark:text-blue-400 mb-4">₹{product.price ? product.price.toLocaleString() : 'N/A'}</p>
+                            <p className="text-3xl font-bold text-accent dark:text-blue-400 mb-4">
+                                ₹{product.price ? product.price.toLocaleString() : 'N/A'}
+                                {type === 'room' && product.duration && (
+                                    <span className="text-base text-gray-600 dark:text-gray-400 ml-2">
+                                        /{product.duration.toLowerCase()}
+                                    </span>
+                                )}
+                            </p>
                             
                             <div className="space-y-3 text-sm text-gray-600 dark:text-gray-300 border-t dark:border-gray-700 pt-4 mb-4">
                                 {formattedDate && <div className="flex items-center"><FontAwesomeIcon icon={faCalendarAlt} className="w-4 mr-3 text-gray-400" /> Listed on: <span className="font-semibold text-primary dark:text-white ml-1">{formattedDate}</span></div>}

@@ -108,18 +108,24 @@ export default function MapPicker({ onLocationChange, initialPosition }) {
     const handleSearch = async () => {
         if (!searchQuery) return;
         try {
-            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}`);
+            // Use our proxy endpoint instead of direct Nominatim API call
+            const response = await fetch(`/api/geocode?q=${encodeURIComponent(searchQuery)}`);
+            
+            if (!response.ok) {
+                console.error('Geocoding API error:', response.status, response.statusText);
+                return;
+            }
+            
             const data = await response.json();
             if (data && data.length > 0) {
                 const { lat, lon } = data[0];
                 setPosition([parseFloat(lat), parseFloat(lon)]);
+                console.log('Location found:', data[0].display_name);
             } else {
-                // console.error('Location not found.');
-                // toast.error('Location not found.');
+                console.warn('No location found for query:', searchQuery);
             }
         } catch (error) {
-            // console.error('Error fetching location:', error);
-            // toast.error('Failed to search for location.');
+            console.error('Error fetching location:', error);
         }
     };
 

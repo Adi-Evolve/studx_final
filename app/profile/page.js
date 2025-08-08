@@ -41,7 +41,7 @@ export default async function ProfilePage() {
     const [productsRes, notesRes, roomsRes] = await Promise.all([
         supabase.from('products').select(`id, title, description, price, category, condition, college, location, images, is_sold, seller_id, created_at`).eq('seller_id', user.id),
         supabase.from('notes').select(`id, title, description, price, category, college, academic_year, course_subject, images, pdf_urls, pdf_url, seller_id, created_at`).eq('seller_id', user.id),
-        supabase.from('rooms').select(`id, title, description, price, category, college, location, images, room_type, occupancy, distance, deposit, fees_include_mess, mess_fees, owner_name, contact1, contact2, amenities, seller_id, created_at`).eq('seller_id', user.id)
+        supabase.from('rooms').select(`id, title, description, price, category, college, location, images, room_type, occupancy, distance, deposit, fees_include_mess, mess_fees, owner_name, contact1, contact2, amenities, duration, seller_id, created_at`).eq('seller_id', user.id)
     ]);
 
     // Only pass serializable arrays

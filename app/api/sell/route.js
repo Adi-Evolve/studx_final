@@ -94,23 +94,90 @@ export async function GET() {
 
 // POST endpoint for selling items
 export async function POST(request) {
+  console.log('[SELL API] POST endpoint called - start of function')
+  
   try {
     console.log('[SELL API] POST request received')
 
-    // Parse request body
+    // Parse request body - handle both JSON and FormData
     let body
+    let isFormData = false
+    
     try {
-      body = await request.json()
-      console.log('[SELL API] Request body parsed:', { 
-        type: body.type, 
-        hasImage: !!body.image,
-        userEmail: body.userEmail 
-      })
+      const contentType = request.headers.get('content-type') || ''
+      console.log('[SELL API] Content-Type:', contentType)
+      
+      if (contentType.includes('multipart/form-data')) {
+        console.log('[SELL API] Handling FormData request')
+        isFormData = true
+        const formData = await request.formData()
+        
+        // Convert FormData to regular object
+        body = {}
+        for (const [key, value] of formData.entries()) {
+          console.log('[SELL API] Processing FormData field:', key, typeof value)
+          
+          if (key === 'user') {
+            try {
+              body.user = JSON.parse(value)
+            } catch (e) {
+              console.log('[SELL API] Failed to parse user field:', e.message)
+              body.user = null
+            }
+          } else if (key === 'location') {
+            try {
+              body.location = JSON.parse(value)
+            } catch (e) {
+              console.log('[SELL API] Failed to parse location field:', e.message)
+              body.location = value // Use as string if JSON parse fails
+            }
+          } else if (key === 'amenities') {
+            // Handle multiple amenities
+            if (!body.amenities) body.amenities = []
+            body.amenities.push(value)
+          } else if (key.startsWith('images') && value instanceof File) {
+            // Handle image files - we'll process these later
+            if (!body.imageFiles) body.imageFiles = []
+            body.imageFiles.push(value)
+          } else if (key === 'type') {
+            body.type = value === 'rooms' ? 'room' : value // Convert 'rooms' to 'room'
+          } else {
+            // Handle regular fields
+            body[key] = value
+          }
+        }
+
+        // Use user email from parsed user object for authentication
+        body.userEmail = body.user?.email
+        
+        console.log('[SELL API] FormData parsed:', { 
+          type: body.type, 
+          hasUser: !!body.user,
+          userEmail: body.userEmail,
+          hasImages: !!(body.imageFiles && body.imageFiles.length > 0),
+          amenitiesCount: body.amenities?.length || 0,
+          allKeys: Object.keys(body)
+        })
+      } else {
+        console.log('[SELL API] Attempting to handle as JSON request')
+        try {
+          body = await request.json()
+          console.log('[SELL API] JSON parsed successfully:', { 
+            type: body.type, 
+            hasImage: !!body.image,
+            userEmail: body.userEmail 
+          })
+        } catch (jsonError) {
+          console.log('[SELL API] Failed to parse as JSON:', jsonError.message)
+          throw new Error(`Unable to parse request body as JSON: ${jsonError.message}`)
+        }
+      }
     } catch (parseError) {
       logError('BODY_PARSE', parseError)
       return NextResponse.json({ 
-        error: 'Invalid JSON in request body',
-        details: parseError.message 
+        error: 'Invalid request format',
+        details: parseError.message,
+        contentType: request.headers.get('content-type')
       }, { status: 400 })
     }
 
@@ -120,7 +187,12 @@ export async function POST(request) {
       return NextResponse.json({ 
         error: 'Missing required fields',
         required: ['type', 'userEmail'],
-        received: { type: !!type, userEmail: !!userEmail }
+        received: { type: !!type, userEmail: !!userEmail },
+        debug: { 
+          bodyKeys: Object.keys(body),
+          hasUser: !!body.user,
+          userObject: body.user 
+        }
       }, { status: 400 })
     }
 
@@ -168,13 +240,36 @@ export async function POST(request) {
     const user = userData[0]
     console.log('[SELL API] User validated:', user.id)
 
-    // Handle image upload if present
-    let imageUrl = null
-    if (body.image) {
+    // Handle image upload - support both single image (base64) and multiple images (File objects)
+    let imageUrls = []
+    
+    if (isFormData && body.imageFiles && body.imageFiles.length > 0) {
+      // Handle File uploads from FormData
+      console.log('[SELL API] Processing File uploads:', body.imageFiles.length)
+      for (const file of body.imageFiles) {
+        try {
+          // Convert File to base64 for ImgBB
+          const buffer = await file.arrayBuffer()
+          const base64 = Buffer.from(buffer).toString('base64')
+          const imageUrl = await uploadImageToImgBB(base64)
+          imageUrls.push(imageUrl)
+          console.log('[SELL API] File uploaded:', imageUrl)
+        } catch (imageError) {
+          logError('FILE_UPLOAD_FAIL', imageError, { fileName: file.name })
+          return NextResponse.json({ 
+            error: 'File upload failed',
+            details: imageError.message,
+            fileName: file.name
+          }, { status: 500 })
+        }
+      }
+    } else if (body.image) {
+      // Handle base64 image upload (original method)
       try {
-        console.log('[SELL API] Processing image upload...')
-        imageUrl = await uploadImageToImgBB(body.image)
-        console.log('[SELL API] Image uploaded:', imageUrl)
+        console.log('[SELL API] Processing base64 image upload...')
+        const imageUrl = await uploadImageToImgBB(body.image)
+        imageUrls.push(imageUrl)
+        console.log('[SELL API] Base64 image uploaded:', imageUrl)
       } catch (imageError) {
         logError('IMAGE_UPLOAD_FAIL', imageError)
         return NextResponse.json({ 
@@ -187,69 +282,64 @@ export async function POST(request) {
     // Prepare data for database
     const now = new Date().toISOString()
     let insertData = {
-      user_id: user.id,
       created_at: now,
       updated_at: now
     }
 
-    // Add image URL if available
-    if (imageUrl) {
-      if (type === 'room' || type === 'product') {
-        // For rooms and products, add to images array
-        insertData.images = [imageUrl]
-      } else if (type === 'note') {
-        // For notes, use image_url field (if it exists)
-        insertData.images = [imageUrl]
-      }
+    // Add image URLs if available
+    if (imageUrls.length > 0) {
+      insertData.images = imageUrls
     }
 
     let tableName
-    let result
 
-    // Insert based on type
+    // Insert based on type with enhanced field mapping
     if (type === 'room') {
       tableName = 'rooms'
       insertData = {
         ...insertData,
-        title: body.roomName || 'Unnamed Room',
+        title: body.title || body.roomName || body.hostel_name || 'Unnamed Room',
         description: body.description || '',
-        price: parseFloat(body.price) || 0,
+        price: parseFloat(body.price || body.fees) || 0,
         location: body.location || '',
-        room_type: body.roomType || 'single',
+        room_type: body.roomType || body.room_type || 'single',
         category: 'rooms',
-        seller_id: user.id, // Use seller_id instead of user_id for rooms table
+        seller_id: user.id,
         college: body.college || '',
         occupancy: body.occupancy || '1',
-        owner_name: body.ownerName || '',
-        contact1: body.contact1 || '',
-        contact2: body.contact2 || null,
+        owner_name: body.ownerName || body.owner_name || '',
+        contact1: body.contact1 || body.contact_primary || '',
+        contact2: body.contact2 || body.contact_secondary || null,
         deposit: parseFloat(body.deposit) || 0,
-        fees_include_mess: body.feesIncludeMess || false,
-        mess_fees: parseFloat(body.messFees) || null,
+        fees_include_mess: body.feesIncludeMess || body.mess_included || false,
+        mess_fees: parseFloat(body.messFees || body.mess_fees) || null,
         amenities: body.amenities || [],
         distance: body.distance || '0',
-        fee_period: body.feePeriod || 'monthly',
-        fees_period: body.feePeriod || 'Monthly',
-        duration: body.duration || body.feePeriod || 'monthly' // Add duration field
+        duration: body.feePeriod || body.fees_period || body.duration || 'monthly'
       }
-      // Remove user_id for rooms table
-      delete insertData.user_id
+      
+      console.log('[SELL API] Room data prepared:', {
+        title: insertData.title,
+        price: insertData.price,
+        duration: insertData.duration,
+        amenities: insertData.amenities?.length || 0,
+        hasImages: !!(insertData.images && insertData.images.length > 0)
+      })
+      
     } else if (type === 'product') {
       tableName = 'products'
       insertData = {
         ...insertData,
-        title: body.productName || 'Unnamed Product',
+        title: body.productName || body.title || 'Unnamed Product',
         description: body.description || '',
         price: parseFloat(body.price) || 0,
         category: body.category || 'other',
         condition: body.condition || 'Used',
-        seller_id: user.id, // Use seller_id instead of user_id for products table
+        seller_id: user.id,
         college: body.college || '',
         location: body.location || '',
         is_sold: false
       }
-      // Remove user_id for products table
-      delete insertData.user_id
     } else if (type === 'note') {
       tableName = 'notes'
       insertData = {
@@ -258,11 +348,9 @@ export async function POST(request) {
         subject: body.subject || '',
         price: parseFloat(body.price) || 0,
         description: body.description || '',
-        seller_id: user.id, // Use seller_id for consistency
+        seller_id: user.id,
         category: 'notes'
       }
-      // Remove user_id for notes table  
-      delete insertData.user_id
     } else {
       return NextResponse.json({ 
         error: 'Invalid type',
@@ -272,6 +360,7 @@ export async function POST(request) {
     }
 
     console.log(`[SELL API] Inserting into ${tableName}...`)
+    console.log('[SELL API] Insert data keys:', Object.keys(insertData))
 
     // Insert into database
     const { data, error: insertError } = await supabase
@@ -281,11 +370,21 @@ export async function POST(request) {
       .single()
 
     if (insertError) {
-      logError('DATABASE_INSERT', insertError, { tableName, insertData })
+      logError('DATABASE_INSERT', insertError, { 
+        tableName, 
+        insertDataKeys: Object.keys(insertData),
+        sampleData: {
+          title: insertData.title,
+          seller_id: insertData.seller_id,
+          college: insertData.college
+        }
+      })
       return NextResponse.json({ 
         error: 'Failed to create listing',
         details: insertError.message,
-        table: tableName 
+        code: insertError.code,
+        table: tableName,
+        hint: insertError.hint
       }, { status: 500 })
     }
 
@@ -295,15 +394,27 @@ export async function POST(request) {
       success: true,
       message: `${type} listing created successfully`,
       id: data.id,
-      imageUrl,
+      imageUrls,
+      data: {
+        id: data.id,
+        title: data.title,
+        type: type
+      },
       timestamp: now
     })
 
   } catch (error) {
+    console.error('[SELL API] POST_REQUEST - Outer catch block error:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+      cause: error.cause
+    })
     logError('POST_REQUEST', error)
     return NextResponse.json({ 
       error: 'Internal server error',
       details: error.message,
+      stack: error.stack?.substring(0, 1000),
       timestamp: new Date().toISOString()
     }, { status: 500 })
   }
