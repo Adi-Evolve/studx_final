@@ -18,7 +18,7 @@ export async function POST(request) {
 
     let tableName;
     switch (type) {
-        case 'product': tableName = 'product'; break;
+        case 'product': tableName = 'products'; break;
         case 'note': tableName = 'notes'; break;
         case 'room': tableName = 'rooms'; break;
         default: return NextResponse.json({ error: 'Invalid item type' }, { status: 400 });

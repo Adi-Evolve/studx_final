@@ -32,12 +32,22 @@ export default function ListingCard({ item, onClick, isSelectMode = false, isSpo
     // Handle different price fields
     const price = item.price || item.fees || 0;
 
+    // Check if this is a profile page with action buttons
+    const hasActionButtons = onEdit || onRemove || onMarkAsSold;
+
     const cardContent = (
-        <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-900 overflow-hidden hover:shadow-xl dark:hover:shadow-gray-700 transition-all duration-300 transform hover:scale-105 h-full flex flex-col group relative border-2 dark:border-gray-700 card-item ${
-            (isSponsored || item.is_sponsored || item.isFeatured) 
-                ? 'border-gradient-to-r from-orange-300 to-yellow-300 dark:from-orange-400 dark:to-yellow-400 hover:border-orange-400 dark:hover:border-orange-500 shadow-lg ring-2 ring-orange-200 dark:ring-orange-500/30' 
-                : 'border-transparent hover:border-emerald-200 dark:hover:border-emerald-600'
-        }`}
+        <div 
+            className={`bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-900 overflow-hidden hover:shadow-xl dark:hover:shadow-gray-700 transition-all duration-300 transform hover:scale-105 h-full flex flex-col group relative border-2 dark:border-gray-700 card-item ${
+                (isSponsored || item.is_sponsored || item.isFeatured) 
+                    ? 'border-gradient-to-r from-orange-300 to-yellow-300 dark:from-orange-400 dark:to-yellow-400 hover:border-orange-400 dark:hover:border-orange-500 shadow-lg ring-2 ring-orange-200 dark:ring-orange-500/30' 
+                    : 'border-transparent hover:border-emerald-200 dark:hover:border-emerald-600'
+            } ${hasActionButtons ? 'cursor-default' : ''}`}
+            onClick={hasActionButtons ? (e) => {
+                // Only navigate if clicking on the main card area, not buttons
+                if (!e.target.closest('button')) {
+                    window.open(url, '_blank');
+                }
+            } : undefined}
         >
             {/* Enhanced Sponsored Badge with Better Visibility */}
             {(isSponsored || item.is_sponsored || item.isFeatured) && (
@@ -191,6 +201,15 @@ export default function ListingCard({ item, onClick, isSelectMode = false, isSpo
             </div>
         </div>
     );
+
+    // For profile page, don't wrap in Link if action buttons are present    
+    if (hasActionButtons) {
+        return (
+            <div className="block h-full hover-lift" style={{ textDecoration: 'none' }}>
+                {cardContent}
+            </div>
+        );
+    }
 
     // Always use Link for navigation in server-rendered context
     return (

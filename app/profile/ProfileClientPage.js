@@ -6,7 +6,6 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import ListingCard from '@/components/ListingCard';
 import BulkUpload from '@/components/BulkUpload';
 import BulkOperationsPanel from '@/components/BulkOperationsPanel';
-import RegularProductForm from '@/components/forms/RegularProductForm';
 // Reusable UI Components
 const TabButton = ({ active, onClick, children }) => (
     <button 
@@ -89,9 +88,6 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
     const [showBulkUpload, setShowBulkUpload] = useState(false);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [lastRefresh, setLastRefresh] = useState(Date.now());
-    const [editItem, setEditItem] = useState(null);
-    const [editType, setEditType] = useState('product');
-    const [showEditModal, setShowEditModal] = useState(false);
     const supabase = createSupabaseBrowserClient();
     // Client-side data refresh function
     const refreshListings = async () => {
@@ -153,49 +149,47 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
         }
     };
     const handleEdit = (item, type) => {
-        setEditItem(item);
-        setEditType(type);
-        setShowEditModal(true);
-    };
-    const handleEditSave = async (updatedData) => {
-        const response = await fetch('/api/item/edit', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: editItem.id, type: editType, data: updatedData }),
-        });
-        if (response.ok) {
-            setShowEditModal(false);
-            setEditItem(null);
-            // Optionally refresh listings
-            fetchUserListings();
-        } else {
-            alert('Failed to update item.');
-        }
+        // Navigate to the edit page instead of opening a modal
+        window.location.href = `/edit/${item.id}?type=${type}`;
     };
     const handleRemove = async (id, type) => {
         if (!confirm('Are you sure you want to remove this item?')) return;
-        const response = await fetch('/api/item/delete', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id, type }),
-        });
-        if (response.ok) {
-            fetchUserListings();
-        } else {
+        try {
+            const response = await fetch('/api/item/delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, type }),
+            });
+            if (response.ok) {
+                // Refresh listings after successful removal
+                refreshListings();
+            } else {
+                alert('Failed to remove item.');
+            }
+        } catch (error) {
+            console.error('Error removing item:', error);
             alert('Failed to remove item.');
         }
     };
     const handleMarkAsSold = async (id, type) => {
-        const response = await fetch('/api/item/mark-sold', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id, type }),
-        });
-        if (response.ok) {
-            if (type === 'product') setProducts(products.map(p => p.id === id ? { ...p, is_sold: true } : p));
-            if (type === 'note') setNotes(notes.map(n => n.id === id ? { ...n, is_sold: true } : n));
-            if (type === 'room') setRooms(rooms.map(r => r.id === id ? { ...r, is_sold: true } : r));
-        } else {
+        try {
+            const response = await fetch('/api/item/mark-sold', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, type }),
+            });
+            if (response.ok) {
+                // Update the local state immediately for better user experience
+                if (type === 'product') {
+                    setProducts(products.map(p => p.id === id ? { ...p, is_sold: true } : p));
+                }
+                // Refresh listings to ensure consistency
+                refreshListings();
+            } else {
+                alert('Failed to mark as sold.');
+            }
+        } catch (error) {
+            console.error('Error marking as sold:', error);
             alert('Failed to mark as sold.');
         }
     };
@@ -261,17 +255,6 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
         }
         return (
             <>
-                {showEditModal && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm">
-                        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto border border-slate-200 dark:border-gray-700">
-                            <h2 className="text-xl font-bold mb-4 text-slate-900 dark:text-white">Edit Item</h2>
-                            <RegularProductForm initialData={editItem} onSubmit={handleEditSave} category={editType} />
-                            <div className="flex justify-end mt-4">
-                                <button onClick={() => setShowEditModal(false)} className="bg-slate-600 text-white px-4 py-1 rounded-full font-semibold hover:bg-slate-800">Close</button>
-                            </div>
-                        </div>
-                    </div>
-                )}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {items.map(item => (
                         <ListingCard
@@ -279,7 +262,7 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
                             item={item}
                             onEdit={() => handleEdit(item, type)}
                             onRemove={() => handleRemove(item.id, type)}
-                            onMarkAsSold={() => handleMarkAsSold(item.id, type)}
+                            onMarkAsSold={type === 'product' ? () => handleMarkAsSold(item.id, type) : undefined}
                         />
                     ))}
                 </div>

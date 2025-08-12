@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import Script from 'next/script';
 import FunnyAdvertisingBanner from '@/components/FunnyAdvertisingBanner';
 import FeaturedSlider from '@/components/FeaturedSlider';
 import NewestProductsSlider from '@/components/NewestProductsSlider';
@@ -265,35 +266,43 @@ async function ExploreListingsSection() {
 
 export default async function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
-      {/* Funny Advertising Banner */}
-      <FunnyAdvertisingBanner />
-      
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Location Permission Banner */}
-        {/* <LocationPermissionBanner /> */} {/* TODO: Re-enable location features later */}
+    <>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+        {/* Funny Advertising Banner */}
+        <FunnyAdvertisingBanner />
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          {/* Location Permission Banner */}
+          {/* <LocationPermissionBanner /> */} {/* TODO: Re-enable location features later */}
 
-        {/* Newest Products Section */}
-        <Suspense fallback={<SectionSkeleton />}>
-          <NewestProductsSectionWrapper />
-        </Suspense>
+          {/* Newest Products Section */}
+          <Suspense fallback={<SectionSkeleton />}>
+            <NewestProductsSectionWrapper />
+          </Suspense>
 
-        {/* Featured Items Section */}
-        <Suspense fallback={<SectionSkeleton />}>
-          <FeaturedItemsSection />
-        </Suspense>
+          {/* Featured Items Section */}
+          <Suspense fallback={<SectionSkeleton />}>
+            <FeaturedItemsSection />
+          </Suspense>
 
-        {/* Categories Section */}
-        <CategoriesSection />
+          {/* Categories Section */}
+          <CategoriesSection />
 
-        {/* How It Works Section */}
-        <HowItWorksSection />
+          {/* How It Works Section */}
+          <HowItWorksSection />
 
-        {/* Explore Listings Section */}
-        <Suspense fallback={<SectionSkeleton />}>
-          <ExploreListingsSection />
-        </Suspense>
+          {/* Explore Listings Section */}
+          <Suspense fallback={<SectionSkeleton />}>
+            <ExploreListingsSection />
+          </Suspense>
+        </div>
       </div>
-    </div>
+      
+      {/* Analytics Tracking Script */}
+      <Script 
+        src="/analytics-tracker.js" 
+        strategy="afterInteractive"
+      />
+    </>
   );
 }

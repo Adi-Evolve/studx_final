@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Analytics Test</title>
+</head>
+<body>
+    <h1>Analytics Function Test</h1>
+    
+    <script>
+        let analyticsData = {
+            summary: {
+                totalPageViews: 1,
+                totalApiCalls: 13,
+                uniqueVisitors: 0
+            }
+        };
+
+        function updateTrafficTable() {
+            console.log('📊 Updating traffic table...');
+            
+            const tbody = document.getElementById('trafficAnalyticsTable');
+            if (!tbody) {
+                console.log('   Traffic table element not found (trafficAnalyticsTable) - skipping table update');
+                return;
+            }
+            
+            console.log('   Traffic table updated successfully');
+        }
+
+        function updateApiTable() {
+            console.log('📊 Updating API table...');
+            
+            const tbody = document.getElementById('apiAnalyticsTable');
+            if (!tbody) {
+                console.log('   API table element not found (apiAnalyticsTable) - skipping table update');
+                return;
+            }
+            
+            console.log('   API table updated successfully');
+        }
+
+        function updatePeakHours() {
+            console.log('📊 Updating peak hours...');
+            
+            const container = document.getElementById('peakHoursList');
+            if (!container) {
+                console.log('   Peak hours container not found (peakHoursList) - skipping peak hours update');
+                return;
+            }
+            
+            console.log('   Peak hours updated successfully');
+        }
+
+        // Test the functions
+        console.log('Testing analytics functions...');
+        updateTrafficTable();
+        updateApiTable();
+        updatePeakHours();
+        console.log('Test complete - check console for results!');
+    </script>
+    
+    <p>Check browser console for test results!</p>
+</body>
+</html>
