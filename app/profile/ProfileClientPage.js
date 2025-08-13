@@ -158,17 +158,23 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
             const response = await fetch('/api/item/delete', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id, type }),
+                body: JSON.stringify({ id, type, userEmail: user.email }),
             });
+            
+            const result = await response.json();
+            
             if (response.ok) {
+                // Show success message
+                alert(`Item "${result.item?.title || 'Item'}" deleted successfully`);
                 // Refresh listings after successful removal
                 refreshListings();
             } else {
-                alert('Failed to remove item.');
+                console.error('Remove item failed:', result);
+                alert(`Failed to remove item: ${result.error || 'Unknown error'}`);
             }
         } catch (error) {
             console.error('Error removing item:', error);
-            alert('Failed to remove item.');
+            alert('Failed to remove item due to network error.');
         }
     };
     const handleMarkAsSold = async (id, type) => {
@@ -176,9 +182,14 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
             const response = await fetch('/api/item/mark-sold', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id, type }),
+                body: JSON.stringify({ id, type, userEmail: user.email }),
             });
+            
+            const result = await response.json();
+            
             if (response.ok) {
+                // Show success message
+                alert(`Item "${result.item?.title || 'Item'}" marked as sold successfully`);
                 // Update the local state immediately for better user experience
                 if (type === 'product') {
                     setProducts(products.map(p => p.id === id ? { ...p, is_sold: true } : p));
@@ -186,11 +197,12 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
                 // Refresh listings to ensure consistency
                 refreshListings();
             } else {
-                alert('Failed to mark as sold.');
+                console.error('Mark as sold failed:', result);
+                alert(`Failed to mark as sold: ${result.error || 'Unknown error'}`);
             }
         } catch (error) {
             console.error('Error marking as sold:', error);
-            alert('Failed to mark as sold.');
+            alert('Failed to mark as sold due to network error.');
         }
     };
     const handleBulkUploadSuccess = (newProducts) => {
