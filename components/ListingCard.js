@@ -44,7 +44,7 @@ export default function ListingCard({ item, onClick, isSelectMode = false, isSpo
             } ${hasActionButtons ? 'cursor-default' : ''}`}
             onClick={hasActionButtons ? (e) => {
                 // Only navigate if clicking on the main card area, not buttons
-                if (!e.target.closest('button')) {
+                if (!e.target.closest('button') && !e.target.closest('.action-buttons')) {
                     window.open(url, '_blank');
                 }
             } : undefined}
@@ -166,10 +166,14 @@ export default function ListingCard({ item, onClick, isSelectMode = false, isSpo
 
                 {/* Action Buttons for Profile Page */}
                 {(onEdit || onRemove || onMarkAsSold) && (
-                    <div className="flex gap-2 mt-4">
+                    <div className="flex gap-2 mt-4 action-buttons">
                         {onEdit && (
                             <button
-                                onClick={e => { e.stopPropagation(); onEdit(item); }}
+                                onClick={e => { 
+                                    e.preventDefault(); 
+                                    e.stopPropagation(); 
+                                    onEdit(item); 
+                                }}
                                 className="bg-slate-600 dark:bg-slate-700 text-white px-4 py-1 rounded-full text-sm font-semibold shadow hover:bg-slate-800 dark:hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-400"
                             >
                                 Edit
@@ -177,7 +181,11 @@ export default function ListingCard({ item, onClick, isSelectMode = false, isSpo
                         )}
                         {onRemove && (
                             <button
-                                onClick={e => { e.stopPropagation(); onRemove(item); }}
+                                onClick={e => { 
+                                    e.preventDefault(); 
+                                    e.stopPropagation(); 
+                                    onRemove(item); 
+                                }}
                                 className="bg-rose-500 dark:bg-rose-700 text-white px-4 py-1 rounded-full text-sm font-semibold shadow hover:bg-rose-600 dark:hover:bg-rose-800 focus:outline-none focus:ring-2 focus:ring-rose-400"
                             >
                                 Remove
@@ -185,7 +193,11 @@ export default function ListingCard({ item, onClick, isSelectMode = false, isSpo
                         )}
                         {onMarkAsSold && (
                             <button
-                                onClick={e => { e.stopPropagation(); onMarkAsSold(item); }}
+                                onClick={e => { 
+                                    e.preventDefault(); 
+                                    e.stopPropagation(); 
+                                    onMarkAsSold(item); 
+                                }}
                                 disabled={item.is_sold}
                                 className={`px-4 py-1 rounded-full text-sm font-semibold text-white shadow focus:outline-none focus:ring-2 focus:ring-emerald-400 ${
                                     item.is_sold 

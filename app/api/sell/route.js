@@ -140,7 +140,16 @@ export async function POST(request) {
             if (!body.imageFiles) body.imageFiles = []
             body.imageFiles.push(value)
           } else if (key === 'type') {
-            body.type = value === 'rooms' ? 'room' : value // Convert 'rooms' to 'room'
+            // Convert plural forms to singular forms for consistency
+            if (value === 'rooms') {
+              body.type = 'room'
+            } else if (value === 'products') {
+              body.type = 'product'
+            } else if (value === 'notes') {
+              body.type = 'note'
+            } else {
+              body.type = value
+            }
           } else {
             // Handle regular fields
             body[key] = value

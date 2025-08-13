@@ -89,9 +89,18 @@ export async function GET(request) {
                 const host = request.headers.get('host') || '';
                 // If running on Vercel, always use production URL
                 const isProduction = host.includes('studxchange.vercel.app') || host.includes('studxchange.com');
+                
+                // For local development, detect the current port
+                let localUrl = `http://localhost:3001${next}`;  // Default to 3001
+                if (host.includes('localhost:')) {
+                    const port = host.split(':')[1];
+                    localUrl = `http://localhost:${port}${next}`;
+                }
+                
                 const redirectUrl = isProduction
                     ? `https://studxchange.vercel.app${next}`
-                    : `http://localhost:1501${next}`;
+                    : localUrl;
+                    
                 // console.log('🔗 Redirecting to:', redirectUrl, { host, isProduction });
                 return NextResponse.redirect(redirectUrl);
             }
@@ -103,9 +112,18 @@ export async function GET(request) {
     // Fallback redirect on error
     const host = request.headers.get('host') || '';
     const isProduction = host.includes('studxchange.vercel.app') || host.includes('studxchange.com');
+    
+    // For local development, detect the current port
+    let localErrorUrl = 'http://localhost:3001/auth/auth-code-error';  // Default to 3001
+    if (host.includes('localhost:')) {
+        const port = host.split(':')[1];
+        localErrorUrl = `http://localhost:${port}/auth/auth-code-error`;
+    }
+    
     const errorRedirect = isProduction
         ? 'https://studxchange.vercel.app/auth/auth-code-error'
-        : 'http://localhost:1501/auth/auth-code-error';
+        : localErrorUrl;
+        
     // console.log('🔗 Error redirect to:', errorRedirect, { host, isProduction });
     return NextResponse.redirect(errorRedirect);
 }

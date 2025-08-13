@@ -252,7 +252,7 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
             // Create FormData to handle File uploads
             const formDataToSend = new FormData();
             // Add basic data
-            formDataToSend.append('type', 'rooms');
+            formDataToSend.append('type', 'room');
             formDataToSend.append('user', JSON.stringify(currentUser));
             formDataToSend.append('title', formData.hostel_name);
             formDataToSend.append('description', formData.description);

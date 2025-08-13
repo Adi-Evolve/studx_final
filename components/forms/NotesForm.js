@@ -156,7 +156,7 @@ export default function NotesForm({ initialData = {}, onSubmit, category = 'Note
             // Create FormData to handle File uploads
             const formDataToSend = new FormData();
             // Add basic data
-            formDataToSend.append('type', 'notes');
+            formDataToSend.append('type', 'note');
             formDataToSend.append('user', JSON.stringify(currentUser));
             formDataToSend.append('title', formData.title);
             formDataToSend.append('description', formData.description);

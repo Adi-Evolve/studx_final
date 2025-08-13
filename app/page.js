@@ -298,11 +298,6 @@ export default async function HomePage() {
         </div>
       </div>
       
-      {/* Analytics Tracking Script */}
-      <Script 
-        src="/analytics-tracker.js" 
-        strategy="afterInteractive"
-      />
     </>
   );
 }

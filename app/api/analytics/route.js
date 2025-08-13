@@ -6,43 +6,13 @@ const supabase = createClient(
 )
 
 export async function POST(request) {
-  try {
-    const { action, data } = await request.json()
-    
-    switch (action) {
-      case 'track_page_view':
-        return await trackPageView(data)
-      case 'track_api_call':
-        return await trackApiCall(data)
-      case 'get_analytics':
-        return await getAnalytics(data)
-      default:
-        return Response.json({ error: 'Invalid action' }, { status: 400 })
-    }
-  } catch (error) {
-    console.error('Analytics API error:', error)
-    return Response.json({ error: error.message }, { status: 500 })
-  }
+  // Analytics API is completely disabled - return empty response
+  return new Response(null, { status: 204 })
 }
 
 export async function GET(request) {
-  try {
-    const { searchParams } = new URL(request.url)
-    const type = searchParams.get('type') || 'all'
-    const days = parseInt(searchParams.get('days')) || 30
-    const contentType = searchParams.get('contentType')
-    const contentId = searchParams.get('contentId')
-    
-    // Handle specific item view requests
-    if (type === 'views' && contentType && contentId) {
-      return await getItemViews({ contentType, contentId })
-    }
-    
-    return await getAnalytics({ type, days })
-  } catch (error) {
-    console.error('Analytics GET error:', error)
-    return Response.json({ error: error.message }, { status: 500 })
-  }
+  // Analytics API is completely disabled - return empty response
+  return new Response(null, { status: 204 })
 }
 
 async function trackPageView(data) {

@@ -167,6 +167,16 @@ export default function Header() {
     useOnClickOutside(profileMenuRef, () => setIsProfileMenuOpen(false));
 
     useEffect(() => {
+        // Get initial session
+        const getInitialSession = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            setUser(session?.user ?? null);
+            setLoading(false);
+        };
+
+        getInitialSession();
+
+        // Listen for auth state changes
         const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
             setUser(session?.user ?? null);
             setLoading(false);

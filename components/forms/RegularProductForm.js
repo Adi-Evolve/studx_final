@@ -247,7 +247,7 @@ export default function RegularProductForm({ initialData = {}, onSubmit, categor
             // ============================================================================
             
             const submissionData = {
-                type: 'products',
+                type: 'product',
                 user: currentUser,
                 title: formData.title,
                 description: formData.description,
@@ -269,7 +269,7 @@ export default function RegularProductForm({ initialData = {}, onSubmit, categor
             const formDataToSend = new FormData();
             
             // Add basic data
-            formDataToSend.append('type', 'products');
+            formDataToSend.append('type', 'product');
             formDataToSend.append('user', JSON.stringify(currentUser));
             formDataToSend.append('title', formData.title);
             formDataToSend.append('description', formData.description);
