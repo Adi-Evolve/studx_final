@@ -17,36 +17,68 @@ export default function EditForm({ item, type }) {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                // Get user data from users table using the stored email
-                const userEmail = localStorage.getItem('userEmail');
-                if (!userEmail) {
+                console.log('[EditForm] Starting authentication check...');
+                
+                // Get current session from Supabase Auth
+                const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+                
+                console.log('[EditForm] Session check:', { 
+                    hasSession: !!session, 
+                    hasUser: !!session?.user, 
+                    userEmail: session?.user?.email,
+                    sessionError 
+                });
+
+                if (sessionError) {
+                    console.error('[EditForm] Session error:', sessionError);
+                    setAuthError('Authentication error. Please log in again.');
+                    setIsLoading(false);
+                    return;
+                }
+
+                if (!session?.user?.email) {
+                    console.log('[EditForm] No authenticated user found');
                     setAuthError('Please log in to edit items');
                     setIsLoading(false);
                     return;
                 }
 
+                const userEmail = session.user.email;
+                console.log('[EditForm] Found authenticated user:', userEmail);
+
+                // Get user data from users table using the session email
                 const { data: userData, error } = await supabase
                     .from('users')
                     .select('id, email, name')
                     .eq('email', userEmail)
                     .single();
 
+                console.log('[EditForm] User data query:', { userData, error });
+
                 if (error || !userData) {
-                    setAuthError('User not found. Please log in again.');
+                    console.error('[EditForm] User not found in database:', error);
+                    setAuthError('User not found in database. Please contact support.');
                     setIsLoading(false);
                     return;
                 }
 
                 // Check if user owns this item
+                console.log('[EditForm] Ownership check:', { 
+                    itemSellerId: item.seller_id, 
+                    userDatabaseId: userData.id, 
+                    matches: item.seller_id === userData.id 
+                });
+
                 if (item.seller_id !== userData.id) {
                     setAuthError('You do not have permission to edit this item.');
                     setIsLoading(false);
                     return;
                 }
 
+                console.log('[EditForm] Authentication successful');
                 setUser(userData);
             } catch (error) {
-                console.error('Error fetching user:', error);
+                console.error('[EditForm] Unexpected error:', error);
                 setAuthError('Authentication error. Please try again.');
             } finally {
                 setIsLoading(false);
