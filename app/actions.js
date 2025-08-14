@@ -392,7 +392,7 @@ export async function fetchListings({ page = 1, limit = 12 } = {}) {
     }
 }
 
-// Action to search listings across all tables
+// Action to search listings across all tables (including sponsored items)
 export async function searchListings({ query }) {
     if (!query || query.trim().length === 0) return [];
 
@@ -404,9 +404,22 @@ export async function searchListings({ query }) {
         const lowerQuery = query.toLowerCase().trim();
         const searchWords = lowerQuery.split(' ').filter(word => word.length > 0);
         
-        // Enhanced search in all three tables with better relevance
+        // Step 1: Search in sponsored items first (PRIORITY)
+        const sponsoredRes = await supabase
+            .from('sponsorship_sequences')
+            .select('*')
+            .or(`title.ilike.${searchTerm},description.ilike.${searchTerm},category.ilike.${searchTerm}`)
+            .eq('is_sold', false)
+            .order('created_at', { ascending: false });
+
+        console.log(`[searchListings] Sponsored items found: ${sponsoredRes.data?.length || 0}`);
+        
+        // Get sponsored item IDs to avoid duplicates in regular search
+        const sponsoredIds = (sponsoredRes.data || []).map(item => item.id);
+        
+        // Step 2: Enhanced search in all three regular tables with duplicate exclusion
         const [productsRes, notesRes, roomsRes] = await Promise.all([
-            // Products table - comprehensive search
+            // Products table - comprehensive search (excluding sponsored items)
             supabase
                 .from('products')
                 .select(`
@@ -415,9 +428,10 @@ export async function searchListings({ query }) {
                 `)
                 .or(`title.ilike.${searchTerm},description.ilike.${searchTerm},category.ilike.${searchTerm}`)
                 .eq('is_sold', false)
+                .not('id', 'in', sponsoredIds.length > 0 ? `(${sponsoredIds.join(',')})` : '()')
                 .order('created_at', { ascending: false }),
             
-            // Notes table - enhanced search including course subjects
+            // Notes table - enhanced search including course subjects (excluding sponsored items)
             supabase
                 .from('notes')
                 .select(`
@@ -426,9 +440,10 @@ export async function searchListings({ query }) {
                     seller_id, created_at
                 `)
                 .or(`title.ilike.${searchTerm},description.ilike.${searchTerm},category.ilike.${searchTerm},course_subject.ilike.${searchTerm},academic_year.ilike.${searchTerm}`)
+                .not('id', 'in', sponsoredIds.length > 0 ? `(${sponsoredIds.join(',')})` : '()')
                 .order('created_at', { ascending: false }),
             
-            // Rooms table - comprehensive search including amenities
+            // Rooms table - comprehensive search including amenities (excluding sponsored items)
             supabase
                 .from('rooms')
                 .select(`
@@ -438,6 +453,7 @@ export async function searchListings({ query }) {
                     hostel_name
                 `)
                 .or(`title.ilike.${searchTerm},description.ilike.${searchTerm},category.ilike.${searchTerm},room_type.ilike.${searchTerm},location.ilike.${searchTerm},hostel_name.ilike.${searchTerm}`)
+                .not('id', 'in', sponsoredIds.length > 0 ? `(${sponsoredIds.join(',')})` : '()')
                 .order('created_at', { ascending: false })
         ]);
 
@@ -446,6 +462,9 @@ export async function searchListings({ query }) {
         console.log(`[searchListings] Rooms found: ${roomsRes.data?.length || 0}`);
 
         // Check for errors
+        if (sponsoredRes.error) {
+            console.error('[searchListings] Sponsored search error:', sponsoredRes.error);
+        }
         if (productsRes.error) {
             console.error('[searchListings] Products search error:', productsRes.error);
         }
@@ -456,16 +475,30 @@ export async function searchListings({ query }) {
             console.error('[searchListings] Rooms search error:', roomsRes.error);
         }
 
-        // Combine all search results with enhanced type information
-        const allResults = [
-            ...(productsRes.data || []).map(item => ({ ...item, type: 'regular' })),
-            ...(notesRes.data || []).map(item => ({ ...item, type: 'note' })),
-            ...(roomsRes.data || []).map(item => ({ ...item, type: 'room' }))
+        // Step 3: Combine sponsored and regular results with priority
+        const sponsoredResults = (sponsoredRes.data || []).map(item => ({ 
+            ...item, 
+            type: 'sponsored',
+            is_sponsored: true 
+        }));
+        
+        const regularResults = [
+            ...(productsRes.data || []).map(item => ({ ...item, type: 'product', is_sponsored: false })),
+            ...(notesRes.data || []).map(item => ({ ...item, type: 'note', is_sponsored: false })),
+            ...(roomsRes.data || []).map(item => ({ ...item, type: 'room', is_sponsored: false }))
         ];
+
+        // Combine all search results with enhanced type information
+        const allResults = [...sponsoredResults, ...regularResults];
 
         // Enhanced relevance scoring algorithm
         const scoredResults = allResults.map(item => {
             let score = 0;
+            
+            // PRIORITY BOOST: Sponsored items get huge priority boost
+            if (item.is_sponsored) {
+                score += 1000; // Sponsored items always appear first
+            }
             
             // Get searchable text based on item type
             const title = (item.title || item.hostel_name || '').toLowerCase();
@@ -515,11 +548,11 @@ export async function searchListings({ query }) {
             return { ...item, relevance_score: score };
         });
 
-        // Sort by relevance score (highest first)
+        // Sort by relevance score (highest first) - sponsored items will be at top due to +1000 boost
         const sortedResults = scoredResults
             .filter(item => item.relevance_score > 0) // Only items with matches
             .sort((a, b) => {
-                // Primary sort: relevance score
+                // Primary sort: relevance score (sponsored items have +1000 boost)
                 if (b.relevance_score !== a.relevance_score) {
                     return b.relevance_score - a.relevance_score;
                 }
@@ -528,6 +561,8 @@ export async function searchListings({ query }) {
             });
 
         console.log(`[searchListings] Total relevant results: ${sortedResults.length}`);
+        console.log(`[searchListings] Sponsored results: ${sponsoredResults.length}`);
+        console.log(`[searchListings] Regular results: ${regularResults.length}`);
         
         return sortedResults;
 

@@ -2,10 +2,8 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { searchListings, fetchListings, searchListingsWithLocation, fetchListingsWithLocation } from '@/app/actions';
 import ListingCard from '@/components/ListingCard';
 import { useUserLocation } from '@/hooks/useUserLocation';
-import { sponsorshipManager } from '@/lib/sponsorship';
 
 // Force dynamic rendering to prevent build-time prerendering issues
 export const dynamic = 'force-dynamic';
@@ -38,7 +36,7 @@ function SearchContent() {
         category: 'all',
         priceRange: 'all',
         condition: 'all',
-        sortBy: sortBy
+        sortBy: 'relevance' // Default to relevance to preserve sponsored priority
     });
     const [totalResults, setTotalResults] = useState(0);
     
@@ -96,88 +94,47 @@ function SearchContent() {
         setError(null);
 
         try {
-            let results;
+            // Use the new search API endpoint instead of server actions
+            const response = await fetch(`/api/search?q=${encodeURIComponent(query.trim())}&type=all`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
             
-            // Use location-aware search if location is available
-            if (location && location.latitude && location.longitude) {
-                results = await searchListingsWithLocation({ 
-                    query: query.trim(),
-                    userLat: location.latitude,
-                    userLng: location.longitude
-                });
-            } else {
-                // Fallback to regular search
-                results = await searchListings({ query: query.trim() });
+            if (!response.ok) {
+                throw new Error(`Search failed: ${response.status}`);
             }
+            
+            const apiResult = await response.json();
+            
+            if (!apiResult.success) {
+                throw new Error(apiResult.error || 'Search failed');
+            }
+            
+            const results = apiResult.results || [];
             
             // Apply client-side filters and sorting
             let filteredResults = applyFiltersAndSorting(results);
             
-            // Mix with sponsored items for priority placement
-            const mixedResults = await sponsorshipManager.mixSponsoredWithRegular(
-                filteredResults, 
-                query.trim(),
-                {
-                    type: filters.category !== 'all' ? getTypeFromCategory(filters.category) : null,
-                    insertEvery: 4, // Insert sponsored item every 4 regular items
-                    maxSponsored: 5
-                }
-            );
+            setSearchResults(filteredResults);
+            setTotalResults(filteredResults.length);
             
-            setSearchResults(mixedResults);
-            setTotalResults(mixedResults.length);
+            console.log(`Search completed: ${filteredResults.length} results found`);
+            
         } catch (err) {
             setError('Search failed. Please try again.');
-            // console.error('Search error:', err);
+            console.error('Search error:', err);
         } finally {
             setLoading(false);
         }
     };
 
     const performListingsFetch = async () => {
-        setLoading(true);
-        setError(null);
-
-        try {
-            let results;
-            
-            // Use location-aware fetch if location is available
-            if (location && location.latitude && location.longitude) {
-                const response = await fetchListingsWithLocation({ 
-                    page: 1, 
-                    limit: 100,
-                    userLat: location.latitude,
-                    userLng: location.longitude
-                });
-                results = response.listings || [];
-            } else {
-                // Fallback to regular fetch
-                const response = await fetchListings({ page: 1, limit: 100 });
-                results = response.listings || [];
-            }
-            
-            // Apply client-side filters and sorting
-            let filteredResults = applyFiltersAndSorting(results);
-            
-            // Mix with sponsored items for general browsing
-            const mixedResults = await sponsorshipManager.mixSponsoredWithRegular(
-                filteredResults, 
-                '',
-                {
-                    type: filters.category !== 'all' ? getTypeFromCategory(filters.category) : null,
-                    insertEvery: 6, // Insert sponsored item every 6 regular items for browsing
-                    maxSponsored: 3
-                }
-            );
-            
-            setSearchResults(mixedResults);
-            setTotalResults(mixedResults.length);
-        } catch (err) {
-            setError('Failed to load listings. Please try again.');
-            // console.error('Listings fetch error:', err);
-        } finally {
-            setLoading(false);
-        }
+        // For now, just show a message when no search query is provided
+        setLoading(false);
+        setSearchResults([]);
+        setTotalResults(0);
     };
 
     const applyFiltersAndSorting = (results) => {
@@ -212,25 +169,41 @@ function SearchContent() {
             );
         }
 
-        // Apply sorting
-        filteredResults.sort((a, b) => {
-            const priceA = a.price || a.fees || 0;
-            const priceB = b.price || b.fees || 0;
-            const dateA = new Date(a.created_at);
-            const dateB = new Date(b.created_at);
+        // PRESERVE SPONSORED PRIORITY: Only sort if user explicitly chooses a sort option
+        // Otherwise, keep the API order (sponsored items first)
+        if (filters.sortBy && filters.sortBy !== 'relevance') {
+            // Separate sponsored and regular items to preserve sponsored priority
+            const sponsoredItems = filteredResults.filter(item => item.is_sponsored);
+            const regularItems = filteredResults.filter(item => !item.is_sponsored);
+            
+            // Sort each group separately
+            const sortFunction = (a, b) => {
+                const priceA = a.price || a.fees || 0;
+                const priceB = b.price || b.fees || 0;
+                const dateA = new Date(a.created_at);
+                const dateB = new Date(b.created_at);
 
-            switch (filters.sortBy) {
-                case 'oldest':
-                    return dateA - dateB;
-                case 'price-low':
-                    return priceA - priceB;
-                case 'price-high':
-                    return priceB - priceA;
-                case 'newest':
-                default:
-                    return dateB - dateA;
-            }
-        });
+                switch (filters.sortBy) {
+                    case 'oldest':
+                        return dateA - dateB;
+                    case 'price-low':
+                        return priceA - priceB;
+                    case 'price-high':
+                        return priceB - priceA;
+                    case 'newest':
+                        return dateB - dateA;
+                    default:
+                        return 0;
+                }
+            };
+            
+            sponsoredItems.sort(sortFunction);
+            regularItems.sort(sortFunction);
+            
+            // Combine back with sponsored items first
+            filteredResults = [...sponsoredItems, ...regularItems];
+        }
+        // If sortBy is 'relevance' or not set, keep the original API order (sponsored first)
 
         return filteredResults;
     };

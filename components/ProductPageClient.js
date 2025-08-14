@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faTag, faBuilding, faUser, faCalendarAlt, faInfoCircle, faBalanceScale, faDownload, faBed, faUsers, faRoute, faShieldAlt, faUtensils, faCheckCircle, faWifi, faSnowflake, faCarBattery, faHotTub, faParking, faVideo, faCouch, faCreditCard } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faTag, faBuilding, faUser, faCalendarAlt, faInfoCircle, faBalanceScale, faDownload, faBed, faUsers, faRoute, faShieldAlt, faUtensils, faCheckCircle, faWifi, faSnowflake, faCarBattery, faHotTub, faParking, faVideo, faCouch, faCreditCard, faDirections } from '@fortawesome/free-solid-svg-icons';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 
 import MapDisplay from '@/components/MapDisplay';
@@ -145,6 +145,16 @@ export default function ProductPageClient({ product, seller, type }) {
             productTitle: product.title
         });
         localStorage.setItem('studx_purchases', JSON.stringify(purchases));
+    };
+
+    const handleGetDirections = () => {
+        if (parsedLocation && parsedLocation.lat && parsedLocation.lng) {
+            // Open Google Maps with the saved location
+            const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${parsedLocation.lat},${parsedLocation.lng}`;
+            window.open(googleMapsUrl, '_blank');
+        } else {
+            alert('Location not available for this item.');
+        }
     };
                                     {(!product.pdf_urls || !Array.isArray(product.pdf_urls) || product.pdf_urls.length === 0) && product.pdfurl && (
                                         <button 
@@ -317,6 +327,12 @@ export default function ProductPageClient({ product, seller, type }) {
                                     <FontAwesomeIcon icon={faInfoCircle} className="mr-3" />
                                     Seller Info
                                 </button>
+                                {type === 'room' && parsedLocation && parsedLocation.lat && parsedLocation.lng && (
+                                    <button onClick={handleGetDirections} className="w-full bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center">
+                                        <FontAwesomeIcon icon={faDirections} className="mr-3" />
+                                        Get Directions
+                                    </button>
+                                )}
                                 {type !== 'note' && (
                                     <button onClick={handleCompareClick} className="w-full bg-gray-200 dark:bg-gray-700 text-primary dark:text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors flex items-center justify-center">
                                         <FontAwesomeIcon icon={faBalanceScale} className="mr-3" />
@@ -350,7 +366,19 @@ export default function ProductPageClient({ product, seller, type }) {
 
                     {type !== 'note' && (
                         <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-lg shadow-md p-4">
-                            <h3 className="text-xl font-bold text-primary dark:text-white mb-4 px-4">Location</h3>
+                            <div className="flex items-center justify-between mb-4 px-4">
+                                <h3 className="text-xl font-bold text-primary dark:text-white">Location</h3>
+                                {type === 'room' && parsedLocation && parsedLocation.lat && parsedLocation.lng && (
+                                    <button 
+                                        onClick={handleGetDirections} 
+                                        className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex items-center text-sm font-medium"
+                                        title="Open in Google Maps"
+                                    >
+                                        <FontAwesomeIcon icon={faDirections} className="mr-2" />
+                                        Directions
+                                    </button>
+                                )}
+                            </div>
                             <div className="h-80 rounded-lg overflow-hidden">
                                 {parsedLocation ? <MapDisplay location={parsedLocation} /> : <div className='text-center p-10 text-gray-500 dark:text-gray-400'>Location not provided.</div>}
                             </div>

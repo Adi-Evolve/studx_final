@@ -2,6 +2,8 @@
 
 import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import { useState, useEffect, useRef } from 'react';
+import toast from 'react-hot-toast';
+import { getCurrentLocationWithStatus } from '@/lib/enhancedLocationService';
 
 function LocationMarker({ position, setPosition }) {
     const map = useMap();
@@ -33,6 +35,7 @@ export default function MapPicker({ onLocationChange, initialPosition }) {
     const [position, setPosition] = useState(initialPosition || [20.5937, 78.9629]); // Default to India center
     const [searchQuery, setSearchQuery] = useState('');
     const [isLocationConfirmed, setIsLocationConfirmed] = useState(false);
+    const [isGettingLocation, setIsGettingLocation] = useState(false);
     const lastNotifiedPosition = useRef(null);
 
     // Debug logging for position changes
@@ -88,20 +91,48 @@ export default function MapPicker({ onLocationChange, initialPosition }) {
         }
     };
 
-            const handleGetCurrentLocation = () => {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    const { latitude, longitude } = pos.coords;
-                    setPosition([latitude, longitude]);
-                },
-                (err) => {
-                    // console.error("Error getting current location:", err);
-                    // toast.error('Could not get your location.');
+    const handleGetCurrentLocation = async () => {
+        setIsGettingLocation(true);
+        
+        try {
+            const location = await getCurrentLocationWithStatus((message, type) => {
+                console.log(`[MapPicker] ${message}`);
+                
+                // Show appropriate toast based on status type
+                if (type === 'loading') {
+                    // Don't show loading toasts to avoid spam
+                } else if (type === 'success') {
+                    toast.success(message);
+                } else if (type === 'warning') {
+                    toast(`⚠️ ${message}`, { 
+                        duration: 4000,
+                        style: {
+                            background: '#f59e0b',
+                            color: 'white',
+                        }
+                    });
+                } else if (type === 'error') {
+                    toast.error(message);
                 }
-            );
-        } else {
-            // toast.error('Geolocation is not supported by this browser.');
+            });
+
+            // Set the position from the enhanced location service
+            setPosition([location.lat, location.lng]);
+            setIsGettingLocation(false);
+
+            console.log(`[MapPicker] Location set: ${location.lat}, ${location.lng} using ${location.methodText}`);
+            
+            // Show detailed accuracy information
+            if (location.validation.isValid && location.validation.address) {
+                toast.success(`📍 ${location.validation.address.split(',')[0]} - ${location.accuracyText}`, {
+                    duration: 5000
+                });
+            }
+
+        } catch (error) {
+            setIsGettingLocation(false);
+            console.error('[MapPicker] Enhanced location failed:', error);
+            toast.error(error.message || 'Could not get your location. Please search manually or click on the map.');
         }
     };
 
@@ -155,9 +186,23 @@ export default function MapPicker({ onLocationChange, initialPosition }) {
                 <button 
                     type="button"
                     onClick={handleGetCurrentLocation}
-                    className="bg-green-600 dark:bg-green-700 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition duration-300 whitespace-nowrap"
+                    disabled={isGettingLocation}
+                    className={`${
+                        isGettingLocation 
+                            ? 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed' 
+                            : 'bg-green-600 dark:bg-green-700 hover:bg-green-700 dark:hover:bg-green-600'
+                    } text-white font-bold py-2 px-4 rounded-lg transition duration-300 whitespace-nowrap flex items-center gap-2`}
                 >
-                    Use Current Location
+                    {isGettingLocation ? (
+                        <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                            Getting Location...
+                        </>
+                    ) : (
+                        <>
+                            🎯 Get Precise Location
+                        </>
+                    )}
                 </button>
             </div>
             <div className="h-96 w-full relative overflow-hidden rounded-lg border border-gray-300 dark:border-gray-600" style={{ zIndex: 1 }}>

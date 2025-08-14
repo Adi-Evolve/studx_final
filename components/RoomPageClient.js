@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
-import { faArrowLeft, faMapMarkerAlt, faUser, faCalendarAlt, faInfoCircle, faBalanceScale, faBed, faUsers, faWalking, faUtensils, faTag } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faMapMarkerAlt, faUser, faCalendarAlt, faInfoCircle, faBalanceScale, faBed, faUsers, faWalking, faUtensils, faTag, faDirections } from '@fortawesome/free-solid-svg-icons';
 
 import MapDisplay from '@/components/MapDisplay';
 import SellerInfoModal from '@/components/SellerInfoModal';
@@ -71,6 +71,16 @@ export default function RoomPageClient({ room, seller }) {
         setIsCompareModalOpen(true);
     };
 
+    const handleGetDirections = () => {
+        if (parsedLocation && parsedLocation.lat && parsedLocation.lng) {
+            // Open Google Maps with the saved location
+            const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${parsedLocation.lat},${parsedLocation.lng}`;
+            window.open(googleMapsUrl, '_blank');
+        } else {
+            alert('Location not available for this room.');
+        }
+    };
+
     const formattedDate = new Date(room.created_at).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
@@ -125,6 +135,10 @@ export default function RoomPageClient({ room, seller }) {
                                         Contact Lister
                                     </a>
                                 )}
+                                <button onClick={handleGetDirections} className="w-full bg-red-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center">
+                                    <FontAwesomeIcon icon={faDirections} className="mr-3" />
+                                    Get Directions
+                                </button>
                                 <button onClick={handleShowSellerInfo} className="w-full bg-blue-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center">
                                     <FontAwesomeIcon icon={faInfoCircle} className="mr-3" />
                                     Lister Info
@@ -148,7 +162,19 @@ export default function RoomPageClient({ room, seller }) {
                         </div>
                     </div>
                     <div className="lg:col-span-2 bg-white rounded-lg shadow-md p-4">
-                        <h3 className="text-xl font-bold text-primary mb-4 px-4">Location</h3>
+                        <div className="flex items-center justify-between mb-4 px-4">
+                            <h3 className="text-xl font-bold text-primary">Location</h3>
+                            {parsedLocation && parsedLocation.lat && parsedLocation.lng && (
+                                <button 
+                                    onClick={handleGetDirections} 
+                                    className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex items-center text-sm font-medium"
+                                    title="Open in Google Maps"
+                                >
+                                    <FontAwesomeIcon icon={faDirections} className="mr-2" />
+                                    Directions
+                                </button>
+                            )}
+                        </div>
                         <div className="h-80 rounded-lg overflow-hidden">
                             {parsedLocation ? <MapDisplay location={parsedLocation} popupText={room.title} /> : <div className='text-center p-10 text-gray-500'>Location not provided.</div>}
                         </div>
