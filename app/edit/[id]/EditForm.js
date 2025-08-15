@@ -94,48 +94,94 @@ export default function EditForm({ item, type }) {
             return;
         }
 
-        // The form components create a FormData object, but for updates (without file changes yet)
-        // we need a plain JSON object. We'll extract the fields.
-        const data = {};
-        for (let [key, value] of formData.entries()) {
-            // We don't want to update file inputs for now
-            if (!(value instanceof File)) {
-                data[key] = value;
-            }
-        }
-        
-        // Remove fields that should not be updated directly
-        delete data.images;
-        delete data.pdf;
-        delete data.type;
-        delete data.id;
-        delete data.seller_id;
-        delete data.created_at;
+        console.log('[EditForm] Starting form submission with data:', formData);
 
         try {
+            // Handle FormData from forms or direct data object
+            let updateData = {};
+            
+            if (formData instanceof FormData) {
+                console.log('[EditForm] Processing FormData submission');
+                
+                // Extract all form fields from FormData
+                for (let [key, value] of formData.entries()) {
+                    if (!(value instanceof File)) {
+                        // Handle arrays (like amenities)
+                        if (key === 'amenities') {
+                            if (!updateData.amenities) updateData.amenities = [];
+                            updateData.amenities.push(value);
+                        } else {
+                            updateData[key] = value;
+                        }
+                    }
+                }
+                
+                // Map form field names to database column names for rooms
+                if (type === 'room') {
+                    const fieldMapping = {
+                        'hostel_name': 'title',
+                        'fees': 'price',
+                        'room_type': 'room_type',
+                        'owner_name': 'owner_name',
+                        'contact_primary': 'contact1',
+                        'contact_secondary': 'contact2',
+                        'mess_included': 'fees_include_mess',
+                        'mess_fees': 'mess_fees'
+                    };
+                    
+                    // Apply field mapping
+                    Object.keys(fieldMapping).forEach(formField => {
+                        if (updateData[formField] !== undefined) {
+                            updateData[fieldMapping[formField]] = updateData[formField];
+                            delete updateData[formField];
+                        }
+                    });
+                    
+                    // Convert boolean values
+                    if (updateData.fees_include_mess !== undefined) {
+                        updateData.fees_include_mess = updateData.fees_include_mess === 'true' || updateData.fees_include_mess === true;
+                    }
+                    
+                    // Convert numeric values
+                    if (updateData.price) updateData.price = parseFloat(updateData.price);
+                    if (updateData.deposit) updateData.deposit = parseFloat(updateData.deposit);
+                    if (updateData.mess_fees) updateData.mess_fees = parseFloat(updateData.mess_fees);
+                }
+            } else {
+                // Direct data object
+                updateData = { ...formData };
+            }
+            
+            // Clean up fields that shouldn't be updated
+            const fieldsToRemove = ['images', 'pdf', 'type', 'id', 'seller_id', 'created_at', 'user'];
+            fieldsToRemove.forEach(field => delete updateData[field]);
+            
+            console.log('[EditForm] Final update data:', updateData);
+
             const response = await fetch('/api/item/update', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
                     id: item.id, 
                     type, 
-                    data,
+                    data: updateData,
                     userEmail: user.email 
                 }),
             });
 
             const result = await response.json();
+            console.log('[EditForm] Update response:', result);
 
             if (response.ok) {
                 alert(`Item "${result.item?.title || item.title}" updated successfully!`);
                 router.push('/profile');
-                router.refresh(); // To see the changes on the profile page
+                router.refresh();
             } else {
-                console.error('Update failed:', result);
+                console.error('[EditForm] Update failed:', result);
                 alert(`Failed to update item: ${result.error || 'Unknown error'}`);
             }
         } catch (error) {
-            console.error('Error updating item:', error);
+            console.error('[EditForm] Error updating item:', error);
             alert('Failed to update item due to network error.');
         }
     };
@@ -171,11 +217,11 @@ export default function EditForm({ item, type }) {
     const renderForm = () => {
         switch (type) {
             case 'product':
-                return <RegularProductForm initialData={item} onSubmit={handleSubmit} category={item.category} />;
+                return <RegularProductForm initialData={item} onSubmit={handleSubmit} category={item.category} isEditMode={true} />;
             case 'note':
-                return <NotesForm initialData={item} onSubmit={handleSubmit} category={item.category} />;
+                return <NotesForm initialData={item} onSubmit={handleSubmit} category={item.category} isEditMode={true} />;
             case 'room':
-                return <RoomsForm initialData={item} onSubmit={handleSubmit} category={item.category} />;
+                return <RoomsForm initialData={item} onSubmit={handleSubmit} category={item.category} isEditMode={true} />;
             default:
                 return <p className="text-red-600">Invalid item type.</p>;
         }

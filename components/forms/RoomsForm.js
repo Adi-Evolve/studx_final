@@ -15,26 +15,26 @@ const MapPicker = dynamic(() => import('../MapPicker'), {
 const roomTypes = ['Single Room', 'Double Room', '1 BHK', '2 BHK', '3 BHK', 'Shared Apartment'];
 const amenitiesList = ['AC', 'WiFi', 'Washing Machine', 'Furnished', 'Refrigerator', 'Parking', 'Hot Water'];
 const categories = ['Laptops', 'Project Equipment', 'Books', 'Cycle/Bike', 'Hostel Equipment', 'Notes', 'Rooms/Hostel', 'Furniture', 'Others'];
-export default function RoomsForm({ initialData = {}, onSubmit, category = 'Rooms/Hostel' }) {
+export default function RoomsForm({ initialData = {}, onSubmit, category = 'Rooms/Hostel', isEditMode = false }) {
     const router = useRouter();
     const supabase = createSupabaseBrowserClient();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [authLoading, setAuthLoading] = useState(true);
     const [formData, setFormData] = useState({
-        hostel_name: initialData.hostel_name || '',
+        hostel_name: initialData.title || initialData.hostel_name || '',
         college: initialData.college || '',
         room_type: initialData.room_type || '',
         deposit: initialData.deposit || '',
-        fees: initialData.fees || '',
+        fees: initialData.price || initialData.fees || '',
         duration: initialData.duration || initialData.fees_period || 'monthly',
-        mess_included: initialData.mess_included || false,
+        mess_included: initialData.fees_include_mess || initialData.mess_included || false,
         mess_fees: initialData.mess_fees || '',
         description: initialData.description || '',
         distance: initialData.distance || '',
         occupancy: initialData.occupancy || '',
         owner_name: initialData.owner_name || '',
-        contact_primary: initialData.contact_primary || '',
-        contact_secondary: initialData.contact_secondary || '',
+        contact_primary: initialData.contact1 || initialData.contact_primary || '',
+        contact_secondary: initialData.contact2 || initialData.contact_secondary || '',
         amenities: initialData.amenities || [],
         images: initialData.images || [],
         location: initialData.location || null,
@@ -49,22 +49,21 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
                                   value !== null && value !== undefined && value !== ''
                               );
         if (hasInitialData) {
-            // 
             setFormData({
-                hostel_name: initialData.hostel_name || '',
+                hostel_name: initialData.title || initialData.hostel_name || '',
                 college: initialData.college || '',
                 room_type: initialData.room_type || '',
                 deposit: initialData.deposit || '',
-                fees: initialData.fees || '',
+                fees: initialData.price || initialData.fees || '',
                 duration: initialData.duration || initialData.fees_period || 'monthly',
-                mess_included: initialData.mess_included || false,
+                mess_included: initialData.fees_include_mess || initialData.mess_included || false,
                 mess_fees: initialData.mess_fees || '',
                 description: initialData.description || '',
                 distance: initialData.distance || '',
                 occupancy: initialData.occupancy || '',
                 owner_name: initialData.owner_name || '',
-                contact_primary: initialData.contact_primary || '',
-                contact_secondary: initialData.contact_secondary || '',
+                contact_primary: initialData.contact1 || initialData.contact_primary || '',
+                contact_secondary: initialData.contact2 || initialData.contact_secondary || '',
                 amenities: initialData.amenities || [],
                 images: initialData.images || [],
                 location: initialData.location || null,
@@ -181,6 +180,33 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (isSubmitting) return;
+
+        console.log('[RoomsForm] Form submission started', { isEditMode, formData });
+
+        // If this is edit mode and onSubmit is provided, use it
+        if (isEditMode && onSubmit) {
+            console.log('[RoomsForm] Using edit mode submission');
+            
+            // Create FormData for the edit handler
+            const formDataToSubmit = new FormData();
+            
+            // Add all form fields
+            Object.keys(formData).forEach(key => {
+                if (key === 'amenities' && Array.isArray(formData[key])) {
+                    formData[key].forEach(amenity => {
+                        formDataToSubmit.append('amenities', amenity);
+                    });
+                } else if (formData[key] !== null && formData[key] !== undefined) {
+                    formDataToSubmit.append(key, formData[key]);
+                }
+            });
+            
+            console.log('[RoomsForm] Submitting form data for edit');
+            onSubmit(formDataToSubmit);
+            return;
+        }
+
+        // Original creation logic continues here...
         // ============================================================================
         // 1. ENHANCED EMAIL-BASED AUTHENTICATION CHECK
         // ============================================================================
@@ -632,7 +658,7 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
             </div>
             <div className="flex justify-end">
                 <button type="submit" disabled={isSubmitting} className="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 transition duration-300 disabled:bg-gray-400">
-                    {isSubmitting ? 'Submitting...' : (initialData.id ? 'Update Room' : 'List Room')}
+                    {isSubmitting ? 'Saving...' : (isEditMode ? 'Update Room' : 'List Room')}
                 </button>
             </div>
         </form>
