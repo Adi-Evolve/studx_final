@@ -110,6 +110,17 @@ export default function EditForm({ item, type }) {
                         if (key === 'amenities') {
                             if (!updateData.amenities) updateData.amenities = [];
                             updateData.amenities.push(value);
+                        } else if (key === 'location') {
+                            // Handle location object - parse JSON string back to object
+                            try {
+                                console.log('[EditForm] Processing location data:', value);
+                                updateData.location = JSON.parse(value);
+                                console.log('[EditForm] Parsed location:', updateData.location);
+                            } catch (err) {
+                                console.error('[EditForm] Error parsing location:', err);
+                                // Keep as string if parsing fails
+                                updateData[key] = value;
+                            }
                         } else {
                             updateData[key] = value;
                         }

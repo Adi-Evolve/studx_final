@@ -37,7 +37,21 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
         contact_secondary: initialData.contact2 || initialData.contact_secondary || '',
         amenities: initialData.amenities || [],
         images: initialData.images || [],
-        location: initialData.location || null,
+        location: (() => {
+            // Handle location data - parse if it's a JSON string
+            let loc = initialData.location;
+            if (typeof loc === 'string' && loc.trim().startsWith('{')) {
+                try {
+                    loc = JSON.parse(loc);
+                    console.log('[RoomsForm] Parsed location from JSON string:', loc);
+                } catch (err) {
+                    console.error('[RoomsForm] Error parsing location JSON:', err);
+                    loc = null;
+                }
+            }
+            console.log('[RoomsForm] Initial location data:', loc);
+            return loc;
+        })(),
         category: category || initialData.category || 'Rooms/Hostel',
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -66,7 +80,20 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
                 contact_secondary: initialData.contact2 || initialData.contact_secondary || '',
                 amenities: initialData.amenities || [],
                 images: initialData.images || [],
-                location: initialData.location || null,
+                location: (() => {
+                    // Handle location data - parse if it's a JSON string
+                    let loc = initialData.location;
+                    if (typeof loc === 'string' && loc.trim().startsWith('{')) {
+                        try {
+                            loc = JSON.parse(loc);
+                            console.log('[RoomsForm] Parsed location from JSON string in useEffect:', loc);
+                        } catch (err) {
+                            console.error('[RoomsForm] Error parsing location JSON in useEffect:', err);
+                            loc = null;
+                        }
+                    }
+                    return loc;
+                })(),
                 category: category || initialData.category || 'Rooms/Hostel',
             });
         } else {
@@ -196,12 +223,17 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
                     formData[key].forEach(amenity => {
                         formDataToSubmit.append('amenities', amenity);
                     });
+                } else if (key === 'location' && formData[key] !== null && formData[key] !== undefined) {
+                    // Handle location object properly - stringify it
+                    console.log('[RoomsForm] Adding location to form data:', formData[key]);
+                    formDataToSubmit.append('location', JSON.stringify(formData[key]));
                 } else if (formData[key] !== null && formData[key] !== undefined) {
                     formDataToSubmit.append(key, formData[key]);
                 }
             });
             
             console.log('[RoomsForm] Submitting form data for edit');
+            console.log('[RoomsForm] Location data being submitted:', formData.location);
             onSubmit(formDataToSubmit);
             return;
         }
@@ -262,7 +294,8 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
             toast.error('Please enter a valid rent amount');
             return;
         }
-        if (!formData.location || !formData.location.lat || !formData.location.lng) {
+        // Location validation - only required for new listings, optional for edits
+        if (!isEditMode && (!formData.location || !formData.location.lat || !formData.location.lng)) {
             toast.error('Please select a location on the map');
             return;
         }
