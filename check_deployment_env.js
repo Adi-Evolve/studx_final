@@ -15,7 +15,7 @@ const requiredVars = {
   },
   'SUPABASE_SECRET_KEY': {
     value: process.env.SUPABASE_SECRET_KEY,
-    expected: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+    expected: 'service_role_key_here',
     description: 'Supabase Service Role Key (Secret)'
   },
   'IMGBB_API_KEY': {
