@@ -14,7 +14,7 @@ export default function TermsOfService() {
     // Step 2: Load Razorpay script if needed
     function openRazorpay() {
       const options = {
-        key: 'rzp_live_vN1vH0MlhuhxV3', // Replace with your Razorpay Live Key
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, // Fetch from environment variables
         amount: order.amount,
         currency: order.currency,
         name: 'StudXchange',

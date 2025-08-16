@@ -37,7 +37,7 @@ export default function UPIPaymentFlow({
             });
             setQRCodeUrl(qrUrl);
         } catch (error) {
-            console.error('Error generating QR code:', error);
+            // console.error('Error generating QR code:', error);
         }
     };
 
@@ -69,7 +69,7 @@ export default function UPIPaymentFlow({
                 });
             }
         } catch (error) {
-            console.error('Error uploading payment proof:', error);
+            // console.error('Error uploading payment proof:', error);
             alert('Failed to upload payment proof. Please try again.');
         } finally {
             setIsUploading(false);

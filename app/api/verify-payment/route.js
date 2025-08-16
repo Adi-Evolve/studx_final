@@ -65,7 +65,7 @@ export async function POST(request) {
         });
 
     } catch (error) {
-        console.error('Payment verification error:', error);
+        // console.error('Payment verification error:', error);
         return NextResponse.json(
             { success: false, error: 'Internal server error' },
             { status: 500 }

@@ -374,13 +374,13 @@ async function getItemViews({ contentType, contentId }) {
       .single()
 
     if (error && error.code !== 'PGRST116') {
-      console.log('Error getting item views:', error)
+      // console.log('Error getting item views:', error)
       return Response.json({ views: 0 })
     }
 
     return Response.json({ views: data ? data.views : 0 })
   } catch (error) {
-    console.error('Error in getItemViews:', error)
+    // console.error('Error in getItemViews:', error)
     return Response.json({ views: 0 })
   }
 }

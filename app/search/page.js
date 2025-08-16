@@ -120,11 +120,11 @@ function SearchContent() {
             setSearchResults(filteredResults);
             setTotalResults(filteredResults.length);
             
-            console.log(`Search completed: ${filteredResults.length} results found`);
+            // console.log(`Search completed: ${filteredResults.length} results found`);
             
         } catch (err) {
             setError('Search failed. Please try again.');
-            console.error('Search error:', err);
+            // console.error('Search error:', err);
         } finally {
             setLoading(false);
         }

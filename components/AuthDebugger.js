@@ -38,7 +38,7 @@ export default function AuthDebugger() {
         checkAuth();
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-            console.log('Auth state change:', event, session?.user?.email);
+            // console.log('Auth state change:', event, session?.user?.email);
             setAuthState({
                 user: session?.user || null,
                 session,

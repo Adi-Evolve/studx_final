@@ -39,7 +39,7 @@ export async function POST(request) {
         const { data: ads, error } = await query.order('priority', { ascending: false });
 
         if (error) {
-            console.error('Error fetching ads:', error);
+            // console.error('Error fetching ads:', error);
             return NextResponse.json({ success: false, error: 'Failed to fetch ads' });
         }
 
@@ -84,7 +84,7 @@ export async function POST(request) {
         });
 
     } catch (error) {
-        console.error('Error in ads/fetch:', error);
+        // console.error('Error in ads/fetch:', error);
         return NextResponse.json({ 
             success: false, 
             error: 'Internal server error' 

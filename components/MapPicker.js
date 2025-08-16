@@ -96,7 +96,7 @@ export default function MapPicker({ onLocationChange, initialPosition }) {
         
         try {
             const location = await getCurrentLocationWithStatus((message, type) => {
-                console.log(`[MapPicker] ${message}`);
+                // console.log(`[MapPicker] ${message}`);
                 
                 // Show appropriate toast based on status type
                 if (type === 'loading') {
@@ -120,7 +120,7 @@ export default function MapPicker({ onLocationChange, initialPosition }) {
             setPosition([location.lat, location.lng]);
             setIsGettingLocation(false);
 
-            console.log(`[MapPicker] Location set: ${location.lat}, ${location.lng} using ${location.methodText}`);
+            // console.log(`[MapPicker] Location set: ${location.lat}, ${location.lng} using ${location.methodText}`);
             
             // Show detailed accuracy information
             if (location.validation.isValid && location.validation.address) {
@@ -131,7 +131,7 @@ export default function MapPicker({ onLocationChange, initialPosition }) {
 
         } catch (error) {
             setIsGettingLocation(false);
-            console.error('[MapPicker] Enhanced location failed:', error);
+            // console.error('[MapPicker] Enhanced location failed:', error);
             toast.error(error.message || 'Could not get your location. Please search manually or click on the map.');
         }
     };
@@ -143,7 +143,7 @@ export default function MapPicker({ onLocationChange, initialPosition }) {
             const response = await fetch(`/api/geocode?q=${encodeURIComponent(searchQuery)}`);
             
             if (!response.ok) {
-                console.error('Geocoding API error:', response.status, response.statusText);
+                // console.error('Geocoding API error:', response.status, response.statusText);
                 return;
             }
             
@@ -151,12 +151,12 @@ export default function MapPicker({ onLocationChange, initialPosition }) {
             if (data && data.length > 0) {
                 const { lat, lon } = data[0];
                 setPosition([parseFloat(lat), parseFloat(lon)]);
-                console.log('Location found:', data[0].display_name);
+                // console.log('Location found:', data[0].display_name);
             } else {
-                console.warn('No location found for query:', searchQuery);
+                // console.warn('No location found for query:', searchQuery);
             }
         } catch (error) {
-            console.error('Error fetching location:', error);
+            // console.error('Error fetching location:', error);
         }
     };
 

@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 export default function ProfileError({ error, reset }) {
     useEffect(() => {
-        console.error('Profile page error:', error);
+        // console.error('Profile page error:', error);
     }, [error]);
 
     return (

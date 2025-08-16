@@ -66,48 +66,48 @@ export default function RegularProductForm({ initialData = {}, onSubmit, categor
                 }
                 
                 // console.log('🔍 [ProductForm] Session data:', {
-                //     hasSession: !!session,
-                //     hasUser: !!session?.user,
-                //     userEmail: session?.user?.email,
-                //     userId: session?.user?.id
-                // });
-
-                // Only check for email presence in auth
-                if (session?.user?.email) {
-                    setIsAuthenticated(true);
-                    // console.log('✅ [ProductForm] User authenticated with email:', session.user.email);
-                    
-                    // Auto-fill form data from user profile if available
-                    if (session.user.user_metadata?.college) {
-                        setFormData(prev => ({
-                            ...prev,
-                            college: prev.college || session.user.user_metadata.college
-                        }));
-                    }
-                } else {
-                    // console.log('❌ [ProductForm] No email found in session');
-                    setIsAuthenticated(false);
-                }
-                
-                setAuthLoading(false);
-            } catch (authError) {
-                // console.error('❌ [ProductForm] Auth check exception:', authError);
-                setIsAuthenticated(false);
-                setAuthLoading(false);
-            }
-        };
-
-        checkAuth();
-
-        // Listen for auth changes
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-            // console.log('🔄 [ProductForm] Auth state changed:', event, !!session?.user?.email);
-            if (session?.user?.email) {
-                setIsAuthenticated(true);
-            } else {
-                setIsAuthenticated(false);
-            }
-        });
+                // //     hasSession: !!session,
+                // //     hasUser: !!session?.user,
+                // //     userEmail: session?.user?.email,
+                // //     userId: session?.user?.id
+                // // });
+// 
+                // // Only check for email presence in auth
+                // if (session?.user?.email) {
+                    // setIsAuthenticated(true);
+                    // // console.log('✅ [ProductForm] User authenticated with email:', session.user.email);
+                    // 
+                    // // Auto-fill form data from user profile if available
+                    // if (session.user.user_metadata?.college) {
+                        // setFormData(prev => ({
+                            // ...prev,
+                            // college: prev.college || session.user.user_metadata.college
+                        // }));
+                    // }
+                // } else {
+                    // // console.log('❌ [ProductForm] No email found in session');
+                    // setIsAuthenticated(false);
+                // }
+                // 
+                // setAuthLoading(false);
+            // } catch (authError) {
+                // // console.error('❌ [ProductForm] Auth check exception:', authError);
+                // setIsAuthenticated(false);
+                // setAuthLoading(false);
+            // }
+        // };
+// 
+        // checkAuth();
+// 
+        // // Listen for auth changes
+        // const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            // // console.log('🔄 [ProductForm] Auth state changed:', event, !!session?.user?.email);
+            // if (session?.user?.email) {
+                // setIsAuthenticated(true);
+            // } else {
+                // setIsAuthenticated(false);
+            // }
+        // });
 
         return () => subscription.unsubscribe();
     }, [supabase.auth]);

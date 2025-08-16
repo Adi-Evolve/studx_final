@@ -217,18 +217,6 @@ export default function FeaturedSlider({ featuredItems }) {
                 )}
             </div>
 
-            {/* Enhanced View All Featured Button */}
-            <div className="text-center mt-8">
-                <Link
-                    href="/featured"
-                    className="inline-flex items-center px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 text-white rounded-2xl font-bold text-sm sm:text-base hover:from-orange-600 hover:via-red-600 hover:to-pink-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
-                >
-                    View All Featured Items
-                    <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
-                </Link>
-            </div>
         </section>
     );
 }

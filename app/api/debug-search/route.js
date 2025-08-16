@@ -11,17 +11,17 @@ export async function GET(request) {
     const query = searchParams.get('q')
     const type = searchParams.get('type') || 'all'
     
-    console.log(`🔍 [SEARCH DEBUG] Query: "${query}", Type: "${type}"`)
+    // console.log(`🔍 [SEARCH DEBUG] Query: "${query}", Type: "${type}"`)
     
     if (!query) {
       return NextResponse.json({ error: 'Search query is required' }, { status: 400 })
     }
 
     const searchTerm = `%${query.trim()}%`
-    console.log(`🔍 [SEARCH DEBUG] Search term: "${searchTerm}"`)
+    // console.log(`🔍 [SEARCH DEBUG] Search term: "${searchTerm}"`)
 
     // Test direct products search
-    console.log('📦 [SEARCH DEBUG] Testing products search...')
+    // console.log('📦 [SEARCH DEBUG] Testing products search...')
     const { data: productsData, error: productsError } = await supabase
       .from('products')
       .select('id, title, category, price, description, is_sold')
@@ -29,33 +29,31 @@ export async function GET(request) {
       .eq('is_sold', false)
       .limit(5)
 
-    console.log(`📦 [SEARCH DEBUG] Products result:`, {
-      error: productsError?.message,
-      dataLength: productsData?.length,
-      data: productsData?.map(p => ({ id: p.id, title: p.title, category: p.category, is_sold: p.is_sold }))
-    })
+    // console.log(`📦 [SEARCH DEBUG] Products result:`, {
+    //   error: productsError?.message,
+    //   dataLength: productsData?.length,
+    //   data: productsData?.map(p => ({ id: p.id, title: p.title, category: p.category, is_sold: p.is_sold }))
+    // })
 
     // Test rooms search
-    console.log('🏠 [SEARCH DEBUG] Testing rooms search...')
+    // console.log('🏠 [SEARCH DEBUG] Testing rooms search...')
     const { data: roomsData, error: roomsError } = await supabase
       .from('rooms')
       .select('id, title, room_type, price')
       .or(`title.ilike.${searchTerm},description.ilike.${searchTerm},room_type.ilike.${searchTerm}`)
       .limit(5)
 
-    console.log(`🏠 [SEARCH DEBUG] Rooms result:`, {
-      error: roomsError?.message,
-      dataLength: roomsData?.length,
-      data: roomsData?.map(r => ({ id: r.id, title: r.title, room_type: r.room_type }))
-    })
-
-    // Combine results
+        // console.log(`🏠 [SEARCH DEBUG] Rooms result:`, {
+        //   error: roomsError?.message,
+        //   dataLength: roomsData?.length,
+        //   data: roomsData?.map(r => ({ id: r.id, title: r.title, room_type: r.room_type }))
+        // })    // Combine results
     const results = [
       ...(productsData || []).map(item => ({ ...item, type: 'product', is_sponsored: false })),
       ...(roomsData || []).map(item => ({ ...item, type: 'room', is_sponsored: false }))
     ]
 
-    console.log(`✅ [SEARCH DEBUG] Final results: ${results.length} items`)
+    // console.log(`✅ [SEARCH DEBUG] Final results: ${results.length} items`)
 
     return NextResponse.json({
       success: true,
@@ -77,7 +75,7 @@ export async function GET(request) {
     })
 
   } catch (error) {
-    console.error('💥 [SEARCH DEBUG] Exception:', error)
+    // console.error('💥 [SEARCH DEBUG] Exception:', error)
     return NextResponse.json(
       { error: 'Internal server error', details: error.message },
       { status: 500 }

@@ -5,14 +5,14 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseKey = process.env.SUPABASE_SECRET_KEY
 
 if (!supabaseUrl || !supabaseKey) {
-  console.error('Missing Supabase environment variables')
+  // console.error('Missing Supabase environment variables')
 }
 
 const supabase = createClient(supabaseUrl, supabaseKey)
 
 export async function GET() {
   try {
-    console.log('[DEBUG API] Checking database schema...')
+    // console.log('[DEBUG API] Checking database schema...')
 
     // Check if rooms table exists and get its columns
     const { data: tables, error: tablesError } = await supabase

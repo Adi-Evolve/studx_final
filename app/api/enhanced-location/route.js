@@ -6,7 +6,7 @@ export async function POST(request) {
         const body = await request.json();
         const { method, ...params } = body;
 
-        console.log('[LOCATION API] Request for method:', method);
+        // console.log('[LOCATION API] Request for method:', method);
 
         switch (method) {
             case 'google_geolocation':
@@ -26,7 +26,7 @@ export async function POST(request) {
         }
 
     } catch (error) {
-        console.error('[LOCATION API] Error:', error);
+        // console.error('[LOCATION API] Error:', error);
         return NextResponse.json(
             { error: 'Internal server error', details: error.message },
             { status: 500 }
@@ -58,7 +58,7 @@ async function handleGoogleGeolocation(params) {
         });
 
         if (!response.ok) {
-            console.warn('[LOCATION API] Google Geolocation API failed:', response.status);
+            // console.warn('[LOCATION API] Google Geolocation API failed:', response.status);
             return NextResponse.json(
                 { error: 'Google Geolocation API failed', status: response.status },
                 { status: response.status }
@@ -68,7 +68,7 @@ async function handleGoogleGeolocation(params) {
         const data = await response.json();
         
         if (data.location) {
-            console.log('[LOCATION API] Google Geolocation successful');
+            // console.log('[LOCATION API] Google Geolocation successful');
             return NextResponse.json({
                 success: true,
                 lat: data.location.lat,
@@ -84,7 +84,7 @@ async function handleGoogleGeolocation(params) {
         }
 
     } catch (error) {
-        console.error('[LOCATION API] Google Geolocation error:', error);
+        // console.error('[LOCATION API] Google Geolocation error:', error);
         return NextResponse.json(
             { error: 'Failed to get location from Google API', details: error.message },
             { status: 500 }
@@ -103,7 +103,7 @@ async function handleIPLocation() {
 
         for (const service of services) {
             try {
-                console.log('[LOCATION API] Trying IP service:', service);
+                // console.log('[LOCATION API] Trying IP service:', service);
                 
                 const response = await fetch(service, {
                     headers: {
@@ -141,7 +141,7 @@ async function handleIPLocation() {
                 }
 
                 if (lat && lng) {
-                    console.log('[LOCATION API] IP location successful via:', service);
+                    // console.log('[LOCATION API] IP location successful via:', service);
                     return NextResponse.json({
                         success: true,
                         lat: parseFloat(lat),
@@ -154,13 +154,13 @@ async function handleIPLocation() {
                 }
 
             } catch (serviceError) {
-                console.warn('[LOCATION API] IP service failed:', service, serviceError.message);
+                // console.warn('[LOCATION API] IP service failed:', service, serviceError.message);
                 continue;
             }
         }
 
         // All services failed, return default India location
-        console.log('[LOCATION API] All IP services failed, using default location');
+        // console.log('[LOCATION API] All IP services failed, using default location');
         return NextResponse.json({
             success: true,
             lat: 20.5937,
@@ -172,7 +172,7 @@ async function handleIPLocation() {
         });
 
     } catch (error) {
-        console.error('[LOCATION API] IP location error:', error);
+        // console.error('[LOCATION API] IP location error:', error);
         return NextResponse.json(
             { error: 'Failed to get IP location', details: error.message },
             { status: 500 }
@@ -202,7 +202,7 @@ async function handleLocationValidation({ lat, lng }) {
                     const data = await response.json();
                     if (data.results && data.results.length > 0) {
                         const result = data.results[0];
-                        console.log('[LOCATION API] Location validated via Google Geocoding');
+                        // console.log('[LOCATION API] Location validated via Google Geocoding');
                         return NextResponse.json({
                             success: true,
                             isValid: true,
@@ -213,7 +213,7 @@ async function handleLocationValidation({ lat, lng }) {
                     }
                 }
             } catch (googleError) {
-                console.warn('[LOCATION API] Google Geocoding failed:', googleError);
+                // console.warn('[LOCATION API] Google Geocoding failed:', googleError);
             }
         }
 
@@ -230,7 +230,7 @@ async function handleLocationValidation({ lat, lng }) {
 
         if (response.ok) {
             const data = await response.json();
-            console.log('[LOCATION API] Location validated via Nominatim');
+            // console.log('[LOCATION API] Location validated via Nominatim');
             return NextResponse.json({
                 success: true,
                 isValid: true,
@@ -247,7 +247,7 @@ async function handleLocationValidation({ lat, lng }) {
         });
 
     } catch (error) {
-        console.error('[LOCATION API] Validation error:', error);
+        // console.error('[LOCATION API] Validation error:', error);
         return NextResponse.json(
             { error: 'Failed to validate location', details: error.message },
             { status: 500 }

@@ -5,7 +5,7 @@ import { getSellerInfo } from '@/app/actions';
 
 async function getNoteData(id) {
     const supabase = createSupabaseServerClient();
-    console.log('[getNoteData] Fetching note with ID:', id);
+    // console.log('[getNoteData] Fetching note with ID:', id);
     const { data: noteData, error: noteError } = await supabase
         .from('notes')
         .select(`
@@ -33,9 +33,9 @@ async function getNoteData(id) {
             });
         }
     }
-    console.log('[getNoteData] Supabase response:', { noteData, noteError });
+    // console.log('[getNoteData] Supabase response:', { noteData, noteError });
     if (noteError || !noteData) {
-        console.error('[getNoteData] Error fetching note:', noteError);
+        // console.error('[getNoteData] Error fetching note:', noteError);
         notFound();
     }
     const seller = noteData.seller_id ? await getSellerInfo(noteData.seller_id) : null;

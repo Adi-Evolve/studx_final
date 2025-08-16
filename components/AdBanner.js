@@ -47,7 +47,7 @@ const AdBanner = ({
                     }
                 }
             } catch (error) {
-                console.error('Error fetching ad:', error);
+                // console.error('Error fetching ad:', error);
             } finally {
                 setLoading(false);
             }

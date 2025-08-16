@@ -29,7 +29,7 @@ const SubscriptionPlans = ({ userId, currentPlan = 'free', onPlanChange }) => {
             setUserSubscription(subscription);
             setSelectedPlan(subscription.plan_type);
         } catch (error) {
-            console.error('Error loading subscription:', error);
+            // console.error('Error loading subscription:', error);
         }
     };
 
@@ -50,7 +50,7 @@ const SubscriptionPlans = ({ userId, currentPlan = 'free', onPlanChange }) => {
                 alert(`Upgrade failed: ${result.error}`);
             }
         } catch (error) {
-            console.error('Upgrade error:', error);
+            // console.error('Upgrade error:', error);
             alert('Something went wrong. Please try again.');
         } finally {
             setLoading(false);

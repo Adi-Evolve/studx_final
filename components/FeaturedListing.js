@@ -63,7 +63,7 @@ export default function FeaturedListingBoost({ listingId, currentUser, onBoostSu
                 alert('❌ Boost failed: ' + result.error);
             }
         } catch (error) {
-            console.error('Boost error:', error);
+            // console.error('Boost error:', error);
             alert('❌ Something went wrong. Please try again.');
         } finally {
             setIsProcessing(false);

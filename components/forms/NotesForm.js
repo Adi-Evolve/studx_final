@@ -190,7 +190,7 @@ export default function NotesForm({ initialData = {}, onSubmit, category = 'Note
                 if (result.stack) errorMsg += `\nStack: ${result.stack}`;
                 toast.error(errorMsg, { duration: 8000 });
                 // Optionally log to console for debugging
-                console.error('API Error:', result);
+                // console.error('API Error:', result);
                 return;
             }
             // ============================================================================

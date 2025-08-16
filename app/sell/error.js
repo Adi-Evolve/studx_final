@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 export default function SellError({ error, reset }) {
     useEffect(() => {
-        console.error('Sell page error:', error);
+        // console.error('Sell page error:', error);
     }, [error]);
 
     return (

@@ -65,301 +65,301 @@ export default function RegularProductForm({ initialData = {}, onSubmit, categor
                 }
                 
                 // console.log('🔍 [ProductForm] Session data:', {
-                //     hasSession: !!session,
-                //     hasUser: !!session?.user,
-                //     userEmail: session?.user?.email,
-                //     userId: session?.user?.id
-                // });
-
-                // Only check for email presence in auth
-                if (session?.user?.email) {
-                    setIsAuthenticated(true);
-                    // console.log('✅ [ProductForm] User authenticated with email:', session.user.email);
-                    
-                    // Auto-fill form data from user profile if available
-                    if (session.user.user_metadata?.college) {
-                        setFormData(prev => ({
-                            ...prev,
-                            college: prev.college || session.user.user_metadata.college
-                        }));
-                    }
-                } else {
-                    // console.log('❌ [ProductForm] No email found in session');
-                    setIsAuthenticated(false);
-                }
-                
-                setAuthLoading(false);
-            } catch (authError) {
-                // console.error('❌ [ProductForm] Auth check exception:', authError);
-                setIsAuthenticated(false);
-                setAuthLoading(false);
-            }
-        };
-
-        checkAuth();
-
-        // Listen for auth changes
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-            // console.log('🔄 [ProductForm] Auth state changed:', event, !!session?.user?.email);
-            if (session?.user?.email) {
-                setIsAuthenticated(true);
-            } else {
-                setIsAuthenticated(false);
-            }
-        });
-
-        return () => subscription.unsubscribe();
-    }, [supabase.auth]);
-
-    // Load user profile data to prefill form
-    useEffect(() => {
-        const loadUserProfile = async () => {
-            if (!isAuthenticated) return;
-            
-            try {
-                const { data: { session }, error } = await supabase.auth.getSession();
-                if (session?.user?.email) {
-                    // Fetch user profile from users table
-                    const { data: profile, error: profileError } = await supabase
-                        .from('users')
-                        .select('college, phone, name')
-                        .eq('email', session.user.email)
-                        .single();
-                    
-                    if (profile && !profileError) {
-                        // Prefill college if user has it in their profile
-                        if (profile.college && !formData.college) {
-                            setFormData(prev => ({ 
-                                ...prev, 
-                                college: profile.college 
-                            }));
-                        }
-                    }
-                }
-            } catch (error) {
-                // console.log('ℹ️ [ProductForm] Could not load user profile:', error);
-            }
-        };
-
-        if (isAuthenticated && !authLoading) {
-            loadUserProfile();
-        }
-    }, [isAuthenticated, authLoading, formData.college, supabase]);
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (isSubmitting) return;
-
-        // console.log('📦 [ProductForm] Starting submission...');
-
-        // ============================================================================
-        // 1. ENHANCED EMAIL-BASED AUTHENTICATION CHECK
-        // ============================================================================
-        
-        if (!isAuthenticated) {
-            // console.log('❌ [ProductForm] Not authenticated, redirecting to login');
-            toast.error('Please log in to submit your product listing');
-            router.push('/login');
-            return;
-        }
-
-        // Get current session and verify email
-        let currentUser = null;
-        try {
-            const { data: { session }, error } = await supabase.auth.getSession();
-            
-            if (error) {
-                // console.error('❌ [ProductForm] Session error:', error);
-                toast.error('Authentication error. Please try logging in again.');
-                return;
-            }
-
-            // console.log('🔍 [ProductForm] Session check:', {
-            //     hasSession: !!session,
-            //     hasUser: !!session?.user,
-            //     userEmail: session?.user?.email,
-            //     userId: session?.user?.id
+                // // //     hasSession: !!session,
+                // // //     hasUser: !!session?.user,
+                // // //     userEmail: session?.user?.email,
+                // // //     userId: session?.user?.id
+                // // // });
+// //
+                // // // Only check for email presence in auth
+                // // if (session?.user?.email) {
+                    // // setIsAuthenticated(true);
+                    // // // console.log('✅ [ProductForm] User authenticated with email:', session.user.email);
+                    // //
+                    // // // Auto-fill form data from user profile if available
+                    // // if (session.user.user_metadata?.college) {
+                        // // setFormData(prev => ({
+                            // // ...prev,
+                            // // college: prev.college || session.user.user_metadata.college
+                        // // }));
+                    // // }
+                // // } else {
+                    // // // console.log('❌ [ProductForm] No email found in session');
+                    // // setIsAuthenticated(false);
+                // // }
+                // //
+                // // setAuthLoading(false);
+            // // } catch (authError) {
+                // // // console.error('❌ [ProductForm] Auth check exception:', authError);
+                // // setIsAuthenticated(false);
+                // // setAuthLoading(false);
+            // // }
+        // // };
+// //
+        // // checkAuth();
+// //
+        // // // Listen for auth changes
+        // // const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            // // // console.log('🔄 [ProductForm] Auth state changed:', event, !!session?.user?.email);
+            // // if (session?.user?.email) {
+                // // setIsAuthenticated(true);
+            // // } else {
+                // // setIsAuthenticated(false);
+            // // }
+        // // });
+// 
+        // return () => subscription.unsubscribe();
+    // }, [supabase.auth]);
+// 
+    // // Load user profile data to prefill form
+    // useEffect(() => {
+        // const loadUserProfile = async () => {
+            // if (!isAuthenticated) return;
+            // 
+            // try {
+                // const { data: { session }, error } = await supabase.auth.getSession();
+                // if (session?.user?.email) {
+                    // // Fetch user profile from users table
+                    // const { data: profile, error: profileError } = await supabase
+                        // .from('users')
+                        // .select('college, phone, name')
+                        // .eq('email', session.user.email)
+                        // .single();
+                    // 
+                    // if (profile && !profileError) {
+                        // // Prefill college if user has it in their profile
+                        // if (profile.college && !formData.college) {
+                            // setFormData(prev => ({
+                                // ...prev,
+                                // college: profile.college
+                            // }));
+                        // }
+                    // }
+                // }
+            // } catch (error) {
+                // // console.log('ℹ️ [ProductForm] Could not load user profile:', error);
+            // }
+        // };
+// 
+        // if (isAuthenticated && !authLoading) {
+            // loadUserProfile();
+        // }
+    // }, [isAuthenticated, authLoading, formData.college, supabase]);
+// 
+    // const handleSubmit = async (e) => {
+        // e.preventDefault();
+        // if (isSubmitting) return;
+// 
+        // // console.log('📦 [ProductForm] Starting submission...');
+// 
+        // // ============================================================================
+        // // 1. ENHANCED EMAIL-BASED AUTHENTICATION CHECK
+        // // ============================================================================
+        // 
+        // if (!isAuthenticated) {
+            // // console.log('❌ [ProductForm] Not authenticated, redirecting to login');
+            // toast.error('Please log in to submit your product listing');
+            // router.push('/login');
+            // return;
+        // }
+// 
+        // // Get current session and verify email
+        // let currentUser = null;
+        // try {
+            // const { data: { session }, error } = await supabase.auth.getSession();
+            // 
+            // if (error) {
+                // // console.error('❌ [ProductForm] Session error:', error);
+                // toast.error('Authentication error. Please try logging in again.');
+                // return;
+            // }
+// 
+            // // console.log('🔍 [ProductForm] Session check:', {
+            // // //     hasSession: !!session,
+            // // //     hasUser: !!session?.user,
+            // // //     userEmail: session?.user?.email,
+            // // //     userId: session?.user?.id
+            // // // });
+            // //
+            // // if (!session?.user?.email) {
+                // // // console.log('❌ [ProductForm] No email found in session');
+                // // toast.error('Invalid authentication. Please log in with a valid email.');
+                // // router.push('/login');
+                // // return;
+            // // }
+// //
+            // // // Fetch current user data to include phone number
+            // // let userProfile = null;
+            // // try {
+                // // const { data: profile } = await supabase
+                    // // .from('users')
+                    // // .select('phone')
+                    // // .eq('id', session.user.id)
+                    // // .single();
+                // // userProfile = profile;
+            // // } catch (err) {
+                // // // console.log('ℹ️ [ProductForm] Could not fetch user profile phone:', err);
+            // // }
+            // //
+            // // currentUser = {
+                // // id: session.user.id,
+                // // email: session.user.email,
+                // // name: session.user.user_metadata?.name || session.user.user_metadata?.full_name || session.user.email.split('@')[0],
+                // // avatar_url: session.user.user_metadata?.avatar_url,
+                // // college: formData.college,
+                // // phone: userProfile?.phone || null // Include phone to preserve it in API upsert
+            // // };
+// //
+            // // // console.log('✅ [ProductForm] User data prepared:', currentUser);
+        // // } catch (sessionError) {
+            // // // console.error('❌ [ProductForm] Session check failed:', sessionError);
+            // // toast.error('Failed to verify authentication. Please try again.');
+            // // return;
+        // // }
+// //
+        // // // ============================================================================
+        // // // 2. FORM VALIDATION
+        // // // ============================================================================
+        // //
+        // // if (!formData.title || !formData.price || !formData.college || !formData.category || !formData.condition) {
+            // // toast.error('Please fill in all required fields');
+            // // return;
+        // // }
+// //
+        // // if (isNaN(parseFloat(formData.price)) || parseFloat(formData.price) <= 0) {
+            // // toast.error('Please enter a valid price');
+            // // return;
+        // // }
+// //
+        // // if (!formData.location || !formData.location.lat || !formData.location.lng) {
+            // // toast.error('Please select a location on the map');
+            // // return;
+        // // }
+// //
+        // // // console.log('✅ [ProductForm] Form validation passed');
+        // // setIsSubmitting(true);
+// //
+        // // const toastId = toast.loading('Adding your product listing...');
+// //
+        // // try {
+            // // // ============================================================================
+            // // // 3. PREPARE SUBMISSION DATA
+            // // // ============================================================================
+            // //
+            // // const submissionData = {
+                // // type: 'products',
+                // // user: currentUser,
+                // // title: formData.title,
+                // // description: formData.description,
+                // // price: parseFloat(formData.price),
+                // // category: formData.category,
+                // // condition: formData.condition,
+                // // college: formData.college,
+                // // location: formData.location,
+                // // images: formData.images || []
+            // // };
+// //
+            // // // console.log('📤 [ProductForm] Sending to API:', JSON.stringify(submissionData, null, 2));
+// //
+            // // // ============================================================================
+            // // // 4. SUBMIT TO API
+            // // // ============================================================================
+            // //
+            // // // Create FormData to handle File uploads
+            // // const formDataToSend = new FormData();
+            // //
+            // // // Add basic data
+            // // formDataToSend.append('type', 'products');
+            // // formDataToSend.append('user', JSON.stringify(currentUser));
+            // // formDataToSend.append('title', formData.title);
+            // // formDataToSend.append('description', formData.description);
+            // // formDataToSend.append('price', parseFloat(formData.price));
+            // // formDataToSend.append('category', formData.category);
+            // // formDataToSend.append('condition', formData.condition);
+            // // formDataToSend.append('college', formData.college);
+            // //
+            // // if (formData.location) {
+                // // formDataToSend.append('location', JSON.stringify(formData.location));
+            // // }
+            // //
+            // // // Add images as File objects
+            // // if (formData.images && formData.images.length > 0) {
+                // // formData.images.forEach((image, index) => {
+                    // // formDataToSend.append(`images`, image);
+                // // });
+            // }
+// 
+            // // console.log('📤 [ProductForm] Sending FormData to API with', formData.images?.length || 0, 'images');
+// 
+            // const response = await fetch('/api/sell', {
+                // method: 'POST',
+                // body: formDataToSend, // Send FormData instead of JSON
             // });
-            
-            if (!session?.user?.email) {
-                // console.log('❌ [ProductForm] No email found in session');
-                toast.error('Invalid authentication. Please log in with a valid email.');
-                router.push('/login');
-                return;
-            }
-
-            // Fetch current user data to include phone number
-            let userProfile = null;
-            try {
-                const { data: profile } = await supabase
-                    .from('users')
-                    .select('phone')
-                    .eq('id', session.user.id)
-                    .single();
-                userProfile = profile;
-            } catch (err) {
-                // console.log('ℹ️ [ProductForm] Could not fetch user profile phone:', err);
-            }
-            
-            currentUser = {
-                id: session.user.id,
-                email: session.user.email,
-                name: session.user.user_metadata?.name || session.user.user_metadata?.full_name || session.user.email.split('@')[0],
-                avatar_url: session.user.user_metadata?.avatar_url,
-                college: formData.college,
-                phone: userProfile?.phone || null // Include phone to preserve it in API upsert
-            };
-
-            // console.log('✅ [ProductForm] User data prepared:', currentUser);
-        } catch (sessionError) {
-            // console.error('❌ [ProductForm] Session check failed:', sessionError);
-            toast.error('Failed to verify authentication. Please try again.');
-            return;
-        }
-
-        // ============================================================================
-        // 2. FORM VALIDATION
-        // ============================================================================
-        
-        if (!formData.title || !formData.price || !formData.college || !formData.category || !formData.condition) {
-            toast.error('Please fill in all required fields');
-            return;
-        }
-
-        if (isNaN(parseFloat(formData.price)) || parseFloat(formData.price) <= 0) {
-            toast.error('Please enter a valid price');
-            return;
-        }
-
-        if (!formData.location || !formData.location.lat || !formData.location.lng) {
-            toast.error('Please select a location on the map');
-            return;
-        }
-
-        // console.log('✅ [ProductForm] Form validation passed');
-        setIsSubmitting(true);
-
-        const toastId = toast.loading('Adding your product listing...');
-
-        try {
-            // ============================================================================
-            // 3. PREPARE SUBMISSION DATA
-            // ============================================================================
-            
-            const submissionData = {
-                type: 'products',
-                user: currentUser,
-                title: formData.title,
-                description: formData.description,
-                price: parseFloat(formData.price),
-                category: formData.category,
-                condition: formData.condition,
-                college: formData.college,
-                location: formData.location,
-                images: formData.images || []
-            };
-
-            // console.log('📤 [ProductForm] Sending to API:', JSON.stringify(submissionData, null, 2));
-
-            // ============================================================================
-            // 4. SUBMIT TO API
-            // ============================================================================
-            
-            // Create FormData to handle File uploads
-            const formDataToSend = new FormData();
-            
-            // Add basic data
-            formDataToSend.append('type', 'products');
-            formDataToSend.append('user', JSON.stringify(currentUser));
-            formDataToSend.append('title', formData.title);
-            formDataToSend.append('description', formData.description);
-            formDataToSend.append('price', parseFloat(formData.price));
-            formDataToSend.append('category', formData.category);
-            formDataToSend.append('condition', formData.condition);
-            formDataToSend.append('college', formData.college);
-            
-            if (formData.location) {
-                formDataToSend.append('location', JSON.stringify(formData.location));
-            }
-            
-            // Add images as File objects
-            if (formData.images && formData.images.length > 0) {
-                formData.images.forEach((image, index) => {
-                    formDataToSend.append(`images`, image);
-                });
-            }
-
-            // console.log('📤 [ProductForm] Sending FormData to API with', formData.images?.length || 0, 'images');
-
-            const response = await fetch('/api/sell', {
-                method: 'POST',
-                body: formDataToSend, // Send FormData instead of JSON
-            });
 
             const result = await response.json();
 
             // console.log('📥 [ProductForm] API response:', {
-            //     status: response.status,
-            //     ok: response.ok,
-            //     result: result
+            // //     status: response.status,
+            // //     ok: response.ok,
+            // //     result: result
+            // // });
+// 
+            // if (!response.ok) {
+                // // console.error('❌ [ProductForm] API error:', result);
+                // 
+                // // Handle specific error codes
+                // if (result.code === 'AUTH_MISSING_EMAIL' || result.code === 'AUTH_EMAIL_NOT_FOUND') {
+                    // toast.error('Authentication required. Please sign in first.');
+                    // router.push('/login');
+                    // return;
+                // }
+                // 
+                // if (result.code === 'AUTH_EMAIL_UNREGISTERED') {
+                    // toast.error('Email not registered. Please create an account first.');
+                    // router.push('/signup');
+                    // return;
+                // }
+                // 
+                // if (result.code === 'DATABASE_RLS_ERROR') {
+                    // toast.error('Database security error. Please contact support.');
+                    // return;
+                // }
+                // 
+                // // Generic error message
+                // toast.error(result.error || 'Failed to submit product listing. Please try again.');
+                // return;
+            // }
+// 
+            // // ============================================================================
+            // // 5. SUCCESS HANDLING
+            // // ============================================================================
+            // 
+            // // console.log('✅ [ProductForm] Product listing submitted successfully:', result.data);
+            // 
+            // // Show success message
+            // toast.success(
+                // `🎉 ${result.message || 'Product listing submitted successfully!'}\nYour ${result.data?.title || 'product'} is now live!`,
+                // {
+                    // duration: 4000,
+                    // style: {
+                        // background: '#10b981',
+                        // color: '#ffffff',
+                        // fontWeight: '500',
+                    // },
+                // }
+            // );
+            // 
+            // // Reset form
+            // setFormData({
+                // title: '',
+                // college: formData.college, // Keep college for next submission
+                // price: '',
+                // condition: '',
+                // description: '',
+                // images: [],
+                // location: null,
+                // category: '',
             // });
-
-            if (!response.ok) {
-                // console.error('❌ [ProductForm] API error:', result);
-                
-                // Handle specific error codes
-                if (result.code === 'AUTH_MISSING_EMAIL' || result.code === 'AUTH_EMAIL_NOT_FOUND') {
-                    toast.error('Authentication required. Please sign in first.');
-                    router.push('/login');
-                    return;
-                }
-                
-                if (result.code === 'AUTH_EMAIL_UNREGISTERED') {
-                    toast.error('Email not registered. Please create an account first.');
-                    router.push('/signup');
-                    return;
-                }
-                
-                if (result.code === 'DATABASE_RLS_ERROR') {
-                    toast.error('Database security error. Please contact support.');
-                    return;
-                }
-                
-                // Generic error message
-                toast.error(result.error || 'Failed to submit product listing. Please try again.');
-                return;
-            }
-
-            // ============================================================================
-            // 5. SUCCESS HANDLING
-            // ============================================================================
-            
-            // console.log('✅ [ProductForm] Product listing submitted successfully:', result.data);
-            
-            // Show success message
-            toast.success(
-                `🎉 ${result.message || 'Product listing submitted successfully!'}\nYour ${result.data?.title || 'product'} is now live!`,
-                {
-                    duration: 4000,
-                    style: {
-                        background: '#10b981',
-                        color: '#ffffff',
-                        fontWeight: '500',
-                    },
-                }
-            );
-            
-            // Reset form
-            setFormData({
-                title: '',
-                college: formData.college, // Keep college for next submission
-                price: '',
-                condition: '',
-                description: '',
-                images: [],
-                location: null,
-                category: '',
-            });
 
             // Redirect to homepage after showing success message
             setTimeout(() => {

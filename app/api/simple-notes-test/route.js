@@ -39,7 +39,7 @@ export async function POST(request) {
                 .single();
                 
             if (createError) {
-                console.error('User creation failed:', createError);
+                // console.error('User creation failed:', createError);
                 return NextResponse.json({ error: createError.message }, { status: 500 });
             }
             // console.log('✅ User created:', newUser);
@@ -68,7 +68,7 @@ export async function POST(request) {
             .single();
         
         if (noteError) {
-            console.error('Note insertion failed:', noteError);
+            // console.error('Note insertion failed:', noteError);
             return NextResponse.json({ 
                 error: 'Note insertion failed',
                 details: noteError.message,
@@ -88,7 +88,7 @@ export async function POST(request) {
         });
         
     } catch (error) {
-        console.error('🚨 SIMPLE TEST ERROR:', error);
+        // console.error('🚨 SIMPLE TEST ERROR:', error);
         return NextResponse.json({ 
             error: error.message,
             stack: error.stack

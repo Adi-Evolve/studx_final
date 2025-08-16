@@ -118,7 +118,7 @@ export default function BulkOperationsPanel({
                 onListingsUpdate();
             }
         } catch (error) {
-            console.error('Bulk operation failed:', error);
+            // console.error('Bulk operation failed:', error);
             alert(`Operation failed: ${error.message}`);
         } finally {
             setIsOperating(false);

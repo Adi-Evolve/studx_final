@@ -57,7 +57,7 @@ export async function POST(request) {
         });
 
     } catch (error) {
-        console.error('Transaction creation error:', error);
+        // console.error('Transaction creation error:', error);
         return NextResponse.json(
             { success: false, error: 'Internal server error' },
             { status: 500 }

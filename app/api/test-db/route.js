@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
 export async function GET(request) {
-    console.log('=== Simple Database Test ===');
+    // console.log('=== Simple Database Test ===');
     
     try {
         // Create client with service role key for testing
@@ -17,13 +17,13 @@ export async function GET(request) {
             .select('id')
             .limit(1);
         
-        console.log('Connection test:', connectionError?.message);
+        // console.log('Connection test:', connectionError?.message);
         
         // Test 2: Check table schema
         const { data: schemaData, error: schemaError } = await supabase
             .rpc('get_schema_info', { table_name: 'notes' });
         
-        console.log('Schema RPC:', schemaError?.message);
+        // console.log('Schema RPC:', schemaError?.message);
         
         // Test 3: Try manual query to see columns
         const { data: manualData, error: manualError } = await supabase
@@ -31,7 +31,7 @@ export async function GET(request) {
             .select('*')
             .limit(1);
         
-        console.log('Manual query:', manualError?.message);
+        // console.log('Manual query:', manualError?.message);
         
         // Test 4: Try a simple insert with minimal data
         const testUserId = '123e4567-e89b-12d3-a456-426614174000'; // Test UUID
@@ -51,7 +51,7 @@ export async function GET(request) {
             .select('id')
             .single();
         
-        console.log('Insert result:', insertData, insertError?.message);
+        // console.log('Insert result:', insertData, insertError?.message);
         
         // If insert worked, delete it
         if (insertData?.id) {
@@ -67,7 +67,7 @@ export async function GET(request) {
         });
         
     } catch (error) {
-        console.error('Database test error:', error);
+        // console.error('Database test error:', error);
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }

@@ -98,281 +98,281 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
                 }
                 
                 // console.log('🔍 [RoomsForm] Session data:', {
-                // // //     hasSession: !!session,
-                // // //     hasUser: !!session?.user,
-                // // //     userEmail: session?.user?.email,
-                // // //     userId: session?.user?.id
-                // // // });
+                // // // //     hasSession: !!session,
+                // // // //     hasUser: !!session?.user,
+                // // // //     userEmail: session?.user?.email,
+                // // // //     userId: session?.user?.id
+                // // // // });
+// // //
+                // // // // Only check for email presence in auth
+                // // // if (session?.user?.email) {
+                    // // // setIsAuthenticated(true);
+                    // // // // console.log('✅ [RoomsForm] User authenticated with email:', session.user.email);
+                    // // //
+                    // // // // Auto-fill form data from user profile if available
+                    // // // if (session.user.user_metadata?.college) {
+                        // // // setFormData(prev => ({
+                            // // // ...prev,
+                            // // // college: prev.college || session.user.user_metadata.college
+                        // // // }));
+                    // // // }
+                // // // } else {
+                    // // // // console.log('❌ [RoomsForm] No email found in session');
+                    // // // setIsAuthenticated(false);
+                // // // }
+                // // //
+                // // // setAuthLoading(false);
+            // // // } catch (authError) {
+                // // // // console.error('❌ [RoomsForm] Auth check exception:', authError);
+                // // // setIsAuthenticated(false);
+                // // // setAuthLoading(false);
+            // // // }
+        // // // };
+// // //
+        // // // checkAuth();
+// // //
+        // // // // Listen for auth changes
+        // // // const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            // // // // console.log('🔄 [RoomsForm] Auth state changed:', event, !!session?.user?.email);
+            // // // if (session?.user?.email) {
+                // // // setIsAuthenticated(true);
+            // // // } else {
+                // // // setIsAuthenticated(false);
+            // // // }
+        // // // });
 // //
-                // // // Only check for email presence in auth
-                // // if (session?.user?.email) {
-                    // // setIsAuthenticated(true);
-                    // // // console.log('✅ [RoomsForm] User authenticated with email:', session.user.email);
+        // // return () => subscription.unsubscribe();
+    // // }, [supabase.auth]);
+// //
+    // // // Load user profile data to prefill form
+    // // useEffect(() => {
+        // // const loadUserProfile = async () => {
+            // // if (!isAuthenticated) return;
+            // //
+            // // try {
+                // // const { data: { user } } = await supabase.auth.getUser();
+                // // if (user) {
+                    // // // Fetch user profile from users table
+                    // // const { data: profile, error } = await supabase
+                        // // .from('users')
+                        // // .select('college, phone, name')
+                        // // .eq('id', user.id)
+                        // // .single();
                     // //
-                    // // // Auto-fill form data from user profile if available
-                    // // if (session.user.user_metadata?.college) {
-                        // // setFormData(prev => ({
-                            // // ...prev,
-                            // // college: prev.college || session.user.user_metadata.college
-                        // // }));
+                    // // if (profile && !error) {
+                        // // // Prefill college if user has it in their profile
+                        // // if (profile.college && !formData.college) {
+                            // // setFormData(prev => ({
+                                // // ...prev,
+                                // // college: profile.college
+                            // // }));
+                        // // }
+                        // //
+                        // // // Note: Removed auto-fill for owner name and contact to prevent confusion
+                        // // // Users should manually enter their preferred contact information for room listings
                     // // }
-                // // } else {
-                    // // // console.log('❌ [RoomsForm] No email found in session');
-                    // // setIsAuthenticated(false);
                 // // }
-                // //
-                // // setAuthLoading(false);
-            // // } catch (authError) {
-                // // // console.error('❌ [RoomsForm] Auth check exception:', authError);
-                // // setIsAuthenticated(false);
-                // // setAuthLoading(false);
+            // // } catch (error) {
+                // // // console.error('Error loading user profile:', error);
             // // }
         // // };
 // //
-        // // checkAuth();
-// //
-        // // // Listen for auth changes
-        // // const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-            // // // console.log('🔄 [RoomsForm] Auth state changed:', event, !!session?.user?.email);
-            // // if (session?.user?.email) {
-                // // setIsAuthenticated(true);
-            // // } else {
-                // // setIsAuthenticated(false);
-            // // }
-        // // });
-// 
-        // return () => subscription.unsubscribe();
-    // }, [supabase.auth]);
-// 
-    // // Load user profile data to prefill form
-    // useEffect(() => {
-        // const loadUserProfile = async () => {
-            // if (!isAuthenticated) return;
-            // 
-            // try {
-                // const { data: { user } } = await supabase.auth.getUser();
-                // if (user) {
-                    // // Fetch user profile from users table
-                    // const { data: profile, error } = await supabase
-                        // .from('users')
-                        // .select('college, phone, name')
-                        // .eq('id', user.id)
-                        // .single();
-                    // 
-                    // if (profile && !error) {
-                        // // Prefill college if user has it in their profile
-                        // if (profile.college && !formData.college) {
-                            // setFormData(prev => ({
-                                // ...prev,
-                                // college: profile.college
-                            // }));
-                        // }
-                        // 
-                        // // Note: Removed auto-fill for owner name and contact to prevent confusion
-                        // // Users should manually enter their preferred contact information for room listings
-                    // }
-                // }
-            // } catch (error) {
-                // // console.error('Error loading user profile:', error);
-            // }
-        // };
-// 
-        // if (isAuthenticated && !authLoading) {
-            // loadUserProfile();
-        // }
-    // }, [isAuthenticated, authLoading, formData.college, supabase]);
-// 
-    // const handleChange = (e) => {
-        // const { name, value, type, checked } = e.target;
-        // // console.log('RoomsForm handleChange:', { name, value, type, checked }); // Debug log
-        // // if (type === 'checkbox') {
-            // // if (name === 'mess_included') {
-                // // setFormData(prev => ({ ...prev, mess_included: checked }));
-            // // } else {
-                // // const newAmenities = checked
-                    // // ? [...formData.amenities, value]
-                    // // : formData.amenities.filter(a => a !== value);
-                // // setFormData(prev => ({ ...prev, amenities: newAmenities }));
-            // // }
-        // // } else {
-            // // setFormData(prev => ({ ...prev, [name]: value }));
+        // // if (isAuthenticated && !authLoading) {
+            // // loadUserProfile();
         // // }
-    // // };
+    // // }, [isAuthenticated, authLoading, formData.college, supabase]);
 // //
-    // // const handleImagesChange = useCallback((files) => {
-        // // setFormData(prev => ({ ...prev, images: files }));
-    // // }, []);
-// //
-    // // const handleLocationChange = useCallback((location) => {
-        // // // console.log('RoomsForm: handleLocationChange called with:', location);
-        // // // console.log('RoomsForm: location type:', typeof location);
-        // // // console.log('RoomsForm: location.lat:', location?.lat, 'type:', typeof location?.lat);
-        // // // console.log('RoomsForm: location.lng:', location?.lng, 'type:', typeof location?.lng);
-        // //
-        // // // Validate that location has valid lat/lng
-        // // if (location && typeof location.lat === 'number' && typeof location.lng === 'number') {
-            // // setFormData(prev => ({ ...prev, location }));
-            // // // console.log('RoomsForm: Location successfully updated');
-        // // } else {
-            // // // console.error('RoomsForm: Invalid location data received:', location);
-        // // }
-    // // }, []);
-// //
-    // // const handleSubmit = async (e) => {
-        // // e.preventDefault();
-        // // if (isSubmitting) return;
-// //
-        // // // console.log('🏠 [RoomsForm] Starting submission...');
-// //
-        // // // ============================================================================
-        // // // 1. ENHANCED EMAIL-BASED AUTHENTICATION CHECK
-        // // // ============================================================================
-        // //
-        // // if (!isAuthenticated) {
-            // // // console.log('❌ [RoomsForm] Not authenticated, redirecting to login');
-            // // toast.error('Please log in to submit your room listing');
-            // // router.push('/login');
-            // // return;
-        // // }
-// //
-        // // // Get current session and verify email
-        // // let currentUser = null;
-        // // try {
-            // // const { data: { session }, error } = await supabase.auth.getSession();
-            // //
-            // // if (error) {
-                // // // console.error('❌ [RoomsForm] Session error:', error);
-                // // toast.error('Authentication error. Please try logging in again.');
-                // // return;
+    // // const handleChange = (e) => {
+        // // const { name, value, type, checked } = e.target;
+        // // // console.log('RoomsForm handleChange:', { name, value, type, checked }); // Debug log
+        // // // if (type === 'checkbox') {
+            // // // if (name === 'mess_included') {
+                // // // setFormData(prev => ({ ...prev, mess_included: checked }));
+            // // // } else {
+                // // // const newAmenities = checked
+                    // // // ? [...formData.amenities, value]
+                    // // // : formData.amenities.filter(a => a !== value);
+                // // // setFormData(prev => ({ ...prev, amenities: newAmenities }));
+            // // // }
+        // // // } else {
+            // // // setFormData(prev => ({ ...prev, [name]: value }));
+        // // // }
+    // // // };
+// // //
+    // // // const handleImagesChange = useCallback((files) => {
+        // // // setFormData(prev => ({ ...prev, images: files }));
+    // // // }, []);
+// // //
+    // // // const handleLocationChange = useCallback((location) => {
+        // // // // console.log('RoomsForm: handleLocationChange called with:', location);
+        // // // // console.log('RoomsForm: location type:', typeof location);
+        // // // // console.log('RoomsForm: location.lat:', location?.lat, 'type:', typeof location?.lat);
+        // // // // console.log('RoomsForm: location.lng:', location?.lng, 'type:', typeof location?.lng);
+        // // //
+        // // // // Validate that location has valid lat/lng
+        // // // if (location && typeof location.lat === 'number' && typeof location.lng === 'number') {
+            // // // setFormData(prev => ({ ...prev, location }));
+            // // // // console.log('RoomsForm: Location successfully updated');
+        // // // } else {
+            // // // // console.error('RoomsForm: Invalid location data received:', location);
+        // // // }
+    // // // }, []);
+// // //
+    // // // const handleSubmit = async (e) => {
+        // // // e.preventDefault();
+        // // // if (isSubmitting) return;
+// // //
+        // // // // console.log('🏠 [RoomsForm] Starting submission...');
+// // //
+        // // // // ============================================================================
+        // // // // 1. ENHANCED EMAIL-BASED AUTHENTICATION CHECK
+        // // // // ============================================================================
+        // // //
+        // // // if (!isAuthenticated) {
+            // // // // console.log('❌ [RoomsForm] Not authenticated, redirecting to login');
+            // // // toast.error('Please log in to submit your room listing');
+            // // // router.push('/login');
+            // // // return;
+        // // // }
+// // //
+        // // // // Get current session and verify email
+        // // // let currentUser = null;
+        // // // try {
+            // // // const { data: { session }, error } = await supabase.auth.getSession();
+            // // //
+            // // // if (error) {
+                // // // // console.error('❌ [RoomsForm] Session error:', error);
+                // // // toast.error('Authentication error. Please try logging in again.');
+                // // // return;
+            // // // }
+// // //
+            // // // // console.log('🔍 [RoomsForm] Session check:', {
+            // // // //     hasSession: !!session,
+            // // // //     hasUser: !!session?.user,
+            // // // //     userEmail: session?.user?.email,
+            // // // //     userId: session?.user?.id
+            // // // // });
+            // // //
+            // // // if (!session?.user?.email) {
+                // // // // console.log('❌ [RoomsForm] No email found in session');
+                // // // toast.error('Invalid authentication. Please log in with a valid email.');
+                // // // router.push('/login');
+                // // // return;
+            // // // }
+// // //
+            // // // // Fetch current user data to include phone number
+            // // // let userProfile = null;
+            // // // try {
+                // // // const { data: profile } = await supabase
+                    // // // .from('users')
+                    // // // .select('phone')
+                    // // // .eq('id', session.user.id)
+                    // // // .single();
+                // // // userProfile = profile;
+            // // // } catch (err) {
+                // // // // console.log('ℹ️ [RoomsForm] Could not fetch user profile phone:', err);
+            // // // }
+            // // //
+            // // // currentUser = {
+                // // // id: session.user.id,
+                // // // email: session.user.email,
+                // // // name: session.user.user_metadata?.name || session.user.user_metadata?.full_name || session.user.email.split('@')[0],
+                // // // avatar_url: session.user.user_metadata?.avatar_url,
+                // // // college: formData.college,
+                // // // phone: userProfile?.phone || null // Include phone to preserve it in API upsert
+            // // // };
+// // //
+            // // // // console.log('✅ [RoomsForm] User data prepared:', currentUser);
+        // // // } catch (sessionError) {
+            // // // // console.error('❌ [RoomsForm] Session check failed:', sessionError);
+            // // // toast.error('Failed to verify authentication. Please try again.');
+            // // // return;
+        // // // }
+// // //
+        // // // // ============================================================================
+        // // // // 2. FORM VALIDATION
+        // // // // ============================================================================
+        // // //
+        // // // if (!formData.hostel_name || !formData.fees || !formData.college || !formData.room_type || !formData.owner_name || !formData.contact_primary) {
+            // // // toast.error('Please fill in all required fields');
+            // // // return;
+        // // // }
+// // //
+        // // // if (isNaN(parseFloat(formData.fees)) || parseFloat(formData.fees) <= 0) {
+            // // // toast.error('Please enter a valid rent amount');
+            // // // return;
+        // // // }
+// // //
+        // // // if (!formData.location || !formData.location.lat || !formData.location.lng) {
+            // // // toast.error('Please select a location on the map');
+            // // // return;
+        // // // }
+// // //
+        // // // // console.log('✅ [RoomsForm] Form validation passed');
+        // // // setIsSubmitting(true);
+// // //
+        // // // const toastId = toast.loading('Adding your room listing...');
+// // //
+        // // // try {
+            // // // // ============================================================================
+            // // // // 3. PREPARE SUBMISSION DATA
+            // // // // ============================================================================
+            // // //
+            // // // // ============================================================================
+            // // // // 4. SUBMIT TO API
+            // // // // ============================================================================
+            // // //
+            // // // // Create FormData to handle File uploads
+            // // // const formDataToSend = new FormData();
+            // // //
+            // // // // Add basic data
+            // // // formDataToSend.append('type', 'rooms');
+            // // // formDataToSend.append('user', JSON.stringify(currentUser));
+            // // // formDataToSend.append('title', formData.hostel_name);
+            // // // formDataToSend.append('description', formData.description);
+            // // // formDataToSend.append('price', parseFloat(formData.fees));
+            // // // formDataToSend.append('college', formData.college);
+            // // // formDataToSend.append('location', JSON.stringify(formData.location));
+            // // // formDataToSend.append('roomType', formData.room_type);
+            // // // formDataToSend.append('occupancy', formData.occupancy);
+            // // // formDataToSend.append('ownerName', formData.owner_name);
+            // // // formDataToSend.append('contact1', formData.contact_primary);
+            // // //
+            // // // if (formData.contact_secondary) {
+                // // // formDataToSend.append('contact2', formData.contact_secondary);
+            // // // }
+            // // // if (formData.distance) {
+                // // // formDataToSend.append('distance', formData.distance);
+            // // // }
+            // // // if (formData.deposit) {
+                // // // formDataToSend.append('deposit', parseFloat(formData.deposit));
+            // // // }
+            // // //
+            // // // formDataToSend.append('feesIncludeMess', formData.mess_included);
+            // // // if (formData.mess_included && formData.mess_fees) {
+                // // // formDataToSend.append('messType', formData.mess_fees);
+            // // // }
+            // // //
+            // // // // Add amenities
+            // // // if (formData.amenities && formData.amenities.length > 0) {
+                // // // formData.amenities.forEach(amenity => {
+                    // // // formDataToSend.append('amenities', amenity);
+                // // // });
             // // }
-// //
-            // // // console.log('🔍 [RoomsForm] Session check:', {
-            // // //     hasSession: !!session,
-            // // //     hasUser: !!session?.user,
-            // // //     userEmail: session?.user?.email,
-            // // //     userId: session?.user?.id
-            // // // });
             // //
-            // // if (!session?.user?.email) {
-                // // // console.log('❌ [RoomsForm] No email found in session');
-                // // toast.error('Invalid authentication. Please log in with a valid email.');
-                // // router.push('/login');
-                // // return;
-            // // }
-// //
-            // // // Fetch current user data to include phone number
-            // // let userProfile = null;
-            // // try {
-                // // const { data: profile } = await supabase
-                    // // .from('users')
-                    // // .select('phone')
-                    // // .eq('id', session.user.id)
-                    // // .single();
-                // // userProfile = profile;
-            // // } catch (err) {
-                // // // console.log('ℹ️ [RoomsForm] Could not fetch user profile phone:', err);
-            // // }
-            // //
-            // // currentUser = {
-                // // id: session.user.id,
-                // // email: session.user.email,
-                // // name: session.user.user_metadata?.name || session.user.user_metadata?.full_name || session.user.email.split('@')[0],
-                // // avatar_url: session.user.user_metadata?.avatar_url,
-                // // college: formData.college,
-                // // phone: userProfile?.phone || null // Include phone to preserve it in API upsert
-            // // };
-// //
-            // // // console.log('✅ [RoomsForm] User data prepared:', currentUser);
-        // // } catch (sessionError) {
-            // // // console.error('❌ [RoomsForm] Session check failed:', sessionError);
-            // // toast.error('Failed to verify authentication. Please try again.');
-            // // return;
-        // // }
-// //
-        // // // ============================================================================
-        // // // 2. FORM VALIDATION
-        // // // ============================================================================
-        // //
-        // // if (!formData.hostel_name || !formData.fees || !formData.college || !formData.room_type || !formData.owner_name || !formData.contact_primary) {
-            // // toast.error('Please fill in all required fields');
-            // // return;
-        // // }
-// //
-        // // if (isNaN(parseFloat(formData.fees)) || parseFloat(formData.fees) <= 0) {
-            // // toast.error('Please enter a valid rent amount');
-            // // return;
-        // // }
-// //
-        // // if (!formData.location || !formData.location.lat || !formData.location.lng) {
-            // // toast.error('Please select a location on the map');
-            // // return;
-        // // }
-// //
-        // // // console.log('✅ [RoomsForm] Form validation passed');
-        // // setIsSubmitting(true);
-// //
-        // // const toastId = toast.loading('Adding your room listing...');
-// //
-        // // try {
-            // // // ============================================================================
-            // // // 3. PREPARE SUBMISSION DATA
-            // // // ============================================================================
-            // //
-            // // // ============================================================================
-            // // // 4. SUBMIT TO API
-            // // // ============================================================================
-            // //
-            // // // Create FormData to handle File uploads
-            // // const formDataToSend = new FormData();
-            // //
-            // // // Add basic data
-            // // formDataToSend.append('type', 'rooms');
-            // // formDataToSend.append('user', JSON.stringify(currentUser));
-            // // formDataToSend.append('title', formData.hostel_name);
-            // // formDataToSend.append('description', formData.description);
-            // // formDataToSend.append('price', parseFloat(formData.fees));
-            // // formDataToSend.append('college', formData.college);
-            // // formDataToSend.append('location', JSON.stringify(formData.location));
-            // // formDataToSend.append('roomType', formData.room_type);
-            // // formDataToSend.append('occupancy', formData.occupancy);
-            // // formDataToSend.append('ownerName', formData.owner_name);
-            // // formDataToSend.append('contact1', formData.contact_primary);
-            // //
-            // // if (formData.contact_secondary) {
-                // // formDataToSend.append('contact2', formData.contact_secondary);
-            // // }
-            // // if (formData.distance) {
-                // // formDataToSend.append('distance', formData.distance);
-            // // }
-            // // if (formData.deposit) {
-                // // formDataToSend.append('deposit', parseFloat(formData.deposit));
-            // // }
-            // //
-            // // formDataToSend.append('feesIncludeMess', formData.mess_included);
-            // // if (formData.mess_included && formData.mess_fees) {
-                // // formDataToSend.append('messType', formData.mess_fees);
-            // // }
-            // //
-            // // // Add amenities
-            // // if (formData.amenities && formData.amenities.length > 0) {
-                // // formData.amenities.forEach(amenity => {
-                    // // formDataToSend.append('amenities', amenity);
+            // // // Add images as File objects
+            // // if (formData.images && formData.images.length > 0) {
+                // // formData.images.forEach((image, index) => {
+                    // // formDataToSend.append(`images`, image);
                 // // });
             // }
+// 
+            // // console.log('📤 [RoomsForm] Sending FormData to API with', formData.images?.length || 0, 'images');
             // 
-            // // Add images as File objects
-            // if (formData.images && formData.images.length > 0) {
-                // formData.images.forEach((image, index) => {
-                    // formDataToSend.append(`images`, image);
-                // });
-            }
-
-            // console.log('📤 [RoomsForm] Sending FormData to API with', formData.images?.length || 0, 'images');
-            
-            const response = await fetch('/api/sell', {
-                method: 'POST',
-                body: formDataToSend, // Send FormData instead of JSON
-            });
+            // const response = await fetch('/api/sell', {
+                // method: 'POST',
+                // body: formDataToSend, // Send FormData instead of JSON
+            // });
 
             const result = await response.json();
 

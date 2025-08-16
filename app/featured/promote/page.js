@@ -277,15 +277,6 @@ export default function PromoteItemPage() {
                             </div>
                         )}
 
-                        {/* View Featured Items Link */}
-                        <div className="text-center">
-                            <Link 
-                                href="/featured" 
-                                className="text-blue-600 hover:text-blue-700 font-semibold"
-                            >
-                                View All Featured Items →
-                            </Link>
-                        </div>
                     </>
                 )}
             </div>

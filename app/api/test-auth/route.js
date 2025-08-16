@@ -9,20 +9,20 @@ const supabaseServiceRole = createClient(
 );
 
 export async function POST(request) {
-    console.log('=== Test API route ===');
+    // console.log('=== Test API route ===');
     
     try {
         // Get the authorization header
         const authHeader = request.headers.get('authorization');
-        console.log('Auth header:', authHeader ? 'Present' : 'Missing');
+        // console.log('Auth header:', authHeader ? 'Present' : 'Missing');
         
         // Get cookies
         const cookieHeader = request.headers.get('cookie');
-        console.log('Cookie header:', cookieHeader ? 'Present' : 'Missing');
+        // console.log('Cookie header:', cookieHeader ? 'Present' : 'Missing');
         
         // Parse body
         const body = await request.json();
-        console.log('Request body:', body);
+        // console.log('Request body:', body);
         
         return NextResponse.json({
             success: true,
@@ -34,7 +34,7 @@ export async function POST(request) {
         });
         
     } catch (error) {
-        console.error('Test API error:', error);
+        // console.error('Test API error:', error);
         return NextResponse.json({
             error: error.message
         }, { status: 500 });

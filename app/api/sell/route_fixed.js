@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 
 // Enhanced logging function
 function logError(context, error, additionalInfo = {}) {
-  console.error(`[SELL API ERROR - ${context}]:`, {
+  // console.error(`[SELL API ERROR - ${context}]:`, {
     error: error.message,
     stack: error.stack,
     additionalInfo,
@@ -37,9 +37,9 @@ try {
     }
   })
 
-  console.log('[SELL API] Supabase client initialized successfully')
+  // console.log('[SELL API] Supabase client initialized successfully')
 } catch (initError) {
-  console.error('[SELL API] Failed to initialize Supabase:', initError.message)
+  // console.error('[SELL API] Failed to initialize Supabase:', initError.message)
 }
 
 // ImgBB upload function with better error handling
@@ -83,7 +83,7 @@ async function uploadImageToImgBB(file) {
 
     return result.data.url
   } catch (uploadError) {
-    console.error('[IMGBB] Upload error:', uploadError)
+    // console.error('[IMGBB] Upload error:', uploadError)
     throw uploadError
   }
 }
@@ -111,13 +111,13 @@ async function authenticateUser(userEmail) {
 
     return existingUser
   } catch (authError) {
-    console.error('[AUTH] Authentication error:', authError)
+    // console.error('[AUTH] Authentication error:', authError)
     throw authError
   }
 }
 
 export async function POST(request) {
-  console.log('[SELL API] POST request received')
+  // console.log('[SELL API] POST request received')
   
   try {
     // Check if Supabase is initialized
@@ -134,7 +134,7 @@ export async function POST(request) {
     let isJson = false
     const contentType = request.headers.get('content-type') || ''
 
-    console.log('[SELL API] Content type:', contentType)
+    // console.log('[SELL API] Content type:', contentType)
 
     try {
       if (contentType.includes('application/json')) {
@@ -158,7 +158,7 @@ export async function POST(request) {
       }, { status: 400 })
     }
 
-    console.log('[SELL API] Parsed data keys:', Object.keys(parsedData))
+    // console.log('[SELL API] Parsed data keys:', Object.keys(parsedData))
 
     // Extract and validate required fields
     const type = parsedData.type
@@ -192,7 +192,7 @@ export async function POST(request) {
     let authenticatedUser
     try {
       authenticatedUser = await authenticateUser(userEmail)
-      console.log('[SELL API] User authenticated:', authenticatedUser.email)
+      // console.log('[SELL API] User authenticated:', authenticatedUser.email)
     } catch (authError) {
       logError('AUTHENTICATION', authError, { userEmail })
       return NextResponse.json({
@@ -224,7 +224,7 @@ export async function POST(request) {
     const images = parsedData.images || []
     
     if (images && images.length > 0) {
-      console.log('[SELL API] Processing images:', images.length)
+      // console.log('[SELL API] Processing images:', images.length)
       
       try {
         for (let i = 0; i < images.length; i++) {
@@ -239,7 +239,7 @@ export async function POST(request) {
             imageUrls.push(uploadedUrl)
           }
         }
-        console.log('[SELL API] Images processed:', imageUrls.length)
+        // console.log('[SELL API] Images processed:', imageUrls.length)
       } catch (imageError) {
         logError('IMAGE_PROCESSING', imageError)
         return NextResponse.json({
@@ -330,7 +330,7 @@ export async function POST(request) {
     }
 
     // Insert data into database
-    console.log('[SELL API] Inserting into table:', tableName)
+    // console.log('[SELL API] Inserting into table:', tableName)
     
     try {
       const { data: insertedData, error: insertError } = await supabase
@@ -367,7 +367,7 @@ export async function POST(request) {
         }, { status: 500 })
       }
 
-      console.log('[SELL API] Successfully inserted:', insertedData.id)
+      // console.log('[SELL API] Successfully inserted:', insertedData.id)
 
       return NextResponse.json({
         success: true,

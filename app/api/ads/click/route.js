@@ -19,7 +19,7 @@ export async function POST(request) {
             });
 
         if (error) {
-            console.error('Error recording click:', error);
+            // console.error('Error recording click:', error);
         }
 
         // Update click count and CTR
@@ -27,7 +27,7 @@ export async function POST(request) {
 
         return NextResponse.json({ success: true });
     } catch (error) {
-        console.error('Error in ads/click:', error);
+        // console.error('Error in ads/click:', error);
         return NextResponse.json({ success: false }, { status: 500 });
     }
 }

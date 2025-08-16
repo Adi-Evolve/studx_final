@@ -157,40 +157,40 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
     const handleSaveProfile = async ({ fullName, phoneNumber }) => {
         try {
             // console.log('Saving profile...', { fullName, phoneNumber });
-            // const { data, error } = await supabase
-            //     .from('users')
-            //     .update({ name: fullName, phone: phoneNumber })
-            //     .eq('id', user.id)
-            //     .select()
-            //     .single();
-            // if (error) {
-            //     console.error('Profile update error:', error);
-            //     alert('Error updating profile: ' + error.message);
-            //     return;
-            // }
-            // if (data) {
-            //     // console.log('Profile updated successfully:', data);
-            //     setUser(prev => ({ ...prev, ...data }));
-            //     setIsModalOpen(false);
-            //     // Force a small delay to ensure state update completes
-            //     setTimeout(() => {
-            //         // console.log('Profile update complete');
-            //     }, 100);
-            // }
-        } catch (err) {
-            // console.error('Unexpected error in handleSaveProfile:', err);
-            // alert('An unexpected error occurred while updating your profile.');
-        }
-    };
-
-    const handleRemove = async (id, type) => {
-        try {
-            // if (!confirm('Are you sure you want to remove this item?')) return;
-            const response = await fetch('/api/item/delete', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id, type }),
-            });
+            // // const { data, error } = await supabase
+            // //     .from('users')
+            // //     .update({ name: fullName, phone: phoneNumber })
+            // //     .eq('id', user.id)
+            // //     .select()
+            // //     .single();
+            // // if (error) {
+            // //     console.error('Profile update error:', error);
+            // //     alert('Error updating profile: ' + error.message);
+            // //     return;
+            // // }
+            // // if (data) {
+            // //     // console.log('Profile updated successfully:', data);
+            // //     setUser(prev => ({ ...prev, ...data }));
+            // //     setIsModalOpen(false);
+            // //     // Force a small delay to ensure state update completes
+            // //     setTimeout(() => {
+            // //         // console.log('Profile update complete');
+            // //     }, 100);
+            // // }
+        // } catch (err) {
+            // // console.error('Unexpected error in handleSaveProfile:', err);
+            // // alert('An unexpected error occurred while updating your profile.');
+        // }
+    // };
+// 
+    // const handleRemove = async (id, type) => {
+        // try {
+            // // if (!confirm('Are you sure you want to remove this item?')) return;
+            // const response = await fetch('/api/item/delete', {
+                // method: 'POST',
+                // headers: { 'Content-Type': 'application/json' },
+                // body: JSON.stringify({ id, type }),
+            // });
             if (response.ok) {
                 if (type === 'product') setProducts(products.filter(p => p.id !== id));
                 if (type === 'note') setNotes(notes.filter(n => n.id !== id));

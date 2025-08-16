@@ -21,7 +21,7 @@ async function getUserFromSession() {
         // For now, we'll need to get user info another way
         return null
     } catch (error) {
-        console.error('Error getting user session:', error)
+        // console.error('Error getting user session:', error)
         return null
     }
 }
@@ -37,7 +37,7 @@ async function getItemData(id, type, userEmail = null) {
 
     const { data, error } = await supabase.from(tableName).select('*').eq('id', id).single()
     if (error) {
-        console.error('Error fetching item:', error)
+        // console.error('Error fetching item:', error)
         return null
     }
     return data

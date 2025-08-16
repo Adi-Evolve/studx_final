@@ -19,7 +19,7 @@ export async function POST(request) {
             });
 
         if (error) {
-            console.error('Error recording impression:', error);
+            // console.error('Error recording impression:', error);
         }
 
         // Update impression count
@@ -27,7 +27,7 @@ export async function POST(request) {
 
         return NextResponse.json({ success: true });
     } catch (error) {
-        console.error('Error in ads/impression:', error);
+        // console.error('Error in ads/impression:', error);
         return NextResponse.json({ success: false }, { status: 500 });
     }
 }

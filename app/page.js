@@ -56,7 +56,7 @@ async function FeaturedItemsSection() {
     
     return <FeaturedSlider featuredItems={formattedItems} />;
   } catch (error) {
-    console.error('Error loading sponsored items:', error);
+    // console.error('Error loading sponsored items:', error);
     // Fallback to old system
     const featuredItems = await fetchSponsoredListings();
     return <FeaturedSlider featuredItems={featuredItems} />;

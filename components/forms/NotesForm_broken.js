@@ -46,210 +46,210 @@ export default function NotesForm({ initialData = {}, onSubmit, category = 'Note
                 }
                 
                 // console.log('🔍 [NotesForm] Session data:', {
-                // // //     hasSession: !!session,
-                // // //     hasUser: !!session?.user,
-                // // //     userEmail: session?.user?.email,
-                // // //     userId: session?.user?.id
-                // // // });
+                // // // //     hasSession: !!session,
+                // // // //     hasUser: !!session?.user,
+                // // // //     userEmail: session?.user?.email,
+                // // // //     userId: session?.user?.id
+                // // // // });
+// // //
+                // // // // Only check for email presence in auth
+                // // // if (session?.user?.email) {
+                    // // // setIsAuthenticated(true);
+                    // // // // console.log('✅ [NotesForm] User authenticated with email:', session.user.email);
+                    // // //
+                    // // // // Pre-fill user data if available
+                    // // // try {
+                        // // // const { data: userData } = await supabase
+                            // // // .from('users')
+                            // // // .select('name, college')
+                            // // // .eq('email', session.user.email)
+                            // // // .single();
+                        // // //
+                        // // // if (userData) {
+                            // // // setFormData(prev => ({
+                                // // // ...prev,
+                                // // // college: prev.college || userData.college || ''
+                            // // // }));
+                        // // // }
+                    // // // } catch (profileError) {
+                        // // // // console.log('ℹ️ [NotesForm] Could not load user profile:', profileError);
+                    // // // }
+                // // // } else {
+                    // // // // console.log('❌ [NotesForm] No email found in session');
+                    // // // setIsAuthenticated(false);
+                // // // }
+                // // //
+                // // // setAuthLoading(false);
+            // // // } catch (authError) {
+                // // // // console.error('❌ [NotesForm] Auth check exception:', authError);
+                // // // setIsAuthenticated(false);
+                // // // setAuthLoading(false);
+            // // // }
+        // // // };
+// // //
+        // // // checkAuth();
+// // //
+        // // // // Listen for auth changes
+        // // // const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            // // // // console.log('🔄 [NotesForm] Auth state changed:', event, !!session?.user?.email);
+            // // // if (session?.user?.email) {
+                // // // setIsAuthenticated(true);
+            // // // } else {
+                // // // setIsAuthenticated(false);
+            // // // }
+        // // // });
 // //
-                // // // Only check for email presence in auth
-                // // if (session?.user?.email) {
-                    // // setIsAuthenticated(true);
-                    // // // console.log('✅ [NotesForm] User authenticated with email:', session.user.email);
-                    // //
-                    // // // Pre-fill user data if available
-                    // // try {
-                        // // const { data: userData } = await supabase
-                            // // .from('users')
-                            // // .select('name, college')
-                            // // .eq('email', session.user.email)
-                            // // .single();
-                        // //
-                        // // if (userData) {
-                            // // setFormData(prev => ({
-                                // // ...prev,
-                                // // college: prev.college || userData.college || ''
-                            // // }));
-                        // // }
-                    // // } catch (profileError) {
-                        // // // console.log('ℹ️ [NotesForm] Could not load user profile:', profileError);
-                    // // }
-                // // } else {
-                    // // // console.log('❌ [NotesForm] No email found in session');
-                    // // setIsAuthenticated(false);
-                // // }
-                // //
-                // // setAuthLoading(false);
-            // // } catch (authError) {
-                // // // console.error('❌ [NotesForm] Auth check exception:', authError);
-                // // setIsAuthenticated(false);
-                // // setAuthLoading(false);
-            // // }
-        // // };
+        // // return () => subscription.unsubscribe();
+    // // }, [supabase.auth]);
 // //
-        // // checkAuth();
+    // // const handleChange = (e) => {
+        // // const { name, value } = e.target;
+        // // setFormData(prev => ({ ...prev, [name]: value }));
+    // // };
 // //
-        // // // Listen for auth changes
-        // // const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-            // // // console.log('🔄 [NotesForm] Auth state changed:', event, !!session?.user?.email);
-            // // if (session?.user?.email) {
-                // // setIsAuthenticated(true);
-            // // } else {
-                // // setIsAuthenticated(false);
-            // // }
-        // // });
-// 
-        // return () => subscription.unsubscribe();
-    // }, [supabase.auth]);
-// 
-    // const handleChange = (e) => {
-        // const { name, value } = e.target;
-        // setFormData(prev => ({ ...prev, [name]: value }));
-    // };
-// 
-    // const handleImagesChange = (files) => {
-        // setFormData(prev => ({ ...prev, images: files }));
-    // };
-// 
-    // const handlePdfsChange = (files) => {
-        // setFormData(prev => ({ ...prev, pdfs: files }));
-    // };
-// 
-    // const [isSubmitting, setIsSubmitting] = useState(false);
-// 
-    // const handleSubmit = async (e) => {
-        // e.preventDefault();
-        // if (isSubmitting) return;
-// 
-        // // console.log('📝 [NotesForm] Starting submission...');
-// 
-        // // ============================================================================
-        // // 1. ENHANCED EMAIL-BASED AUTHENTICATION CHECK
-        // // ============================================================================
-        // 
-        // if (!isAuthenticated) {
-            // // console.log('❌ [NotesForm] Not authenticated, redirecting to login');
-            // toast.error('Please log in to submit your notes');
-            // router.push('/login');
-            // return;
-        // }
-// 
-        // // Get current session and verify email
-        // let currentUser = null;
-        // try {
-            // const { data: { session }, error } = await supabase.auth.getSession();
-            // 
-            // if (error) {
-                // // console.error('❌ [NotesForm] Session error:', error);
-                // toast.error('Authentication error. Please try logging in again.');
-                // return;
-            // }
-// 
-            // // console.log('🔍 [NotesForm] Session check:', {
-                // // hasSession: !!session,
-                // // hasUser: !!session?.user,
-                // // userEmail: session?.user?.email,
-                // // userId: session?.user?.id
-            // // });
+    // // const handleImagesChange = (files) => {
+        // // setFormData(prev => ({ ...prev, images: files }));
+    // // };
+// //
+    // // const handlePdfsChange = (files) => {
+        // // setFormData(prev => ({ ...prev, pdfs: files }));
+    // // };
+// //
+    // // const [isSubmitting, setIsSubmitting] = useState(false);
+// //
+    // // const handleSubmit = async (e) => {
+        // // e.preventDefault();
+        // // if (isSubmitting) return;
+// //
+        // // // console.log('📝 [NotesForm] Starting submission...');
+// //
+        // // // ============================================================================
+        // // // 1. ENHANCED EMAIL-BASED AUTHENTICATION CHECK
+        // // // ============================================================================
+        // //
+        // // if (!isAuthenticated) {
+            // // // console.log('❌ [NotesForm] Not authenticated, redirecting to login');
+            // // toast.error('Please log in to submit your notes');
+            // // router.push('/login');
+            // // return;
+        // // }
+// //
+        // // // Get current session and verify email
+        // // let currentUser = null;
+        // // try {
+            // // const { data: { session }, error } = await supabase.auth.getSession();
             // //
-            // // if (!session?.user?.email) {
-                // // // console.log('❌ [NotesForm] No email found in session');
-                // // toast.error('Invalid authentication. Please log in with a valid email.');
-                // // router.push('/login');
+            // // if (error) {
+                // // // console.error('❌ [NotesForm] Session error:', error);
+                // // toast.error('Authentication error. Please try logging in again.');
                 // // return;
             // // }
 // //
-            // // // Fetch current user data to include phone number
-            // // let userProfile = null;
-            // // try {
-                // // const { data: profile } = await supabase
-                    // // .from('users')
-                    // // .select('phone')
-                    // // .eq('id', session.user.id)
-                    // // .single();
-                // // userProfile = profile;
-            // // } catch (err) {
-                // // // console.log('ℹ️ [NotesForm] Could not fetch user profile phone:', err);
+            // // // console.log('🔍 [NotesForm] Session check:', {
+                // // // hasSession: !!session,
+                // // // hasUser: !!session?.user,
+                // // // userEmail: session?.user?.email,
+                // // // userId: session?.user?.id
+            // // // });
+            // // //
+            // // // if (!session?.user?.email) {
+                // // // // console.log('❌ [NotesForm] No email found in session');
+                // // // toast.error('Invalid authentication. Please log in with a valid email.');
+                // // // router.push('/login');
+                // // // return;
+            // // // }
+// // //
+            // // // // Fetch current user data to include phone number
+            // // // let userProfile = null;
+            // // // try {
+                // // // const { data: profile } = await supabase
+                    // // // .from('users')
+                    // // // .select('phone')
+                    // // // .eq('id', session.user.id)
+                    // // // .single();
+                // // // userProfile = profile;
+            // // // } catch (err) {
+                // // // // console.log('ℹ️ [NotesForm] Could not fetch user profile phone:', err);
+            // // // }
+            // // //
+            // // // currentUser = {
+                // // // id: session.user.id,
+                // // // email: session.user.email,
+                // // // name: session.user.user_metadata?.name || session.user.user_metadata?.full_name || session.user.email.split('@')[0],
+                // // // avatar_url: session.user.user_metadata?.avatar_url,
+                // // // college: formData.college,
+                // // // phone: userProfile?.phone || null // Include phone to preserve it in API upsert
+            // // // };
+// // //
+            // // // // console.log('✅ [NotesForm] User data prepared:', currentUser);
+        // // // } catch (sessionError) {
+            // // // // console.error('❌ [NotesForm] Session check failed:', sessionError);
+            // // // toast.error('Failed to verify authentication. Please try again.');
+            // // // return;
+        // // // }
+// // //
+        // // // // ============================================================================
+        // // // // 2. FORM VALIDATION
+        // // // // ============================================================================
+        // // //
+        // // // if (!formData.title || !formData.price || !formData.college || !formData.subject) {
+            // // // toast.error('Please fill in all required fields');
+            // // // return;
+        // // // }
+// // //
+        // // // if (isNaN(parseFloat(formData.price)) || parseFloat(formData.price) <= 0) {
+            // // // toast.error('Please enter a valid price');
+            // // // return;
+        // // // }
+// // //
+        // // // // console.log('✅ [NotesForm] Form validation passed');
+        // // // setIsSubmitting(true);
+// // //
+        // // // const toastId = toast.loading('Uploading your notes...');
+// // //
+        // // // try {
+            // // // // ============================================================================
+            // // // // 3. PREPARE SUBMISSION DATA
+            // // // // ============================================================================
+            // // //
+            // // // // ============================================================================
+            // // // // 4. SUBMIT TO API
+            // // // // ============================================================================
+            // // //
+            // // // // Create FormData to handle File uploads
+            // // // const formDataToSend = new FormData();
+            // // //
+            // // // // Add basic data
+            // // // formDataToSend.append('type', 'notes');
+            // // // formDataToSend.append('user', JSON.stringify(currentUser));
+            // // // formDataToSend.append('title', formData.title);
+            // // // formDataToSend.append('description', formData.description);
+            // // // formDataToSend.append('price', parseFloat(formData.price));
+            // // // formDataToSend.append('college', formData.college);
+            // // // formDataToSend.append('course', formData.course || 'General');
+            // // // formDataToSend.append('subject', formData.subject);
+            // // // formDataToSend.append('academicYear', formData.academic_year);
+            // // //
+            // // // // Add images as File objects
+            // // // if (formData.images && formData.images.length > 0) {
+                // // // formData.images.forEach((image, index) => {
+                    // // // formDataToSend.append(`images`, image);
+                // // // });
             // // }
             // //
-            // // currentUser = {
-                // // id: session.user.id,
-                // // email: session.user.email,
-                // // name: session.user.user_metadata?.name || session.user.user_metadata?.full_name || session.user.email.split('@')[0],
-                // // avatar_url: session.user.user_metadata?.avatar_url,
-                // // college: formData.college,
-                // // phone: userProfile?.phone || null // Include phone to preserve it in API upsert
-            // // };
-// //
-            // // // console.log('✅ [NotesForm] User data prepared:', currentUser);
-        // // } catch (sessionError) {
-            // // // console.error('❌ [NotesForm] Session check failed:', sessionError);
-            // // toast.error('Failed to verify authentication. Please try again.');
-            // // return;
-        // // }
-// //
-        // // // ============================================================================
-        // // // 2. FORM VALIDATION
-        // // // ============================================================================
-        // //
-        // // if (!formData.title || !formData.price || !formData.college || !formData.subject) {
-            // // toast.error('Please fill in all required fields');
-            // // return;
-        // // }
-// //
-        // // if (isNaN(parseFloat(formData.price)) || parseFloat(formData.price) <= 0) {
-            // // toast.error('Please enter a valid price');
-            // // return;
-        // // }
-// //
-        // // // console.log('✅ [NotesForm] Form validation passed');
-        // // setIsSubmitting(true);
-// //
-        // // const toastId = toast.loading('Uploading your notes...');
-// //
-        // // try {
-            // // // ============================================================================
-            // // // 3. PREPARE SUBMISSION DATA
-            // // // ============================================================================
-            // //
-            // // // ============================================================================
-            // // // 4. SUBMIT TO API
-            // // // ============================================================================
-            // //
-            // // // Create FormData to handle File uploads
-            // // const formDataToSend = new FormData();
-            // //
-            // // // Add basic data
-            // // formDataToSend.append('type', 'notes');
-            // // formDataToSend.append('user', JSON.stringify(currentUser));
-            // // formDataToSend.append('title', formData.title);
-            // // formDataToSend.append('description', formData.description);
-            // // formDataToSend.append('price', parseFloat(formData.price));
-            // // formDataToSend.append('college', formData.college);
-            // // formDataToSend.append('course', formData.course || 'General');
-            // // formDataToSend.append('subject', formData.subject);
-            // // formDataToSend.append('academicYear', formData.academic_year);
-            // //
-            // // // Add images as File objects
-            // // if (formData.images && formData.images.length > 0) {
-                // // formData.images.forEach((image, index) => {
-                    // // formDataToSend.append(`images`, image);
+            // // // Add PDFs as File objects
+            // // if (formData.pdfs && formData.pdfs.length > 0) {
+                // // formData.pdfs.forEach((pdf, index) => {
+                    // // formDataToSend.append(`pdfs`, pdf);
                 // // });
             // }
+// 
+            // // console.log('📤 [NotesForm] Sending FormData to API with', formData.images?.length || 0, 'images and', formData.pdfs?.length || 0, 'PDFs');
             // 
-            // // Add PDFs as File objects
-            // if (formData.pdfs && formData.pdfs.length > 0) {
-                // formData.pdfs.forEach((pdf, index) => {
-                    // formDataToSend.append(`pdfs`, pdf);
-                // });
-            }
-
-            // console.log('📤 [NotesForm] Sending FormData to API with', formData.images?.length || 0, 'images and', formData.pdfs?.length || 0, 'PDFs');
-            
-            const response = await fetch('/api/sell', {
-                method: 'POST',
-                body: formDataToSend, // Send FormData instead of JSON
-            });
+            // const response = await fetch('/api/sell', {
+                // method: 'POST',
+                // body: formDataToSend, // Send FormData instead of JSON
+            // });
 
             const result = await response.json();
 

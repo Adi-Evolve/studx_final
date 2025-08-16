@@ -16,24 +16,24 @@ export async function POST(request) {
       currency,
       receipt,
     };
-    console.log('[Razorpay] Creating order with options:', options);
+    // console.log('[Razorpay] Creating order with options:', options);
     const order = await razorpay.orders.create(options);
-    console.log('[Razorpay] Order response:', order);
+    // console.log('[Razorpay] Order response:', order);
     return NextResponse.json(order);
   } catch (error) {
     // Enhanced error logging
-    console.error('[Razorpay] Error creating order:', error);
+    // console.error('[Razorpay] Error creating order:', error);
     if (error.stack) {
-      console.error('[Razorpay] Error stack:', error.stack);
+      // console.error('[Razorpay] Error stack:', error.stack);
     }
     if (error.response) {
-      console.error('[Razorpay] Error response:', error.response);
+      // console.error('[Razorpay] Error response:', error.response);
     }
     // Log environment variable presence (not values)
-    console.log('[Razorpay] ENV KEYS SET:', {
-      RAZORPAY_KEY_ID: !!process.env.RAZORPAY_KEY_ID,
-      RAZORPAY_KEY_SECRET: !!process.env.RAZORPAY_KEY_SECRET,
-    });
+    // console.log('[Razorpay] ENV KEYS SET:', {
+    //   RAZORPAY_KEY_ID: !!process.env.RAZORPAY_KEY_ID,
+    //   RAZORPAY_KEY_SECRET: !!process.env.RAZORPAY_KEY_SECRET,
+    // });
     // Return detailed error info
     return NextResponse.json({
       error: error.message || 'Unknown error',

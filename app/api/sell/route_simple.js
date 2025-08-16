@@ -30,7 +30,7 @@ async function uploadToImgBB(file) {
 }
 
 export async function POST(request) {
-  console.log('[SELL API SIMPLE] Request received')
+  // console.log('[SELL API SIMPLE] Request received')
 
   try {
     // Parse the form data
@@ -42,7 +42,7 @@ export async function POST(request) {
       data[key] = value
     }
 
-    console.log('[SELL API SIMPLE] Form data received:', Object.keys(data))
+    // console.log('[SELL API SIMPLE] Form data received:', Object.keys(data))
 
     // Check required fields
     if (!data.type) {
@@ -73,7 +73,7 @@ export async function POST(request) {
       }, { status: 401 })
     }
 
-    console.log('[SELL API SIMPLE] User authenticated:', user.email)
+    // console.log('[SELL API SIMPLE] User authenticated:', user.email)
 
     // Process images
     let imageUrls = []
@@ -85,7 +85,7 @@ export async function POST(request) {
           const url = await uploadToImgBB(image)
           imageUrls.push(url)
         } catch (uploadError) {
-          console.error('Image upload error:', uploadError)
+          // console.error('Image upload error:', uploadError)
           // Continue with other images
         }
       }
@@ -116,7 +116,7 @@ export async function POST(request) {
       updated_at: new Date().toISOString()
     }
 
-    console.log('[SELL API SIMPLE] Inserting room data')
+    // console.log('[SELL API SIMPLE] Inserting room data')
 
     // Insert into database
     const { data: insertedRoom, error: insertError } = await supabase
@@ -126,7 +126,7 @@ export async function POST(request) {
       .single()
 
     if (insertError) {
-      console.error('[SELL API SIMPLE] Insert error:', insertError)
+      // console.error('[SELL API SIMPLE] Insert error:', insertError)
       return NextResponse.json({ 
         success: false, 
         error: 'Failed to save room listing',
@@ -134,7 +134,7 @@ export async function POST(request) {
       }, { status: 500 })
     }
 
-    console.log('[SELL API SIMPLE] Room inserted successfully:', insertedRoom.id)
+    // console.log('[SELL API SIMPLE] Room inserted successfully:', insertedRoom.id)
 
     return NextResponse.json({
       success: true,
@@ -146,7 +146,7 @@ export async function POST(request) {
     })
 
   } catch (error) {
-    console.error('[SELL API SIMPLE] Error:', error)
+    // console.error('[SELL API SIMPLE] Error:', error)
     return NextResponse.json({
       success: false,
       error: 'Internal server error',

@@ -30,7 +30,7 @@ export default function AuthReset() {
             // Force reload
             window.location.href = '/';
         } catch (error) {
-            console.error('Reset failed:', error);
+            // console.error('Reset failed:', error);
         } finally {
             setIsResetting(false);
         }

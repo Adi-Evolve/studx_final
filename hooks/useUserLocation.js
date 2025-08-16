@@ -34,11 +34,11 @@ export const useUserLocation = () => {
             setUserLocation(location);
             setLocationPermission('granted');
             storeUserLocation(location);
-            console.log('📍 User location obtained:', location);
+            // console.log('📍 User location obtained:', location);
         } catch (error) {
             setLocationError(error.message);
             setLocationPermission('denied');
-            console.error('❌ Location error:', error);
+            // console.error('❌ Location error:', error);
         } finally {
             setLocationLoading(false);
         }
@@ -54,7 +54,7 @@ export const useUserLocation = () => {
         try {
             localStorage.removeItem('userLocation');
         } catch (error) {
-            console.warn('Failed to clear stored location:', error);
+            // console.warn('Failed to clear stored location:', error);
         }
     };
 

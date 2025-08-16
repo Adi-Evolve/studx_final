@@ -12,7 +12,7 @@ export async function GET(request) {
       )
     }
 
-    console.log('[GEOCODE API] Searching for:', query)
+    // console.log('[GEOCODE API] Searching for:', query)
 
     // Make request to Nominatim API with proper headers
     const response = await fetch(
@@ -26,7 +26,7 @@ export async function GET(request) {
     )
 
     if (!response.ok) {
-      console.error('[GEOCODE API] Nominatim error:', response.status, response.statusText)
+      // console.error('[GEOCODE API] Nominatim error:', response.status, response.statusText)
       return NextResponse.json(
         { error: 'Failed to fetch location data' },
         { status: response.status }
@@ -34,7 +34,7 @@ export async function GET(request) {
     }
 
     const data = await response.json()
-    console.log('[GEOCODE API] Found', data.length, 'results')
+    // console.log('[GEOCODE API] Found', data.length, 'results')
 
     // Add CORS headers for the response
     return NextResponse.json(data, {
@@ -46,7 +46,7 @@ export async function GET(request) {
     })
 
   } catch (error) {
-    console.error('[GEOCODE API] Error:', error.message)
+    // console.error('[GEOCODE API] Error:', error.message)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

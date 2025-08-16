@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
 export async function POST(request) {
-    console.log('=== Test User Creation ===');
+    // console.log('=== Test User Creation ===');
     
     try {
         const supabase = createRouteHandlerClient({ cookies });
@@ -14,7 +14,7 @@ export async function POST(request) {
             return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
         }
         
-        console.log('✅ Authenticated user:', user.email);
+        // console.log('✅ Authenticated user:', user.email);
         
         // Check if user exists in public.users
         const { data: userData, error: publicUserError } = await supabase
@@ -24,7 +24,7 @@ export async function POST(request) {
             .single();
             
         if (publicUserError || !userData) {
-            console.log('❌ User not found in public.users table:', publicUserError?.message);
+            // console.log('❌ User not found in public.users table:', publicUserError?.message);
             
             // Create the user in public.users
             const newUserData = {
@@ -42,7 +42,7 @@ export async function POST(request) {
                 updated_at: new Date().toISOString()
             };
             
-            console.log('Creating user with data:', newUserData);
+            // console.log('Creating user with data:', newUserData);
             
             const { data: insertedUser, error: insertError } = await supabase
                 .from('users')
@@ -51,16 +51,16 @@ export async function POST(request) {
                 .single();
             
             if (insertError) {
-                console.error('❌ Failed to create user:', insertError);
+                // console.error('❌ Failed to create user:', insertError);
                 return NextResponse.json({ 
                     error: 'User creation failed',
                     details: insertError.message
                 }, { status: 500 });
             }
             
-            console.log('✅ Created user:', insertedUser);
+            // console.log('✅ Created user:', insertedUser);
         } else {
-            console.log('✅ User exists in public.users:', userData.email);
+            // console.log('✅ User exists in public.users:', userData.email);
         }
         
         // Now try to insert a test note
@@ -75,7 +75,7 @@ export async function POST(request) {
             category: 'Test Category'
         };
         
-        console.log('Trying to insert test note...');
+        // console.log('Trying to insert test note...');
         
         const { data: noteData, error: noteError } = await supabase
             .from('notes')
@@ -84,14 +84,14 @@ export async function POST(request) {
             .single();
         
         if (noteError) {
-            console.error('❌ Note insertion failed:', noteError);
+            // console.error('❌ Note insertion failed:', noteError);
             return NextResponse.json({ 
                 error: 'Note insertion failed',
                 details: noteError.message
             }, { status: 500 });
         }
         
-        console.log('✅ Note inserted successfully:', noteData);
+        // console.log('✅ Note inserted successfully:', noteData);
         
         // Clean up the test note
         await supabase.from('notes').delete().eq('id', noteData.id);
@@ -103,7 +103,7 @@ export async function POST(request) {
         });
         
     } catch (error) {
-        console.error('Test error:', error);
+        // console.error('Test error:', error);
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }

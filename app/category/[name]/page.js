@@ -78,7 +78,7 @@ export default async function CategoryPage({ params }) {
             // Mix sponsored items at the beginning with deduplicated regular items
             return [...selectedSponsored, ...filteredRegularListings];
         } catch (error) {
-            console.error('Error mixing sponsored items:', error);
+            // console.error('Error mixing sponsored items:', error);
             return regularListings;
         }
     };
