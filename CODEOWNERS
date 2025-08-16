@@ -1,0 +1,34 @@
+* Adi-Evolve
+
+# Code Owners Configuration
+# This ensures that Adi-Evolve must review all changes
+
+# Global ownership - all files require review from Adi-Evolve
+* @Adi-Evolve
+
+# Critical security files require explicit approval
+SECURITY.md @Adi-Evolve
+.github/ @Adi-Evolve
+.env* @Adi-Evolve
+middleware.js @Adi-Evolve
+lib/security.js @Adi-Evolve
+lib/secureAPI.js @Adi-Evolve
+
+# Configuration files
+next.config.mjs @Adi-Evolve
+package.json @Adi-Evolve
+.gitignore @Adi-Evolve
+
+# Database and API security
+app/api/ @Adi-Evolve
+lib/ @Adi-Evolve
+
+# Any file containing "admin", "secret", "key", or "credential"
+*admin* @Adi-Evolve
+*secret* @Adi-Evolve
+*key* @Adi-Evolve
+*credential* @Adi-Evolve
+
+# Prevent bypass attempts
+*security* @Adi-Evolve
+*auth* @Adi-Evolve
