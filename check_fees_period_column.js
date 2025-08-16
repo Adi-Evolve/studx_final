@@ -7,7 +7,7 @@ const supabase = createClient(
 )
 
 async function checkFeesPeriodColumn() {
-  console.log('🔍 Checking if fees_period column exists in rooms table...\n')
+  // console.log('🔍 Checking if fees_period column exists in rooms table...\n')
   
   try {
     // Check column existence
@@ -18,13 +18,13 @@ async function checkFeesPeriodColumn() {
       .eq('column_name', 'fees_period')
 
     if (error) {
-      console.error('❌ Error checking column:', error)
+      // console.error('❌ Error checking column:', error)
       return
     }
 
     if (data && data.length > 0) {
-      console.log('✅ fees_period column exists!')
-      console.log('Column details:', data[0])
+      // console.log('✅ fees_period column exists!')
+      // console.log('Column details:', data[0])
       
       // Check sample data
       const { data: sampleData, error: sampleError } = await supabase
@@ -33,19 +33,19 @@ async function checkFeesPeriodColumn() {
         .limit(5)
         
       if (sampleError) {
-        console.error('❌ Error fetching sample data:', sampleError)
+        // console.error('❌ Error fetching sample data:', sampleError)
       } else {
-        console.log('\n📊 Sample room data with fees_period:')
+        // console.log('\n📊 Sample room data with fees_period:')
         console.table(sampleData)
       }
       
     } else {
-      console.log('❌ fees_period column does NOT exist in rooms table')
-      console.log('💡 You need to run the SQL to add this column')
+      // console.log('❌ fees_period column does NOT exist in rooms table')
+      // console.log('💡 You need to run the SQL to add this column')
     }
     
   } catch (err) {
-    console.error('❌ Unexpected error:', err)
+    // console.error('❌ Unexpected error:', err)
   }
 }
 

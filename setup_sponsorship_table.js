@@ -7,10 +7,10 @@ const supabase = createClient(
 );
 
 async function setupSponsorshipTable() {
-    console.log('🚀 Setting up sponsorship_sequences table...');
+    // console.log('🚀 Setting up sponsorship_sequences table...');
 
     try {
-        console.log('📋 Checking if table exists...');
+        // console.log('📋 Checking if table exists...');
         
         // Check if table already exists
         const { data: existingTable, error: checkError } = await supabase
@@ -19,14 +19,14 @@ async function setupSponsorshipTable() {
             .limit(1);
 
         if (!checkError) {
-            console.log('✅ Table already exists, skipping creation');
+            // console.log('✅ Table already exists, skipping creation');
         } else {
-            console.log('📋 Table does not exist, you need to create it manually in Supabase Dashboard');
-            console.log('📋 Please run the SQL from create_sponsorship_table.sql in your Supabase SQL editor');
+            // console.log('📋 Table does not exist, you need to create it manually in Supabase Dashboard');
+            // console.log('📋 Please run the SQL from create_sponsorship_table.sql in your Supabase SQL editor');
             return;
         }
 
-        console.log('✅ Table verified successfully');
+        // console.log('✅ Table verified successfully');
 
         // Get some existing products to feature
         const { data: products, error: productsError } = await supabase
@@ -36,9 +36,9 @@ async function setupSponsorshipTable() {
             .limit(4);
 
         if (productsError) {
-            console.error('❌ Error fetching products:', productsError);
+            // console.error('❌ Error fetching products:', productsError);
         } else {
-            console.log(`📦 Found ${products?.length || 0} products to feature`);
+            // console.log(`📦 Found ${products?.length || 0} products to feature`);
         }
 
         // Get some existing notes to feature
@@ -48,9 +48,9 @@ async function setupSponsorshipTable() {
             .limit(2);
 
         if (notesError) {
-            console.error('❌ Error fetching notes:', notesError);
+            // console.error('❌ Error fetching notes:', notesError);
         } else {
-            console.log(`📝 Found ${notes?.length || 0} notes to feature`);
+            // console.log(`📝 Found ${notes?.length || 0} notes to feature`);
         }
 
         // Clear existing sponsorship data
@@ -60,7 +60,7 @@ async function setupSponsorshipTable() {
             .neq('id', 0); // Delete all
 
         if (clearError) {
-            console.warn('⚠️ Could not clear existing sponsorship data:', clearError.message);
+            // console.warn('⚠️ Could not clear existing sponsorship data:', clearError.message);
         }
 
         // Insert featured items
@@ -96,19 +96,19 @@ async function setupSponsorshipTable() {
                 .select();
 
             if (insertError) {
-                console.error('❌ Error inserting sponsorship data:', insertError);
+                // console.error('❌ Error inserting sponsorship data:', insertError);
             } else {
-                console.log(`✅ Successfully added ${insertData.length} featured items:`);
+                // console.log(`✅ Successfully added ${insertData.length} featured items:`);
                 insertData.forEach(item => {
-                    console.log(`   - Slot ${item.slot}: ${item.item_type} #${item.item_id}`);
+                    // console.log(`   - Slot ${item.slot}: ${item.item_type} #${item.item_id}`);
                 });
             }
         } else {
-            console.log('⚠️ No items found to feature');
+            // console.log('⚠️ No items found to feature');
         }
 
         // Test fetching sponsored listings
-        console.log('\n🧪 Testing fetchSponsoredListings...');
+        // console.log('\n🧪 Testing fetchSponsoredListings...');
         
         const { data: sequenceItems, error: sequenceError } = await supabase
             .from('sponsorship_sequences')
@@ -116,11 +116,11 @@ async function setupSponsorshipTable() {
             .order('slot', { ascending: true });
 
         if (sequenceError) {
-            console.error('❌ Error fetching sponsorship sequence:', sequenceError);
+            // console.error('❌ Error fetching sponsorship sequence:', sequenceError);
             return;
         }
 
-        console.log(`✅ Found ${sequenceItems.length} sponsored items in sequence`);
+        // console.log(`✅ Found ${sequenceItems.length} sponsored items in sequence`);
         
         // Fetch the actual item details
         for (const item of sequenceItems) {
@@ -142,17 +142,17 @@ async function setupSponsorshipTable() {
                 .single();
 
             if (itemError) {
-                console.error(`❌ Error fetching ${item.item_type} #${item.item_id}:`, itemError.message);
+                // console.error(`❌ Error fetching ${item.item_type} #${item.item_id}:`, itemError.message);
             } else {
-                console.log(`✅ Slot ${item.slot}: ${itemData.title} (${item.item_type}) - $${itemData.price}`);
+                // console.log(`✅ Slot ${item.slot}: ${itemData.title} (${item.item_type}) - $${itemData.price}`);
             }
         }
 
-        console.log('\n🎉 Sponsorship table setup complete!');
-        console.log('✨ The homepage will now display featured items from the sponsorship_sequences table');
+        // console.log('\n🎉 Sponsorship table setup complete!');
+        // console.log('✨ The homepage will now display featured items from the sponsorship_sequences table');
 
     } catch (error) {
-        console.error('❌ Setup failed:', error.message);
+        // console.error('❌ Setup failed:', error.message);
         process.exit(1);
     }
 }

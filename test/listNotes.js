@@ -14,12 +14,12 @@ async function listNotes() {
     .from('notes')
     .select('id, title, category, created_at');
   if (error) {
-    console.error('Error fetching notes:', error.message);
+    // console.error('Error fetching notes:', error.message);
     return;
   }
-  console.log('Notes in database:');
+  // console.log('Notes in database:');
   data.forEach(note => {
-    console.log(`ID: ${note.id}, Title: ${note.title}, Category: ${note.category}, Created: ${note.created_at}`);
+    // console.log(`ID: ${note.id}, Title: ${note.title}, Category: ${note.category}, Created: ${note.created_at}`);
   });
 }
 

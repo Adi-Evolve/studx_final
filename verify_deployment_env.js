@@ -1,7 +1,7 @@
 // Environment Variables Verification Script
 // Run this to check if all required environment variables are properly set
 
-console.log('🔍 Checking Environment Variables...\n');
+// console.log('🔍 Checking Environment Variables...\n');
 
 // Check all required environment variables
 const requiredEnvVars = {
@@ -20,31 +20,31 @@ Object.entries(requiredEnvVars).forEach(([name, value]) => {
         (name.includes('SECRET') ? '***HIDDEN***' : value.substring(0, 20) + '...') : 
         'NOT SET';
     
-    console.log(`${status} ${name}: ${display}`);
+    // console.log(`${status} ${name}: ${display}`);
     
     if (!value) {
         allGood = false;
     }
 });
 
-console.log('\n📊 Environment Check Results:');
+// console.log('\n📊 Environment Check Results:');
 if (allGood) {
-    console.log('✅ All environment variables are properly set!');
-    console.log('🚀 Your app is ready for deployment.');
+    // console.log('✅ All environment variables are properly set!');
+    // console.log('🚀 Your app is ready for deployment.');
 } else {
-    console.log('❌ Some environment variables are missing.');
-    console.log('⚠️  Please set all required environment variables before deployment.');
+    // console.log('❌ Some environment variables are missing.');
+    // console.log('⚠️  Please set all required environment variables before deployment.');
 }
 
 // Test ImgBB API connectivity (basic check)
 async function testImgBBConnection() {
     if (!process.env.IMGBB_API_KEY) {
-        console.log('\n❌ Cannot test ImgBB - API key not set');
+        // console.log('\n❌ Cannot test ImgBB - API key not set');
         return;
     }
     
     try {
-        console.log('\n🧪 Testing ImgBB API connectivity...');
+        // console.log('\n🧪 Testing ImgBB API connectivity...');
         
         // Create a small test image (1x1 pixel PNG)
         const testImageBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
@@ -59,13 +59,13 @@ async function testImgBBConnection() {
         const result = await response.json();
         
         if (result.success) {
-            console.log('✅ ImgBB API is working correctly!');
-            console.log(`📷 Test image uploaded: ${result.data.url}`);
+            // console.log('✅ ImgBB API is working correctly!');
+            // console.log(`📷 Test image uploaded: ${result.data.url}`);
         } else {
-            console.log('❌ ImgBB API test failed:', result.error?.message || 'Unknown error');
+            // console.log('❌ ImgBB API test failed:', result.error?.message || 'Unknown error');
         }
     } catch (error) {
-        console.log('❌ ImgBB API test error:', error.message);
+        // console.log('❌ ImgBB API test error:', error.message);
     }
 }
 

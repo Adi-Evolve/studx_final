@@ -9,7 +9,7 @@ const supabase = createClient(
 );
 
 async function exportData() {
-  console.log('📦 Starting data export from current Supabase account...\n');
+  // console.log('📦 Starting data export from current Supabase account...\n');
 
   const exportData = {
     timestamp: new Date().toISOString(),
@@ -27,74 +27,74 @@ async function exportData() {
 
   try {
     // Export users
-    console.log('👥 Exporting users...');
+    // console.log('👥 Exporting users...');
     const { data: users, error: usersError } = await supabase
       .from('users')
       .select('*');
 
     if (usersError) {
-      console.log('⚠️ Could not export users:', usersError.message);
+      // console.log('⚠️ Could not export users:', usersError.message);
     } else {
       exportData.users = users || [];
       exportData.metadata.totalUsers = users?.length || 0;
-      console.log(`✅ Exported ${users?.length || 0} users`);
+      // console.log(`✅ Exported ${users?.length || 0} users`);
     }
 
     // Export listings
-    console.log('📋 Exporting listings...');
+    // console.log('📋 Exporting listings...');
     const { data: listings, error: listingsError } = await supabase
       .from('listings')
       .select('*');
 
     if (listingsError) {
-      console.log('⚠️ Could not export listings:', listingsError.message);
+      // console.log('⚠️ Could not export listings:', listingsError.message);
     } else {
       exportData.listings = listings || [];
       exportData.metadata.totalListings = listings?.length || 0;
-      console.log(`✅ Exported ${listings?.length || 0} listings`);
+      // console.log(`✅ Exported ${listings?.length || 0} listings`);
     }
 
     // Export sponsorship sequences
-    console.log('⭐ Exporting sponsorship sequences...');
+    // console.log('⭐ Exporting sponsorship sequences...');
     const { data: sponsorships, error: sponsorshipsError } = await supabase
       .from('sponsorship_sequences')
       .select('*');
 
     if (sponsorshipsError) {
-      console.log('⚠️ Could not export sponsorship sequences:', sponsorshipsError.message);
+      // console.log('⚠️ Could not export sponsorship sequences:', sponsorshipsError.message);
     } else {
       exportData.sponsorship_sequences = sponsorships || [];
-      console.log(`✅ Exported ${sponsorships?.length || 0} sponsorship sequences`);
+      // console.log(`✅ Exported ${sponsorships?.length || 0} sponsorship sequences`);
     }
 
     // Export transactions
-    console.log('💳 Exporting transactions...');
+    // console.log('💳 Exporting transactions...');
     const { data: transactions, error: transactionsError } = await supabase
       .from('transactions')
       .select('*');
 
     if (transactionsError) {
-      console.log('⚠️ Could not export transactions:', transactionsError.message);
+      // console.log('⚠️ Could not export transactions:', transactionsError.message);
     } else {
       exportData.transactions = transactions || [];
-      console.log(`✅ Exported ${transactions?.length || 0} transactions`);
+      // console.log(`✅ Exported ${transactions?.length || 0} transactions`);
     }
 
     // Export user ratings
-    console.log('⭐ Exporting user ratings...');
+    // console.log('⭐ Exporting user ratings...');
     const { data: ratings, error: ratingsError } = await supabase
       .from('user_ratings')
       .select('*');
 
     if (ratingsError) {
-      console.log('⚠️ Could not export user ratings:', ratingsError.message);
+      // console.log('⚠️ Could not export user ratings:', ratingsError.message);
     } else {
       exportData.user_ratings = ratings || [];
-      console.log(`✅ Exported ${ratings?.length || 0} user ratings`);
+      // console.log(`✅ Exported ${ratings?.length || 0} user ratings`);
     }
 
     // Export storage file list (we can't export actual files easily)
-    console.log('📁 Checking storage files...');
+    // console.log('📁 Checking storage files...');
     const buckets = ['product_pdfs', 'product_images', 'avatars'];
     exportData.storage_files = {};
 
@@ -111,13 +111,13 @@ async function exportData() {
             created_at: file.created_at,
             metadata: file.metadata
           }));
-          console.log(`✅ Found ${files.length} files in ${bucketName}`);
+          // console.log(`✅ Found ${files.length} files in ${bucketName}`);
         } else {
           exportData.storage_files[bucketName] = [];
-          console.log(`ℹ️ No files found in ${bucketName}`);
+          // console.log(`ℹ️ No files found in ${bucketName}`);
         }
       } catch (err) {
-        console.log(`⚠️ Could not access ${bucketName}:`, err.message);
+        // console.log(`⚠️ Could not access ${bucketName}:`, err.message);
         exportData.storage_files[bucketName] = [];
       }
     }
@@ -126,35 +126,35 @@ async function exportData() {
     const exportFileName = `supabase_export_${Date.now()}.json`;
     fs.writeFileSync(exportFileName, JSON.stringify(exportData, null, 2));
 
-    console.log('\n📊 EXPORT SUMMARY');
-    console.log('=================');
-    console.log(`👥 Users: ${exportData.metadata.totalUsers}`);
-    console.log(`📋 Listings: ${exportData.metadata.totalListings}`);
-    console.log(`⭐ Sponsorships: ${exportData.sponsorship_sequences.length}`);
-    console.log(`💳 Transactions: ${exportData.transactions.length}`);
-    console.log(`⭐ Ratings: ${exportData.user_ratings.length}`);
+    // console.log('\n📊 EXPORT SUMMARY');
+    // console.log('=================');
+    // console.log(`👥 Users: ${exportData.metadata.totalUsers}`);
+    // console.log(`📋 Listings: ${exportData.metadata.totalListings}`);
+    // console.log(`⭐ Sponsorships: ${exportData.sponsorship_sequences.length}`);
+    // console.log(`💳 Transactions: ${exportData.transactions.length}`);
+    // console.log(`⭐ Ratings: ${exportData.user_ratings.length}`);
     
     Object.entries(exportData.storage_files).forEach(([bucket, files]) => {
-      console.log(`📁 ${bucket}: ${files.length} files`);
+      // console.log(`📁 ${bucket}: ${files.length} files`);
     });
 
-    console.log(`\n✅ Export complete! Saved to: ${exportFileName}`);
-    console.log('\n📋 NEXT STEPS:');
-    console.log('1. Create new Supabase account');
-    console.log('2. Run the schema setup script');
-    console.log('3. Run the import script with your export file');
-    console.log('4. Update your environment variables');
+    // console.log(`\n✅ Export complete! Saved to: ${exportFileName}`);
+    // console.log('\n📋 NEXT STEPS:');
+    // console.log('1. Create new Supabase account');
+    // console.log('2. Run the schema setup script');
+    // console.log('3. Run the import script with your export file');
+    // console.log('4. Update your environment variables');
 
     // Generate schema for new database
     const schemaSQL = generateSchema();
     fs.writeFileSync('new_database_schema.sql', schemaSQL);
-    console.log('📄 Database schema saved to: new_database_schema.sql');
+    // console.log('📄 Database schema saved to: new_database_schema.sql');
 
   } catch (error) {
-    console.error('❌ Export failed:', error.message);
-    console.log('\nMake sure you have:');
-    console.log('- NEXT_PUBLIC_SUPABASE_URL in .env.local');
-    console.log('- SUPABASE_SECRET_KEY in .env.local');
+    // console.error('❌ Export failed:', error.message);
+    // console.log('\nMake sure you have:');
+    // console.log('- NEXT_PUBLIC_SUPABASE_URL in .env.local');
+    // console.log('- SUPABASE_SECRET_KEY in .env.local');
   }
 }
 

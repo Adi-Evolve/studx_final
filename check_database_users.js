@@ -8,14 +8,14 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SECRET_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
-    console.error('Missing Supabase environment variables');
+    // console.error('Missing Supabase environment variables');
     process.exit(1);
 }
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function checkUsers() {
-    console.log('🔍 Checking users in database...\n');
+    // console.log('🔍 Checking users in database...\n');
     
     try {
         const { data: users, error } = await supabase
@@ -24,37 +24,37 @@ async function checkUsers() {
             .limit(10);
             
         if (error) {
-            console.error('Error fetching users:', error);
+            // console.error('Error fetching users:', error);
             return;
         }
         
         if (!users || users.length === 0) {
-            console.log('❌ No users found in database');
+            // console.log('❌ No users found in database');
             return;
         }
         
-        console.log('✅ Found users:');
+        // console.log('✅ Found users:');
         users.forEach((user, index) => {
-            console.log(`${index + 1}. Email: ${user.email}`);
-            console.log(`   Name: ${user.name || 'No name set'}`);
-            console.log(`   ID: ${user.id}`);
-            console.log('');
+            // console.log(`${index + 1}. Email: ${user.email}`);
+            // console.log(`   Name: ${user.name || 'No name set'}`);
+            // console.log(`   ID: ${user.id}`);
+            // console.log('');
         });
         
-        console.log(`Total users: ${users.length}`);
+        // console.log(`Total users: ${users.length}`);
         
         // Return the first user for testing
         return users[0];
         
     } catch (err) {
-        console.error('Unexpected error:', err);
+        // console.error('Unexpected error:', err);
     }
 }
 
 async function checkUserItems(userId) {
     if (!userId) return;
     
-    console.log(`🔍 Checking items for user ${userId}...\n`);
+    // console.log(`🔍 Checking items for user ${userId}...\n`);
     
     try {
         const [products, notes, rooms] = await Promise.all([
@@ -63,13 +63,13 @@ async function checkUserItems(userId) {
             supabase.from('rooms').select('id, title, seller_id').eq('seller_id', userId).limit(5)
         ]);
         
-        console.log('📦 Products:', products.data?.length || 0);
+        // console.log('📦 Products:', products.data?.length || 0);
         products.data?.forEach(item => console.log(`  - ${item.title} (ID: ${item.id})`));
         
-        console.log('📝 Notes:', notes.data?.length || 0);
+        // console.log('📝 Notes:', notes.data?.length || 0);
         notes.data?.forEach(item => console.log(`  - ${item.title} (ID: ${item.id})`));
         
-        console.log('🏠 Rooms:', rooms.data?.length || 0);
+        // console.log('🏠 Rooms:', rooms.data?.length || 0);
         rooms.data?.forEach(item => console.log(`  - ${item.title} (ID: ${item.id})`));
         
         // Return first available item for testing
@@ -82,7 +82,7 @@ async function checkUserItems(userId) {
         return allItems[0] || null;
         
     } catch (err) {
-        console.error('Error checking user items:', err);
+        // console.error('Error checking user items:', err);
     }
 }
 
@@ -91,11 +91,11 @@ async function main() {
     if (user) {
         const testItem = await checkUserItems(user.id);
         
-        console.log('\n🎯 FOR TESTING:');
-        console.log(`Use this email: ${user.email}`);
+        // console.log('\n🎯 FOR TESTING:');
+        // console.log(`Use this email: ${user.email}`);
         
         if (testItem) {
-            console.log(`Test with this item: ${testItem.title} (ID: ${testItem.id}, Type: ${testItem.type})`);
+            // console.log(`Test with this item: ${testItem.title} (ID: ${testItem.id}, Type: ${testItem.type})`);
         }
     }
 }

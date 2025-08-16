@@ -8,23 +8,23 @@ const supabase = createClient(
 );
 
 async function recreateTable() {
-  console.log('🔧 Recreating sponsorship_sequences table...\n');
+  // console.log('🔧 Recreating sponsorship_sequences table...\n');
 
   try {
     // Drop the existing table
-    console.log('1. Dropping existing table...');
+    // console.log('1. Dropping existing table...');
     const { error: dropError } = await supabase.rpc('exec_sql', {
       sql: 'DROP TABLE IF EXISTS public.sponsorship_sequences CASCADE;'
     });
 
     if (dropError) {
-      console.log('⚠️ Could not drop table (might not exist):', dropError.message);
+      // console.log('⚠️ Could not drop table (might not exist):', dropError.message);
     } else {
-      console.log('✅ Table dropped');
+      // console.log('✅ Table dropped');
     }
 
     // Recreate the table with correct structure
-    console.log('2. Creating table with correct structure...');
+    // console.log('2. Creating table with correct structure...');
     const createSQL = `
       CREATE TABLE public.sponsorship_sequences (
         id UUID NOT NULL DEFAULT gen_random_uuid(),
@@ -52,22 +52,22 @@ async function recreateTable() {
     });
 
     if (createError) {
-      console.log('❌ Could not create table:', createError.message);
+      // console.log('❌ Could not create table:', createError.message);
       
       // Try alternative approach - direct SQL execution might not work
-      console.log('Trying alternative approach...');
-      console.log('\n📋 MANUAL STEPS NEEDED:');
-      console.log('Please go to your Supabase SQL Editor and run this SQL:');
-      console.log('========================================================');
-      console.log(createSQL);
-      console.log('========================================================');
+      // console.log('Trying alternative approach...');
+      // console.log('\n📋 MANUAL STEPS NEEDED:');
+      // console.log('Please go to your Supabase SQL Editor and run this SQL:');
+      // console.log('========================================================');
+      // console.log(createSQL);
+      // console.log('========================================================');
       
     } else {
-      console.log('✅ Table created successfully');
+      // console.log('✅ Table created successfully');
     }
 
     // Test the new table
-    console.log('\n3. Testing the new table...');
+    // console.log('\n3. Testing the new table...');
     const { data, error } = await supabase
       .from('sponsorship_sequences')
       .insert({
@@ -78,26 +78,26 @@ async function recreateTable() {
       .select();
 
     if (error) {
-      console.log('❌ Test insert failed:', error.message);
+      // console.log('❌ Test insert failed:', error.message);
     } else {
-      console.log('✅ Test insert successful:', data);
+      // console.log('✅ Test insert successful:', data);
       
       // Clean up test data
       await supabase
         .from('sponsorship_sequences')
         .delete()
         .eq('item_id', '12345678-1234-1234-1234-123456789012');
-      console.log('✅ Test data cleaned up');
+      // console.log('✅ Test data cleaned up');
     }
 
   } catch (error) {
-    console.error('❌ Recreation failed:', error.message);
+    // console.error('❌ Recreation failed:', error.message);
     
-    console.log('\n🔧 MANUAL FIX REQUIRED:');
-    console.log('Please go to your Supabase dashboard and:');
-    console.log('1. Go to SQL Editor');
-    console.log('2. Run: DROP TABLE IF EXISTS public.sponsorship_sequences CASCADE;');
-    console.log('3. Run the CREATE TABLE statement shown above');
+    // console.log('\n🔧 MANUAL FIX REQUIRED:');
+    // console.log('Please go to your Supabase dashboard and:');
+    // console.log('1. Go to SQL Editor');
+    // console.log('2. Run: DROP TABLE IF EXISTS public.sponsorship_sequences CASCADE;');
+    // console.log('3. Run the CREATE TABLE statement shown above');
   }
 }
 

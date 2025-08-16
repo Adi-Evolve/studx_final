@@ -5,7 +5,7 @@
  * This script verifies all required environment variables are properly set
  */
 
-console.log('🔍 StudX Environment Variable Check\n')
+// console.log('🔍 StudX Environment Variable Check\n')
 
 const requiredVars = {
   'NEXT_PUBLIC_SUPABASE_URL': {
@@ -27,26 +27,26 @@ const requiredVars = {
 
 let allGood = true
 
-console.log('📋 Environment Variables Status:\n')
+// console.log('📋 Environment Variables Status:\n')
 
 Object.entries(requiredVars).forEach(([key, config]) => {
   const isPresent = !!config.value
   const isCorrect = config.value === config.expected
   const status = isPresent ? (isCorrect ? '✅' : '⚠️') : '❌'
   
-  console.log(`${status} ${key}`)
-  console.log(`   Description: ${config.description}`)
-  console.log(`   Present: ${isPresent ? 'Yes' : 'No'}`)
+  // console.log(`${status} ${key}`)
+  // console.log(`   Description: ${config.description}`)
+  // console.log(`   Present: ${isPresent ? 'Yes' : 'No'}`)
   
   if (isPresent) {
-    console.log(`   Matches Expected: ${isCorrect ? 'Yes' : 'No'}`)
+    // console.log(`   Matches Expected: ${isCorrect ? 'Yes' : 'No'}`)
     if (!isCorrect && key !== 'SUPABASE_SECRET_KEY') {
-      console.log(`   Current: ${config.value}`)
-      console.log(`   Expected: ${config.expected}`)
+      // console.log(`   Current: ${config.value}`)
+      // console.log(`   Expected: ${config.expected}`)
     }
   }
   
-  console.log('')
+  // console.log('')
   
   if (!isPresent) {
     allGood = false
@@ -54,35 +54,35 @@ Object.entries(requiredVars).forEach(([key, config]) => {
 })
 
 // Test Supabase connection
-console.log('🔗 Testing Supabase Connection...')
+// console.log('🔗 Testing Supabase Connection...')
 try {
   const { createClient } = require('@supabase/supabase-js')
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
     process.env.SUPABASE_SECRET_KEY
   )
-  console.log('✅ Supabase client created successfully')
+  // console.log('✅ Supabase client created successfully')
 } catch (error) {
-  console.log('❌ Supabase client creation failed:', error.message)
+  // console.log('❌ Supabase client creation failed:', error.message)
   allGood = false
 }
 
 // Summary
-console.log('\n📊 Summary:')
+// console.log('\n📊 Summary:')
 if (allGood) {
-  console.log('✅ All environment variables are properly configured!')
-  console.log('🚀 Your deployment should work correctly.')
+  // console.log('✅ All environment variables are properly configured!')
+  // console.log('🚀 Your deployment should work correctly.')
 } else {
-  console.log('❌ Some environment variables are missing or incorrect.')
-  console.log('🔧 Please fix the issues above before deploying.')
+  // console.log('❌ Some environment variables are missing or incorrect.')
+  // console.log('🔧 Please fix the issues above before deploying.')
 }
 
-console.log('\n💡 Deployment Platform Instructions:')
-console.log('Vercel: Project Settings → Environment Variables')
-console.log('Netlify: Site Settings → Environment Variables') 
-console.log('Render: Environment → Add Environment Variable')
-console.log('')
-console.log('⚠️  Remember to REDEPLOY after setting environment variables!')
+// console.log('\n💡 Deployment Platform Instructions:')
+// console.log('Vercel: Project Settings → Environment Variables')
+// console.log('Netlify: Site Settings → Environment Variables') 
+// console.log('Render: Environment → Add Environment Variable')
+// console.log('')
+// console.log('⚠️  Remember to REDEPLOY after setting environment variables!')
 
 // Export for API usage
 if (typeof module !== 'undefined' && module.exports) {

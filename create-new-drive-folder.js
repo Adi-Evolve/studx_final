@@ -7,8 +7,8 @@ const { google } = require('googleapis');
 require('dotenv').config({ path: '.env.local' });
 
 async function createNewDriveFolder() {
-  console.log('🆕 Creating new Google Drive folder...');
-  console.log('=' .repeat(40));
+  // console.log('🆕 Creating new Google Drive folder...');
+  // console.log('=' .repeat(40));
   
   try {
     // Initialize Google Drive API
@@ -26,7 +26,7 @@ async function createNewDriveFolder() {
     // Create a new folder
     const folderName = `StudX-PDFs-${Date.now()}`;
     
-    console.log(`📁 Creating folder: ${folderName}`);
+    // console.log(`📁 Creating folder: ${folderName}`);
     
     const folderResponse = await drive.files.create({
       requestBody: {
@@ -39,13 +39,13 @@ async function createNewDriveFolder() {
     const folderId = folderResponse.data.id;
     const folderUrl = folderResponse.data.webViewLink;
     
-    console.log('✅ Folder created successfully!');
-    console.log(`📁 Folder Name: ${folderName}`);
-    console.log(`🆔 Folder ID: ${folderId}`);
-    console.log(`🔗 Folder URL: ${folderUrl}`);
+    // console.log('✅ Folder created successfully!');
+    // console.log(`📁 Folder Name: ${folderName}`);
+    // console.log(`🆔 Folder ID: ${folderId}`);
+    // console.log(`🔗 Folder URL: ${folderUrl}`);
     
     // Make folder publicly accessible
-    console.log('\n🔓 Making folder publicly accessible...');
+    // console.log('\n🔓 Making folder publicly accessible...');
     
     await drive.permissions.create({
       fileId: folderId,
@@ -55,10 +55,10 @@ async function createNewDriveFolder() {
       }
     });
     
-    console.log('✅ Folder is now publicly accessible');
+    // console.log('✅ Folder is now publicly accessible');
     
     // Test upload to the new folder
-    console.log('\n📤 Testing file upload to new folder...');
+    // console.log('\n📤 Testing file upload to new folder...');
     
     const testContent = 'This is a test file for StudX Google Drive integration';
     const testFileName = `test-${Date.now()}.txt`;
@@ -74,34 +74,34 @@ async function createNewDriveFolder() {
       }
     });
     
-    console.log('✅ Test file uploaded successfully');
-    console.log(`📄 Test file ID: ${uploadResponse.data.id}`);
+    // console.log('✅ Test file uploaded successfully');
+    // console.log(`📄 Test file ID: ${uploadResponse.data.id}`);
     
     // Clean up test file
     await drive.files.delete({
       fileId: uploadResponse.data.id
     });
-    console.log('✅ Test file cleaned up');
+    // console.log('✅ Test file cleaned up');
     
-    console.log('\n🎉 SUCCESS! New folder is working');
-    console.log('\n📋 UPDATE YOUR .env.local FILE:');
-    console.log(`GOOGLE_DRIVE_FOLDER_ID=${folderId}`);
-    console.log('\n📝 Instructions:');
-    console.log('1. Copy the folder ID above');
-    console.log('2. Update GOOGLE_DRIVE_FOLDER_ID in your .env.local file');
-    console.log('3. Run: node test-google-drive-enhanced.js');
-    console.log('4. Test PDF uploads in your app');
+    // console.log('\n🎉 SUCCESS! New folder is working');
+    // console.log('\n📋 UPDATE YOUR .env.local FILE:');
+    // console.log(`GOOGLE_DRIVE_FOLDER_ID=${folderId}`);
+    // console.log('\n📝 Instructions:');
+    // console.log('1. Copy the folder ID above');
+    // console.log('2. Update GOOGLE_DRIVE_FOLDER_ID in your .env.local file');
+    // console.log('3. Run: node test-google-drive-enhanced.js');
+    // console.log('4. Test PDF uploads in your app');
     
     return folderId;
     
   } catch (error) {
-    console.error('❌ Failed to create folder:', error.message);
+    // console.error('❌ Failed to create folder:', error.message);
     
     if (error.code === 403) {
-      console.log('\n💡 This might be because:');
-      console.log('1. Google Drive API is not enabled');
-      console.log('2. Service account lacks permissions');
-      console.log('3. Authentication credentials are incorrect');
+      // console.log('\n💡 This might be because:');
+      // console.log('1. Google Drive API is not enabled');
+      // console.log('2. Service account lacks permissions');
+      // console.log('3. Authentication credentials are incorrect');
     }
     
     throw error;
@@ -111,8 +111,8 @@ async function createNewDriveFolder() {
 // Run the folder creation
 createNewDriveFolder()
   .then(folderId => {
-    console.log(`\n🎯 New folder ID: ${folderId}`);
+    // console.log(`\n🎯 New folder ID: ${folderId}`);
   })
   .catch(error => {
-    console.error('❌ Setup failed:', error.message);
+    // console.error('❌ Setup failed:', error.message);
   });

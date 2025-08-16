@@ -3,7 +3,7 @@ const FormData = require('form-data');
 
 async function testPostRequest() {
     try {
-        console.log('Testing POST request to /api/sell...');
+        // console.log('Testing POST request to /api/sell...');
         
         const formData = new FormData();
         formData.append('type', 'room');
@@ -17,13 +17,13 @@ async function testPostRequest() {
             headers: formData.getHeaders ? formData.getHeaders() : {}
         });
         
-        console.log('Response status:', response.status);
+        // console.log('Response status:', response.status);
         const result = await response.text();
-        console.log('Response body:', result);
+        // console.log('Response body:', result);
         
     } catch (error) {
-        console.error('Request failed:', error.message);
-        console.error('Stack:', error.stack);
+        // console.error('Request failed:', error.message);
+        // console.error('Stack:', error.stack);
     }
 }
 

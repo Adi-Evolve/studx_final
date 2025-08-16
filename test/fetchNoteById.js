@@ -11,7 +11,7 @@ const supabase = createClient(
 
 const noteId = process.argv[2];
 if (!noteId) {
-  console.error('Please provide a note ID as an argument.');
+  // console.error('Please provide a note ID as an argument.');
   process.exit(1);
 }
 
@@ -22,13 +22,13 @@ async function fetchNoteById(id) {
     .eq('id', id)
     .single();
   if (error) {
-    console.error('Error fetching note:', error.message);
+    // console.error('Error fetching note:', error.message);
     return;
   }
   if (!data) {
-    console.log('No note found with ID:', id);
+    // console.log('No note found with ID:', id);
   } else {
-    console.log('Note found:', data);
+    // console.log('Note found:', data);
   }
 }
 

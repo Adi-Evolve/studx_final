@@ -17,32 +17,32 @@ class SponsorshipTester {
             
             if (window.supabase) {
                 this.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
-                console.log('✅ Sponsorship Tester - Supabase connected');
+                // console.log('✅ Sponsorship Tester - Supabase connected');
             } else {
                 throw new Error('Supabase library not found');
             }
         } catch (error) {
-            console.error('❌ Sponsorship Tester - Supabase connection failed:', error);
+            // console.error('❌ Sponsorship Tester - Supabase connection failed:', error);
         }
     }
 
     async runTest(testName, testFunction) {
         try {
-            console.log(`🧪 Testing: ${testName}`);
+            // console.log(`🧪 Testing: ${testName}`);
             const result = await testFunction();
             this.testResults.push({ name: testName, status: 'PASSED', result });
-            console.log(`✅ PASSED: ${testName}`);
+            // console.log(`✅ PASSED: ${testName}`);
             return result;
         } catch (error) {
             this.testResults.push({ name: testName, status: 'FAILED', error: error.message });
-            console.error(`❌ FAILED: ${testName} - ${error.message}`);
+            // console.error(`❌ FAILED: ${testName} - ${error.message}`);
             return false;
         }
     }
 
     async runSponsorshipTests() {
-        console.log('🚀 Starting Sponsorship System Tests');
-        console.log('=====================================');
+        // console.log('🚀 Starting Sponsorship System Tests');
+        // console.log('=====================================');
 
         // Test 1: Database Schema
         await this.testSponsorshipTableSchema();
@@ -88,7 +88,7 @@ class SponsorshipTester {
                 return { data: null, error: null };
             });
             
-            console.log('✅ Sponsorship table accessible');
+            // console.log('✅ Sponsorship table accessible');
             return true;
         });
     }
@@ -116,7 +116,7 @@ class SponsorshipTester {
             
             // Store test ID for cleanup
             this.testSponsorshipId = data[0]?.id;
-            console.log('✅ Test sponsorship created with ID:', this.testSponsorshipId);
+            // console.log('✅ Test sponsorship created with ID:', this.testSponsorshipId);
             return true;
         });
     }
@@ -130,7 +130,7 @@ class SponsorshipTester {
 
             if (error) throw new Error(`Read failed: ${error.message}`);
             
-            console.log(`✅ Found ${data.length} sponsorships`);
+            // console.log(`✅ Found ${data.length} sponsorships`);
             return data.length >= 0;
         });
     }
@@ -138,7 +138,7 @@ class SponsorshipTester {
     async testUpdateSponsorship() {
         await this.runTest('Update Sponsorship', async () => {
             if (!this.testSponsorshipId) {
-                console.log('⚠️ No test sponsorship to update, skipping');
+                // console.log('⚠️ No test sponsorship to update, skipping');
                 return true;
             }
 
@@ -150,7 +150,7 @@ class SponsorshipTester {
 
             if (error) throw new Error(`Update failed: ${error.message}`);
             
-            console.log('✅ Sponsorship updated successfully');
+            // console.log('✅ Sponsorship updated successfully');
             return true;
         });
     }
@@ -158,7 +158,7 @@ class SponsorshipTester {
     async testDeleteSponsorship() {
         await this.runTest('Delete Sponsorship', async () => {
             if (!this.testSponsorshipId) {
-                console.log('⚠️ No test sponsorship to delete, skipping');
+                // console.log('⚠️ No test sponsorship to delete, skipping');
                 return true;
             }
 
@@ -169,7 +169,7 @@ class SponsorshipTester {
 
             if (error) throw new Error(`Delete failed: ${error.message}`);
             
-            console.log('✅ Test sponsorship deleted successfully');
+            // console.log('✅ Test sponsorship deleted successfully');
             return true;
         });
     }
@@ -190,7 +190,7 @@ class SponsorshipTester {
                     throw new Error('Sponsorship container not found');
                 }
                 
-                console.log('✅ Sponsorship UI loaded successfully');
+                // console.log('✅ Sponsorship UI loaded successfully');
             }
             
             return true;
@@ -215,7 +215,7 @@ class SponsorshipTester {
             const availableItems = document.getElementById('availableItems');
             if (!availableItems) throw new Error('Available items container not found');
             
-            console.log('✅ Sponsorship modal functionality working');
+            // console.log('✅ Sponsorship modal functionality working');
             return true;
         });
     }
@@ -237,9 +237,9 @@ class SponsorshipTester {
             if (typeof window.selectItem === 'function') {
                 try {
                     // This might fail if event context is wrong, but function should exist
-                    console.log('✅ Item selection functions available');
+                    // console.log('✅ Item selection functions available');
                 } catch (e) {
-                    console.log('⚠️ Item selection function exists but context may be wrong');
+                    // console.log('⚠️ Item selection function exists but context may be wrong');
                 }
             }
             
@@ -255,7 +255,7 @@ class SponsorshipTester {
                 .select('item_id, item_type');
             
             if (existingSponsors && existingSponsors.length > 0) {
-                console.log(`✅ Duplication prevention: ${existingSponsors.length} existing sponsors to check against`);
+                // console.log(`✅ Duplication prevention: ${existingSponsors.length} existing sponsors to check against`);
             }
             
             // Test unique constraint (indirectly)
@@ -268,7 +268,7 @@ class SponsorshipTester {
                 uniqueItems.add(key);
             });
             
-            console.log('✅ No duplicate sponsorships found');
+            // console.log('✅ No duplicate sponsorships found');
             return true;
         });
     }
@@ -286,7 +286,7 @@ class SponsorshipTester {
                 
                 if (error) throw new Error(`Category filtering failed for ${category}: ${error.message}`);
                 
-                console.log(`✅ Found ${data.length} ${category} sponsorships`);
+                // console.log(`✅ Found ${data.length} ${category} sponsorships`);
             }
             
             return true;
@@ -310,7 +310,7 @@ class SponsorshipTester {
                 throw new Error('Duplicate slots found');
             }
             
-            console.log(`✅ ${slots.length} unique slots managed correctly`);
+            // console.log(`✅ ${slots.length} unique slots managed correctly`);
             return true;
         });
     }
@@ -327,7 +327,7 @@ class SponsorshipTester {
                 .from('sponsorship_sequences')
                 .select('*');
             
-            console.log(`✅ Metrics: ${activeSponsors?.length || 0} active, ${allSponsors?.length || 0} total sponsorships`);
+            // console.log(`✅ Metrics: ${activeSponsors?.length || 0} active, ${allSponsors?.length || 0} total sponsorships`);
             return true;
         });
     }
@@ -348,7 +348,7 @@ class SponsorshipTester {
                 throw new Error('Invalid data was accepted - constraint failed');
             } catch (error) {
                 if (error.message.includes('constraint') || error.message.includes('null')) {
-                    console.log('✅ Database constraints working correctly');
+                    // console.log('✅ Database constraints working correctly');
                     return true;
                 }
                 throw error;
@@ -357,24 +357,24 @@ class SponsorshipTester {
     }
 
     displayResults() {
-        console.log('=====================================');
-        console.log('🏁 SPONSORSHIP TESTS COMPLETED');
-        console.log('=====================================');
+        // console.log('=====================================');
+        // console.log('🏁 SPONSORSHIP TESTS COMPLETED');
+        // console.log('=====================================');
         
         const passed = this.testResults.filter(r => r.status === 'PASSED').length;
         const failed = this.testResults.filter(r => r.status === 'FAILED').length;
         
-        console.log(`📊 Total Tests: ${this.testResults.length}`);
-        console.log(`✅ Passed: ${passed}`);
-        console.log(`❌ Failed: ${failed}`);
-        console.log(`📈 Success Rate: ${((passed / this.testResults.length) * 100).toFixed(1)}%`);
+        // console.log(`📊 Total Tests: ${this.testResults.length}`);
+        // console.log(`✅ Passed: ${passed}`);
+        // console.log(`❌ Failed: ${failed}`);
+        // console.log(`📈 Success Rate: ${((passed / this.testResults.length) * 100).toFixed(1)}%`);
         
         console.table(this.testResults);
         
         if (failed === 0) {
-            console.log('🎉 ALL SPONSORSHIP TESTS PASSED!');
+            // console.log('🎉 ALL SPONSORSHIP TESTS PASSED!');
         } else {
-            console.log(`⚠️ ${failed} tests failed. Review above for details.`);
+            // console.log(`⚠️ ${failed} tests failed. Review above for details.`);
         }
     }
 }
@@ -386,4 +386,4 @@ window.runSponsorshipTests = () => {
     return tester.runSponsorshipTests();
 };
 
-console.log('🧪 Sponsorship Test Suite Loaded. Run with: runSponsorshipTests()');
+// console.log('🧪 Sponsorship Test Suite Loaded. Run with: runSponsorshipTests()');

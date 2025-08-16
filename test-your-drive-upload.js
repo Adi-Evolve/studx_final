@@ -7,8 +7,8 @@ const { google } = require('googleapis');
 require('dotenv').config({ path: '.env.local' });
 
 async function testYourDriveUpload() {
-  console.log('🧪 Testing Upload to YOUR Google Drive...');
-  console.log('=' .repeat(40));
+  // console.log('🧪 Testing Upload to YOUR Google Drive...');
+  // console.log('=' .repeat(40));
   
   try {
     const auth = new google.auth.GoogleAuth({
@@ -23,7 +23,7 @@ async function testYourDriveUpload() {
     const drive = google.drive({ version: 'v3', auth });
     const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID;
     
-    console.log(`📁 Using folder ID: ${folderId}`);
+    // console.log(`📁 Using folder ID: ${folderId}`);
     
     // Check folder access
     const folderResponse = await drive.files.get({
@@ -31,9 +31,9 @@ async function testYourDriveUpload() {
       fields: 'id, name, owners'
     });
     
-    console.log('✅ Folder accessible!');
-    console.log(`📂 Folder: ${folderResponse.data.name}`);
-    console.log(`👤 Owner: ${folderResponse.data.owners?.[0]?.emailAddress || 'Unknown'}`);
+    // console.log('✅ Folder accessible!');
+    // console.log(`📂 Folder: ${folderResponse.data.name}`);
+    // console.log(`👤 Owner: ${folderResponse.data.owners?.[0]?.emailAddress || 'Unknown'}`);
     
     // Create a test PDF-like file
     const testContent = `%PDF-1.4
@@ -92,7 +92,7 @@ startxref
     
     const testFileName = `StudX-Test-PDF-${Date.now()}.pdf`;
     
-    console.log(`📤 Uploading test PDF: ${testFileName}`);
+    // console.log(`📤 Uploading test PDF: ${testFileName}`);
     
     // Upload the test file
     const uploadResponse = await drive.files.create({
@@ -108,12 +108,12 @@ startxref
       fields: 'id, name, size, webViewLink'
     });
     
-    console.log('✅ Upload successful!');
-    console.log(`📄 File ID: ${uploadResponse.data.id}`);
-    console.log(`📏 Size: ${uploadResponse.data.size} bytes`);
+    // console.log('✅ Upload successful!');
+    // console.log(`📄 File ID: ${uploadResponse.data.id}`);
+    // console.log(`📏 Size: ${uploadResponse.data.size} bytes`);
     
     // Make file publicly accessible
-    console.log('🔓 Making file publicly accessible...');
+    // console.log('🔓 Making file publicly accessible...');
     
     await drive.permissions.create({
       fileId: uploadResponse.data.id,
@@ -126,49 +126,49 @@ startxref
     const publicUrl = `https://drive.google.com/file/d/${uploadResponse.data.id}/view`;
     const downloadUrl = `https://drive.google.com/uc?export=download&id=${uploadResponse.data.id}`;
     
-    console.log('✅ File made public!');
-    console.log(`🔗 View URL: ${publicUrl}`);
-    console.log(`⬇️ Download URL: ${downloadUrl}`);
+    // console.log('✅ File made public!');
+    // console.log(`🔗 View URL: ${publicUrl}`);
+    // console.log(`⬇️ Download URL: ${downloadUrl}`);
     
     // Test the URL
-    console.log('\n🌐 Testing URL accessibility...');
+    // console.log('\n🌐 Testing URL accessibility...');
     const fetch = (await import('node-fetch')).default;
     
     try {
       const response = await fetch(downloadUrl);
       if (response.ok) {
-        console.log('✅ URL is accessible!');
-        console.log(`📊 Response status: ${response.status}`);
-        console.log(`📋 Content type: ${response.headers.get('content-type')}`);
+        // console.log('✅ URL is accessible!');
+        // console.log(`📊 Response status: ${response.status}`);
+        // console.log(`📋 Content type: ${response.headers.get('content-type')}`);
       } else {
-        console.log(`⚠️ URL returned status: ${response.status}`);
+        // console.log(`⚠️ URL returned status: ${response.status}`);
       }
     } catch (urlError) {
-      console.log('⚠️ URL test failed:', urlError.message);
+      // console.log('⚠️ URL test failed:', urlError.message);
     }
     
     // Clean up test file
-    console.log('\n🧹 Cleaning up test file...');
+    // console.log('\n🧹 Cleaning up test file...');
     await drive.files.delete({
       fileId: uploadResponse.data.id
     });
-    console.log('✅ Test file deleted');
+    // console.log('✅ Test file deleted');
     
-    console.log('\n🎉 SUCCESS! Google Drive integration is working!');
-    console.log('✅ Files can be uploaded to your Google Drive');
-    console.log('✅ Files can be made publicly accessible');
-    console.log('✅ URLs are working correctly');
-    console.log('\n🚀 Your StudX PDF upload system is ready!');
+    // console.log('\n🎉 SUCCESS! Google Drive integration is working!');
+    // console.log('✅ Files can be uploaded to your Google Drive');
+    // console.log('✅ Files can be made publicly accessible');
+    // console.log('✅ URLs are working correctly');
+    // console.log('\n🚀 Your StudX PDF upload system is ready!');
     
     return true;
     
   } catch (error) {
-    console.error('❌ Test failed:', error.message);
+    // console.error('❌ Test failed:', error.message);
     
     if (error.message.includes('storage quota')) {
-      console.log('\n💡 Storage quota issue detected');
-      console.log('This means the folder is owned by the service account.');
-      console.log('We need a folder owned by YOUR Google account.');
+      // console.log('\n💡 Storage quota issue detected');
+      // console.log('This means the folder is owned by the service account.');
+      // console.log('We need a folder owned by YOUR Google account.');
     }
     
     return false;

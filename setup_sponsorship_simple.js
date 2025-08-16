@@ -6,7 +6,7 @@ const supabase = createClient(
 );
 
 async function createSponsorshipTable() {
-    console.log('🔨 Creating sponsorship_sequences table...');
+    // console.log('🔨 Creating sponsorship_sequences table...');
     
     const createTableSQL = `
     CREATE TABLE IF NOT EXISTS public.sponsorship_sequences (
@@ -44,7 +44,7 @@ async function createSponsorshipTable() {
         const { data, error } = await supabase.rpc('exec', { sql: createTableSQL });
         
         if (error) {
-            console.log('❌ Failed to create table via RPC, trying alternative...');
+            // console.log('❌ Failed to create table via RPC, trying alternative...');
             
             // Try direct table creation
             const { error: directError } = await supabase
@@ -53,32 +53,32 @@ async function createSponsorshipTable() {
                 .limit(1);
                 
             if (directError && directError.message.includes('does not exist')) {
-                console.log('📋 Table needs to be created manually in Supabase Dashboard');
-                console.log('📋 SQL to run:');
-                console.log(createTableSQL);
-                console.log('\n🔗 Go to: https://app.supabase.com/project/vdpmumstdxgftaaxeacx/sql');
-                console.log('📝 Copy and paste the SQL above, then run it');
+                // console.log('📋 Table needs to be created manually in Supabase Dashboard');
+                // console.log('📋 SQL to run:');
+                // console.log(createTableSQL);
+                // console.log('\n🔗 Go to: https://app.supabase.com/project/vdpmumstdxgftaaxeacx/sql');
+                // console.log('📝 Copy and paste the SQL above, then run it');
                 return false;
             } else {
-                console.log('✅ Table already exists!');
+                // console.log('✅ Table already exists!');
                 return true;
             }
         } else {
-            console.log('✅ Table created successfully via RPC');
+            // console.log('✅ Table created successfully via RPC');
             return true;
         }
     } catch (err) {
-        console.log('❌ Error:', err.message);
-        console.log('\n📋 Manual setup required:');
-        console.log('🔗 Go to: https://app.supabase.com/project/vdpmumstdxgftaaxeacx/sql');
-        console.log('📝 Run this SQL:');
-        console.log(createTableSQL);
+        // console.log('❌ Error:', err.message);
+        // console.log('\n📋 Manual setup required:');
+        // console.log('🔗 Go to: https://app.supabase.com/project/vdpmumstdxgftaaxeacx/sql');
+        // console.log('📝 Run this SQL:');
+        // console.log(createTableSQL);
         return false;
     }
 }
 
 async function testSponsorshipTable() {
-    console.log('\n🧪 Testing sponsorship table...');
+    // console.log('\n🧪 Testing sponsorship table...');
     
     try {
         const { data, error, count } = await supabase
@@ -86,37 +86,37 @@ async function testSponsorshipTable() {
             .select('*', { count: 'exact' });
             
         if (error) {
-            console.log('❌ Table not accessible:', error.message);
+            // console.log('❌ Table not accessible:', error.message);
             return false;
         }
         
-        console.log('✅ Table accessible!');
-        console.log('📊 Current sponsorships:', count);
+        // console.log('✅ Table accessible!');
+        // console.log('📊 Current sponsorships:', count);
         
         if (count === 0) {
-            console.log('💡 Table is empty - ready for sponsorships to be added!');
+            // console.log('💡 Table is empty - ready for sponsorships to be added!');
         } else {
-            console.log('🌟 Sample sponsorship:', data[0]);
+            // console.log('🌟 Sample sponsorship:', data[0]);
         }
         
         return true;
         
     } catch (err) {
-        console.log('❌ Test failed:', err.message);
+        // console.log('❌ Test failed:', err.message);
         return false;
     }
 }
 
 async function main() {
-    console.log('🌟 Sponsorship Table Setup Script\n');
+    // console.log('🌟 Sponsorship Table Setup Script\n');
     
     const tableReady = await createSponsorshipTable();
     if (tableReady) {
         await testSponsorshipTable();
-        console.log('\n🎉 Sponsorship system is ready!');
-        console.log('📱 You can now use the Sponsorship tab in adi.html');
+        // console.log('\n🎉 Sponsorship system is ready!');
+        // console.log('📱 You can now use the Sponsorship tab in adi.html');
     } else {
-        console.log('\n⚠️  Manual setup required before using sponsorship features');
+        // console.log('\n⚠️  Manual setup required before using sponsorship features');
     }
 }
 

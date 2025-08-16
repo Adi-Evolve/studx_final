@@ -2,19 +2,19 @@
 import { supabase } from '@/lib/supabase.js';
 
 async function manualUserSync() {
-    console.log('🔄 Manual User Sync Started...\n');
+    // console.log('🔄 Manual User Sync Started...\n');
     
     try {
         // Get current session
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError || !session) {
-            console.error('❌ No active session. Please log in first.');
+            // console.error('❌ No active session. Please log in first.');
             return;
         }
         
         const user = session.user;
-        console.log('👤 Current user:', user.email);
+        // console.log('👤 Current user:', user.email);
         
         // Prepare user data
         const userData = {
@@ -33,7 +33,7 @@ async function manualUserSync() {
             updated_at: new Date().toISOString()
         };
         
-        console.log('📝 User data to sync:', userData);
+        // console.log('📝 User data to sync:', userData);
         
         // Try upsert (insert or update)
         const { data: result, error } = await supabase
@@ -45,10 +45,10 @@ async function manualUserSync() {
             .select();
             
         if (error) {
-            console.error('❌ Sync failed:', error);
+            // console.error('❌ Sync failed:', error);
             
             // Try with service role key if regular fails
-            console.log('🔑 Trying with service role access...');
+            // console.log('🔑 Trying with service role access...');
             
             const serviceRoleSupabase = supabase.createClient(
                 process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -70,16 +70,16 @@ async function manualUserSync() {
                 .select();
                 
             if (serviceError) {
-                console.error('❌ Service role sync also failed:', serviceError);
+                // console.error('❌ Service role sync also failed:', serviceError);
             } else {
-                console.log('✅ Service role sync successful:', serviceResult);
+                // console.log('✅ Service role sync successful:', serviceResult);
             }
         } else {
-            console.log('✅ User sync successful:', result);
+            // console.log('✅ User sync successful:', result);
         }
         
         // Verify the sync worked
-        console.log('\n🔍 Verifying sync...');
+        // console.log('\n🔍 Verifying sync...');
         const { data: verifyUser, error: verifyError } = await supabase
             .from('users')
             .select('*')
@@ -87,13 +87,13 @@ async function manualUserSync() {
             .single();
             
         if (verifyError) {
-            console.error('❌ Verification failed:', verifyError);
+            // console.error('❌ Verification failed:', verifyError);
         } else {
-            console.log('✅ User found in table:', verifyUser);
+            // console.log('✅ User found in table:', verifyUser);
         }
         
     } catch (error) {
-        console.error('❌ Manual sync error:', error);
+        // console.error('❌ Manual sync error:', error);
     }
 }
 

@@ -13,9 +13,9 @@ async function checkNotesSchemaAndFetch() {
         .select('column_name')
         .eq('table_name', 'notes');
     if (schemaError) {
-        console.log('❌ Error fetching notes schema:', schemaError.message);
+        // console.log('❌ Error fetching notes schema:', schemaError.message);
     } else {
-        console.log('✅ Notes table columns:', columns.map(c => c.column_name));
+        // console.log('✅ Notes table columns:', columns.map(c => c.column_name));
     }
 
     // Fetch all notes (no limit, no column selection)
@@ -24,9 +24,9 @@ async function checkNotesSchemaAndFetch() {
         .select('*')
         .order('created_at', { ascending: false });
     if (notesError) {
-        console.log('❌ Error fetching all notes:', notesError.message);
+        // console.log('❌ Error fetching all notes:', notesError.message);
     } else {
-        console.log('✅ All notes fetched:', notes);
+        // console.log('✅ All notes fetched:', notes);
     }
 }
 

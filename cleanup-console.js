@@ -59,10 +59,10 @@ function commentOutConsole(filePath) {
         
         if (changed) {
             fs.writeFileSync(filePath, updatedLines.join('\n'));
-            console.log(`✅ Updated: ${filePath}`);
+            // console.log(`✅ Updated: ${filePath}`);
         }
     } catch (error) {
-        console.error(`❌ Error processing ${filePath}:`, error.message);
+        // console.error(`❌ Error processing ${filePath}:`, error.message);
     }
 }
 
@@ -79,8 +79,8 @@ const appFiles = jsFiles.filter(file =>
     (file.includes('\\app\\') || file.includes('\\components\\') || file.includes('\\lib\\') || file.includes('/app/') || file.includes('/components/') || file.includes('/lib/'))
 );
 
-console.log(`🔧 Processing ${appFiles.length} application files...`);
+// console.log(`🔧 Processing ${appFiles.length} application files...`);
 
 appFiles.forEach(commentOutConsole);
 
-console.log('✅ Console statement cleanup completed!');
+// console.log('✅ Console statement cleanup completed!');

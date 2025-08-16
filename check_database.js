@@ -8,7 +8,7 @@ const supabase = createClient(
 );
 
 async function checkDatabase() {
-  console.log('🔍 Checking database structure...\n');
+  // console.log('🔍 Checking database structure...\n');
 
   try {
     // Check what tables exist
@@ -16,7 +16,7 @@ async function checkDatabase() {
       .rpc('get_table_names');
 
     if (tablesError) {
-      console.log('Using manual table check...');
+      // console.log('Using manual table check...');
       
       // Try to query each table to see if it exists
       const tableNames = ['users', 'sponsorship_sequences', 'products', 'notes', 'rooms'];
@@ -29,18 +29,18 @@ async function checkDatabase() {
             .limit(1);
           
           if (error) {
-            console.log(`❌ Table '${tableName}': ${error.message}`);
+            // console.log(`❌ Table '${tableName}': ${error.message}`);
           } else {
-            console.log(`✅ Table '${tableName}': exists and accessible`);
+            // console.log(`✅ Table '${tableName}': exists and accessible`);
           }
         } catch (err) {
-          console.log(`❌ Table '${tableName}': ${err.message}`);
+          // console.log(`❌ Table '${tableName}': ${err.message}`);
         }
       }
     }
 
     // Check sponsorship_sequences table specifically
-    console.log('\n🔍 Checking sponsorship_sequences table...');
+    // console.log('\n🔍 Checking sponsorship_sequences table...');
     try {
       const { data, error } = await supabase
         .from('sponsorship_sequences')
@@ -48,18 +48,18 @@ async function checkDatabase() {
         .limit(1);
       
       if (error) {
-        console.log('❌ Error:', error.message);
-        console.log('This suggests the table might not exist or have different structure');
+        // console.log('❌ Error:', error.message);
+        // console.log('This suggests the table might not exist or have different structure');
       } else {
-        console.log('✅ Table exists and is queryable');
-        console.log('Sample data:', data);
+        // console.log('✅ Table exists and is queryable');
+        // console.log('Sample data:', data);
       }
     } catch (err) {
-      console.log('❌ Catch error:', err.message);
+      // console.log('❌ Catch error:', err.message);
     }
 
     // Let's try to create a simple record to see what columns exist
-    console.log('\n🧪 Testing sponsorship_sequences insert...');
+    // console.log('\n🧪 Testing sponsorship_sequences insert...');
     try {
       const { data, error } = await supabase
         .from('sponsorship_sequences')
@@ -70,19 +70,19 @@ async function checkDatabase() {
         .select();
       
       if (error) {
-        console.log('❌ Insert error:', error.message);
+        // console.log('❌ Insert error:', error.message);
         if (error.message.includes('item_id')) {
-          console.log('💡 This confirms item_id column is required but might not exist');
+          // console.log('💡 This confirms item_id column is required but might not exist');
         }
       } else {
-        console.log('✅ Insert successful:', data);
+        // console.log('✅ Insert successful:', data);
       }
     } catch (err) {
-      console.log('❌ Insert catch error:', err.message);
+      // console.log('❌ Insert catch error:', err.message);
     }
 
     // Check what the table structure actually is
-    console.log('\n📋 Let\'s check if the table was created with different name...');
+    // console.log('\n📋 Let\'s check if the table was created with different name...');
     
     // Try some possible variations
     const possibleNames = ['sponsorship_sequence', 'sponsorships', 'featured_listings'];
@@ -95,7 +95,7 @@ async function checkDatabase() {
           .limit(1);
         
         if (!error) {
-          console.log(`✅ Found table: ${name}`);
+          // console.log(`✅ Found table: ${name}`);
         }
       } catch (err) {
         // Silent fail for non-existent tables
@@ -103,7 +103,7 @@ async function checkDatabase() {
     }
 
   } catch (error) {
-    console.error('❌ Database check failed:', error.message);
+    // console.error('❌ Database check failed:', error.message);
   }
 }
 

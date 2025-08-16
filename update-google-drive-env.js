@@ -30,8 +30,8 @@ function askQuestion(question) {
 }
 
 async function updateEnvironmentVariables() {
-  console.log('🔧 Google Drive API Environment Variables Setup');
-  console.log('=' .repeat(50));
+  // console.log('🔧 Google Drive API Environment Variables Setup');
+  // console.log('=' .repeat(50));
   
   try {
     // Ask for the JSON file name
@@ -40,8 +40,8 @@ async function updateEnvironmentVariables() {
     // Check if file exists
     const jsonFilePath = path.join(__dirname, jsonFileName);
     if (!fs.existsSync(jsonFilePath)) {
-      console.error(`❌ File not found: ${jsonFileName}`);
-      console.error('Please make sure the JSON file is in the studx directory.');
+      // console.error(`❌ File not found: ${jsonFileName}`);
+      // console.error('Please make sure the JSON file is in the studx directory.');
       rl.close();
       return;
     }
@@ -58,9 +58,9 @@ async function updateEnvironmentVariables() {
     
     if (fs.existsSync(envPath)) {
       envContent = fs.readFileSync(envPath, 'utf8');
-      console.log('✅ Found existing .env.local file');
+      // console.log('✅ Found existing .env.local file');
     } else {
-      console.log('⚠️ No existing .env.local file found, creating new one');
+      // console.log('⚠️ No existing .env.local file found, creating new one');
     }
     
     // Prepare the new Google Drive variables
@@ -81,32 +81,32 @@ async function updateEnvironmentVariables() {
       if (regex.test(updatedEnvContent)) {
         // Replace existing variable
         updatedEnvContent = updatedEnvContent.replace(regex, newLine);
-        console.log(`✅ Updated ${key}`);
+        // console.log(`✅ Updated ${key}`);
       } else {
         // Add new variable
         updatedEnvContent += `\n${newLine}`;
-        console.log(`➕ Added ${key}`);
+        // console.log(`➕ Added ${key}`);
       }
     }
     
     // Write the updated content back to .env.local
     fs.writeFileSync(envPath, updatedEnvContent);
     
-    console.log('\n🎉 Environment variables updated successfully!');
-    console.log('\nNext steps:');
-    console.log('1. Run: node test-google-drive.js');
-    console.log('2. If the test passes, try uploading a PDF through your forms');
-    console.log('3. Delete the service account JSON file for security');
+    // console.log('\n🎉 Environment variables updated successfully!');
+    // console.log('\nNext steps:');
+    // console.log('1. Run: node test-google-drive.js');
+    // console.log('2. If the test passes, try uploading a PDF through your forms');
+    // console.log('3. Delete the service account JSON file for security');
     
     // Ask if they want to delete the JSON file
     const deleteFile = await askQuestion('\nDo you want to delete the service account JSON file now? (y/N): ');
     if (deleteFile.toLowerCase() === 'y' || deleteFile.toLowerCase() === 'yes') {
       fs.unlinkSync(jsonFilePath);
-      console.log(`✅ Deleted ${jsonFileName}`);
+      // console.log(`✅ Deleted ${jsonFileName}`);
     }
     
   } catch (error) {
-    console.error('❌ Error updating environment variables:', error.message);
+    // console.error('❌ Error updating environment variables:', error.message);
   }
   
   rl.close();

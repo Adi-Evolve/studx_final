@@ -63,10 +63,10 @@ function fixBrokenConsole(filePath) {
         
         if (changed) {
             fs.writeFileSync(filePath, content);
-            console.log(`✅ Fixed: ${filePath}`);
+            // console.log(`✅ Fixed: ${filePath}`);
         }
     } catch (error) {
-        console.error(`❌ Error processing ${filePath}:`, error.message);
+        // console.error(`❌ Error processing ${filePath}:`, error.message);
     }
 }
 
@@ -84,8 +84,8 @@ const appFiles = jsFiles.filter(file =>
     (file.includes('\\app\\') || file.includes('\\components\\') || file.includes('\\lib\\') || file.includes('/app/') || file.includes('/components/') || file.includes('/lib/'))
 );
 
-console.log(`🔧 Processing ${appFiles.length} application files...`);
+// console.log(`🔧 Processing ${appFiles.length} application files...`);
 
 appFiles.forEach(fixBrokenConsole);
 
-console.log('✅ Console statement fix completed!');
+// console.log('✅ Console statement fix completed!');

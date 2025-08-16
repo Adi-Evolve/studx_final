@@ -7,21 +7,21 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SECRET_KEY;
 
 if (!supabaseUrl || !supabaseServiceKey) {
-    console.error('❌ Missing Supabase credentials in .env.local');
+    // console.error('❌ Missing Supabase credentials in .env.local');
     process.exit(1);
 }
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 async function verifyMigration() {
-    console.log('🔍 Verifying migration and data integrity...\n');
-    console.log(`🎯 Database: ${supabaseUrl}\n`);
+    // console.log('🔍 Verifying migration and data integrity...\n');
+    // console.log(`🎯 Database: ${supabaseUrl}\n`);
 
     // Load original backup for comparison
     let originalData = null;
     if (fs.existsSync('complete_database_backup.json')) {
         originalData = JSON.parse(fs.readFileSync('complete_database_backup.json', 'utf8'));
-        console.log(`📅 Comparing with backup from: ${originalData.exportDate}\n`);
+        // console.log(`📅 Comparing with backup from: ${originalData.exportDate}\n`);
     }
 
     const tables = ['users', 'products', 'notes', 'rooms', 'transactions', 'categories', 'wishlist', 'user_ratings'];
@@ -29,8 +29,8 @@ async function verifyMigration() {
     let allTestsPassed = true;
 
     // Test 1: Table Existence and Basic Counts
-    console.log('📊 TEST 1: Table Existence and Record Counts');
-    console.log('═'.repeat(60));
+    // console.log('📊 TEST 1: Table Existence and Record Counts');
+    // console.log('═'.repeat(60));
     
     for (const table of tables) {
         try {
@@ -39,7 +39,7 @@ async function verifyMigration() {
                 .select('*', { count: 'exact' });
 
             if (error) {
-                console.log(`❌ ${table}: Table not accessible (${error.message})`);
+                // console.log(`❌ ${table}: Table not accessible (${error.message})`);
                 verificationResults[table] = { status: 'error', error: error.message };
                 allTestsPassed = false;
             } else {
@@ -47,7 +47,7 @@ async function verifyMigration() {
                 const originalCount = originalData?.tables[table]?.length || 'unknown';
                 const match = originalData ? currentCount === originalCount : true;
                 
-                console.log(`${match ? '✅' : '⚠️'} ${table}: ${currentCount} records ${originalData ? `(original: ${originalCount})` : ''}`);
+                // console.log(`${match ? '✅' : '⚠️'} ${table}: ${currentCount} records ${originalData ? `(original: ${originalCount})` : ''}`);
                 
                 verificationResults[table] = {
                     status: match ? 'success' : 'partial',
@@ -59,15 +59,15 @@ async function verifyMigration() {
                 if (!match) allTestsPassed = false;
             }
         } catch (err) {
-            console.log(`❌ ${table}: Failed to verify (${err.message})`);
+            // console.log(`❌ ${table}: Failed to verify (${err.message})`);
             verificationResults[table] = { status: 'error', error: err.message };
             allTestsPassed = false;
         }
     }
 
     // Test 2: Data Integrity Checks
-    console.log('\n🔍 TEST 2: Data Integrity Checks');
-    console.log('═'.repeat(60));
+    // console.log('\n🔍 TEST 2: Data Integrity Checks');
+    // console.log('═'.repeat(60));
 
     const integrityTests = [
         {
@@ -115,17 +115,17 @@ async function verifyMigration() {
     for (const test of integrityTests) {
         try {
             const result = await test.test();
-            console.log(`${result.passed ? '✅' : '❌'} ${test.name}: ${result.details}`);
+            // console.log(`${result.passed ? '✅' : '❌'} ${test.name}: ${result.details}`);
             if (!result.passed) allTestsPassed = false;
         } catch (err) {
-            console.log(`❌ ${test.name}: Test failed (${err.message})`);
+            // console.log(`❌ ${test.name}: Test failed (${err.message})`);
             allTestsPassed = false;
         }
     }
 
     // Test 3: Functional Tests
-    console.log('\n⚙️ TEST 3: Functional Tests');
-    console.log('═'.repeat(60));
+    // console.log('\n⚙️ TEST 3: Functional Tests');
+    // console.log('═'.repeat(60));
 
     const functionalTests = [
         {
@@ -175,17 +175,17 @@ async function verifyMigration() {
     for (const test of functionalTests) {
         try {
             const result = await test.test();
-            console.log(`${result.passed ? '✅' : '❌'} ${test.name}: ${result.details}`);
+            // console.log(`${result.passed ? '✅' : '❌'} ${test.name}: ${result.details}`);
             if (!result.passed) allTestsPassed = false;
         } catch (err) {
-            console.log(`❌ ${test.name}: Test failed (${err.message})`);
+            // console.log(`❌ ${test.name}: Test failed (${err.message})`);
             allTestsPassed = false;
         }
     }
 
     // Test 4: Authentication Test
-    console.log('\n🔐 TEST 4: Authentication & Security');
-    console.log('═'.repeat(60));
+    // console.log('\n🔐 TEST 4: Authentication & Security');
+    // console.log('═'.repeat(60));
 
     try {
         // Test RLS policies by trying to access with anon key
@@ -196,11 +196,11 @@ async function verifyMigration() {
             .select('id, title')
             .limit(1);
             
-        console.log(`${!publicError ? '✅' : '❌'} Public access to products: ${!publicError ? 'Working' : publicError.message}`);
+        // console.log(`${!publicError ? '✅' : '❌'} Public access to products: ${!publicError ? 'Working' : publicError.message}`);
         
         if (publicError) allTestsPassed = false;
     } catch (err) {
-        console.log(`❌ Authentication test failed: ${err.message}`);
+        // console.log(`❌ Authentication test failed: ${err.message}`);
         allTestsPassed = false;
     }
 
@@ -232,26 +232,26 @@ async function verifyMigration() {
     fs.writeFileSync('verification_report.json', JSON.stringify(verificationReport, null, 2));
 
     // Final summary
-    console.log('\n🎯 VERIFICATION SUMMARY');
-    console.log('═'.repeat(60));
-    console.log(`Status: ${allTestsPassed ? '🎉 PASSED' : '⚠️ FAILED'}`);
-    console.log(`Database: ${supabaseUrl}`);
-    console.log(`Report saved: verification_report.json`);
+    // console.log('\n🎯 VERIFICATION SUMMARY');
+    // console.log('═'.repeat(60));
+    // console.log(`Status: ${allTestsPassed ? '🎉 PASSED' : '⚠️ FAILED'}`);
+    // console.log(`Database: ${supabaseUrl}`);
+    // console.log(`Report saved: verification_report.json`);
 
     if (allTestsPassed) {
-        console.log('\n✅ MIGRATION VERIFIED SUCCESSFULLY!');
-        console.log('🚀 Your new database is ready for production use');
-        console.log('\nNext steps:');
-        console.log('1. Test your full application');
-        console.log('2. Update Vercel environment variables');
-        console.log('3. Deploy to production');
-        console.log('4. Update admin panel credentials');
-        console.log('5. Monitor for any issues');
+        // console.log('\n✅ MIGRATION VERIFIED SUCCESSFULLY!');
+        // console.log('🚀 Your new database is ready for production use');
+        // console.log('\nNext steps:');
+        // console.log('1. Test your full application');
+        // console.log('2. Update Vercel environment variables');
+        // console.log('3. Deploy to production');
+        // console.log('4. Update admin panel credentials');
+        // console.log('5. Monitor for any issues');
     } else {
-        console.log('\n⚠️ VERIFICATION FAILED');
-        console.log('🔍 Review the test results above');
-        console.log('🛠️ Fix any issues before proceeding to production');
-        console.log('📞 Consider running import_data_to_new_supabase.js again for failed tables');
+        // console.log('\n⚠️ VERIFICATION FAILED');
+        // console.log('🔍 Review the test results above');
+        // console.log('🛠️ Fix any issues before proceeding to production');
+        // console.log('📞 Consider running import_data_to_new_supabase.js again for failed tables');
     }
 
     return allTestsPassed;

@@ -28,12 +28,12 @@ async function convertSvgToPng() {
           .png()
           .toFile(outputPath);
         
-        console.log(`✅ Converted ${file.input} to ${file.output}`);
+        // console.log(`✅ Converted ${file.input} to ${file.output}`);
       } else {
-        console.log(`❌ SVG file not found: ${file.input}`);
+        // console.log(`❌ SVG file not found: ${file.input}`);
       }
     } catch (error) {
-      console.error(`❌ Error converting ${file.input}:`, error.message);
+      // console.error(`❌ Error converting ${file.input}:`, error.message);
     }
   }
   
@@ -48,13 +48,13 @@ async function convertSvgToPng() {
         .png()
         .toFile(faviconIcoPath);
       
-      console.log('✅ Created favicon.ico');
+      // console.log('✅ Created favicon.ico');
     }
   } catch (error) {
-    console.error('❌ Error creating favicon.ico:', error.message);
+    // console.error('❌ Error creating favicon.ico:', error.message);
   }
 }
 
 convertSvgToPng().then(() => {
-  console.log('🎉 Icon conversion complete!');
+  // console.log('🎉 Icon conversion complete!');
 }).catch(console.error);

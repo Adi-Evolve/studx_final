@@ -4,11 +4,11 @@
  */
 
 // Test environment variables
-console.log('🔍 Environment Variables Check:')
-console.log('NEXT_PUBLIC_SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ? '✅ Set' : '❌ Missing')
-console.log('SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? '✅ Set' : '❌ Missing')
-console.log('IMGBB_API_KEY:', process.env.IMGBB_API_KEY ? '✅ Set' : '❌ Missing')
-console.log('NODE_ENV:', process.env.NODE_ENV)
+// console.log('🔍 Environment Variables Check:')
+// console.log('NEXT_PUBLIC_SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ? '✅ Set' : '❌ Missing')
+// console.log('SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? '✅ Set' : '❌ Missing')
+// console.log('IMGBB_API_KEY:', process.env.IMGBB_API_KEY ? '✅ Set' : '❌ Missing')
+// console.log('NODE_ENV:', process.env.NODE_ENV)
 
 // Test Supabase connection
 async function testSupabaseConnection() {
@@ -19,7 +19,7 @@ async function testSupabaseConnection() {
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
     if (!supabaseUrl || !supabaseServiceKey) {
-      console.log('❌ Missing Supabase credentials')
+      // console.log('❌ Missing Supabase credentials')
       return false
     }
 
@@ -32,14 +32,14 @@ async function testSupabaseConnection() {
       .limit(1)
 
     if (error) {
-      console.log('❌ Supabase connection error:', error.message)
+      // console.log('❌ Supabase connection error:', error.message)
       return false
     }
 
-    console.log('✅ Supabase connection successful')
+    // console.log('✅ Supabase connection successful')
     return true
   } catch (error) {
-    console.log('❌ Supabase test failed:', error.message)
+    // console.log('❌ Supabase test failed:', error.message)
     return false
   }
 }
@@ -78,14 +78,14 @@ async function testRoomListing() {
       updated_at: new Date().toISOString(),
     }
 
-    console.log('🧪 Testing room insertion...')
-    console.log('Test data:', testRoomData)
+    // console.log('🧪 Testing room insertion...')
+    // console.log('Test data:', testRoomData)
 
     // Don't actually insert, just validate
-    console.log('✅ Room data structure looks valid')
+    // console.log('✅ Room data structure looks valid')
 
   } catch (error) {
-    console.log('❌ Room listing test failed:', error.message)
+    // console.log('❌ Room listing test failed:', error.message)
   }
 }
 
@@ -98,7 +98,7 @@ async function testUserAuth(userEmail = 'test@example.com') {
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-    console.log(`🔐 Testing user authentication for: ${userEmail}`)
+    // console.log(`🔐 Testing user authentication for: ${userEmail}`)
 
     const { data: user, error } = await supabase
       .from('users')
@@ -108,17 +108,17 @@ async function testUserAuth(userEmail = 'test@example.com') {
 
     if (error) {
       if (error.code === 'PGRST116') {
-        console.log(`⚠️ User ${userEmail} not found in database`)
+        // console.log(`⚠️ User ${userEmail} not found in database`)
       } else {
-        console.log('❌ User lookup error:', error.message)
+        // console.log('❌ User lookup error:', error.message)
       }
       return false
     }
 
-    console.log('✅ User found:', user)
+    // console.log('✅ User found:', user)
     return user
   } catch (error) {
-    console.log('❌ User auth test failed:', error.message)
+    // console.log('❌ User auth test failed:', error.message)
     return false
   }
 }
@@ -129,7 +129,7 @@ async function testImgBBConnection() {
     const IMGBB_API_KEY = process.env.IMGBB_API_KEY
     
     if (!IMGBB_API_KEY) {
-      console.log('❌ IMGBB_API_KEY not set')
+      // console.log('❌ IMGBB_API_KEY not set')
       return false
     }
 
@@ -141,42 +141,42 @@ async function testImgBBConnection() {
 
     if (response.status === 400) {
       // 400 is expected with empty form data, means API key is valid
-      console.log('✅ ImgBB API key is valid')
+      // console.log('✅ ImgBB API key is valid')
       return true
     } else if (response.status === 401) {
-      console.log('❌ ImgBB API key is invalid')
+      // console.log('❌ ImgBB API key is invalid')
       return false
     } else {
-      console.log('⚠️ ImgBB API response:', response.status)
+      // console.log('⚠️ ImgBB API response:', response.status)
       return true
     }
   } catch (error) {
-    console.log('❌ ImgBB test failed:', error.message)
+    // console.log('❌ ImgBB test failed:', error.message)
     return false
   }
 }
 
 // Main diagnostic function
 async function runDiagnostics() {
-  console.log('🚀 Starting Sell API Diagnostics...\n')
+  // console.log('🚀 Starting Sell API Diagnostics...\n')
 
-  console.log('1️⃣ Testing Supabase Connection:')
+  // console.log('1️⃣ Testing Supabase Connection:')
   await testSupabaseConnection()
-  console.log('')
+  // console.log('')
 
-  console.log('2️⃣ Testing User Authentication:')
+  // console.log('2️⃣ Testing User Authentication:')
   await testUserAuth()
-  console.log('')
+  // console.log('')
 
-  console.log('3️⃣ Testing ImgBB Connection:')
+  // console.log('3️⃣ Testing ImgBB Connection:')
   await testImgBBConnection()
-  console.log('')
+  // console.log('')
 
-  console.log('4️⃣ Testing Room Data Structure:')
+  // console.log('4️⃣ Testing Room Data Structure:')
   await testRoomListing()
-  console.log('')
+  // console.log('')
 
-  console.log('✨ Diagnostics complete!')
+  // console.log('✨ Diagnostics complete!')
 }
 
 // Export for use in API routes or scripts

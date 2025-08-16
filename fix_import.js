@@ -9,14 +9,14 @@ const supabase = createClient(
 );
 
 async function fixDataImport() {
-  console.log('🔧 Fixing data import issues...\n');
+  // console.log('🔧 Fixing data import issues...\n');
 
   try {
     // Read export file
     const exportData = JSON.parse(fs.readFileSync('supabase_export_1751909981983.json', 'utf8'));
 
     // 1. Handle sponsorship sequences manually
-    console.log('⭐ Fixing sponsorship sequences...');
+    // console.log('⭐ Fixing sponsorship sequences...');
     if (exportData.sponsorship_sequences && exportData.sponsorship_sequences.length > 0) {
       
       for (const sequence of exportData.sponsorship_sequences) {
@@ -32,27 +32,27 @@ async function fixDataImport() {
             });
 
           if (error) {
-            console.log(`⚠️ Could not insert sequence ${sequence.id}:`, error.message);
+            // console.log(`⚠️ Could not insert sequence ${sequence.id}:`, error.message);
           } else {
-            console.log(`✅ Inserted sponsorship sequence ${sequence.slot}`);
+            // console.log(`✅ Inserted sponsorship sequence ${sequence.slot}`);
           }
         } catch (err) {
-          console.log(`❌ Error with sequence ${sequence.id}:`, err.message);
+          // console.log(`❌ Error with sequence ${sequence.id}:`, err.message);
         }
       }
     }
 
     // 2. Handle users - only insert into public.users, not auth.users
-    console.log('\n👥 Fixing user profiles...');
+    // console.log('\n👥 Fixing user profiles...');
     if (exportData.users && exportData.users.length > 0) {
       
       // First, get all existing auth users
       const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
       
       if (authError) {
-        console.log('⚠️ Could not fetch auth users:', authError.message);
+        // console.log('⚠️ Could not fetch auth users:', authError.message);
       } else {
-        console.log(`📋 Found ${authUsers.users.length} auth users`);
+        // console.log(`📋 Found ${authUsers.users.length} auth users`);
         
         // For each exported user, try to create a profile in public.users
         for (const user of exportData.users) {
@@ -80,22 +80,22 @@ async function fixDataImport() {
                 });
 
               if (error) {
-                console.log(`⚠️ Could not upsert user ${user.email}:`, error.message);
+                // console.log(`⚠️ Could not upsert user ${user.email}:`, error.message);
               } else {
-                console.log(`✅ Updated profile for ${user.email}`);
+                // console.log(`✅ Updated profile for ${user.email}`);
               }
             } else {
-              console.log(`⚠️ User ${user.email} not found in auth, skipping profile`);
+              // console.log(`⚠️ User ${user.email} not found in auth, skipping profile`);
             }
           } catch (err) {
-            console.log(`❌ Error with user ${user.email}:`, err.message);
+            // console.log(`❌ Error with user ${user.email}:`, err.message);
           }
         }
       }
     }
 
     // 3. Test the setup
-    console.log('\n🧪 Testing the setup...');
+    // console.log('\n🧪 Testing the setup...');
     
     // Check if sponsorship sequences were inserted
     const { data: sequences, error: seqError } = await supabase
@@ -103,9 +103,9 @@ async function fixDataImport() {
       .select('*');
     
     if (seqError) {
-      console.log('⚠️ Could not fetch sponsorship sequences:', seqError.message);
+      // console.log('⚠️ Could not fetch sponsorship sequences:', seqError.message);
     } else {
-      console.log(`✅ Found ${sequences.length} sponsorship sequences`);
+      // console.log(`✅ Found ${sequences.length} sponsorship sequences`);
     }
 
     // Check if users table has data
@@ -115,32 +115,32 @@ async function fixDataImport() {
       .limit(5);
     
     if (usersError) {
-      console.log('⚠️ Could not fetch users:', usersError.message);
+      // console.log('⚠️ Could not fetch users:', usersError.message);
     } else {
-      console.log(`✅ Found ${users.length} user profiles`);
+      // console.log(`✅ Found ${users.length} user profiles`);
       users.forEach(user => {
-        console.log(`   - ${user.name} (${user.email})`);
+        // console.log(`   - ${user.name} (${user.email})`);
       });
     }
 
-    console.log('\n🎉 DATA IMPORT FIXES COMPLETE!');
-    console.log('===============================');
-    console.log('✅ Sponsorship sequences fixed');
-    console.log('✅ User profiles linked to auth users');
-    console.log('✅ Database is ready for testing');
+    // console.log('\n🎉 DATA IMPORT FIXES COMPLETE!');
+    // console.log('===============================');
+    // console.log('✅ Sponsorship sequences fixed');
+    // console.log('✅ User profiles linked to auth users');
+    // console.log('✅ Database is ready for testing');
     
-    console.log('\n📋 NEXT STEPS:');
-    console.log('1. Test your application with the new database');
-    console.log('2. Check that authentication works');
-    console.log('3. Verify that featured listings appear');
-    console.log('4. Make sure all functionality works as expected');
+    // console.log('\n📋 NEXT STEPS:');
+    // console.log('1. Test your application with the new database');
+    // console.log('2. Check that authentication works');
+    // console.log('3. Verify that featured listings appear');
+    // console.log('4. Make sure all functionality works as expected');
 
   } catch (error) {
-    console.error('❌ Fix failed:', error.message);
-    console.log('\nMake sure:');
-    console.log('- Your .env.local has the NEW Supabase credentials');
-    console.log('- The database schema was created successfully');
-    console.log('- The export file exists');
+    // console.error('❌ Fix failed:', error.message);
+    // console.log('\nMake sure:');
+    // console.log('- Your .env.local has the NEW Supabase credentials');
+    // console.log('- The database schema was created successfully');
+    // console.log('- The export file exists');
   }
 }
 

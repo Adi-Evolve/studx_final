@@ -16,13 +16,13 @@ const scopes = [
   'https://www.googleapis.com/auth/drive.metadata'
 ];
 
-console.log('🚀 Google Drive OAuth Token Generator');
-console.log('====================================');
+// console.log('🚀 Google Drive OAuth Token Generator');
+// console.log('====================================');
 
 // Check if we have client credentials
 if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
-  console.error('❌ Missing Google OAuth credentials!');
-  console.log('Please add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to your .env.local file');
+  // console.error('❌ Missing Google OAuth credentials!');
+  // console.log('Please add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to your .env.local file');
   process.exit(1);
 }
 
@@ -33,11 +33,11 @@ const authUrl = oauth2Client.generateAuthUrl({
   prompt: 'consent' // This ensures we get a refresh token
 });
 
-console.log('1. Opening your browser to authenticate with Google...');
-console.log('2. Grant permission to access your Google Drive');
-console.log('3. You will be redirected to a localhost page');
-console.log('4. The tokens will be automatically generated');
-console.log('');
+// console.log('1. Opening your browser to authenticate with Google...');
+// console.log('2. Grant permission to access your Google Drive');
+// console.log('3. You will be redirected to a localhost page');
+// console.log('4. The tokens will be automatically generated');
+// console.log('');
 
 // Create a server to handle the callback
 const server = http.createServer(async (req, res) => {
@@ -70,36 +70,36 @@ const server = http.createServer(async (req, res) => {
         `);
         
         // Display tokens in console
-        console.log('');
-        console.log('🎉 SUCCESS! Your OAuth tokens have been generated:');
-        console.log('===============================================');
-        console.log('');
-        console.log('Copy these values to your .env.local file:');
-        console.log('');
-        console.log(`GOOGLE_ACCESS_TOKEN=${tokens.access_token}`);
-        console.log(`GOOGLE_REFRESH_TOKEN=${tokens.refresh_token}`);
-        console.log('');
-        console.log('📋 Your updated .env.local should look like:');
-        console.log('');
-        console.log(`GOOGLE_CLIENT_ID=${process.env.GOOGLE_CLIENT_ID}`);
-        console.log(`GOOGLE_CLIENT_SECRET=${process.env.GOOGLE_CLIENT_SECRET}`);
-        console.log(`GOOGLE_REDIRECT_URI=http://localhost:1501/oauth/callback`);
-        console.log(`GOOGLE_ACCESS_TOKEN=${tokens.access_token}`);
-        console.log(`GOOGLE_REFRESH_TOKEN=${tokens.refresh_token}`);
-        console.log(`GOOGLE_DRIVE_FOLDER_ID=YOUR_FOLDER_ID_HERE`);
-        console.log('');
-        console.log('🗂️  Don\'t forget to:');
-        console.log('1. Create a folder in your Google Drive');
-        console.log('2. Copy the folder ID from its URL');
-        console.log('3. Add it as GOOGLE_DRIVE_FOLDER_ID in .env.local');
-        console.log('');
-        console.log('✅ Once you\'ve updated .env.local, you can test PDF uploads!');
+        // console.log('');
+        // console.log('🎉 SUCCESS! Your OAuth tokens have been generated:');
+        // console.log('===============================================');
+        // console.log('');
+        // console.log('Copy these values to your .env.local file:');
+        // console.log('');
+        // console.log(`GOOGLE_ACCESS_TOKEN=${tokens.access_token}`);
+        // console.log(`GOOGLE_REFRESH_TOKEN=${tokens.refresh_token}`);
+        // console.log('');
+        // console.log('📋 Your updated .env.local should look like:');
+        // console.log('');
+        // console.log(`GOOGLE_CLIENT_ID=${process.env.GOOGLE_CLIENT_ID}`);
+        // console.log(`GOOGLE_CLIENT_SECRET=${process.env.GOOGLE_CLIENT_SECRET}`);
+        // console.log(`GOOGLE_REDIRECT_URI=http://localhost:1501/oauth/callback`);
+        // console.log(`GOOGLE_ACCESS_TOKEN=${tokens.access_token}`);
+        // console.log(`GOOGLE_REFRESH_TOKEN=${tokens.refresh_token}`);
+        // console.log(`GOOGLE_DRIVE_FOLDER_ID=YOUR_FOLDER_ID_HERE`);
+        // console.log('');
+        // console.log('🗂️  Don\'t forget to:');
+        // console.log('1. Create a folder in your Google Drive');
+        // console.log('2. Copy the folder ID from its URL');
+        // console.log('3. Add it as GOOGLE_DRIVE_FOLDER_ID in .env.local');
+        // console.log('');
+        // console.log('✅ Once you\'ve updated .env.local, you can test PDF uploads!');
         
         // Close server
         server.close();
         
       } catch (error) {
-        console.error('❌ Error getting tokens:', error);
+        // console.error('❌ Error getting tokens:', error);
         res.writeHead(500, { 'Content-Type': 'text/html' });
         res.end(`
           <html>
@@ -118,7 +118,7 @@ const server = http.createServer(async (req, res) => {
         server.close();
       }
     } else {
-      console.error('❌ No authorization code received');
+      // console.error('❌ No authorization code received');
       res.writeHead(400, { 'Content-Type': 'text/html' });
       res.end(`
         <html>
@@ -135,23 +135,23 @@ const server = http.createServer(async (req, res) => {
 
 // Start server on port 1501
 server.listen(1501, () => {
-  console.log('🌐 Local server started on http://localhost:1501');
-  console.log('⏳ Waiting for OAuth callback...');
-  console.log('');
+  // console.log('🌐 Local server started on http://localhost:1501');
+  // console.log('⏳ Waiting for OAuth callback...');
+  // console.log('');
   
   // Open browser automatically
   open(authUrl).catch(err => {
-    console.log('Could not open browser automatically. Please visit:');
-    console.log(authUrl);
+    // console.log('Could not open browser automatically. Please visit:');
+    // console.log(authUrl);
   });
 });
 
 // Handle server errors
 server.on('error', (err) => {
   if (err.code === 'EADDRINUSE') {
-    console.error('❌ Port 1501 is already in use!');
-    console.log('Please stop any other services running on port 1501 and try again.');
+    // console.error('❌ Port 1501 is already in use!');
+    // console.log('Please stop any other services running on port 1501 and try again.');
   } else {
-    console.error('❌ Server error:', err);
+    // console.error('❌ Server error:', err);
   }
 });

@@ -17,32 +17,32 @@ class DatabaseTester {
             
             if (window.supabase) {
                 this.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
-                console.log('✅ Database Tester - Supabase connected');
+                // console.log('✅ Database Tester - Supabase connected');
             } else {
                 throw new Error('Supabase library not found');
             }
         } catch (error) {
-            console.error('❌ Database Tester - Connection failed:', error);
+            // console.error('❌ Database Tester - Connection failed:', error);
         }
     }
 
     async runTest(testName, testFunction) {
         try {
-            console.log(`🧪 Testing: ${testName}`);
+            // console.log(`🧪 Testing: ${testName}`);
             const result = await testFunction();
             this.testResults.push({ name: testName, status: 'PASSED', result });
-            console.log(`✅ PASSED: ${testName}`);
+            // console.log(`✅ PASSED: ${testName}`);
             return result;
         } catch (error) {
             this.testResults.push({ name: testName, status: 'FAILED', error: error.message });
-            console.error(`❌ FAILED: ${testName} - ${error.message}`);
+            // console.error(`❌ FAILED: ${testName} - ${error.message}`);
             return false;
         }
     }
 
     async runDatabaseTests() {
-        console.log('🚀 Starting Database Connectivity Tests');
-        console.log('========================================');
+        // console.log('🚀 Starting Database Connectivity Tests');
+        // console.log('========================================');
 
         // Basic connectivity
         await this.testBasicConnection();
@@ -84,7 +84,7 @@ class DatabaseTester {
             
             if (error) throw new Error(`Connection test failed: ${error.message}`);
             
-            console.log('✅ Basic connection working');
+            // console.log('✅ Basic connection working');
             return true;
         });
     }
@@ -99,7 +99,7 @@ class DatabaseTester {
             
             if (error) throw new Error(`Service role access failed: ${error.message}`);
             
-            console.log('✅ Service role has proper access');
+            // console.log('✅ Service role has proper access');
             return true;
         });
     }
@@ -188,7 +188,7 @@ class DatabaseTester {
                     .limit(1);
                 
                 if (error) {
-                    console.warn(`⚠️ Cannot validate schema for ${table}: ${error.message}`);
+                    // console.warn(`⚠️ Cannot validate schema for ${table}: ${error.message}`);
                     continue;
                 }
                 
@@ -200,7 +200,7 @@ class DatabaseTester {
                         throw new Error(`${table} missing columns: ${missingColumns.join(', ')}`);
                     }
                     
-                    console.log(`✅ ${table} schema valid`);
+                    // console.log(`✅ ${table} schema valid`);
                 }
             }
             
@@ -230,7 +230,7 @@ class DatabaseTester {
             if (error) throw new Error(`Create operation failed: ${error.message}`);
             
             this.testRecordId = data[0]?.id;
-            console.log(`✅ Test record created with ID: ${this.testRecordId}`);
+            // console.log(`✅ Test record created with ID: ${this.testRecordId}`);
             return true;
         });
     }
@@ -248,7 +248,7 @@ class DatabaseTester {
             for (const { name, query } of queries) {
                 const { data, error } = await query();
                 if (error) throw new Error(`${name} failed: ${error.message}`);
-                console.log(`✅ ${name} successful`);
+                // console.log(`✅ ${name} successful`);
             }
             
             return true;
@@ -258,7 +258,7 @@ class DatabaseTester {
     async testUpdateOperations() {
         await this.runTest('Update Operations', async () => {
             if (!this.testRecordId) {
-                console.log('⚠️ No test record to update, skipping');
+                // console.log('⚠️ No test record to update, skipping');
                 return true;
             }
             
@@ -270,7 +270,7 @@ class DatabaseTester {
             
             if (error) throw new Error(`Update operation failed: ${error.message}`);
             
-            console.log('✅ Update operation successful');
+            // console.log('✅ Update operation successful');
             return true;
         });
     }
@@ -278,7 +278,7 @@ class DatabaseTester {
     async testDeleteOperations() {
         await this.runTest('Delete Operations', async () => {
             if (!this.testRecordId) {
-                console.log('⚠️ No test record to delete, skipping');
+                // console.log('⚠️ No test record to delete, skipping');
                 return true;
             }
             
@@ -289,7 +289,7 @@ class DatabaseTester {
             
             if (error) throw new Error(`Delete operation failed: ${error.message}`);
             
-            console.log('✅ Delete operation successful');
+            // console.log('✅ Delete operation successful');
             return true;
         });
     }
@@ -306,7 +306,7 @@ class DatabaseTester {
                         (payload) => console.log('✅ Real-time event received:', payload)
                     )
                     .subscribe((status) => {
-                        console.log('Real-time subscription status:', status);
+                        // console.log('Real-time subscription status:', status);
                     });
                 
                 // Clean up subscription
@@ -314,10 +314,10 @@ class DatabaseTester {
                     this.supabase.removeChannel(subscription);
                 }, 1000);
                 
-                console.log('✅ Real-time subscriptions working');
+                // console.log('✅ Real-time subscriptions working');
                 return true;
             } catch (error) {
-                console.warn('⚠️ Real-time subscriptions not available:', error.message);
+                // console.warn('⚠️ Real-time subscriptions not available:', error.message);
                 return true; // Don't fail the test
             }
         });
@@ -332,9 +332,9 @@ class DatabaseTester {
                 .limit(1);
             
             if (error) {
-                console.warn('⚠️ RLS might be blocking access:', error.message);
+                // console.warn('⚠️ RLS might be blocking access:', error.message);
             } else {
-                console.log('✅ RLS policies allowing service role access');
+                // console.log('✅ RLS policies allowing service role access');
             }
             
             return true;
@@ -356,10 +356,10 @@ class DatabaseTester {
             
             if (error) throw new Error(`Index test query failed: ${error.message}`);
             
-            console.log(`✅ Ordered query completed in ${queryTime.toFixed(2)}ms`);
+            // console.log(`✅ Ordered query completed in ${queryTime.toFixed(2)}ms`);
             
             if (queryTime > 5000) {
-                console.warn('⚠️ Query took longer than expected - check indexes');
+                // console.warn('⚠️ Query took longer than expected - check indexes');
             }
             
             return true;
@@ -381,10 +381,10 @@ class DatabaseTester {
                 throw new Error('Unique constraint not working - duplicates allowed');
             } catch (error) {
                 if (error.message.includes('duplicate') || error.message.includes('unique')) {
-                    console.log('✅ Unique constraints working correctly');
+                    // console.log('✅ Unique constraints working correctly');
                     return true;
                 } else {
-                    console.log('✅ Constraint error (expected):', error.message);
+                    // console.log('✅ Constraint error (expected):', error.message);
                     return true;
                 }
             }
@@ -406,15 +406,15 @@ class DatabaseTester {
                 const end = performance.now();
                 
                 if (error) {
-                    console.warn(`⚠️ ${name} failed: ${error.message}`);
+                    // console.warn(`⚠️ ${name} failed: ${error.message}`);
                     continue;
                 }
                 
                 const time = end - start;
-                console.log(`✅ ${name}: ${time.toFixed(2)}ms`);
+                // console.log(`✅ ${name}: ${time.toFixed(2)}ms`);
                 
                 if (time > 3000) {
-                    console.warn(`⚠️ ${name} is slow (${time.toFixed(2)}ms)`);
+                    // console.warn(`⚠️ ${name} is slow (${time.toFixed(2)}ms)`);
                 }
             }
             
@@ -442,7 +442,7 @@ class DatabaseTester {
             
             if (error) throw new Error(`Bulk insert failed: ${error.message}`);
             
-            console.log(`✅ Bulk inserted ${data.length} records`);
+            // console.log(`✅ Bulk inserted ${data.length} records`);
             
             // Clean up bulk test data
             const ids = data.map(record => record.id);
@@ -451,30 +451,30 @@ class DatabaseTester {
                 .delete()
                 .in('id', ids);
             
-            console.log('✅ Bulk test data cleaned up');
+            // console.log('✅ Bulk test data cleaned up');
             return true;
         });
     }
 
     displayResults() {
-        console.log('========================================');
-        console.log('🏁 DATABASE TESTS COMPLETED');
-        console.log('========================================');
+        // console.log('========================================');
+        // console.log('🏁 DATABASE TESTS COMPLETED');
+        // console.log('========================================');
         
         const passed = this.testResults.filter(r => r.status === 'PASSED').length;
         const failed = this.testResults.filter(r => r.status === 'FAILED').length;
         
-        console.log(`📊 Total Tests: ${this.testResults.length}`);
-        console.log(`✅ Passed: ${passed}`);
-        console.log(`❌ Failed: ${failed}`);
-        console.log(`📈 Success Rate: ${((passed / this.testResults.length) * 100).toFixed(1)}%`);
+        // console.log(`📊 Total Tests: ${this.testResults.length}`);
+        // console.log(`✅ Passed: ${passed}`);
+        // console.log(`❌ Failed: ${failed}`);
+        // console.log(`📈 Success Rate: ${((passed / this.testResults.length) * 100).toFixed(1)}%`);
         
         console.table(this.testResults);
         
         if (failed === 0) {
-            console.log('🎉 ALL DATABASE TESTS PASSED!');
+            // console.log('🎉 ALL DATABASE TESTS PASSED!');
         } else {
-            console.log(`⚠️ ${failed} tests failed. Review above for details.`);
+            // console.log(`⚠️ ${failed} tests failed. Review above for details.`);
         }
     }
 }
@@ -486,4 +486,4 @@ window.runDatabaseTests = () => {
     return tester.runDatabaseTests();
 };
 
-console.log('🧪 Database Test Suite Loaded. Run with: runDatabaseTests()');
+// console.log('🧪 Database Test Suite Loaded. Run with: runDatabaseTests()');

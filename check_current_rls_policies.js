@@ -7,7 +7,7 @@ const supabaseServiceKey = process.env.SUPABASE_SECRET_KEY;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 async function checkCurrentRLSPolicies() {
-    console.log('🔍 Checking current RLS policies for sponsorship_sequences...');
+    // console.log('🔍 Checking current RLS policies for sponsorship_sequences...');
     
     try {
         // Query the pg_policies view to see current policies
@@ -30,7 +30,7 @@ async function checkCurrentRLSPolicies() {
             });
 
         if (error) {
-            console.log('❌ Error querying policies (trying alternative method):', error.message);
+            // console.log('❌ Error querying policies (trying alternative method):', error.message);
             
             // Alternative: try checking via information_schema
             const { data: tableInfo, error: tableError } = await supabase
@@ -40,30 +40,30 @@ async function checkCurrentRLSPolicies() {
                 .eq('table_name', 'sponsorship_sequences');
             
             if (tableError) {
-                console.log('❌ Error accessing table info:', tableError.message);
+                // console.log('❌ Error accessing table info:', tableError.message);
             } else {
-                console.log('✅ Table exists in schema');
-                console.log('📋 Table info:', tableInfo);
+                // console.log('✅ Table exists in schema');
+                // console.log('📋 Table info:', tableInfo);
             }
             
             return;
         }
 
         if (!policies || policies.length === 0) {
-            console.log('ℹ️  No RLS policies found for sponsorship_sequences');
+            // console.log('ℹ️  No RLS policies found for sponsorship_sequences');
         } else {
-            console.log('📋 Current RLS policies:');
+            // console.log('📋 Current RLS policies:');
             policies.forEach((policy, index) => {
-                console.log(`\n${index + 1}. Policy: ${policy.policyname}`);
-                console.log(`   Command: ${policy.cmd}`);
-                console.log(`   Roles: ${policy.roles?.join(', ') || 'N/A'}`);
-                console.log(`   Condition: ${policy.qual || 'None'}`);
-                console.log(`   With Check: ${policy.with_check || 'None'}`);
+                // console.log(`\n${index + 1}. Policy: ${policy.policyname}`);
+                // console.log(`   Command: ${policy.cmd}`);
+                // console.log(`   Roles: ${policy.roles?.join(', ') || 'N/A'}`);
+                // console.log(`   Condition: ${policy.qual || 'None'}`);
+                // console.log(`   With Check: ${policy.with_check || 'None'}`);
             });
         }
 
         // Test INSERT with anon key (like adi.html does)
-        console.log('\n🧪 Testing INSERT with anon key (like adi.html)...');
+        // console.log('\n🧪 Testing INSERT with anon key (like adi.html)...');
         
         const anonSupabase = createClient(supabaseUrl, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
         
@@ -79,11 +79,11 @@ async function checkCurrentRLSPolicies() {
             .select();
 
         if (insertError) {
-            console.log('❌ INSERT with anon key failed:', insertError.message);
-            console.log('🔧 This explains why adi.html is failing');
+            // console.log('❌ INSERT with anon key failed:', insertError.message);
+            // console.log('🔧 This explains why adi.html is failing');
         } else {
-            console.log('✅ INSERT with anon key successful');
-            console.log('📝 Inserted record:', insertData);
+            // console.log('✅ INSERT with anon key successful');
+            // console.log('📝 Inserted record:', insertData);
             
             // Clean up
             if (insertData && insertData[0]) {
@@ -91,12 +91,12 @@ async function checkCurrentRLSPolicies() {
                     .from('sponsorship_sequences')
                     .delete()
                     .eq('id', insertData[0].id);
-                console.log('🧹 Test record cleaned up');
+                // console.log('🧹 Test record cleaned up');
             }
         }
 
     } catch (error) {
-        console.error('❌ Unexpected error:', error);
+        // console.error('❌ Unexpected error:', error);
     }
 }
 

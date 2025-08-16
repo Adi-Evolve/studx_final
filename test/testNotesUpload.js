@@ -34,7 +34,7 @@ async function testUploadNote() {
         contentType: 'application/pdf'
       });
     } else {
-      console.error('sample.pdf not found in test directory. Please add a real PDF for testing.');
+      // console.error('sample.pdf not found in test directory. Please add a real PDF for testing.');
       return;
     }
 
@@ -43,12 +43,12 @@ async function testUploadNote() {
       maxContentLength: Infinity,
       maxBodyLength: Infinity
     });
-    console.log('Upload successful:', response.data);
+    // console.log('Upload successful:', response.data);
   } catch (error) {
     if (error.response) {
-      console.error('Upload failed:', error.response.status, error.response.data);
+      // console.error('Upload failed:', error.response.status, error.response.data);
     } else {
-      console.error('Error:', error.message);
+      // console.error('Error:', error.message);
     }
   }
 }

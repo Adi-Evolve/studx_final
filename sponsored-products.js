@@ -32,7 +32,7 @@ class SponsoredProductManager {
         const container = document.getElementById(containerId);
 
         if (!container) {
-            console.warn(`Sponsored Products: Container ${containerId} not found`);
+            // console.warn(`Sponsored Products: Container ${containerId} not found`);
             return;
         }
 
@@ -55,7 +55,7 @@ class SponsoredProductManager {
             this.trackDisplayAnalytics(sponsoredProducts, config);
 
         } catch (error) {
-            console.error('Error displaying sponsored products:', error);
+            // console.error('Error displaying sponsored products:', error);
             this.hideContainer(container);
         }
     }
@@ -102,7 +102,7 @@ class SponsoredProductManager {
             return finalProducts;
 
         } catch (error) {
-            console.error('Error fetching sponsored products:', error);
+            // console.error('Error fetching sponsored products:', error);
             return [];
         }
     }
@@ -157,7 +157,7 @@ class SponsoredProductManager {
                 }
 
             } catch (error) {
-                console.warn(`Error enriching sponsorship ${sponsorship.id}:`, error);
+                // console.warn(`Error enriching sponsorship ${sponsorship.id}:`, error);
             }
         }
 
@@ -377,7 +377,7 @@ class SponsoredProductManager {
     trackDisplayAnalytics(products, config) {
         products.forEach(product => {
             // Analytics tracking for display impressions
-            console.log(`Sponsored Display: ${product.id} in slot ${product.sponsorSlot}`);
+            // console.log(`Sponsored Display: ${product.id} in slot ${product.sponsorSlot}`);
             
             // Send to analytics service (implement as needed)
             this.sendAnalytics('sponsored_display', {
@@ -393,7 +393,7 @@ class SponsoredProductManager {
      * Track click analytics
      */
     trackClickAnalytics(productId, sponsorSlot, config) {
-        console.log(`Sponsored Click: ${productId} in slot ${sponsorSlot}`);
+        // console.log(`Sponsored Click: ${productId} in slot ${sponsorSlot}`);
         
         // Send to analytics service
         this.sendAnalytics('sponsored_click', {

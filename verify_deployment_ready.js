@@ -7,8 +7,8 @@ const fs = require('fs');
 const path = require('path');
 
 function checkProductionReadiness() {
-    console.log('🔍 Final Deployment Verification for StudX\n');
-    console.log('==========================================\n');
+    // console.log('🔍 Final Deployment Verification for StudX\n');
+    // console.log('==========================================\n');
     
     const issues = [];
     const successes = [];
@@ -102,39 +102,39 @@ function checkProductionReadiness() {
     });
     
     // Display results
-    console.log('📊 VERIFICATION RESULTS:\n');
+    // console.log('📊 VERIFICATION RESULTS:\n');
     
     if (successes.length > 0) {
-        console.log('✅ PASSED CHECKS:\n');
+        // console.log('✅ PASSED CHECKS:\n');
         successes.forEach(success => console.log(`   ${success}`));
-        console.log('');
+        // console.log('');
     }
     
     if (issues.length > 0) {
-        console.log('❌ ISSUES FOUND:\n');
+        // console.log('❌ ISSUES FOUND:\n');
         issues.forEach(issue => console.log(`   ${issue}`));
-        console.log('');
-        console.log('🚨 Please fix these issues before deployment!\n');
+        // console.log('');
+        // console.log('🚨 Please fix these issues before deployment!\n');
     } else {
-        console.log('🎉 ALL CHECKS PASSED!\n');
-        console.log('✅ Your StudX project is ready for production deployment!\n');
+        // console.log('🎉 ALL CHECKS PASSED!\n');
+        // console.log('✅ Your StudX project is ready for production deployment!\n');
     }
     
     // Environment variables reminder
-    console.log('📋 REQUIRED ENVIRONMENT VARIABLES:\n');
-    console.log('   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url');
-    console.log('   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key'); 
-    console.log('   IMGBB_API_KEY=your_imgbb_api_key');
-    console.log('   SUPABASE_SERVICE_ROLE_KEY=your_service_key (optional)\n');
+    // console.log('📋 REQUIRED ENVIRONMENT VARIABLES:\n');
+    // console.log('   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url');
+    // console.log('   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key'); 
+    // console.log('   IMGBB_API_KEY=your_imgbb_api_key');
+    // console.log('   SUPABASE_SERVICE_ROLE_KEY=your_service_key (optional)\n');
     
     // Deployment recommendations
-    console.log('🚀 RECOMMENDED DEPLOYMENT PLATFORMS:\n');
-    console.log('   1. Vercel (Recommended) - Automatic Next.js optimization');
-    console.log('   2. Netlify - Great for static deployments');
-    console.log('   3. Railway - Good for full-stack apps');
-    console.log('   4. Render - Alternative hosting option\n');
+    // console.log('🚀 RECOMMENDED DEPLOYMENT PLATFORMS:\n');
+    // console.log('   1. Vercel (Recommended) - Automatic Next.js optimization');
+    // console.log('   2. Netlify - Great for static deployments');
+    // console.log('   3. Railway - Good for full-stack apps');
+    // console.log('   4. Render - Alternative hosting option\n');
     
-    console.log('📖 For detailed deployment instructions, see DEPLOYMENT_GUIDE.md\n');
+    // console.log('📖 For detailed deployment instructions, see DEPLOYMENT_GUIDE.md\n');
     
     return issues.length === 0;
 }
