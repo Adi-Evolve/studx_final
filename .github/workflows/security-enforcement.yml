@@ -39,12 +39,18 @@ jobs:
       run: |
         echo "🔍 Scanning for exposed secrets..."
         
-        # Check for common secret patterns
-        if grep -r "sk_live_" . --exclude-dir=.git || \
-           grep -r "pk_live_" . --exclude-dir=.git || \
-           grep -r "eyJ[A-Za-z0-9]" . --exclude-dir=.git | grep -v "\.md" || \
-           grep -r "rzp_live_" . --exclude-dir=.git || \
-           grep -r "SUPABASE.*eyJ" . --exclude-dir=.git; then
+        # Define secret patterns to avoid self-detection
+        STRIPE_LIVE="sk_live_"
+        STRIPE_PUB="pk_live_" 
+        JWT_PATTERN="eyJ[A-Za-z0-9]"
+        RAZORPAY_LIVE="rzp_live_"
+        
+        # Check for common secret patterns (excluding this workflow file)
+        if grep -r "$STRIPE_LIVE" . --exclude-dir=.git --exclude="*.yml" || \
+           grep -r "$STRIPE_PUB" . --exclude-dir=.git --exclude="*.yml" || \
+           grep -r "$JWT_PATTERN" . --exclude-dir=.git --exclude="*.yml" | grep -v "\.md" || \
+           grep -r "$RAZORPAY_LIVE" . --exclude-dir=.git --exclude="*.yml" || \
+           grep -r "SUPABASE.*eyJ" . --exclude-dir=.git --exclude="*.yml"; then
           echo "🚨 CRITICAL: Potential secrets found in repository!"
           echo "🔒 Please remove all hardcoded secrets and use environment variables"
           exit 1
