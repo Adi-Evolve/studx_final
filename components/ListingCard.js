@@ -166,7 +166,7 @@ export default function ListingCard({ item, onClick, isSelectMode = false, isSpo
 
                 {/* Action Buttons for Profile Page */}
                 {(onEdit || onRemove || onMarkAsSold) && (
-                    <div className="flex gap-2 mt-4 action-buttons">
+                    <div className="flex gap-2 mt-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg action-buttons">
                         {onEdit && (
                             <button
                                 onClick={e => { 
@@ -174,7 +174,7 @@ export default function ListingCard({ item, onClick, isSelectMode = false, isSpo
                                     e.stopPropagation(); 
                                     onEdit(item); 
                                 }}
-                                className="bg-slate-600 dark:bg-slate-700 text-white px-4 py-1 rounded-full text-sm font-semibold shadow hover:bg-slate-800 dark:hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-400"
+                                className="bg-blue-600 dark:bg-blue-700 text-white px-3 py-1 rounded text-sm font-semibold hover:bg-blue-700 dark:hover:bg-blue-800 transition-colors"
                             >
                                 Edit
                             </button>
@@ -186,7 +186,7 @@ export default function ListingCard({ item, onClick, isSelectMode = false, isSpo
                                     e.stopPropagation(); 
                                     onRemove(item); 
                                 }}
-                                className="bg-rose-500 dark:bg-rose-700 text-white px-4 py-1 rounded-full text-sm font-semibold shadow hover:bg-rose-600 dark:hover:bg-rose-800 focus:outline-none focus:ring-2 focus:ring-rose-400"
+                                className="bg-red-600 dark:bg-red-700 text-white px-3 py-1 rounded text-sm font-semibold hover:bg-red-700 dark:hover:bg-red-800 transition-colors"
                             >
                                 Remove
                             </button>
@@ -199,10 +199,10 @@ export default function ListingCard({ item, onClick, isSelectMode = false, isSpo
                                     onMarkAsSold(item); 
                                 }}
                                 disabled={item.is_sold}
-                                className={`px-4 py-1 rounded-full text-sm font-semibold text-white shadow focus:outline-none focus:ring-2 focus:ring-emerald-400 ${
+                                className={`px-3 py-1 rounded text-sm font-semibold transition-colors ${
                                     item.is_sold 
-                                        ? 'bg-gray-400 cursor-not-allowed' 
-                                        : 'bg-emerald-600 dark:bg-emerald-700 hover:bg-emerald-700 dark:hover:bg-emerald-800'
+                                        ? 'bg-gray-400 text-white cursor-not-allowed' 
+                                        : 'bg-green-600 text-white hover:bg-green-700'
                                 }`}
                             >
                                 {item.is_sold ? 'Sold' : 'Mark as Sold'}

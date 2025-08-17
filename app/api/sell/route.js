@@ -59,10 +59,9 @@ async function uploadImageToImgBB(imageBase64) {
   }
 
   const formData = new FormData()
-  formData.append('key', imgbbApiKey)
   formData.append('image', imageBase64)
 
-  const response = await fetch('https://api.imgbb.com/1/upload', {
+  const response = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbApiKey}`, {
     method: 'POST',
     body: formData
   })

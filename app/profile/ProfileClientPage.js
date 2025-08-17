@@ -128,53 +128,53 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
     const handleSaveProfile = async ({ fullName, phoneNumber }) => {
         try {
             // console.log('[Profile] Starting profile update...', { fullName, phoneNumber, userId: user.id });
-            // 
-            // const { data, error } = await supabase
-                // .from('users')
-                // .update({ name: fullName, phone: phoneNumber })
-                // .eq('id', user.id)
-                // .select()
-                // .single();
-            // 
-            // // console.log('[Profile] Supabase response:', { data, error });
-            // 
-            // if (error) {
-                // // console.error('[Profile] Supabase error:', error);
-                // alert('Error updating profile: ' + error.message);
-                // return;
-            // }
-            // 
-            // if (data) {
-                // // console.log('[Profile] Profile updated successfully:', data);
-                // setUser(prev => ({ ...prev, ...data }));
-                // setIsModalOpen(false);
-                // alert('Profile updated successfully!');
-                // // Force a small delay to ensure state update completes
-                // setTimeout(() => {
-                    // // console.log('[Profile] State update completed');
-                // }, 100);
-            // } else {
-                // // console.warn('[Profile] No data returned from update');
-                // alert('Profile update completed but no data returned');
-                // setIsModalOpen(false);
-            // }
-        // } catch (err) {
-            // // console.error('[Profile] Unexpected error:', err);
-            // alert('An unexpected error occurred while updating your profile: ' + err.message);
-        // }
-    // };
-    // const handleEdit = (item, type) => {
-        // // Navigate to the edit page instead of opening a modal
-        // window.location.href = `/edit/${item.id}?type=${type}`;
-    // };
-    // const handleRemove = async (id, type) => {
-        // if (!confirm('Are you sure you want to remove this item?')) return;
-        // try {
-            // const response = await fetch('/api/item/delete', {
-                // method: 'POST',
-                // headers: { 'Content-Type': 'application/json' },
-                // body: JSON.stringify({ id, type, userEmail: user.email }),
-            // });
+            
+            const { data, error } = await supabase
+                .from('users')
+                .update({ name: fullName, phone: phoneNumber })
+                .eq('id', user.id)
+                .select()
+                .single();
+            
+            // console.log('[Profile] Supabase response:', { data, error });
+            
+            if (error) {
+                // console.error('[Profile] Supabase error:', error);
+                alert('Error updating profile: ' + error.message);
+                return;
+            }
+            
+            if (data) {
+                // console.log('[Profile] Profile updated successfully:', data);
+                setUser(prev => ({ ...prev, ...data }));
+                setIsModalOpen(false);
+                alert('Profile updated successfully!');
+                // Force a small delay to ensure state update completes
+                setTimeout(() => {
+                    // console.log('[Profile] State update completed');
+                }, 100);
+            } else {
+                // console.warn('[Profile] No data returned from update');
+                alert('Profile update completed but no data returned');
+                setIsModalOpen(false);
+            }
+        } catch (err) {
+            // console.error('[Profile] Unexpected error:', err);
+            alert('An unexpected error occurred while updating your profile: ' + err.message);
+        }
+    };
+    const handleEdit = (item, type) => {
+        // Navigate to the edit page instead of opening a modal
+        window.location.href = `/edit/${item.id}?type=${type}`;
+    };
+    const handleRemove = async (id, type) => {
+        if (!confirm('Are you sure you want to remove this item?')) return;
+        try {
+            const response = await fetch('/api/item/delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, type, userEmail: user.email }),
+            });
             
             const result = await response.json();
             
