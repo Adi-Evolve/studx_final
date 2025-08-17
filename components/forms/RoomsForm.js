@@ -650,6 +650,7 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
                     maxSizeInMB={10}
                     showPreview={true}
                     allowMultiple={true}
+                    existingImages={initialData.images || []}
                     optimizationOptions={{
                         maxWidth: 1200,
                         maxHeight: 800,

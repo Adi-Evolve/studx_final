@@ -495,6 +495,7 @@ export default function RegularProductForm({ initialData = {}, onSubmit, categor
                     maxSizeInMB={10}
                     showPreview={true}
                     allowMultiple={true}
+                    existingImages={initialData.images || []}
                     optimizationOptions={{
                         maxWidth: 1200,
                         maxHeight: 800,

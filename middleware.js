@@ -48,7 +48,7 @@ export async function middleware(request) {
     "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://unpkg.com; " +
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; " +
     "font-src 'self' https://fonts.gstatic.com; " +
-    "img-src 'self' data: https: http:; " +
+    "img-src 'self' data: https: http: blob:; " +
     "connect-src 'self' https://vdpmumstdxgftaaxeacx.supabase.co https://api.razorpay.com https://api.imgbb.com; " +
     "frame-src 'self' https://checkout.razorpay.com https://api.razorpay.com; " +
     "object-src 'none'; " +

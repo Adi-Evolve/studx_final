@@ -12,11 +12,13 @@ export default function ImageUploadWithOptimization({
     maxSizeInMB = 10,
     showPreview = true,
     allowMultiple = true,
-    optimizationOptions = {}
+    optimizationOptions = {},
+    existingImages = [] // Add support for existing images
 }) {
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [optimizedFiles, setOptimizedFiles] = useState([]);
     const [previews, setPreviews] = useState([]);
+    const [existingPreviews, setExistingPreviews] = useState([]);
     const [isOptimizing, setIsOptimizing] = useState(false);
     const [optimizationResults, setOptimizationResults] = useState([]);
     const [errors, setErrors] = useState([]);
@@ -31,6 +33,23 @@ export default function ImageUploadWithOptimization({
         ...optimizationOptions
     };
 
+    // Handle existing images
+    useEffect(() => {
+        if (existingImages && existingImages.length > 0) {
+            const existingPreviews = existingImages.map((url, index) => ({
+                id: `existing-${index}`,
+                url,
+                isExisting: true
+            }));
+            setExistingPreviews(existingPreviews);
+            
+            // Notify parent about existing images
+            if (onImagesChange) {
+                onImagesChange(existingImages);
+            }
+        }
+    }, [existingImages, onImagesChange]);
+
     const handleFileSelect = async (event) => {
         const files = Array.from(event.target.files);
         
@@ -39,8 +58,8 @@ export default function ImageUploadWithOptimization({
             return;
         }
 
-        if (selectedFiles.length + files.length > maxImages) {
-            setErrors([`Maximum ${maxImages} images allowed`]);
+        if (selectedFiles.length + files.length + existingPreviews.length > maxImages) {
+            setErrors([`Maximum ${maxImages} images allowed (including existing images)`]);
             return;
         }
 
@@ -89,11 +108,12 @@ export default function ImageUploadWithOptimization({
 
             // Notify parent components
             const allOptimizedFiles = [...optimizedFiles, ...successful.map(r => r.optimized)];
+            const allImages = [...existingImages, ...allOptimizedFiles];
             if (onImagesOptimized) {
                 onImagesOptimized(allOptimizedFiles);
             }
             if (onImagesChange) {
-                onImagesChange(allOptimizedFiles);
+                onImagesChange(allImages);
             }
 
         } catch (error) {
@@ -115,6 +135,18 @@ export default function ImageUploadWithOptimization({
         });
     };
 
+    const removeExistingImage = (index) => {
+        const newExistingPreviews = existingPreviews.filter((_, i) => i !== index);
+        setExistingPreviews(newExistingPreviews);
+
+        const newExistingImages = newExistingPreviews.map(preview => preview.url);
+        const allImages = [...newExistingImages, ...optimizedFiles];
+        
+        if (onImagesChange) {
+            onImagesChange(allImages);
+        }
+    };
+
     const removeImage = (index) => {
         const newSelectedFiles = selectedFiles.filter((_, i) => i !== index);
         const newOptimizedFiles = optimizedFiles.filter((_, i) => i !== index);
@@ -126,11 +158,14 @@ export default function ImageUploadWithOptimization({
         setPreviews(newPreviews);
         setOptimizationResults(newResults);
 
+        const existingImages = existingPreviews.map(preview => preview.url);
+        const allImages = [...existingImages, ...newOptimizedFiles];
+
         if (onImagesOptimized) {
             onImagesOptimized(newOptimizedFiles);
         }
         if (onImagesChange) {
-            onImagesChange(newOptimizedFiles);
+            onImagesChange(allImages);
         }
     };
 
@@ -138,6 +173,7 @@ export default function ImageUploadWithOptimization({
         setSelectedFiles([]);
         setOptimizedFiles([]);
         setPreviews([]);
+        setExistingPreviews([]);
         setOptimizationResults([]);
         setErrors([]);
         
@@ -235,13 +271,13 @@ export default function ImageUploadWithOptimization({
             )}
 
             {/* Image Previews */}
-            {showPreview && previews.length > 0 && (
+            {showPreview && (existingPreviews.length > 0 || previews.length > 0) && (
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
                         <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                            Selected Images ({previews.length})
+                            Images ({existingPreviews.length + previews.length})
                         </h4>
-                        {previews.length > 0 && (
+                        {(existingPreviews.length > 0 || previews.length > 0) && (
                             <button
                                 onClick={clearAll}
                                 className="text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
@@ -252,14 +288,46 @@ export default function ImageUploadWithOptimization({
                     </div>
                     
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        {/* Existing Images */}
+                        {existingPreviews.map((preview, index) => (
+                            <div key={preview.id} className="relative group">
+                                <div className="aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
+                                    <img
+                                        src={preview.url}
+                                        alt={`Existing ${index + 1}`}
+                                        className="w-full h-full object-cover"
+                                    />
+                                    
+                                    {/* Existing image badge */}
+                                    <div className="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">
+                                        Existing
+                                    </div>
+                                    
+                                    {/* Remove button */}
+                                    <button
+                                        onClick={() => removeExistingImage(index)}
+                                        className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                                    >
+                                        <FontAwesomeIcon icon={faTrash} className="w-3 h-3" />
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                        
+                        {/* New Images */}
                         {previews.map((preview, index) => (
                             <div key={preview.id} className="relative group">
                                 <div className="aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
                                     <img
                                         src={preview.url}
-                                        alt={`Preview ${index + 1}`}
+                                        alt={`New ${index + 1}`}
                                         className="w-full h-full object-cover"
                                     />
+                                    
+                                    {/* New image badge */}
+                                    <div className="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded">
+                                        New
+                                    </div>
                                     
                                     {/* Remove button */}
                                     <button

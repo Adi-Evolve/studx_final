@@ -348,6 +348,7 @@ export default function NotesForm({ initialData = {}, onSubmit, category = 'Note
                     maxSizeInMB={10}
                     showPreview={true}
                     allowMultiple={true}
+                    existingImages={initialData.images || []}
                     optimizationOptions={{
                         maxWidth: 1200,
                         maxHeight: 800,
