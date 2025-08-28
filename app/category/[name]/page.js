@@ -50,13 +50,34 @@ export default async function CategoryPage({ params }) {
                 return regularListings;
             }
 
-            // Filter to only show sponsored items that match the current category type
+            // STRICT Filter: only show sponsored items that match EXACTLY the current category type AND category name
             const categorySpecificSponsored = sponsoredItems.filter(item => {
-                // Ensure sponsored rooms only appear in room categories
-                if (categoryType === 'room' && item.type === 'room') return true;
-                if (categoryType === 'note' && item.type === 'note') return true;
-                if (categoryType === 'regular' && item.type === 'regular') return true;
-                return false;
+                // First, ensure the type matches
+                const typeMatches = (
+                    (categoryType === 'room' && item.type === 'room') ||
+                    (categoryType === 'note' && item.type === 'note') ||
+                    (categoryType === 'regular' && item.type === 'regular')
+                );
+                
+                if (!typeMatches) return false;
+                
+                // Second, ensure the category matches for products
+                if (categoryType === 'regular') {
+                    // For specific product categories like Bike, Furniture, etc.
+                    const itemCategory = (item.category || '').toLowerCase();
+                    const searchCategory = categoryName.toLowerCase();
+                    
+                    // Strict matching - category must contain the search term
+                    if (searchCategory === 'bike' && !itemCategory.includes('bike')) return false;
+                    if (searchCategory === 'furniture' && !itemCategory.includes('furniture')) return false;
+                    if (searchCategory === 'electronics' && !itemCategory.includes('electronics')) return false;
+                    if (searchCategory === 'laptop' && !itemCategory.includes('laptop')) return false;
+                    
+                    // For other specific categories, ensure exact match
+                    if (!itemCategory.includes(searchCategory)) return false;
+                }
+                
+                return true;
             });
 
             // For category pages, show 1-2 sponsored items at the top

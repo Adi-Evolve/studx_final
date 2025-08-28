@@ -50,6 +50,7 @@ function SearchContent() {
         { value: 'Electronics', label: 'Electronics' },
         { value: 'Furniture', label: 'Furniture' },
         { value: 'Room', label: 'Rooms' },
+        { value: 'Rentals', label: 'Rentals' },
         { value: 'Other', label: 'Other' }
     ];
 
@@ -150,7 +151,7 @@ function SearchContent() {
         // Apply price range filter
         if (filters.priceRange !== 'all') {
             filteredResults = filteredResults.filter(item => {
-                const price = item.price || item.fees || 0;
+                const price = item.price || item.fees || item.rental_price || 0;
                 switch (filters.priceRange) {
                     case '0-100': return price >= 0 && price <= 100;
                     case '100-500': return price > 100 && price <= 500;
@@ -178,8 +179,8 @@ function SearchContent() {
             
             // Sort each group separately
             const sortFunction = (a, b) => {
-                const priceA = a.price || a.fees || 0;
-                const priceB = b.price || b.fees || 0;
+                const priceA = a.price || a.fees || a.rental_price || 0;
+                const priceB = b.price || b.fees || b.rental_price || 0;
                 const dateA = new Date(a.created_at);
                 const dateB = new Date(b.created_at);
 

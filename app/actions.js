@@ -111,21 +111,29 @@ export async function fetchSimilarListings({ type, category, college, excludeId,
     let query;
 
     // Determine the table and filter column based on the type
-    if (type === 'product' || type === 'note') {
+    if (type === 'product' || type === 'note' || type === 'rental') {
         if (!category) return [];
-        const tableName = type === 'product' ? 'products' : 'notes';
+        let tableName, selectColumns;
         
-        let selectColumns;
-        if (tableName === 'products') {
+        if (type === 'product') {
+            tableName = 'products';
             selectColumns = `
                 id, title, description, price, category, condition, college,
                 location, images, is_sold, seller_id, created_at
             `;
-        } else {
+        } else if (type === 'note') {
+            tableName = 'notes';
             selectColumns = `
                 id, title, description, price, category, college,
                 academic_year, course_subject, images, pdf_urls, pdf_url,
                 seller_id, created_at
+            `;
+        } else if (type === 'rental') {
+            tableName = 'rentals';
+            selectColumns = `
+                id, title, description, rental_price, security_deposit, category, condition, college,
+                location, images, is_rented, seller_id, created_at, rental_duration,
+                available_from, available_until, delivery_options
             `;
         }
         
@@ -157,7 +165,13 @@ export async function fetchSimilarListings({ type, category, college, excludeId,
         }
 
         // Add the 'type' to each item so the client knows how to render it
-        return data.map(item => ({ ...item, type }));
+        return data.map(item => {
+            // Map rental_price to price for consistency with other types
+            if (type === 'rental' && item.rental_price) {
+                return { ...item, type, price: item.rental_price };
+            }
+            return { ...item, type };
+        });
 
     } catch (error) {
         console.error(`[Actions] General error fetching similar listings for type ${type}:`, error.message);
@@ -289,8 +303,8 @@ export async function fetchListings({ page = 1, limit = 12 } = {}) {
     const to = from + limit - 1;
 
     try {
-        // Fetch from all three tables since the 'listings' view might not exist
-        const [productsRes, notesRes, roomsRes] = await Promise.all([
+        // Fetch from all tables including rentals
+        const [productsRes, notesRes, roomsRes, rentalsRes] = await Promise.all([
             supabase
                 .from('products')
                 .select(`
@@ -313,6 +327,14 @@ export async function fetchListings({ page = 1, limit = 12 } = {}) {
                     images, room_type, occupancy, distance, deposit, fees_include_mess,
                     mess_fees, owner_name, contact1, contact2, amenities, duration, seller_id, created_at
                 `)
+                .order('created_at', { ascending: false }),
+            supabase
+                .from('rentals')
+                .select(`
+                    id, title, description, rental_price, security_deposit, category, condition, college,
+                    location, images, is_rented, seller_id, created_at, rental_duration,
+                    available_from, available_until, delivery_options
+                `)
                 .order('created_at', { ascending: false })
         ]);
 
@@ -326,12 +348,20 @@ export async function fetchListings({ page = 1, limit = 12 } = {}) {
         if (roomsRes.error) {
             console.error('[Action: fetchListings] Error fetching rooms:', roomsRes.error.message);
         }
+        if (rentalsRes.error) {
+            console.error('[Action: fetchListings] Error fetching rentals:', rentalsRes.error.message);
+        }
 
         // Combine all listings and add type information with proper serialization
         const allListings = [
             ...(productsRes.data || []).map(item => serializeDataForClient({ ...item, type: 'regular' })),
             ...(notesRes.data || []).map(item => serializeDataForClient({ ...item, type: 'note' })),
-            ...(roomsRes.data || []).map(item => serializeDataForClient({ ...item, type: 'room' }))
+            ...(roomsRes.data || []).map(item => serializeDataForClient({ ...item, type: 'room' })),
+            ...(rentalsRes.data || []).map(item => serializeDataForClient({ 
+                ...item, 
+                type: 'rental',
+                price: item.rental_price // Map rental_price to price for consistency
+            }))
         ];
 
         // Sort by created_at date (most recent first) - now using ISO strings
@@ -383,9 +413,9 @@ export async function fetchNewestProducts(limit = 4) {
     const supabase = createSupabaseServerClient();
 
     try {
-        let productsRes, notesRes, roomsRes;
+        let productsRes, notesRes, roomsRes, rentalsRes;
         try {
-            [productsRes, notesRes, roomsRes] = await Promise.all([
+            [productsRes, notesRes, roomsRes, rentalsRes] = await Promise.all([
             supabase
                 .from('products')
                 .select(`
@@ -411,6 +441,15 @@ export async function fetchNewestProducts(limit = 4) {
                     mess_fees, owner_name, contact1, contact2, amenities, duration, seller_id, created_at
                 `)
                 .order('created_at', { ascending: false })
+                .limit(limit),
+            supabase
+                .from('rentals')
+                .select(`
+                    id, title, description, rental_price, security_deposit, category, condition, college, 
+                    location, images, is_rented, seller_id, created_at, rental_duration,
+                    available_from, available_until, delivery_options
+                `)
+                .order('created_at', { ascending: false })
                 .limit(limit)
         ]);
         } catch (err) {
@@ -428,7 +467,12 @@ export async function fetchNewestProducts(limit = 4) {
         const allNewest = [
             ...(productsRes.data || []).map(item => serializeDataForClient({ ...item, type: 'regular' })),
             ...notes,
-            ...(roomsRes.data || []).map(item => serializeDataForClient({ ...item, type: 'room' }))
+            ...(roomsRes.data || []).map(item => serializeDataForClient({ ...item, type: 'room' })),
+            ...(rentalsRes.data || []).map(item => serializeDataForClient({ 
+                ...item, 
+                type: 'rental',
+                price: item.rental_price // Map rental_price to price for consistency
+            }))
         ];
 
         allNewest.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
@@ -445,7 +489,7 @@ export async function fetchNewestProductsWithLocation(userLat, userLng, limit = 
     const supabase = createSupabaseServerClient();
 
     try {
-        const [productsRes, notesRes, roomsRes] = await Promise.all([
+        const [productsRes, notesRes, roomsRes, rentalsRes] = await Promise.all([
             supabase
                 .from('products')
                 .select(`
@@ -471,6 +515,15 @@ export async function fetchNewestProductsWithLocation(userLat, userLng, limit = 
                     mess_fees, owner_name, contact1, contact2, amenities, duration, seller_id, created_at
                 `)
                 .order('created_at', { ascending: false })
+                .limit(limit * 2),
+            supabase
+                .from('rentals')
+                .select(`
+                    id, title, description, rental_price, security_deposit, category, condition, college, 
+                    location, images, is_rented, seller_id, created_at, rental_duration,
+                    available_from, available_until, delivery_options
+                `)
+                .order('created_at', { ascending: false })
                 .limit(limit * 2)
         ]);
 
@@ -478,7 +531,12 @@ export async function fetchNewestProductsWithLocation(userLat, userLng, limit = 
         const allNewest = [
             ...(productsRes.data || []).map(item => serializeDataForClient({ ...item, type: 'regular' })),
             ...(notesRes.data || []).map(item => serializeDataForClient({ ...item, type: 'note' })),
-            ...(roomsRes.data || []).map(item => serializeDataForClient({ ...item, type: 'room' }))
+            ...(roomsRes.data || []).map(item => serializeDataForClient({ ...item, type: 'room' })),
+            ...(rentalsRes.data || []).map(item => serializeDataForClient({ 
+                ...item, 
+                type: 'rental',
+                price: item.rental_price // Map rental_price to price for consistency
+            }))
         ];
 
         // Add distance calculations
@@ -535,7 +593,7 @@ export async function searchListings({ query }) {
     const searchTerm = query.toLowerCase();
 
     try {
-        const [productsRes, notesRes, roomsRes] = await Promise.all([
+        const [productsRes, notesRes, roomsRes, rentalsRes] = await Promise.all([
             supabase
                 .from('products')
                 .select(`
@@ -558,6 +616,14 @@ export async function searchListings({ query }) {
                     images, room_type, occupancy, distance, deposit, fees_include_mess,
                     mess_fees, owner_name, contact1, contact2, amenities, duration, seller_id, created_at
                 `)
+                .or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,category.ilike.%${searchTerm}%,college.ilike.%${searchTerm}%`),
+            supabase
+                .from('rentals')
+                .select(`
+                    id, title, description, rental_price, security_deposit, category, condition, college,
+                    location, images, is_rented, seller_id, created_at, rental_duration,
+                    available_from, available_until, delivery_options
+                `)
                 .or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,category.ilike.%${searchTerm}%,college.ilike.%${searchTerm}%`)
         ]);
 
@@ -565,7 +631,12 @@ export async function searchListings({ query }) {
         const allResults = [
             ...(productsRes.data || []).map(item => serializeDataForClient({ ...item, type: 'regular' })),
             ...(notesRes.data || []).map(item => serializeDataForClient({ ...item, type: 'note' })),
-            ...(roomsRes.data || []).map(item => serializeDataForClient({ ...item, type: 'room' }))
+            ...(roomsRes.data || []).map(item => serializeDataForClient({ ...item, type: 'room' })),
+            ...(rentalsRes.data || []).map(item => serializeDataForClient({ 
+                ...item, 
+                type: 'rental',
+                price: item.rental_price // Map rental_price to price for consistency
+            }))
         ];
 
         // Sort by relevance (title matches first, then description matches)

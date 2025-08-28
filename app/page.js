@@ -182,6 +182,7 @@ async function ExploreListingsSection() {
               const getItemUrl = (item) => {
                 if (item.type === 'room') return `/products/rooms/${item.id}`;
                 if (item.type === 'note') return `/products/notes/${item.id}`;
+                if (item.type === 'rental') return `/products/rentals/${item.id}`;
                 return `/products/regular/${item.id}`;
               };
 
@@ -191,8 +192,10 @@ async function ExploreListingsSection() {
                   href={getItemUrl(item)}
                   className="transform hover:scale-105 transition-transform duration-200 cursor-pointer"
                 >
-                  <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-700 overflow-hidden hover:shadow-xl dark:hover:shadow-gray-600 transition-shadow border dark:border-gray-700">
-                    <div className="h-48 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center">
+                  <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-700 overflow-hidden hover:shadow-xl dark:hover:shadow-gray-600 transition-shadow border dark:border-gray-700 ${
+                    item.type === 'rental' ? 'ring-2 ring-purple-200 dark:ring-purple-600 shadow-purple-100' : ''
+                  }`}>
+                    <div className="h-48 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center relative">
                       {item.images && item.images[0] ? (
                         <img 
                           src={item.images[0]} 
@@ -201,7 +204,16 @@ async function ExploreListingsSection() {
                         />
                       ) : (
                         <div className="text-4xl text-gray-400 dark:text-gray-500">
-                          {item.type === 'room' ? '🏠' : item.type === 'note' ? '📚' : '📦'}
+                          {item.type === 'room' ? '🏠' : 
+                           item.type === 'note' ? '📚' : 
+                           item.type === 'rental' ? '�' : '�📦'}
+                        </div>
+                      )}
+                      {item.type === 'rental' && (
+                        <div className="absolute top-2 right-2">
+                          <span className="bg-purple-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg">
+                            FOR RENT
+                          </span>
                         </div>
                       )}
                     </div>
@@ -210,24 +222,44 @@ async function ExploreListingsSection() {
                         <span className={`px-2 py-1 text-xs font-semibold rounded-full flex items-center gap-1 ${
                           item.type === 'room' ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200' : 
                           item.type === 'note' ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' : 
+                          item.type === 'rental' ? 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 border-2 border-purple-300 dark:border-purple-600' :
                           'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200'
                         }`}>
                           {item.type === 'room' ? (
                             <>🏠 Room</>
                           ) : item.type === 'note' ? (
                             <>📚 Notes</>
+                          ) : item.type === 'rental' ? (
+                            <>🔄 Rental</>
                           ) : (
                             <>📦 Product</>
                           )}
                         </span>
+                        {item.type === 'rental' && (
+                          <span className="text-xs bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300 px-2 py-1 rounded-full font-bold border border-orange-300 dark:border-orange-600">
+                            NEW
+                          </span>
+                        )}
                       </div>
                       <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2 line-clamp-2">
                         {item.title || item.name || item.hostel_name || 'Untitled'}
                       </h3>
-                      <p className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                        ₹{(item.price || item.fees || 0).toLocaleString()}
-                        {item.type === 'room' && `/${(item.duration || 'monthly').toLowerCase()}`}
-                      </p>
+                      <div className="flex items-center justify-between">
+                        <p className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                          ₹{(item.price || item.rental_price || item.fees || 0).toLocaleString()}
+                          {item.type === 'room' && `/${(item.duration || 'monthly').toLowerCase()}`}
+                          {item.type === 'rental' && (
+                            <span className="text-sm text-purple-600 dark:text-purple-400 font-medium">
+                              /{item.rental_duration || 'day'}
+                            </span>
+                          )}
+                        </p>
+                        {item.type === 'rental' && item.condition && (
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                            {item.condition}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </Link>
