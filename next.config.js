@@ -26,10 +26,26 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'vdpmumstdxgftaaxeacx.supabase.co',
       },
+      {
+        protocol: 'https',
+        hostname: 'via.placeholder.com',
+      },
     ],
   },
   experimental: {
     serverComponentsExternalPackages: [],
+  },
+  // SSL configuration for development
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        tls: false,
+        net: false,
+        fs: false,
+      };
+    }
+    return config;
   },
 };
 

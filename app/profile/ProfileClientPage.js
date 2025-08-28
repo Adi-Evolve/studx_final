@@ -78,11 +78,12 @@ const EditProfileModal = ({ user, onClose, onSave }) => {
         </div>
     );
 };
-export default function ProfileClientPage({ serverUser, serverProducts, serverNotes, serverRooms }) {
+export default function ProfileClientPage({ serverUser, serverProducts, serverNotes, serverRooms, serverRentals }) {
     const [user, setUser] = useState(serverUser);
     const [products, setProducts] = useState(serverProducts || []);
     const [notes, setNotes] = useState(serverNotes || []);
     const [rooms, setRooms] = useState(serverRooms || []);
+    const [rentals, setRentals] = useState(serverRentals || []);
     const [activeTab, setActiveTab] = useState('products');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [showBulkUpload, setShowBulkUpload] = useState(false);
@@ -94,7 +95,7 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
         if (!user?.id) return;
         setIsRefreshing(true);
         try {
-            const [productsRes, notesRes, roomsRes] = await Promise.all([
+            const [productsRes, notesRes, roomsRes, rentalsRes] = await Promise.all([
                 supabase.from('products').select(`
                     id, title, description, price, category, condition, college, 
                     location, images, is_sold, seller_id, created_at
@@ -108,6 +109,11 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
                     id, title, description, price, category, college, location, 
                     images, room_type, occupancy, distance, deposit, fees_include_mess, 
                     mess_fees, owner_name, contact1, contact2, amenities, duration, seller_id, created_at
+                `).eq('seller_id', user.id),
+                supabase.from('rentals').select(`
+                    id, title, description, rental_price, security_deposit, category, condition, 
+                    rental_duration, min_rental_period, max_rental_period, college, location,
+                    images, is_rented, rental_terms, seller_id, created_at
                 `).eq('seller_id', user.id)
             ]);
             // Log results
@@ -115,6 +121,7 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
             setProducts((productsRes.data || []).map(item => ({ ...item, type: 'product' })));
             setNotes((notesRes.data || []).map(item => ({ ...item, type: 'note' })));
             setRooms((roomsRes.data || []).map(item => ({ ...item, type: 'room' })));
+            setRentals((rentalsRes.data || []).map(item => ({ ...item, type: 'rental' })));
             setLastRefresh(Date.now());
         } catch (error) {
         } finally {
@@ -242,6 +249,7 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
         switch (activeTab) {
             case 'notes': items = notes; type = 'note'; break;
             case 'rooms': items = rooms; type = 'room'; break;
+            case 'rentals': items = rentals; type = 'rental'; break;
             default: items = products; type = 'product';
         }
         if (items.length === 0) {
@@ -249,11 +257,16 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
                 <div className="text-center py-16">
                     <div className="w-24 h-24 bg-slate-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-6">
                         <span className="text-3xl text-slate-400 dark:text-gray-300">
-                            {activeTab === 'products' ? '📦' : activeTab === 'notes' ? '📝' : '🏠'}
+                            {activeTab === 'products' ? '📦' : activeTab === 'notes' ? '📝' : activeTab === 'rentals' ? '🏠' : '🏠'}
                         </span>
                     </div>
                     <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">No {activeTab} yet</h3>
-                    <p className="text-slate-500 dark:text-gray-400 mb-6">You haven't listed any {activeTab} for sale.</p>
+                    <p className="text-slate-500 dark:text-gray-400 mb-6">
+                        {activeTab === 'rentals' 
+                            ? "You haven't listed any items for rent." 
+                            : `You haven't listed any ${activeTab} for sale.`
+                        }
+                    </p>
                     {activeTab === 'products' && (
                         <div className="space-x-4">
                             <Link href="/sell/new" className="btn-primary">
@@ -275,6 +288,11 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
                     {activeTab === 'rooms' && (
                         <Link href="/sell/new" className="btn-primary">
                             List Your First Room
+                        </Link>
+                    )}
+                    {activeTab === 'rentals' && (
+                        <Link href="/rent" className="btn-primary">
+                            List Your First Rental Item
                         </Link>
                     )}
                 </div>
@@ -356,6 +374,12 @@ export default function ProfileClientPage({ serverUser, serverProducts, serverNo
                                 onClick={() => setActiveTab('rooms')}
                             >
                                 🏠 Rooms ({rooms.length})
+                            </TabButton>
+                            <TabButton 
+                                active={activeTab === 'rentals'} 
+                                onClick={() => setActiveTab('rentals')}
+                            >
+                                🏠 Rentals ({rentals.length})
                             </TabButton>
                             <TabButton 
                                 active={activeTab === 'bulk'} 

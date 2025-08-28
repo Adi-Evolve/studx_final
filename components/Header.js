@@ -12,7 +12,8 @@ import {
     faSignOutAlt, 
     faBars, 
     faTimes, 
-    faSearch
+    faSearch,
+    faCalendarAlt
 } from '@fortawesome/free-solid-svg-icons';
 import NotificationSystem from './NotificationSystem';
 import ThemeToggle from './ThemeToggle';
@@ -260,6 +261,10 @@ export default function Header() {
                                     <FontAwesomeIcon icon={faPlus} className="w-4 h-4 mr-2" />
                                     Sell
                                 </Link>
+                                <Link href="/rent" className="btn-primary">
+                                    <FontAwesomeIcon icon={faCalendarAlt} className="w-4 h-4 mr-2" />
+                                    Rent
+                                </Link>
                                 <Link href="/wishlist" className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors relative">
                                     <FontAwesomeIcon icon={faHeart} className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                                 </Link>
@@ -346,6 +351,14 @@ export default function Header() {
                                             >
                                                 <FontAwesomeIcon icon={faPlus} className="w-5 h-5" />
                                                 <span className="font-medium">Sell Item</span>
+                                            </Link>
+                                            <Link 
+                                                href="/rent" 
+                                                className="flex items-center space-x-3 p-3 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                                                onClick={() => setIsMenuOpen(false)}
+                                            >
+                                                <FontAwesomeIcon icon={faCalendarAlt} className="w-5 h-5" />
+                                                <span className="font-medium">Rent Item</span>
                                             </Link>
                                             <Link 
                                                 href="/wishlist" 

@@ -26,6 +26,15 @@ export default function ExploreListings() {
             href: '/products/rooms',
             color: 'bg-purple-500',
             stats: 'Verified Listings'
+        },
+        {
+            name: 'Item Rentals',
+            description: 'Temporary equipment and goods',
+            icon: '🔄',
+            href: '/products/rentals',
+            color: 'bg-orange-500 animate-pulse',
+            stats: 'New & Featured',
+            isHighlighted: true
         }
     ];
 
@@ -36,6 +45,14 @@ export default function ExploreListings() {
             icon: '💰',
             href: '/sell',
             color: 'border-green-200 hover:border-green-300 bg-green-50'
+        },
+        {
+            title: 'Rent Out Items',
+            description: 'List items for temporary rental',
+            icon: '🔄',
+            href: '/rent',
+            color: 'border-orange-200 hover:border-orange-300 bg-orange-50 ring-2 ring-orange-200',
+            isHighlighted: true
         },
         {
             title: 'Advanced Search',
@@ -66,10 +83,10 @@ export default function ExploreListings() {
                 </div>
 
                 {/* Main Categories */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
                     {categories.map((category) => (
                         <Link key={category.name} href={category.href} className="group">
-                            <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                            <div className={`bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 ${category.isHighlighted ? 'ring-4 ring-orange-200 border-2 border-orange-300' : ''}`}>
                                 <div className={`inline-flex items-center justify-center w-16 h-16 ${category.color} rounded-xl text-white text-2xl mb-6`}>
                                     {category.icon}
                                 </div>
@@ -80,13 +97,20 @@ export default function ExploreListings() {
                                     {category.description}
                                 </p>
                                 <div className="flex items-center justify-between">
-                                    <span className="text-sm text-blue-600 font-medium">
+                                    <span className={`text-sm font-medium ${category.isHighlighted ? 'text-orange-600 font-bold' : 'text-blue-600'}`}>
                                         {category.stats}
                                     </span>
                                     <svg className="w-6 h-6 text-gray-400 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                     </svg>
                                 </div>
+                                {category.isHighlighted && (
+                                    <div className="mt-4 text-center">
+                                        <span className="inline-block bg-orange-100 text-orange-800 text-xs px-3 py-1 rounded-full font-bold animate-bounce">
+                                            ✨ NEW FEATURE
+                                        </span>
+                                    </div>
+                                )}
                             </div>
                         </Link>
                     ))}
@@ -97,7 +121,7 @@ export default function ExploreListings() {
                     <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
                         Quick Actions
                     </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         {quickActions.map((action) => (
                             <Link key={action.title} href={action.href} className="group">
                                 <div className={`border-2 rounded-xl p-6 transition-all duration-300 hover:shadow-md ${action.color}`}>
@@ -110,6 +134,13 @@ export default function ExploreListings() {
                                     <p className="text-gray-600 text-sm">
                                         {action.description}
                                     </p>
+                                    {action.isHighlighted && (
+                                        <div className="mt-3 text-center">
+                                            <span className="inline-block bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full font-bold">
+                                                NEW
+                                            </span>
+                                        </div>
+                                    )}
                                 </div>
                             </Link>
                         ))}

@@ -32,6 +32,7 @@ async function getItemData(id, type, userEmail = null) {
         case 'product': tableName = 'products'; break;
         case 'note': tableName = 'notes'; break;
         case 'room': tableName = 'rooms'; break;
+        case 'rental': tableName = 'rentals'; break;
         default: return null;
     }
 

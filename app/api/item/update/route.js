@@ -54,6 +54,9 @@ export async function POST(request) {
             case 'room':
                 tableName = 'rooms'
                 break
+            case 'rental':
+                tableName = 'rentals'
+                break
             default:
                 return NextResponse.json({ error: 'Invalid item type' }, { status: 400 })
         }

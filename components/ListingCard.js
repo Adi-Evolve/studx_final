@@ -11,6 +11,9 @@ const getListingUrl = (item) => {
     if (type === 'note') {
         return `/products/notes/${item.id}`;
     }
+    if (type === 'rental') {
+        return `/products/rentals/${item.id}`;
+    }
     return `/products/regular/${item.id}`;
 };
 
@@ -30,7 +33,7 @@ export default function ListingCard({ item, onClick, isSelectMode = false, isSpo
     const title = item.title || item.name || item.hostel_name || 'Untitled';
     
     // Handle different price fields
-    const price = item.price || item.fees || 0;
+    const price = item.price || item.fees || item.rental_price || 0;
 
     // Check if this is a profile page with action buttons
     const hasActionButtons = onEdit || onRemove || onMarkAsSold;
@@ -49,19 +52,19 @@ export default function ListingCard({ item, onClick, isSelectMode = false, isSpo
                 }
             } : undefined}
         >
-            {/* Enhanced Sponsored Badge with Better Visibility */}
+            {/* Enhanced Featured Badge with Better Visibility */}
             {(isSponsored || item.is_sponsored || item.isFeatured) && (
                 <div className="absolute top-2 right-2 z-20">
                     <div className="bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg border-2 border-white dark:border-gray-800">
                         <span className="flex items-center gap-1">
                             <span className="animate-pulse">⭐</span>
-                            <span>SPONSORED</span>
+                            <span>FEATURED</span>
                         </span>
                     </div>
                 </div>
             )}
             
-            {/* Priority Rank for Sponsored Items */}
+            {/* Priority Rank for Featured Items */}
             {item.sponsored_rank && (
                 <div className="absolute top-2 left-2 z-20">
                     <div className="bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shadow-lg border-2 border-white dark:border-gray-800">
@@ -100,12 +103,19 @@ export default function ListingCard({ item, onClick, isSelectMode = false, isSpo
                     <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
                         item.type === 'room' ? 'bg-emerald-50 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700' : 
                         item.type === 'note' ? 'bg-teal-50 dark:bg-teal-900 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-700' : 
+                        item.type === 'rental' ? 'bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 border-2 border-purple-300 dark:border-purple-600 font-bold animate-pulse' :
                         'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600'
                     }`}>
                         {item.type === 'room' ? '🏠 Room' : 
                          item.type === 'note' ? '📚 Notes' : 
+                         item.type === 'rental' ? '🔄 Rental' :
                          '📦 Product'}
                     </span>
+                    {item.type === 'rental' && (
+                        <span className="ml-2 px-2 py-1 bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300 text-xs rounded-full font-bold border border-orange-300 dark:border-orange-600">
+                            NEW
+                        </span>
+                    )}
                 </div>
 
                 {/* Title */}
@@ -124,6 +134,11 @@ export default function ListingCard({ item, onClick, isSelectMode = false, isSpo
                             {item.type === 'room' && (
                                 <span className="text-xs text-slate-500 dark:text-slate-400">
                                     /{(item.duration || 'monthly').toLowerCase()}
+                                </span>
+                            )}
+                            {item.type === 'rental' && (
+                                <span className="text-xs text-purple-600 dark:text-purple-400 font-bold bg-purple-50 dark:bg-purple-900 px-2 py-1 rounded-full border border-purple-200 dark:border-purple-700">
+                                    /{item.rental_duration || 'daily'}
                                 </span>
                             )}
                         </div>

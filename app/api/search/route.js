@@ -29,7 +29,7 @@ export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url)
     const query = searchParams.get('q')
-    const type = searchParams.get('type') || 'all' // 'all', 'products', 'rooms', 'notes'
+    const type = searchParams.get('type') || 'all' // 'all', 'products', 'rooms', 'notes', 'rentals'
     
     if (!query) {
       return NextResponse.json({ error: 'Search query is required' }, { status: 400 })
@@ -140,6 +140,29 @@ export async function GET(request) {
         }))
         allMatchingItems.push(...notesWithType)
         console.log(`[SEARCH API] Found ${notesData?.length || 0} matching notes`)
+      }
+    }
+
+    // Search rentals table
+    if (type === 'all' || type === 'rentals') {
+      console.log('[SEARCH API] Searching rentals...')
+      const { data: rentalsData, error: rentalsError } = await supabase
+        .from('rentals')
+        .select('*')
+        .or(`title.ilike.${searchTerm},description.ilike.${searchTerm},category.ilike.${searchTerm},condition.ilike.${searchTerm},rental_terms.ilike.${searchTerm}`)
+        .eq('is_rented', false)
+        .order('created_at', { ascending: false })
+
+      if (rentalsError) {
+        logError('RENTALS_SEARCH', rentalsError)
+      } else {
+        const rentalsWithType = (rentalsData || []).map(item => ({
+          ...item,
+          type: 'rental',
+          table_type: 'rentals'
+        }))
+        allMatchingItems.push(...rentalsWithType)
+        console.log(`[SEARCH API] Found ${rentalsData?.length || 0} matching rentals`)
       }
     }
 

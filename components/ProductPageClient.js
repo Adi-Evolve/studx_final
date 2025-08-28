@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faTag, faBuilding, faUser, faCalendarAlt, faInfoCircle, faBalanceScale, faDownload, faBed, faUsers, faRoute, faShieldAlt, faUtensils, faCheckCircle, faWifi, faSnowflake, faCarBattery, faHotTub, faParking, faVideo, faCouch, faCreditCard, faDirections } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faTag, faBuilding, faUser, faCalendarAlt, faInfoCircle, faBalanceScale, faDownload, faBed, faUsers, faRoute, faShieldAlt, faUtensils, faCheckCircle, faWifi, faSnowflake, faCarBattery, faHotTub, faParking, faVideo, faCouch, faCreditCard, faDirections, faTruck, faFileContract, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 
 import MapDisplay from '@/components/MapDisplay';
@@ -218,11 +218,22 @@ export default function ProductPageClient({ product, seller, type }) {
                         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 sticky top-24">
                             <h1 className="text-3xl font-bold text-primary dark:text-white mb-2 leading-tight">{product.title}</h1>
                             <p className="text-3xl font-bold text-accent dark:text-blue-400 mb-4">
-                                ₹{product.price ? product.price.toLocaleString() : 'N/A'}
-                                {type === 'room' && product.duration && (
-                                    <span className="text-base text-gray-600 dark:text-gray-400 ml-2">
-                                        /{product.duration.toLowerCase()}
-                                    </span>
+                                {type === 'rental' ? (
+                                    <>
+                                        ₹{product.rental_price ? product.rental_price.toLocaleString() : 'N/A'}
+                                        <span className="text-base text-gray-600 dark:text-gray-400 ml-2">
+                                            /{product.rental_duration || 'daily'}
+                                        </span>
+                                    </>
+                                ) : (
+                                    <>
+                                        ₹{product.price ? product.price.toLocaleString() : 'N/A'}
+                                        {type === 'room' && product.duration && (
+                                            <span className="text-base text-gray-600 dark:text-gray-400 ml-2">
+                                                /{product.duration.toLowerCase()}
+                                            </span>
+                                        )}
+                                    </>
                                 )}
                             </p>
                             
@@ -237,6 +248,12 @@ export default function ProductPageClient({ product, seller, type }) {
                                 {type === 'note' && product.course_subject && (
                                     <div className="flex items-center"><FontAwesomeIcon icon={faTag} className="w-4 mr-3 text-gray-400" /> Subject: <span className="font-semibold text-primary dark:text-white ml-1">{product.course_subject}</span></div>
                                 )}
+                                {type === 'rental' && product.condition && (
+                                    <div className="flex items-center"><FontAwesomeIcon icon={faCheckCircle} className="w-4 mr-3 text-gray-400" /> Condition: <span className="font-semibold text-primary dark:text-white ml-1">{product.condition}</span></div>
+                                )}
+                                {type === 'rental' && product.security_deposit && (
+                                    <div className="flex items-center"><FontAwesomeIcon icon={faShieldAlt} className="w-4 mr-3 text-gray-400" /> Security Deposit: <span className="font-semibold text-primary dark:text-white ml-1">₹{product.security_deposit.toLocaleString()}</span></div>
+                                )}
                             </div>
 
                             {type === 'room' && (
@@ -248,6 +265,40 @@ export default function ProductPageClient({ product, seller, type }) {
                                         <div className="flex items-center"><FontAwesomeIcon icon={faRoute} className="w-4 mr-3 text-gray-400" />Distance: <span className="font-semibold text-primary dark:text-white ml-1">{product.distance} km from college</span></div>
                                         <div className="flex items-center"><FontAwesomeIcon icon={faShieldAlt} className="w-4 mr-3 text-gray-400" />Deposit: <span className="font-semibold text-primary dark:text-white ml-1">₹{product.deposit ? product.deposit.toLocaleString() : 'N/A'}</span></div>
                                         <div className="flex items-center"><FontAwesomeIcon icon={faUtensils} className="w-4 mr-3 text-gray-400" /><span className="font-semibold text-primary dark:text-white ml-1">{product.feesIncludeMess ? 'Mess Fees Included' : 'Mess Fees Not Included'}</span></div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {type === 'rental' && (
+                                <div className="border-t dark:border-gray-700 pt-4 mt-4">
+                                    <h3 className="text-lg font-semibold text-primary dark:text-white mb-3">Rental Details</h3>
+                                    <div className="space-y-3 text-sm text-gray-600 dark:text-gray-300">
+                                        {product.rental_duration && (
+                                            <div className="flex items-center"><FontAwesomeIcon icon={faCalendarAlt} className="w-4 mr-3 text-purple-400" />Rental Duration: <span className="font-semibold text-primary dark:text-white ml-1">{product.rental_duration}</span></div>
+                                        )}
+                                        {product.min_rental_period && (
+                                            <div className="flex items-center"><FontAwesomeIcon icon={faCalendarAlt} className="w-4 mr-3 text-gray-400" />Min Rental Period: <span className="font-semibold text-primary dark:text-white ml-1">{product.min_rental_period}</span></div>
+                                        )}
+                                        {product.max_rental_period && (
+                                            <div className="flex items-center"><FontAwesomeIcon icon={faCalendarAlt} className="w-4 mr-3 text-gray-400" />Max Rental Period: <span className="font-semibold text-primary dark:text-white ml-1">{product.max_rental_period}</span></div>
+                                        )}
+                                        {product.available_from && (
+                                            <div className="flex items-center"><FontAwesomeIcon icon={faCalendarAlt} className="w-4 mr-3 text-green-400" />Available From: <span className="font-semibold text-primary dark:text-white ml-1">{new Date(product.available_from).toLocaleDateString()}</span></div>
+                                        )}
+                                        {product.available_until && (
+                                            <div className="flex items-center"><FontAwesomeIcon icon={faCalendarAlt} className="w-4 mr-3 text-red-400" />Available Until: <span className="font-semibold text-primary dark:text-white ml-1">{new Date(product.available_until).toLocaleDateString()}</span></div>
+                                        )}
+                                        {product.delivery_options && (
+                                            <div className="flex items-center"><FontAwesomeIcon icon={faTruck} className="w-4 mr-3 text-blue-400" />Delivery: <span className="font-semibold text-primary dark:text-white ml-1 capitalize">{product.delivery_options}</span></div>
+                                        )}
+                                        {product.rental_terms && (
+                                            <div className="flex items-center"><FontAwesomeIcon icon={faFileContract} className="w-4 mr-3 text-yellow-400" />Terms: <span className="font-semibold text-primary dark:text-white ml-1">{product.rental_terms}</span></div>
+                                        )}
+                                        {product.is_rented ? (
+                                            <div className="flex items-center"><FontAwesomeIcon icon={faExclamationTriangle} className="w-4 mr-3 text-red-400" />Status: <span className="font-semibold text-red-600 dark:text-red-400 ml-1">Currently Rented</span></div>
+                                        ) : (
+                                            <div className="flex items-center"><FontAwesomeIcon icon={faCheckCircle} className="w-4 mr-3 text-green-400" />Status: <span className="font-semibold text-green-600 dark:text-green-400 ml-1">Available for Rent</span></div>
+                                        )}
                                     </div>
                                 </div>
                             )}
@@ -388,6 +439,19 @@ export default function ProductPageClient({ product, seller, type }) {
 
                 <div className="mt-12">
                     <SimilarItemsFeed type={type} category={product.category} college={product.college} currentItemId={product.id} />
+                </div>
+
+                {/* Disclaimer */}
+                <div className="mt-8 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+                    <div className="flex items-start space-x-2">
+                        <FontAwesomeIcon icon={faInfoCircle} className="w-5 h-5 text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" />
+                        <div className="text-sm text-yellow-800 dark:text-yellow-200">
+                            <p className="font-medium mb-1">Important Notice</p>
+                            <p>
+                                StudXchange is a platform for connectivity between students. StudXchange has no involvement in transactions between users. Please verify the product condition, seller credibility, and authenticity before making any payment. Exercise caution and meet in safe, public places when conducting transactions.
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
             

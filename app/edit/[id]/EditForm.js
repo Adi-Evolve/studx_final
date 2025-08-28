@@ -6,6 +6,7 @@ import { createSupabaseBrowserClient } from '../../../lib/supabase/client';
 import RegularProductForm from '../../../components/forms/RegularProductForm';
 import NotesForm from '../../../components/forms/NotesForm';
 import RoomsForm from '../../../components/forms/RoomsForm';
+import RentalProductForm from '../../../components/forms/RentalProductForm';
 
 export default function EditForm({ item, type }) {
     const router = useRouter();
@@ -233,6 +234,8 @@ export default function EditForm({ item, type }) {
                 return <NotesForm initialData={item} onSubmit={handleSubmit} category={item.category} isEditMode={true} />;
             case 'room':
                 return <RoomsForm initialData={item} onSubmit={handleSubmit} category={item.category} isEditMode={true} />;
+            case 'rental':
+                return <RentalProductForm initialData={item} onSubmit={handleSubmit} category={item.category} isEditMode={true} />;
             default:
                 return <p className="text-red-600">Invalid item type.</p>;
         }
