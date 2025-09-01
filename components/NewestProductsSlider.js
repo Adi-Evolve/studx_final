@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
-import Autoplay from 'embla-carousel-autoplay';
 import ListingCard from './ListingCard';
 import Link from 'next/link';
 import { useSwipeGesture } from '@/hooks/useSwipeGesture';
@@ -16,16 +15,7 @@ export default function NewestProductsSlider({ newestProducts, showDistance = fa
     const [prevBtnEnabled, setPrevBtnEnabled] = useState(false);
     const [nextBtnEnabled, setNextBtnEnabled] = useState(false);
     
-    // Configure Embla with autoplay and responsive options
-    const autoplayOptions = {
-        delay: 4000,
-        stopOnInteraction: true,
-        stopOnMouseEnter: true,
-        stopOnFocusIn: true,
-        playOnInit: true,
-        rootNode: (emblaRoot) => emblaRoot.parentElement,
-    };
-
+    // Configure Embla without autoplay
     const [emblaRef, emblaApi] = useEmblaCarousel(
         {
             loop: true,
@@ -50,8 +40,7 @@ export default function NewestProductsSlider({ newestProducts, showDistance = fa
             // Enable mouse dragging for desktop
             dragFree: false,
             dragThreshold: 5,
-        },
-        [Autoplay(autoplayOptions)]
+        }
     );
 
     // Scroll to specific index

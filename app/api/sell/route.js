@@ -224,15 +224,10 @@ export async function POST(request) {
     // Prepare secure data insertion
     const now = new Date().toISOString()
     
-    // Check if user is privileged (for priority display)
-    const isPrivilegedUser = userData.email === 'adiinamdar888@gmail.com'
-    
     let insertData = {
       created_at: now,
       updated_at: now,
-      seller_id: userData.id,
-      seller_email: userData.email,
-      priority: isPrivilegedUser ? 1 : 10  // Priority 1 = highest priority for display
+      seller_id: userData.id
     }
 
     if (imageUrls.length > 0) {

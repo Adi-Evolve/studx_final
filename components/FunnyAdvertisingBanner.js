@@ -6,6 +6,15 @@ import Link from 'next/link';
 const funnyBanners = [
     {
         id: 1,
+        title: "🔥 Premium Arduino Kits Available!",
+        subtitle: "Complete starter kits with sensors, wires & components from verified seller. Perfect for electronics projects!",
+        buttonText: "Shop Arduino Kits",
+        buttonLink: "/search?q=arduino&category=Project+Equipment",
+        bgGradient: "from-gray-800 to-gray-600",
+        textColor: "text-white"
+    },
+    {
+        id: 2,
         title: "Buy and Sell Student Essentials",
         subtitle: "Connect with fellow students to find textbooks, electronics, and more at affordable prices.",
         buttonText: "Start Shopping",
@@ -14,7 +23,7 @@ const funnyBanners = [
         textColor: "text-white"
     },
     {
-        id: 2,
+        id: 3,
         title: "Sell Your Unused Items",
         subtitle: "Turn your unused books, electronics, and equipment into cash. List items quickly and reach student buyers.",
         buttonText: "Start Selling",
@@ -23,7 +32,7 @@ const funnyBanners = [
         textColor: "text-white"
     },
     {
-        id: 3,
+        id: 4,
         title: "Find Academic Resources",
         subtitle: "Access notes, study materials, and textbooks shared by students from your institution.",
         buttonText: "Browse Notes",
@@ -32,7 +41,7 @@ const funnyBanners = [
         textColor: "text-white"
     },
     {
-        id: 4,
+        id: 5,
         title: "Discover Student Accommodation",
         subtitle: "Find rooms, hostels, and shared accommodations near your campus with verified listings.",
         buttonText: "Find Rooms",
@@ -45,14 +54,12 @@ const funnyBanners = [
 export default function FunnyAdvertisingBanner() {
     const [currentBanner, setCurrentBanner] = useState(0);
     const [isMobile, setIsMobile] = useState(false);
-    const [isPlaying, setIsPlaying] = useState(true);
 
     // Check if device is mobile
     useEffect(() => {
         const checkMobile = () => {
             const mobile = window.innerWidth < 768;
             setIsMobile(mobile);
-            setIsPlaying(!mobile); // Don't autoplay on mobile
         };
         
         checkMobile();
@@ -60,16 +67,16 @@ export default function FunnyAdvertisingBanner() {
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
-    // Auto-rotation effect (disabled on mobile)
-    useEffect(() => {
-        if (!isPlaying || isMobile) return;
+    // Auto-rotation effect (DISABLED per user request)
+    // useEffect(() => {
+    //     if (!isPlaying || isMobile) return;
 
-        const interval = setInterval(() => {
-            setCurrentBanner((prev) => (prev + 1) % funnyBanners.length);
-        }, 6000); // Change banner every 6 seconds
+    //     const interval = setInterval(() => {
+    //         setCurrentBanner((prev) => (prev + 1) % funnyBanners.length);
+    //     }, 6000); // Change banner every 6 seconds
 
-        return () => clearInterval(interval);
-    }, [isPlaying, isMobile]);
+    //     return () => clearInterval(interval);
+    // }, [isPlaying, isMobile]);
 
     const nextBanner = () => {
         setCurrentBanner((prev) => (prev + 1) % funnyBanners.length);
@@ -77,11 +84,6 @@ export default function FunnyAdvertisingBanner() {
 
     const prevBanner = () => {
         setCurrentBanner((prev) => (prev - 1 + funnyBanners.length) % funnyBanners.length);
-    };
-
-    const toggleAutoplay = () => {
-        if (isMobile) return; // Don't allow autoplay toggle on mobile
-        setIsPlaying(!isPlaying);
     };
 
     const banner = funnyBanners[currentBanner];
@@ -156,27 +158,8 @@ export default function FunnyAdvertisingBanner() {
                     </div>
                 </div>
                 
-                {/* Banner indicators and controls */}
+                {/* Banner indicators */}
                 <div className="flex justify-center items-center mt-8 space-x-2">
-                    {/* Autoplay Toggle - Only show on desktop */}
-                    {!isMobile && (
-                        <button
-                            onClick={toggleAutoplay}
-                            className="bg-white/20 hover:bg-white/40 backdrop-blur-sm rounded-full p-1.5 mr-3 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/50"
-                            aria-label={isPlaying ? 'Pause slideshow' : 'Play slideshow'}
-                        >
-                            {isPlaying ? (
-                                <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
-                                </svg>
-                            ) : (
-                                <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M8 5v14l11-7z"/>
-                                </svg>
-                            )}
-                        </button>
-                    )}
-
                     {/* Dot Indicators - Larger on mobile for better touch targets */}
                     {funnyBanners.map((_, index) => (
                         <button

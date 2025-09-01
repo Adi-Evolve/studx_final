@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { validateSignupEmail, checkSuspiciousEmail } from '@/lib/emailValidation';
+import { validateSignupEmail, checkSuspiciousEmail, isExistingUser } from '@/lib/emailValidation';
 
 export default function SignUpPage() {
   const [fullName, setFullName] = useState('');
@@ -19,11 +19,22 @@ export default function SignUpPage() {
   const supabase = createClientComponentClient();
 
   // Email validation on change
-  const handleEmailChange = (e) => {
+  const handleEmailChange = async (e) => {
     const emailValue = e.target.value;
     setEmail(emailValue);
     
     if (emailValue.trim()) {
+      // Check if user already exists (for grandfathering)
+      const userExists = await isExistingUser(emailValue);
+      
+      if (userExists) {
+        setEmailValidation({
+          isValid: false,
+          message: 'This email is already registered. Please go to login page instead.'
+        });
+        return;
+      }
+      
       const validation = validateSignupEmail(emailValue);
       const suspiciousCheck = checkSuspiciousEmail(emailValue);
       
@@ -52,6 +63,14 @@ export default function SignUpPage() {
     e.preventDefault();
     setIsLoading(true);
     setError('');
+
+    // Check if user already exists first
+    const userExists = await isExistingUser(email);
+    if (userExists) {
+      setError('This email is already registered. Please go to login page instead.');
+      setIsLoading(false);
+      return;
+    }
 
     // Final email validation before submission
     const emailValidationResult = validateSignupEmail(email);

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { validateEducationalEmail, checkSuspiciousEmail } from '@/lib/emailValidation';
+import { validateEducationalEmail, checkSuspiciousEmail, isExistingUser } from '@/lib/emailValidation';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -34,15 +34,18 @@ export default function LoginPage() {
   }, []);
 
   // Email validation on change
-  const handleEmailChange = (e) => {
+  const handleEmailChange = async (e) => {
     const emailValue = e.target.value;
     setEmail(emailValue);
     
     if (emailValue.trim()) {
-      const validation = validateEducationalEmail(emailValue);
-      const suspiciousCheck = checkSuspiciousEmail(emailValue);
+      // Check if this is an existing user first
+      const isExisting = await isExistingUser(emailValue);
       
-      if (!validation.isValid || suspiciousCheck.isSuspicious) {
+      const validation = validateEducationalEmail(emailValue, isExisting);
+      const suspiciousCheck = checkSuspiciousEmail(emailValue, isExisting);
+      
+      if (!validation.isValid || (suspiciousCheck.isSuspicious && !isExisting)) {
         setEmailValidation({
           isValid: false,
           message: !validation.isValid ? validation.message : suspiciousCheck.message
@@ -50,7 +53,7 @@ export default function LoginPage() {
       } else {
         setEmailValidation({
           isValid: true,
-          message: ''
+          message: isExisting ? '✅ Existing user account' : '✅ Valid educational email'
         });
       }
     } else {

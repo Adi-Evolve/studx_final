@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import PriceDisplay from './PriceDisplay';
 import { formatDistance } from '@/lib/locationUtils';
+import { getCustomStyling } from '@/lib/privilegedUsers';
 
 const getListingUrl = (item) => {
     const type = item.type;
@@ -37,13 +38,25 @@ export default function ListingCard({ item, onClick, isSelectMode = false, isSpo
 
     // Check if this is a profile page with action buttons
     const hasActionButtons = onEdit || onRemove || onMarkAsSold;
+    
+    // Get privileged user styling - ONLY for Project Equipment category by admin
+    const isPrivilegedProduct = item.seller_id === '5d6e6776-4e15-4dff-8233-d02616d1880a'; // adiinamdar888@gmail.com user ID
+    const isProjectEquipment = item.category === 'Project Equipment';
+    const shouldApplyHighlighting = isPrivilegedProduct && isProjectEquipment;
+    
+    const sellerEmail = shouldApplyHighlighting ? 'adiinamdar888@gmail.com' : null;
+    const category = item.category;
+    const isNewListing = item.created_at && new Date() - new Date(item.created_at) < 7 * 24 * 60 * 60 * 1000; // New if less than 7 days old
+    const privilegedStyling = shouldApplyHighlighting ? getCustomStyling(sellerEmail, category, isNewListing) : null;
 
     const cardContent = (
         <div 
             className={`bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-900 overflow-hidden hover:shadow-xl dark:hover:shadow-gray-700 transition-all duration-300 transform hover:scale-105 h-full flex flex-col group relative border-2 dark:border-gray-700 card-item ${
                 (isSponsored || item.is_sponsored || item.isFeatured) 
                     ? 'border-gradient-to-r from-orange-300 to-yellow-300 dark:from-orange-400 dark:to-yellow-400 hover:border-orange-400 dark:hover:border-orange-500 shadow-lg ring-2 ring-orange-200 dark:ring-orange-500/30' 
-                    : 'border-transparent hover:border-emerald-200 dark:hover:border-emerald-600'
+                    : privilegedStyling 
+                        ? privilegedStyling.cardClass 
+                        : 'border-transparent hover:border-emerald-200 dark:hover:border-emerald-600'
             } ${hasActionButtons ? 'cursor-default' : ''}`}
             onClick={hasActionButtons ? (e) => {
                 // Only navigate if clicking on the main card area, not buttons
@@ -98,6 +111,20 @@ export default function ListingCard({ item, onClick, isSelectMode = false, isSpo
 
             {/* Content - Mobile optimized spacing */}
             <div className="p-2 sm:p-4 flex-grow flex flex-col">
+                {/* Verified Seller Badge for Privileged Users - Below image on right side */}
+                {privilegedStyling && privilegedStyling.badgeText && !isSponsored && !item.is_sponsored && !item.isFeatured && (
+                    <div className="flex justify-end mb-2">
+                        <div className={privilegedStyling.badgeClass}>
+                            <span className="flex items-center gap-0.5">
+                                <svg className="w-2.5 h-2.5 text-emerald-200" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                </svg>
+                                <span>VERIFIED</span>
+                            </span>
+                        </div>
+                    </div>
+                )}
+                
                 {/* Type Badge - Mobile optimized */}
                 <div className="mb-1.5 sm:mb-2">
                     <span className={`px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs font-semibold rounded-full ${
@@ -129,7 +156,10 @@ export default function ListingCard({ item, onClick, isSelectMode = false, isSpo
                         <div className="flex flex-col">
                             <PriceDisplay 
                                 price={price}
-                                className="text-sm sm:text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-slate-800 to-emerald-600 dark:from-slate-200 dark:to-emerald-400"
+                                className={privilegedStyling && privilegedStyling.priceClass 
+                                    ? privilegedStyling.priceClass 
+                                    : "text-sm sm:text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-slate-800 to-emerald-600 dark:from-slate-200 dark:to-emerald-400"
+                                }
                             />
                             {item.type === 'room' && (
                                 <span className="text-[9px] sm:text-xs text-slate-500 dark:text-slate-400">
