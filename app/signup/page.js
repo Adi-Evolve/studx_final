@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { validateSignupEmail, checkSuspiciousEmail } from '@/lib/emailValidation';
 
 export default function SignUpPage() {
   const [fullName, setFullName] = useState('');
@@ -13,13 +14,60 @@ export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [confirmationSent, setConfirmationSent] = useState(false);
   const [error, setError] = useState('');
+  const [emailValidation, setEmailValidation] = useState({ isValid: true, message: '' });
   const router = useRouter();
   const supabase = createClientComponentClient();
+
+  // Email validation on change
+  const handleEmailChange = (e) => {
+    const emailValue = e.target.value;
+    setEmail(emailValue);
+    
+    if (emailValue.trim()) {
+      const validation = validateSignupEmail(emailValue);
+      const suspiciousCheck = checkSuspiciousEmail(emailValue);
+      
+      if (!validation.isValid) {
+        setEmailValidation({
+          isValid: false,
+          message: validation.message
+        });
+      } else if (suspiciousCheck.isSuspicious) {
+        setEmailValidation({
+          isValid: false,
+          message: suspiciousCheck.message
+        });
+      } else {
+        setEmailValidation({
+          isValid: true,
+          message: '✅ Valid educational email address'
+        });
+      }
+    } else {
+      setEmailValidation({ isValid: true, message: '' });
+    }
+  };
 
   const handleSignUp = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
+
+    // Final email validation before submission
+    const emailValidationResult = validateSignupEmail(email);
+    const suspiciousCheck = checkSuspiciousEmail(email);
+    
+    if (!emailValidationResult.isValid) {
+      setError(emailValidationResult.message);
+      setIsLoading(false);
+      return;
+    }
+    
+    if (suspiciousCheck.isSuspicious) {
+      setError(suspiciousCheck.message);
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const { data, error } = await supabase.auth.signUp({
@@ -28,13 +76,19 @@ export default function SignUpPage() {
         options: {
           data: {
             name: fullName,
+            email_domain: email.split('@')[1],
+            institution: email.split('@')[1].split('.')[0],
           },
           emailRedirectTo: `${window.location.origin}/auth/callback?next=/`
         },
       });
 
       if (error) {
-        setError(error.message);
+        if (error.message.includes('User already registered')) {
+          setError('This email is already registered. Please try logging in instead.');
+        } else {
+          setError(error.message);
+        }
         setIsLoading(false);
       } else {
         // Check if user needs email confirmation
@@ -247,21 +301,44 @@ export default function SignUpPage() {
                 {/* Email */}
                 <div>
                   <label className="block text-sm font-bold text-slate-700 dark:text-gray-300 mb-2">
-                    Email Address
+                    Educational Email Address
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <span className="text-slate-400 dark:text-gray-500">📧</span>
+                      <span className="text-slate-400 dark:text-gray-500">🎓</span>
                     </div>
                     <input
                       type="email"
-                      placeholder="your.email@gmail.com"
+                      placeholder="your.name@university.edu"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full pl-12 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-colors duration-300"
+                      onChange={handleEmailChange}
+                      className={`w-full pl-12 pr-4 py-3 border rounded-xl focus:ring-2 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-colors duration-300 ${
+                        emailValidation.message && email ? 
+                          (emailValidation.isValid ? 
+                            'border-emerald-500 dark:border-emerald-400 focus:ring-emerald-500' : 
+                            'border-red-500 dark:border-red-400 focus:ring-red-500'
+                          ) : 
+                          'border-gray-300 dark:border-gray-600 focus:ring-emerald-500'
+                      }`}
                       required
                     />
                   </div>
+                  {/* Email Validation Message */}
+                  {emailValidation.message && email && (
+                    <div className={`mt-2 p-2 rounded-lg text-sm ${
+                      emailValidation.isValid ? 
+                        'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700' :
+                        'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-700'
+                    }`}>
+                      <div className="flex items-start gap-2">
+                        <span>{emailValidation.isValid ? '✅' : '⚠️'}</span>
+                        <span>{emailValidation.message}</span>
+                      </div>
+                    </div>
+                  )}
+                  <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">
+                    Only educational email addresses (.edu, university.edu, college.edu.in) are allowed
+                  </p>
                 </div>
 
                 {/* Password */}
@@ -292,6 +369,19 @@ export default function SignUpPage() {
                     </button>
                   </div>
                   <p className="text-xs text-slate-500 dark:text-gray-400 mt-2">Password must be at least 6 characters long</p>
+                </div>
+
+                {/* Security Notice */}
+                <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl">
+                  <div className="flex items-start gap-3">
+                    <span className="text-amber-600 text-lg">🛡️</span>
+                    <div className="text-left">
+                      <p className="text-sm text-amber-800 dark:text-amber-300 font-medium mb-1">Verified Student Community</p>
+                      <p className="text-sm text-amber-700 dark:text-amber-400">
+                        Only official educational email addresses are accepted. This ensures StudX remains a trusted marketplace exclusively for students and educational institutions.
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Submit Button */}

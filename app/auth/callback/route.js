@@ -1,5 +1,6 @@
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { validateEducationalEmail, checkSuspiciousEmail } from '@/lib/emailValidation';
 
 export async function GET(request) {
     const { searchParams, origin } = new URL(request.url);
@@ -14,6 +15,43 @@ export async function GET(request) {
                 // Get the current user after successful authentication
                 const { data: { user }, error: userError } = await supabase.auth.getUser();
                 if (user && !userError) {
+                    // Validate educational email address for OAuth users
+                    const emailValidation = validateEducationalEmail(user.email);
+                    const suspiciousCheck = checkSuspiciousEmail(user.email);
+                    
+                    if (!emailValidation.isValid || suspiciousCheck.isSuspicious) {
+                        // Sign out the user immediately
+                        await supabase.auth.signOut();
+                        
+                        // Redirect to login with error message
+                        const host = request.headers.get('host') || '';
+                        const isProduction = host.includes('studxchange.vercel.app') || host.includes('studxchange.com');
+                        
+                        let baseUrl = `http://localhost:3001`;
+                        if (host.includes('localhost:')) {
+                            const port = host.split(':')[1];
+                            baseUrl = `http://localhost:${port}`;
+                        }
+                        
+                        const redirectUrl = isProduction
+                            ? 'https://studxchange.vercel.app'
+                            : baseUrl;
+                        
+                        const errorMessage = !emailValidation.isValid 
+                            ? emailValidation.message 
+                            : suspiciousCheck.message;
+                        
+                        const loginUrl = `${redirectUrl}/login?error=${encodeURIComponent(errorMessage)}`;
+                        
+                        console.log('❌ Educational email validation failed for OAuth user:', {
+                            email: user.email,
+                            error: errorMessage
+                        });
+                        
+                        return NextResponse.redirect(loginUrl);
+                    }
+                    
+                    console.log('✅ Educational email validation passed for OAuth user:', user.email);
                     // console.log('🔐 Auth callback: User authenticated:', user.email);
                     // Sync user data to public.users table
                     try {

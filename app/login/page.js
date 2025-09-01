@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { validateEducationalEmail, checkSuspiciousEmail } from '@/lib/emailValidation';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -12,6 +13,7 @@ export default function LoginPage() {
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [emailValidation, setEmailValidation] = useState({ isValid: true, message: '' });
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
 
@@ -19,16 +21,63 @@ export default function LoginPage() {
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
       const messageParam = urlParams.get('message');
+      const errorParam = urlParams.get('error');
+      
       if (messageParam) {
         setMessage(messageParam);
       }
+      
+      if (errorParam) {
+        setLoginError(decodeURIComponent(errorParam));
+      }
     }
   }, []);
+
+  // Email validation on change
+  const handleEmailChange = (e) => {
+    const emailValue = e.target.value;
+    setEmail(emailValue);
+    
+    if (emailValue.trim()) {
+      const validation = validateEducationalEmail(emailValue);
+      const suspiciousCheck = checkSuspiciousEmail(emailValue);
+      
+      if (!validation.isValid || suspiciousCheck.isSuspicious) {
+        setEmailValidation({
+          isValid: false,
+          message: !validation.isValid ? validation.message : suspiciousCheck.message
+        });
+      } else {
+        setEmailValidation({
+          isValid: true,
+          message: ''
+        });
+      }
+    } else {
+      setEmailValidation({ isValid: true, message: '' });
+    }
+  };
 
   const handleSignIn = async (e) => {
     e.preventDefault();
     setLoginError('');
     setIsLoading(true);
+    
+    // Validate email before attempting login
+    const emailValidationResult = validateEducationalEmail(email);
+    const suspiciousCheck = checkSuspiciousEmail(email);
+    
+    if (!emailValidationResult.isValid) {
+      setLoginError(emailValidationResult.message);
+      setIsLoading(false);
+      return;
+    }
+    
+    if (suspiciousCheck.isSuspicious) {
+      setLoginError(suspiciousCheck.message);
+      setIsLoading(false);
+      return;
+    }
     
     const { error } = await supabase.auth.signInWithPassword({
       email,
@@ -96,16 +145,36 @@ export default function LoginPage() {
             <form onSubmit={handleSignIn} className="space-y-6">
               <div>
                 <label className="block text-sm font-bold text-slate-700 dark:text-gray-300 mb-2">
-                  Email Address
+                  Educational Email Address
                 </label>
                 <input
                   type="email"
-                  placeholder="your.email@college.edu"
+                  placeholder="your.name@university.edu"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-colors duration-300"
+                  onChange={handleEmailChange}
+                  className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-colors duration-300 ${
+                    emailValidation.message && email ? 
+                      (emailValidation.isValid ? 
+                        'border-emerald-500 dark:border-emerald-400 focus:ring-emerald-500' : 
+                        'border-red-500 dark:border-red-400 focus:ring-red-500'
+                      ) : 
+                      'border-gray-300 dark:border-gray-600 focus:ring-emerald-500'
+                  }`}
                   required
                 />
+                {/* Email Validation Message */}
+                {emailValidation.message && email && (
+                  <div className={`mt-2 p-2 rounded-lg text-sm ${
+                    emailValidation.isValid ? 
+                      'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' :
+                      'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                  }`}>
+                    <div className="flex items-start gap-2">
+                      <span>{emailValidation.isValid ? '✅' : '⚠️'}</span>
+                      <span>{emailValidation.message}</span>
+                    </div>
+                  </div>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-bold text-slate-700 dark:text-gray-300 mb-2">
