@@ -80,8 +80,8 @@ export default function ListingCard({ item, onClick, isSelectMode = false, isSpo
                 </div>
             )}
 
-            {/* Image Container */}
-            <div className="relative h-48 overflow-hidden bg-gradient-to-br from-slate-100 to-emerald-50">
+            {/* Image Container - Optimized for mobile square layout */}
+            <div className="relative h-32 sm:h-48 overflow-hidden bg-gradient-to-br from-slate-100 to-emerald-50">
                 <Image 
                     draggable="false" 
                     src={imageUrl}
@@ -96,11 +96,11 @@ export default function ListingCard({ item, onClick, isSelectMode = false, isSpo
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </div>
 
-            {/* Content */}
-            <div className="p-4 flex-grow flex flex-col">
-                {/* Type Badge */}
-                <div className="mb-2">
-                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+            {/* Content - Mobile optimized spacing */}
+            <div className="p-2 sm:p-4 flex-grow flex flex-col">
+                {/* Type Badge - Mobile optimized */}
+                <div className="mb-1.5 sm:mb-2">
+                    <span className={`px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs font-semibold rounded-full ${
                         item.type === 'room' ? 'bg-emerald-50 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700' : 
                         item.type === 'note' ? 'bg-teal-50 dark:bg-teal-900 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-700' : 
                         item.type === 'rental' ? 'bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 border-2 border-purple-300 dark:border-purple-600 font-bold animate-pulse' :
@@ -118,63 +118,63 @@ export default function ListingCard({ item, onClick, isSelectMode = false, isSpo
                     )}
                 </div>
 
-                {/* Title */}
-                <h3 className="font-semibold text-slate-900 dark:text-gray-100 mb-2 line-clamp-2 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-200" title={title}>
+                {/* Title - Mobile optimized */}
+                <h3 className="font-semibold text-slate-900 dark:text-gray-100 mb-1.5 sm:mb-2 line-clamp-2 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-200 text-xs sm:text-sm leading-tight" title={title}>
                     {title}
                 </h3>
                 
-                {/* Price and details */}
-                <div className="mt-auto">
-                    <div className="flex items-end justify-between">
+                {/* Price and details - Mobile optimized layout */}
+                <div className="mt-auto space-y-1.5 sm:space-y-2">
+                    <div className="flex items-center justify-between">
                         <div className="flex flex-col">
                             <PriceDisplay 
                                 price={price}
-                                className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-slate-800 to-emerald-600 dark:from-slate-200 dark:to-emerald-400"
+                                className="text-sm sm:text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-slate-800 to-emerald-600 dark:from-slate-200 dark:to-emerald-400"
                             />
                             {item.type === 'room' && (
-                                <span className="text-xs text-slate-500 dark:text-slate-400">
+                                <span className="text-[9px] sm:text-xs text-slate-500 dark:text-slate-400">
                                     /{(item.duration || 'monthly').toLowerCase()}
                                 </span>
                             )}
                             {item.type === 'rental' && (
-                                <span className="text-xs text-purple-600 dark:text-purple-400 font-bold bg-purple-50 dark:bg-purple-900 px-2 py-1 rounded-full border border-purple-200 dark:border-purple-700">
+                                <span className="text-[8px] sm:text-xs text-purple-600 dark:text-purple-400 font-bold bg-purple-50 dark:bg-purple-900 px-1 sm:px-2 py-0.5 sm:py-1 rounded-full border border-purple-200 dark:border-purple-700 inline-block w-fit mt-1">
                                     /{item.rental_duration || 'daily'}
                                 </span>
                             )}
                         </div>
                         
                         {/* College info and Distance */}
-                        <div className="flex items-center justify-between text-xs">
+                        <div className="flex items-center justify-between text-[9px] sm:text-xs mt-1.5 sm:mt-2">
                             {item.college && (
-                                <div className="text-slate-500 dark:text-slate-400 truncate max-w-20 flex items-center" title={item.college}>
-                                    <span className="mr-1">📍</span>
-                                    {item.college}
+                                <div className="text-slate-500 dark:text-slate-400 truncate max-w-16 sm:max-w-20 flex items-center" title={item.college}>
+                                    <span className="mr-0.5 sm:mr-1 text-[8px] sm:text-[10px]">📍</span>
+                                    <span className="text-[8px] sm:text-xs truncate">{item.college}</span>
                                 </div>
                             )}
                             
                             {/* Distance display */}
                             {showDistance && item.distance !== null && item.distance !== undefined && (
                                 <div className="text-blue-600 dark:text-blue-400 font-medium flex items-center">
-                                    <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                     </svg>
-                                    {formatDistance(item.distance)}
+                                    <span className="text-[8px] sm:text-xs">{formatDistance(item.distance)}</span>
                                 </div>
                             )}
                         </div>
                     </div>
 
-                    {/* Condition */}
+                    {/* Condition - Mobile optimized */}
                     {item.condition && item.type !== 'room' && (
-                        <div className="mt-2 flex items-center">
-                            <div className={`w-2 h-2 rounded-full mr-2 ${
+                        <div className="mt-1.5 sm:mt-2 flex items-center">
+                            <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full mr-1 sm:mr-2 ${
                                 item.condition === 'New' ? 'bg-emerald-500' :
                                 item.condition === 'Like New' ? 'bg-emerald-400' :
                                 item.condition === 'Good' ? 'bg-teal-500' :
                                 'bg-slate-400'
                             }`}></div>
-                            <span className="text-xs text-slate-600 dark:text-slate-400">{item.condition}</span>
+                            <span className="text-[8px] sm:text-xs text-slate-600 dark:text-slate-400">{item.condition}</span>
                         </div>
                     )}
                 </div>

@@ -170,31 +170,31 @@ export default function NewestProductsSlider({ newestProducts, showDistance = fa
     }
 
     return (
-        <section className="mb-16 px-2">
-            <div className="flex justify-between items-center mb-8">
+        <section className="mb-12 sm:mb-16 px-4">
+            <div className="flex justify-between items-center mb-6 sm:mb-8">
                 <div>
-                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white flex items-center">
+                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 dark:text-white flex items-center">
                         Newest Products
                     </h2>
-                    <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 mt-2">Fresh listings from your fellow students</p>
+                    <p className="text-xs sm:text-sm lg:text-base text-gray-600 dark:text-gray-300 mt-1 sm:mt-2">Fresh listings from your fellow students</p>
                 </div>
             </div>
 
-            <div className="relative group py-4">
+            <div className="relative group py-2 sm:py-4">
                 {/* Embla Carousel Container */}
                 <div 
-                    className="overflow-hidden cursor-grab active:cursor-grabbing" 
+                    className="overflow-hidden cursor-grab active:cursor-grabbing touch-pan-y" 
                     ref={emblaRef}
                     onTouchStart={handleTouchStart}
                     onTouchMove={handleTouchMove}
                     onTouchEnd={handleTouchEnd}
                     style={{ touchAction: 'pan-y pinch-zoom' }}
                 >
-                    <div className="flex gap-4">
+                    <div className="flex gap-3 sm:gap-4">
                         {newestProducts.map((item, index) => (
                             <div 
                                 key={`${item.type}-${item.id}`} 
-                                className="flex-[0_0_calc(50%-8px)] sm:flex-[0_0_calc(50%-8px)] md:flex-[0_0_calc(33.33%-12px)] lg:flex-[0_0_calc(25%-12px)] min-w-0 isolated-card"
+                                className="flex-[0_0_calc(50%-6px)] sm:flex-[0_0_calc(50%-8px)] md:flex-[0_0_calc(33.33%-12px)] lg:flex-[0_0_calc(25%-12px)] min-w-0 isolated-card"
                                 style={{ isolation: 'isolate' }}
                             >
                                 <ListingCard item={item} showDistance={showDistance} />
@@ -203,14 +203,14 @@ export default function NewestProductsSlider({ newestProducts, showDistance = fa
                     </div>
                 </div>
 
-                {/* Navigation buttons */}
+                {/* Navigation buttons - better mobile positioning */}
                 <button
                     onClick={scrollPrev}
                     disabled={!prevBtnEnabled}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-white/95 backdrop-blur-sm hover:bg-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 opacity-0 group-hover:opacity-100 focus:opacity-100 focus:outline-none border border-gray-200/50 hover:scale-105 z-10 disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100"
+                    className="absolute left-1 sm:left-2 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-white/95 backdrop-blur-sm hover:bg-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 opacity-60 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 focus:outline-none border border-gray-200/50 hover:scale-105 z-10 disabled:opacity-30 disabled:cursor-not-allowed disabled:scale-100"
                     aria-label="Previous products"
                 >
-                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-gray-700 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                     </svg>
                 </button>
@@ -218,10 +218,10 @@ export default function NewestProductsSlider({ newestProducts, showDistance = fa
                 <button
                     onClick={scrollNext}
                     disabled={!nextBtnEnabled}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-white/95 backdrop-blur-sm hover:bg-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 opacity-0 group-hover:opacity-100 focus:opacity-100 focus:outline-none border border-gray-200/50 hover:scale-105 z-10 disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100"
+                    className="absolute right-1 sm:right-2 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-white/95 backdrop-blur-sm hover:bg-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 opacity-60 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 focus:outline-none border border-gray-200/50 hover:scale-105 z-10 disabled:opacity-30 disabled:cursor-not-allowed disabled:scale-100"
                     aria-label="Next products"
                 >
-                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-gray-700 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                 </button>

@@ -48,7 +48,7 @@ export default function ImageUploadWithOptimization({
                 onImagesChange(existingImages);
             }
         }
-    }, [existingImages, onImagesChange]);
+    }, [existingImages]); // Remove onImagesChange from dependencies
 
     const handleFileSelect = async (event) => {
         const files = Array.from(event.target.files);

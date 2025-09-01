@@ -303,7 +303,7 @@ export async function fetchListings({ page = 1, limit = 12 } = {}) {
     const to = from + limit - 1;
 
     try {
-        // Fetch from all tables including rentals
+        // Fetch from all tables including rentals with updated column selections
         const [productsRes, notesRes, roomsRes, rentalsRes] = await Promise.all([
             supabase
                 .from('products')
@@ -311,7 +311,7 @@ export async function fetchListings({ page = 1, limit = 12 } = {}) {
                     id, title, description, price, category, condition, college,
                     location, images, is_sold, seller_id, created_at
                 `)
-                .order('created_at', { ascending: false }),
+                .order('created_at', { ascending: false }), // Order by newest first
             supabase
                 .from('notes')
                 .select(`
@@ -323,9 +323,10 @@ export async function fetchListings({ page = 1, limit = 12 } = {}) {
             supabase
                 .from('rooms')
                 .select(`
-                    id, title, description, price, category, college, location,
+                    id, title, description, price, fees, category, college, location,
                     images, room_type, occupancy, distance, deposit, fees_include_mess,
-                    mess_fees, owner_name, contact1, contact2, amenities, duration, seller_id, created_at
+                    mess_fees, owner_name, contact1, contact2, amenities, duration, 
+                    seller_id, created_at
                 `)
                 .order('created_at', { ascending: false }),
             supabase
@@ -356,7 +357,11 @@ export async function fetchListings({ page = 1, limit = 12 } = {}) {
         const allListings = [
             ...(productsRes.data || []).map(item => serializeDataForClient({ ...item, type: 'regular' })),
             ...(notesRes.data || []).map(item => serializeDataForClient({ ...item, type: 'note' })),
-            ...(roomsRes.data || []).map(item => serializeDataForClient({ ...item, type: 'room' })),
+            ...(roomsRes.data || []).map(item => serializeDataForClient({ 
+                ...item, 
+                type: 'room',
+                price: item.price || item.fees // Use fees if price is null
+            })),
             ...(rentalsRes.data || []).map(item => serializeDataForClient({ 
                 ...item, 
                 type: 'rental',
@@ -364,7 +369,7 @@ export async function fetchListings({ page = 1, limit = 12 } = {}) {
             }))
         ];
 
-        // Sort by created_at date (most recent first) - now using ISO strings
+        // Sort by created_at date (most recent first) since we already ordered in the queries
         allListings.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
         // Apply pagination

@@ -6,6 +6,7 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import ImageUploadWithOptimization from '../ImageUploadWithOptimization';
 import dynamic from 'next/dynamic';
 import { colleges } from '../../lib/colleges';
+import { getAvailableCategories, getUserPrivileges, isPrivilegedUser } from '../../lib/privilegedUsers';
 import toast from 'react-hot-toast';
 
 // Dynamically import the MapPicker to avoid SSR issues with Leaflet
@@ -16,13 +17,16 @@ const MapPicker = dynamic(() => import('../MapPicker'), {
 
 // Placeholder data - in a real app, this would come from a database
 const conditions = ['New', 'Used', 'Refurbished'];
-const categories = ['Laptops', 'Project Equipment', 'Books', 'Cycle/Bike', 'Hostel Equipment', 'Notes', 'Rooms/Hostel', 'Furniture', 'Assignments/Projects', 'Others'];
+const baseCategories = ['Laptops', 'Project Equipment', 'Books', 'Cycle/Bike', 'Hostel Equipment', 'Notes', 'Rooms/Hostel', 'Furniture', 'Assignments/Projects', 'Others'];
 
 export default function RegularProductForm({ initialData = {}, onSubmit, category = '' }) {
     const router = useRouter();
     const supabase = createSupabaseBrowserClient();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [authLoading, setAuthLoading] = useState(true);
+    const [userEmail, setUserEmail] = useState('');
+    const [availableCategories, setAvailableCategories] = useState(baseCategories);
+    const [userPrivileges, setUserPrivileges] = useState(null);
     
     const [formData, setFormData] = useState({
         title: initialData.title || '',
@@ -74,7 +78,19 @@ export default function RegularProductForm({ initialData = {}, onSubmit, categor
                 // Only check for email presence in auth
                 if (session?.user?.email) {
                     setIsAuthenticated(true);
+                    setUserEmail(session.user.email);
+                    
+                    // Set available categories based on user privileges
+                    const categories = getAvailableCategories(session.user.email);
+                    setAvailableCategories(categories);
+                    
+                    // Set user privileges
+                    const privileges = getUserPrivileges(session.user.email);
+                    setUserPrivileges(privileges);
+                    
                     // console.log('✅ [ProductForm] User authenticated with email:', session.user.email);
+                    // console.log('📋 [ProductForm] Available categories:', categories);
+                    // console.log('🔑 [ProductForm] User privileges:', privileges);
                     
                     // Auto-fill form data from user profile if available
                     if (session.user.user_metadata?.college) {
@@ -86,6 +102,9 @@ export default function RegularProductForm({ initialData = {}, onSubmit, categor
                 } else {
                     // console.log('❌ [ProductForm] No email found in session');
                     setIsAuthenticated(false);
+                    setUserEmail('');
+                    setAvailableCategories(baseCategories);
+                    setUserPrivileges(null);
                 }
                 
                 setAuthLoading(false);
@@ -103,8 +122,20 @@ export default function RegularProductForm({ initialData = {}, onSubmit, categor
             // console.log('🔄 [ProductForm] Auth state changed:', event, !!session?.user?.email);
             if (session?.user?.email) {
                 setIsAuthenticated(true);
+                setUserEmail(session.user.email);
+                
+                // Update available categories based on user privileges
+                const categories = getAvailableCategories(session.user.email);
+                setAvailableCategories(categories);
+                
+                // Update user privileges
+                const privileges = getUserPrivileges(session.user.email);
+                setUserPrivileges(privileges);
             } else {
                 setIsAuthenticated(false);
+                setUserEmail('');
+                setAvailableCategories(baseCategories);
+                setUserPrivileges(null);
             }
         });
 
@@ -412,9 +443,19 @@ export default function RegularProductForm({ initialData = {}, onSubmit, categor
 
     return (
         <form onSubmit={handleSubmit} className="space-y-8">
-            <div>
-                <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200">List a Regular Product</h2>
-                <p className="text-gray-600 dark:text-gray-400">Please fill out the details below.</p>
+            {/* Enhanced Header for Privileged Users */}
+            <div className={`${userPrivileges ? 'bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200 dark:border-purple-700 rounded-lg p-4' : ''}`}>
+                <h2 className={`text-2xl font-semibold mb-2 ${userPrivileges ? 'text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400' : 'text-gray-800 dark:text-gray-200'}`}>
+                    {userPrivileges ? `✨ Premium Seller - List Your Arduino & Electronics` : 'List a Regular Product'}
+                </h2>
+                {userPrivileges && (
+                    <div className="flex items-center space-x-2 text-sm text-purple-600 dark:text-purple-400">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+                            🔥 {userPrivileges.features.featuredBadge}
+                        </span>
+                        <span>Your products get priority display! Perfect for Arduino kits, sensors & electronics.</span>
+                    </div>
+                )}
             </div>
 
             {/* Form Fields */}
@@ -458,17 +499,27 @@ export default function RegularProductForm({ initialData = {}, onSubmit, categor
                     </select>
                 </div>
                 <div>
-                    <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
+                    <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Category {userPrivileges && <span className="text-purple-600 dark:text-purple-400 text-xs font-medium">(Use "Project Equipment" for Arduino & Electronics)</span>}
+                    </label>
                     <select 
                         name="category" 
                         id="category" 
                         required 
                         value={formData.category} 
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-black dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                        className={`mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-black dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${userPrivileges ? 'ring-2 ring-purple-200 dark:ring-purple-700' : ''}`}
                         onChange={handleChange}
                     >
                         <option value="" disabled>Select Category</option>
-                        {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                        {availableCategories.map(c => (
+                            <option 
+                                key={c} 
+                                value={c}
+                                className={c === 'Project Equipment' && userPrivileges ? 'font-bold text-purple-600 bg-purple-50' : ''}
+                            >
+                                {c === 'Project Equipment' && userPrivileges ? '⚡ Project Equipment (Recommended for Arduino & Electronics)' : c}
+                            </option>
+                        ))}
                     </select>
                 </div>
                 <div>

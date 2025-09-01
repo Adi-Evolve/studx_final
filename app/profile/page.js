@@ -38,16 +38,18 @@ export default async function ProfilePage() {
     };
 
     // Fetch all listings in parallel
-    const [productsRes, notesRes, roomsRes] = await Promise.all([
+    const [productsRes, notesRes, roomsRes, rentalsRes] = await Promise.all([
         supabase.from('products').select(`id, title, description, price, category, condition, college, location, images, is_sold, seller_id, created_at`).eq('seller_id', user.id),
         supabase.from('notes').select(`id, title, description, price, category, college, academic_year, course_subject, images, pdf_urls, pdf_url, seller_id, created_at`).eq('seller_id', user.id),
-        supabase.from('rooms').select(`id, title, description, price, category, college, location, images, room_type, occupancy, distance, deposit, fees_include_mess, mess_fees, owner_name, contact1, contact2, amenities, duration, seller_id, created_at`).eq('seller_id', user.id)
+        supabase.from('rooms').select(`id, title, description, price, category, college, location, images, room_type, occupancy, distance, deposit, fees_include_mess, mess_fees, owner_name, contact1, contact2, amenities, duration, seller_id, created_at`).eq('seller_id', user.id),
+        supabase.from('rentals').select(`id, title, description, rental_price, security_deposit, category, condition, rental_duration, min_rental_period, max_rental_period, college, location, images, is_rented, rental_terms, seller_id, created_at`).eq('seller_id', user.id)
     ]);
 
     // Only pass serializable arrays
     const products = augmentData(productsRes.data || [], 'product');
     const notes = augmentData(notesRes.data || [], 'note');
     const rooms = augmentData(roomsRes.data || [], 'room');
+    const rentals = augmentData(rentalsRes.data || [], 'rental');
 
     return (
         <ErrorBoundary>
@@ -56,6 +58,7 @@ export default async function ProfilePage() {
                 serverProducts={products}
                 serverNotes={notes}
                 serverRooms={rooms}
+                serverRentals={rentals}
             />
         </ErrorBoundary>
     );
