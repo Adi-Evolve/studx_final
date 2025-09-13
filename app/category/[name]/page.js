@@ -185,12 +185,71 @@ export default async function CategoryPage({ params }) {
             return queryError ? { error: queryError } : { listings: augmentData(data, 'regular') };
         },
         'Project Equipment': async () => {
-            const { data, error: queryError } = await supabase
-                .from('products')
-                .select('*')
-                .ilike('category', '%Project%')
-                .order('created_at', { ascending: false });
-            return queryError ? { error: queryError } : { listings: augmentData(data, 'regular') };
+            // Fetch both regular products and Arduino kits for Project Equipment category
+            const [productsRes, arduinoRes] = await Promise.all([
+                supabase
+                    .from('products')
+                    .select('*')
+                    .ilike('category', '%Project%')
+                    .order('created_at', { ascending: false }),
+                supabase
+                    .from('arduino')
+                    .select(`
+                        id, breadboard, motor, led, resistor, other_components, 
+                        created_at, updated_at
+                    `)
+                    .order('created_at', { ascending: false })
+            ]);
+
+            if (productsRes.error && arduinoRes.error) {
+                return { error: productsRes.error };
+            }
+
+            // Parse Arduino kits from JSON data
+            const arduinoKits = (arduinoRes.data || [])
+                .map(row => {
+                    try {
+                        const productInfo = JSON.parse(row.other_components || '{}');
+                        if (!productInfo.title) return null;
+                        
+                        return {
+                            id: row.id,
+                            title: productInfo.title,
+                            description: productInfo.description || '',
+                            price: productInfo.price || 0,
+                            category: productInfo.category || 'Project Equipment',
+                            college: productInfo.college || '',
+                            images: productInfo.images || [],
+                            breadboard: row.breadboard || false,
+                            motor: row.motor || false,
+                            led: row.led || false,
+                            resistor: row.resistor || false,
+                            location: productInfo.location || '',
+                            is_sold: productInfo.is_sold || false,
+                            seller_id: productInfo.seller_id,
+                            created_at: row.created_at,
+                            updated_at: row.updated_at,
+                            type: 'arduino_kit',
+                            table_type: 'arduino',
+                            component_count: productInfo.component_count || 0
+                        };
+                    } catch (error) {
+                        console.error('Error parsing Arduino kit in category:', error);
+                        return null;
+                    }
+                })
+                .filter(kit => kit !== null);
+
+            // Combine regular products and Arduino kits
+            const allItems = [
+                ...augmentData(productsRes.data || [], 'regular'),
+                ...arduinoKits
+            ];
+
+            // Sort by creation date
+            allItems.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+            return { listings: allItems };
         },
         'Other': async () => {
             const { data, error: queryError } = await supabase

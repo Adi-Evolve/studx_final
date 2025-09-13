@@ -34,25 +34,28 @@ export async function middleware(request) {
     return new NextResponse('🚫 Forbidden', { status: 403 })
   }
   
-  // Enhanced Security Headers
+  // Enhanced Security Headers - More permissive for browser extensions
   response.headers.set('X-Content-Type-Options', 'nosniff')
-  response.headers.set('X-Frame-Options', 'DENY')
-  response.headers.set('X-XSS-Protection', '1; mode=block')
+  response.headers.set('X-Frame-Options', 'SAMEORIGIN') // Changed from DENY to SAMEORIGIN
+  response.headers.set('X-XSS-Protection', '0') // Disabled to prevent extension conflicts
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
-  response.headers.set('Permissions-Policy', 'camera=(self), microphone=(), geolocation=(self)')
+  // Remove strict permissions policy that causes camera violations
+  response.headers.delete('Permissions-Policy')
   response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
   
-  // Content Security Policy
+  // Comprehensive Content Security Policy for browser extensions
   response.headers.set('Content-Security-Policy', 
-    "default-src 'self'; " +
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://unpkg.com; " +
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; " +
-    "font-src 'self' https://fonts.gstatic.com; " +
-    "img-src 'self' data: https: http: blob:; " +
-    "connect-src 'self' https://vdpmumstdxgftaaxeacx.supabase.co https://api.razorpay.com https://api.imgbb.com; " +
-    "frame-src 'self' https://checkout.razorpay.com https://api.razorpay.com; " +
+    "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: chrome-extension: moz-extension: webkit-extension:; " +
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://unpkg.com chrome-extension: moz-extension: webkit-extension: data: blob:; " +
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com chrome-extension: moz-extension: webkit-extension:; " +
+    "font-src 'self' https://fonts.gstatic.com data: chrome-extension: moz-extension: webkit-extension:; " +
+    "img-src 'self' data: https: http: blob: chrome-extension: moz-extension: webkit-extension:; " +
+    "connect-src 'self' https://vdpmumstdxgftaaxeacx.supabase.co https://api.razorpay.com https://api.imgbb.com chrome-extension: moz-extension: webkit-extension: wss: ws:; " +
+    "frame-src 'self' https://checkout.razorpay.com https://api.razorpay.com chrome-extension: moz-extension: webkit-extension:; " +
     "object-src 'none'; " +
-    "base-uri 'self';"
+    "base-uri 'self' data: chrome-extension: moz-extension: webkit-extension:; " +
+    "worker-src 'self' blob: chrome-extension: moz-extension: webkit-extension:; " +
+    "child-src 'self' chrome-extension: moz-extension: webkit-extension:;"
   )
   
   // Rate limiting headers

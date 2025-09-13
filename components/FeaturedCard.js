@@ -13,6 +13,12 @@ const getListingUrl = (item) => {
     if (type === 'note') {
         return `/products/notes/${item.id}`;
     }
+    if (type === 'rental') {
+        return `/products/rentals/${item.id}`;
+    }
+    if (type === 'arduino_kit') {
+        return `/products/arduino/${item.id}`;
+    }
     return `/products/regular/${item.id}`;
 };
 
@@ -94,16 +100,22 @@ export default function FeaturedCard({ item, index = 0, showDistance = false }) 
                         <span className={`inline-flex items-center px-2 py-1 text-xs font-bold rounded-full shadow-sm ${
                             item.type === 'room' ? 'bg-gradient-to-r from-emerald-100 to-green-100 dark:from-emerald-900 dark:to-green-900 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700' : 
                             item.type === 'note' ? 'bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900 dark:to-indigo-900 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700' : 
+                            item.type === 'rental' ? 'bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900 dark:to-pink-900 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-700' :
+                            item.type === 'arduino_kit' ? 'bg-gradient-to-r from-purple-100 to-indigo-100 dark:from-purple-900 dark:to-indigo-900 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-700' :
                             'bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900 dark:to-pink-900 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-700'
                         }`}>
                             <span className="mr-1 text-xs">
                                 {item.type === 'room' ? '🏠' : 
                                  item.type === 'note' ? '📚' : 
-                                 '📦'}
+                                 item.type === 'rental' ? '�' :
+                                 item.type === 'arduino_kit' ? '⚡' :
+                                 '�📦'}
                             </span>
                             <span className="text-xs">
                                 {item.type === 'room' ? 'Room' : 
                                  item.type === 'note' ? 'Notes' : 
+                                 item.type === 'rental' ? 'Rental' :
+                                 item.type === 'arduino_kit' ? 'Arduino Kit' :
                                  'Product'}
                             </span>
                         </span>

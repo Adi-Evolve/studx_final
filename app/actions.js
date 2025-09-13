@@ -111,7 +111,7 @@ export async function fetchSimilarListings({ type, category, college, excludeId,
     let query;
 
     // Determine the table and filter column based on the type
-    if (type === 'product' || type === 'note' || type === 'rental') {
+    if (type === 'product' || type === 'note' || type === 'rental' || type === 'arduino_kit') {
         if (!category) return [];
         let tableName, selectColumns;
         
@@ -135,11 +135,23 @@ export async function fetchSimilarListings({ type, category, college, excludeId,
                 location, images, is_rented, seller_id, created_at, rental_duration,
                 available_from, available_until, delivery_options
             `;
+        } else if (type === 'arduino_kit') {
+            tableName = 'arduino';
+            selectColumns = `
+                id, breadboard, motor, led, resistor, other_components, 
+                created_at, updated_at
+            `;
         }
         
-        query = supabase.from(tableName)
-            .select(selectColumns)
-            .eq('category', category);
+        if (type === 'arduino_kit') {
+            // For Arduino kits, we need to filter by category differently since it's stored in JSON
+            query = supabase.from(tableName)
+                .select(selectColumns);
+        } else {
+            query = supabase.from(tableName)
+                .select(selectColumns)
+                .eq('category', category);
+        }
     } else if (type === 'room') {
         if (!college) return [];
         query = supabase.from('rooms')
@@ -162,6 +174,48 @@ export async function fetchSimilarListings({ type, category, college, excludeId,
         if (error) {
             console.error(`[Actions] Supabase error fetching similar listings for type ${type}:`, error.message);
             throw error;
+        }
+
+        // Process Arduino kits differently since they store data in JSON
+        if (type === 'arduino_kit') {
+            const processedArduinoKits = data
+                .map(row => {
+                    try {
+                        const productInfo = JSON.parse(row.other_components || '{}');
+                        if (!productInfo.title) return null;
+                        
+                        // Filter by category if specified
+                        if (category && productInfo.category !== category) return null;
+                        
+                        return {
+                            id: row.id,
+                            title: productInfo.title,
+                            description: productInfo.description || '',
+                            price: productInfo.price || 0,
+                            category: productInfo.category || 'Project Equipment',
+                            college: productInfo.college || '',
+                            images: productInfo.images || [],
+                            breadboard: row.breadboard || false,
+                            motor: row.motor || false,
+                            led: row.led || false,
+                            resistor: row.resistor || false,
+                            location: productInfo.location || '',
+                            is_sold: productInfo.is_sold || false,
+                            seller_id: productInfo.seller_id,
+                            created_at: row.created_at,
+                            updated_at: row.updated_at,
+                            type: 'arduino_kit',
+                            table_type: 'arduino',
+                            component_count: productInfo.component_count || 0
+                        };
+                    } catch (error) {
+                        console.error('Error parsing Arduino kit in fetchSimilarListings:', error);
+                        return null;
+                    }
+                })
+                .filter(kit => kit !== null);
+            
+            return processedArduinoKits;
         }
 
         // Add the 'type' to each item so the client knows how to render it
@@ -303,8 +357,8 @@ export async function fetchListings({ page = 1, limit = 12 } = {}) {
     const to = from + limit - 1;
 
     try {
-        // Fetch from all tables including rentals with updated column selections
-        const [productsRes, notesRes, roomsRes, rentalsRes] = await Promise.all([
+        // Fetch from all tables including rentals and Arduino kits with updated column selections
+        const [productsRes, notesRes, roomsRes, rentalsRes, arduinoRes] = await Promise.all([
             supabase
                 .from('products')
                 .select(`
@@ -336,6 +390,14 @@ export async function fetchListings({ page = 1, limit = 12 } = {}) {
                     location, images, is_rented, seller_id, created_at, rental_duration,
                     available_from, available_until, delivery_options
                 `)
+                .order('created_at', { ascending: false }),
+            supabase
+                .from('arduino')
+                .select(`
+                    id, breadboard, arduino_uno_r3, servo_motor_sg90, led_red, led_green, 
+                    resistor_220_ohm, ultrasonic_sensor, other_components, 
+                    created_at, updated_at
+                `)
                 .order('created_at', { ascending: false })
         ]);
 
@@ -352,6 +414,47 @@ export async function fetchListings({ page = 1, limit = 12 } = {}) {
         if (rentalsRes.error) {
             console.error('[Action: fetchListings] Error fetching rentals:', rentalsRes.error.message);
         }
+        if (arduinoRes.error) {
+            console.error('[Action: fetchListings] Error fetching Arduino kits:', arduinoRes.error.message);
+        }
+
+        // Parse Arduino kits from JSON data
+        const arduinoKits = (arduinoRes.data || [])
+            .map(row => {
+                try {
+                    const productInfo = JSON.parse(row.other_components || '{}')
+                    if (!productInfo.title) return null
+                    
+                    return serializeDataForClient({
+                        id: row.id,
+                        title: productInfo.title,
+                        description: productInfo.description || '',
+                        price: productInfo.price || 0,
+                        category: productInfo.category || 'Project Equipment',
+                        college: productInfo.college || '',
+                        images: productInfo.images || [],
+                        breadboard: row.breadboard || false,
+                        arduino_uno_r3: row.arduino_uno_r3 || false,
+                        servo_motor_sg90: row.servo_motor_sg90 || false,
+                        led_red: row.led_red || false,
+                        led_green: row.led_green || false,
+                        resistor_220_ohm: row.resistor_220_ohm || false,
+                        ultrasonic_sensor: row.ultrasonic_sensor || false,
+                        location: productInfo.location || '',
+                        is_sold: productInfo.is_sold || false,
+                        seller_id: productInfo.seller_id,
+                        created_at: row.created_at,
+                        updated_at: row.updated_at,
+                        type: 'arduino_kit',
+                        table_type: 'arduino',
+                        component_count: productInfo.component_count || 0
+                    })
+                } catch (error) {
+                    console.error('Error parsing Arduino kit in fetchListings:', error)
+                    return null
+                }
+            })
+            .filter(kit => kit !== null);
 
         // Combine all listings and add type information with proper serialization
         const allListings = [
@@ -366,7 +469,8 @@ export async function fetchListings({ page = 1, limit = 12 } = {}) {
                 ...item, 
                 type: 'rental',
                 price: item.rental_price // Map rental_price to price for consistency
-            }))
+            })),
+            ...arduinoKits
         ];
 
         // Sort by created_at date (most recent first) since we already ordered in the queries
@@ -418,9 +522,9 @@ export async function fetchNewestProducts(limit = 4) {
     const supabase = createSupabaseServerClient();
 
     try {
-        let productsRes, notesRes, roomsRes, rentalsRes;
+        let productsRes, notesRes, roomsRes, rentalsRes, arduinoRes;
         try {
-            [productsRes, notesRes, roomsRes, rentalsRes] = await Promise.all([
+            [productsRes, notesRes, roomsRes, rentalsRes, arduinoRes] = await Promise.all([
             supabase
                 .from('products')
                 .select(`
@@ -455,6 +559,11 @@ export async function fetchNewestProducts(limit = 4) {
                     available_from, available_until, delivery_options
                 `)
                 .order('created_at', { ascending: false })
+                .limit(limit),
+            supabase
+                .from('arduino')
+                .select('*')
+                .order('created_at', { ascending: false })
                 .limit(limit)
         ]);
         } catch (err) {
@@ -469,6 +578,38 @@ export async function fetchNewestProducts(limit = 4) {
         }
         const notes = (notesRes.data || []).map(item => serializeDataForClient({ ...item, type: 'note' }));
 
+        // Parse Arduino kits
+        const arduinoKits = (arduinoRes.data || [])
+            .map(row => {
+                try {
+                    if (!row.other_components) return null
+                    
+                    const productInfo = JSON.parse(row.other_components)
+                    
+                    return serializeDataForClient({
+                        id: row.id,
+                        title: productInfo.title || 'Arduino Kit',
+                        description: productInfo.description || 'Arduino development kit',
+                        price: productInfo.price || 0,
+                        category: productInfo.category || 'electronics',
+                        condition: productInfo.condition || 'Used',
+                        college: productInfo.college || '',
+                        location: productInfo.location || '',
+                        is_sold: productInfo.is_sold || false,
+                        seller_id: productInfo.seller_id,
+                        created_at: row.created_at,
+                        updated_at: row.updated_at,
+                        type: 'arduino_kit',
+                        table_type: 'arduino',
+                        component_count: productInfo.component_count || 0
+                    })
+                } catch (error) {
+                    console.error('Error parsing Arduino kit in fetchNewestProducts:', error)
+                    return null
+                }
+            })
+            .filter(kit => kit !== null);
+
         const allNewest = [
             ...(productsRes.data || []).map(item => serializeDataForClient({ ...item, type: 'regular' })),
             ...notes,
@@ -477,11 +618,12 @@ export async function fetchNewestProducts(limit = 4) {
                 ...item, 
                 type: 'rental',
                 price: item.rental_price // Map rental_price to price for consistency
-            }))
+            })),
+            ...arduinoKits
         ];
 
         allNewest.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-        return allNewest.slice(0, limit * 3);
+        return allNewest.slice(0, limit * 4); // Increased from limit * 3 to limit * 4 for Arduino kits
 
     } catch (error) {
         console.error('[Action: fetchNewestProducts] Error:', error.message);
@@ -494,7 +636,7 @@ export async function fetchNewestProductsWithLocation(userLat, userLng, limit = 
     const supabase = createSupabaseServerClient();
 
     try {
-        const [productsRes, notesRes, roomsRes, rentalsRes] = await Promise.all([
+        const [productsRes, notesRes, roomsRes, rentalsRes, arduinoRes] = await Promise.all([
             supabase
                 .from('products')
                 .select(`
@@ -529,8 +671,51 @@ export async function fetchNewestProductsWithLocation(userLat, userLng, limit = 
                     available_from, available_until, delivery_options
                 `)
                 .order('created_at', { ascending: false })
+                .limit(limit * 2),
+            supabase
+                .from('arduino')
+                .select(`
+                    id, breadboard, motor, led, resistor, other_components, 
+                    created_at, updated_at
+                `)
+                .order('created_at', { ascending: false })
                 .limit(limit * 2)
         ]);
+
+        // Parse Arduino kits from JSON data
+        const arduinoKits = (arduinoRes.data || [])
+            .map(row => {
+                try {
+                    const productInfo = JSON.parse(row.other_components || '{}')
+                    if (!productInfo.title) return null
+                    
+                    return serializeDataForClient({
+                        id: row.id,
+                        title: productInfo.title,
+                        description: productInfo.description || '',
+                        price: productInfo.price || 0,
+                        category: productInfo.category || 'Project Equipment',
+                        college: productInfo.college || '',
+                        images: productInfo.images || [],
+                        breadboard: row.breadboard || false,
+                        motor: row.motor || false,
+                        led: row.led || false,
+                        resistor: row.resistor || false,
+                        location: productInfo.location || '',
+                        is_sold: productInfo.is_sold || false,
+                        seller_id: productInfo.seller_id,
+                        created_at: row.created_at,
+                        updated_at: row.updated_at,
+                        type: 'arduino_kit',
+                        table_type: 'arduino',
+                        component_count: productInfo.component_count || 0
+                    })
+                } catch (error) {
+                    console.error('Error parsing Arduino kit in fetchNewestProductsWithLocation:', error)
+                    return null
+                }
+            })
+            .filter(kit => kit !== null);
 
         // Combine all and get the newest across all tables
         const allNewest = [
@@ -541,7 +726,8 @@ export async function fetchNewestProductsWithLocation(userLat, userLng, limit = 
                 ...item, 
                 type: 'rental',
                 price: item.rental_price // Map rental_price to price for consistency
-            }))
+            })),
+            ...arduinoKits
         ];
 
         // Add distance calculations
@@ -581,7 +767,7 @@ export async function fetchNewestProductsWithLocation(userLat, userLng, limit = 
             return timeDiff;
         });
         
-        return itemsWithDistance.slice(0, limit * 3); // Return more for slider
+        return itemsWithDistance.slice(0, limit * 4); // Increased from limit * 3 to limit * 4 for Arduino kits
 
     } catch (error) {
         console.error('[Action: fetchNewestProductsWithLocation] Error:', error.message);

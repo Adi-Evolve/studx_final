@@ -183,6 +183,7 @@ async function ExploreListingsSection() {
                 if (item.type === 'room') return `/products/rooms/${item.id}`;
                 if (item.type === 'note') return `/products/notes/${item.id}`;
                 if (item.type === 'rental') return `/products/rentals/${item.id}`;
+                if (item.type === 'arduino_kit') return `/products/arduino/${item.id}`;
                 return `/products/regular/${item.id}`;
               };
 
@@ -206,7 +207,8 @@ async function ExploreListingsSection() {
                         <div className="text-4xl text-gray-400 dark:text-gray-500">
                           {item.type === 'room' ? '🏠' : 
                            item.type === 'note' ? '📚' : 
-                           item.type === 'rental' ? '�' : '�📦'}
+                           item.type === 'rental' ? '🔄' : 
+                           item.type === 'arduino_kit' ? '⚡' : '📦'}
                         </div>
                       )}
                       {item.type === 'rental' && (
@@ -223,6 +225,7 @@ async function ExploreListingsSection() {
                           item.type === 'room' ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200' : 
                           item.type === 'note' ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' : 
                           item.type === 'rental' ? 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 border-2 border-purple-300 dark:border-purple-600' :
+                          item.type === 'arduino_kit' ? 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200' :
                           'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200'
                         }`}>
                           {item.type === 'room' ? (
@@ -231,6 +234,8 @@ async function ExploreListingsSection() {
                             <>📚 Notes</>
                           ) : item.type === 'rental' ? (
                             <>🔄 Rental</>
+                          ) : item.type === 'arduino_kit' ? (
+                            <>⚡ Arduino Kit</>
                           ) : (
                             <>📦 Product</>
                           )}

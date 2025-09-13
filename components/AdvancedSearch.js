@@ -132,6 +132,10 @@ export default function AdvancedSearch({ onClose }) {
             path = `/products/rooms/${result.id}`;
         } else if (result.type === 'note') {
             path = `/products/notes/${result.id}`;
+        } else if (result.type === 'rental') {
+            path = `/products/rentals/${result.id}`;
+        } else if (result.type === 'arduino_kit') {
+            path = `/products/arduino/${result.id}`;
         } else {
             path = `/products/regular/${result.id}`;
         }

@@ -81,6 +81,63 @@ export async function GET(request) {
         allMatchingItems.push(...productsWithType)
         console.log(`[SEARCH API] Found ${productsData?.length || 0} matching products`)
       }
+
+      // Search Arduino table for Arduino kits
+      console.log('[SEARCH API] Searching Arduino kits...')
+      const { data: arduinoData, error: arduinoError } = await supabase
+        .from('arduino')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+      if (arduinoError) {
+        logError('ARDUINO_SEARCH', arduinoError)
+      } else {
+        // Parse Arduino kits and apply search filter
+        const arduinoKits = (arduinoData || [])
+          .map(row => {
+            try {
+              if (!row.other_components) return null
+              
+              const productInfo = JSON.parse(row.other_components)
+              
+              // Apply search filter
+              const searchMatch = 
+                productInfo.title?.toLowerCase().includes(query.toLowerCase()) ||
+                productInfo.description?.toLowerCase().includes(query.toLowerCase()) ||
+                productInfo.category?.toLowerCase().includes(query.toLowerCase()) ||
+                productInfo.other_components_text?.toLowerCase().includes(query.toLowerCase())
+              
+              if (!searchMatch) return null
+              
+              // Format as standard product
+              return {
+                id: row.id,
+                title: productInfo.title || 'Arduino Kit',
+                description: productInfo.description || 'Arduino development kit',
+                price: productInfo.price || 0,
+                category: productInfo.category || 'electronics',
+                condition: productInfo.condition || 'Used',
+                college: productInfo.college || '',
+                location: productInfo.location || '',
+                is_sold: productInfo.is_sold || false,
+                seller_id: productInfo.seller_id,
+                created_at: row.created_at,
+                updated_at: row.updated_at,
+                type: 'arduino_kit',
+                table_type: 'arduino',
+                component_count: productInfo.component_count || 0,
+                is_arduino_kit: true
+              }
+            } catch (error) {
+              console.error('Error parsing Arduino kit:', error)
+              return null
+            }
+          })
+          .filter(kit => kit !== null)
+        
+        allMatchingItems.push(...arduinoKits)
+        console.log(`[SEARCH API] Found ${arduinoKits.length} matching Arduino kits`)
+      }
     }
 
     // Search rooms table  

@@ -7,6 +7,7 @@ import ImageUploadWithOptimization from '../ImageUploadWithOptimization';
 import dynamic from 'next/dynamic';
 import { colleges } from '../../lib/colleges';
 import { getAvailableCategories, getUserPrivileges, isPrivilegedUser } from '../../lib/privilegedUsers';
+import ArduinoComponentsForm from './ArduinoComponentsForm';
 import toast from 'react-hot-toast';
 
 // Dynamically import the MapPicker to avoid SSR issues with Leaflet
@@ -42,6 +43,24 @@ export default function RegularProductForm({ initialData = {}, onSubmit, categor
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+        
+        // Reset Arduino kit state when category changes away from Project Equipment
+        if (name === 'category' && value !== 'Project Equipment') {
+            setIsArduinoKit(false);
+            setArduinoComponents({});
+            setOtherArduinoComponents('');
+        }
+    };
+
+    const handleArduinoComponentChange = (componentId, value) => {
+        setArduinoComponents(prev => ({
+            ...prev,
+            [componentId]: value
+        }));
+    };
+
+    const handleOtherArduinoComponentsChange = (value) => {
+        setOtherArduinoComponents(value);
     };
 
     const handleImagesChange = (files) => {
@@ -53,6 +72,11 @@ export default function RegularProductForm({ initialData = {}, onSubmit, categor
     };
 
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Arduino kit specific state
+    const [isArduinoKit, setIsArduinoKit] = useState(false);
+    const [arduinoComponents, setArduinoComponents] = useState({});
+    const [otherArduinoComponents, setOtherArduinoComponents] = useState('');
 
     // Check authentication status
     useEffect(() => {
@@ -313,6 +337,15 @@ export default function RegularProductForm({ initialData = {}, onSubmit, categor
                 formDataToSend.append('location', JSON.stringify(formData.location));
             }
             
+            // Add Arduino kit data if applicable
+            if (isArduinoKit) {
+                formDataToSend.append('isArduinoKit', 'true');
+                formDataToSend.append('arduinoComponents', JSON.stringify(arduinoComponents));
+                if (otherArduinoComponents) {
+                    formDataToSend.append('otherArduinoComponents', otherArduinoComponents);
+                }
+            }
+            
             // Add images as File objects
             if (formData.images && formData.images.length > 0) {
                 formData.images.forEach((image, index) => {
@@ -391,6 +424,11 @@ export default function RegularProductForm({ initialData = {}, onSubmit, categor
                 location: null,
                 category: '',
             });
+
+            // Reset Arduino kit state
+            setIsArduinoKit(false);
+            setArduinoComponents({});
+            setOtherArduinoComponents('');
 
             // Redirect to homepage after showing success message
             setTimeout(() => {
@@ -537,6 +575,62 @@ export default function RegularProductForm({ initialData = {}, onSubmit, categor
                     </select>
                 </div>
             </div>
+
+            {/* Arduino Kit Selection - Show only when Project Equipment is selected */}
+            {formData.category === 'Project Equipment' && (
+                <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-6">
+                    <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
+                        🔧 Is this an Arduino Kit?
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
+                        Select this option if you're selling an Arduino kit. This will allow you to specify exactly which components are included.
+                    </p>
+                    
+                    <div className="space-y-3">
+                        <label className="flex items-center space-x-3 cursor-pointer">
+                            <input
+                                type="radio"
+                                name="arduinoKitType"
+                                value="arduino"
+                                checked={isArduinoKit}
+                                onChange={() => setIsArduinoKit(true)}
+                                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                            />
+                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                🤖 Yes, this is an Arduino Kit (I'll specify components)
+                            </span>
+                        </label>
+                        
+                        <label className="flex items-center space-x-3 cursor-pointer">
+                            <input
+                                type="radio"
+                                name="arduinoKitType"
+                                value="other"
+                                checked={!isArduinoKit}
+                                onChange={() => {
+                                    setIsArduinoKit(false);
+                                    setArduinoComponents({});
+                                    setOtherArduinoComponents('');
+                                }}
+                                className="w-4 h-4 text-gray-600 bg-gray-100 border-gray-300 focus:ring-gray-500 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                            />
+                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                📦 No, this is other project equipment
+                            </span>
+                        </label>
+                    </div>
+                </div>
+            )}
+
+            {/* Arduino Components Form - Show only when Arduino Kit is selected */}
+            {isArduinoKit && (
+                <ArduinoComponentsForm
+                    selectedComponents={arduinoComponents}
+                    otherComponents={otherArduinoComponents}
+                    onComponentChange={handleArduinoComponentChange}
+                    onOtherComponentsChange={handleOtherArduinoComponentsChange}
+                />
+            )}
 
             <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Upload Images (up to 5)</label>

@@ -9,6 +9,8 @@ const getListingUrl = (item) => {
     const type = item.type;
     if (type === 'room') return `/products/rooms/${item.id}`;
     if (type === 'note') return `/products/notes/${item.id}`;
+    if (type === 'rental') return `/products/rentals/${item.id}`;
+    if (type === 'arduino_kit') return `/products/arduino/${item.id}`;
     return `/products/regular/${item.id}`;
 };
 

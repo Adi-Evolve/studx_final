@@ -15,6 +15,9 @@ const getListingUrl = (item) => {
     if (type === 'rental') {
         return `/products/rentals/${item.id}`;
     }
+    if (type === 'arduino_kit') {
+        return `/products/arduino/${item.id}`;
+    }
     return `/products/regular/${item.id}`;
 };
 

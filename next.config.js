@@ -32,9 +32,6 @@ const nextConfig = {
       },
     ],
   },
-  experimental: {
-    serverComponentsExternalPackages: [],
-  },
   // SSL configuration for development
   webpack: (config, { isServer }) => {
     if (!isServer) {
