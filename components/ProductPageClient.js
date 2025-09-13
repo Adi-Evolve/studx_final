@@ -260,11 +260,11 @@ export default function ProductPageClient({ product, seller, type }) {
                                 <div className="border-t dark:border-gray-700 pt-4 mt-4">
                                     <h3 className="text-lg font-semibold text-primary dark:text-white mb-3">Room Details</h3>
                                     <div className="space-y-3 text-sm text-gray-600 dark:text-gray-300">
-                                        <div className="flex items-center"><FontAwesomeIcon icon={faBed} className="w-4 mr-3 text-gray-400" />Room Type: <span className="font-semibold text-primary dark:text-white ml-1">{product.roomType || 'N/A'}</span></div>
+                                        <div className="flex items-center"><FontAwesomeIcon icon={faBed} className="w-4 mr-3 text-gray-400" />Room Type: <span className="font-semibold text-primary dark:text-white ml-1">{product.room_type || 'N/A'}</span></div>
                                         <div className="flex items-center"><FontAwesomeIcon icon={faUsers} className="w-4 mr-3 text-gray-400" />Occupancy: <span className="font-semibold text-primary dark:text-white ml-1">{product.occupancy || 'N/A'}</span></div>
                                         <div className="flex items-center"><FontAwesomeIcon icon={faRoute} className="w-4 mr-3 text-gray-400" />Distance: <span className="font-semibold text-primary dark:text-white ml-1">{product.distance} km from college</span></div>
                                         <div className="flex items-center"><FontAwesomeIcon icon={faShieldAlt} className="w-4 mr-3 text-gray-400" />Deposit: <span className="font-semibold text-primary dark:text-white ml-1">₹{product.deposit ? product.deposit.toLocaleString() : 'N/A'}</span></div>
-                                        <div className="flex items-center"><FontAwesomeIcon icon={faUtensils} className="w-4 mr-3 text-gray-400" /><span className="font-semibold text-primary dark:text-white ml-1">{product.feesIncludeMess ? 'Mess Fees Included' : 'Mess Fees Not Included'}</span></div>
+                                        <div className="flex items-center"><FontAwesomeIcon icon={faUtensils} className="w-4 mr-3 text-gray-400" /><span className="font-semibold text-primary dark:text-white ml-1">{product.fees_include_mess ? 'Mess Fees Included' : 'Mess Fees Not Included'}</span></div>
                                     </div>
                                 </div>
                             )}
