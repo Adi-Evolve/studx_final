@@ -1,5 +1,4 @@
-'use client';
-
+'use client'
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
@@ -10,10 +9,10 @@ import { getAvailableCategories, getUserPrivileges, isPrivilegedUser } from '../
 import ArduinoComponentsForm from './ArduinoComponentsForm';
 import toast from 'react-hot-toast';
 
-// Dynamically import the MapPicker to avoid SSR issues with Leaflet
-const MapPicker = dynamic(() => import('../MapPicker'), { 
+// Dynamically import the GoogleMapPicker to avoid SSR issues
+const GoogleMapPicker = dynamic(() => import('../GoogleMapPicker'), { 
     ssr: false,
-    loading: () => <div className="animate-pulse bg-gray-200 rounded-lg h-64 flex items-center justify-center">Loading map...</div>
+    loading: () => <div className="h-96 w-full bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">Loading map...</div>
 });
 
 // Placeholder data - in a real app, this would come from a database
@@ -651,7 +650,7 @@ export default function RegularProductForm({ initialData = {}, onSubmit, categor
 
             <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Set Location</label>
-                <MapPicker onLocationChange={handleLocationChange} initialLocation={formData.location} />
+                <GoogleMapPicker onLocationChange={handleLocationChange} initialLocation={formData.location} />
             </div>
 
             <div>

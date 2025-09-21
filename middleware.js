@@ -46,11 +46,11 @@ export async function middleware(request) {
   // Comprehensive Content Security Policy for browser extensions
   response.headers.set('Content-Security-Policy', 
     "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: chrome-extension: moz-extension: webkit-extension:; " +
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://unpkg.com chrome-extension: moz-extension: webkit-extension: data: blob:; " +
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://unpkg.com https://maps.googleapis.com chrome-extension: moz-extension: webkit-extension: data: blob:; " +
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com chrome-extension: moz-extension: webkit-extension:; " +
     "font-src 'self' https://fonts.gstatic.com data: chrome-extension: moz-extension: webkit-extension:; " +
-    "img-src 'self' data: https: http: blob: chrome-extension: moz-extension: webkit-extension:; " +
-    "connect-src 'self' https://vdpmumstdxgftaaxeacx.supabase.co https://api.razorpay.com https://api.imgbb.com chrome-extension: moz-extension: webkit-extension: wss: ws:; " +
+    "img-src 'self' data: https: http: blob: https://maps.googleapis.com https://maps.gstatic.com chrome-extension: moz-extension: webkit-extension:; " +
+    "connect-src 'self' https://vdpmumstdxgftaaxeacx.supabase.co https://api.razorpay.com https://api.imgbb.com https://maps.googleapis.com chrome-extension: moz-extension: webkit-extension: wss: ws:; " +
     "frame-src 'self' https://checkout.razorpay.com https://api.razorpay.com chrome-extension: moz-extension: webkit-extension:; " +
     "object-src 'none'; " +
     "base-uri 'self' data: chrome-extension: moz-extension: webkit-extension:; " +

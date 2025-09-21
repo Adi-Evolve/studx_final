@@ -1,4 +1,4 @@
-﻿'use client';
+﻿'use client'
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
@@ -6,10 +6,11 @@ import ImageUploadWithOptimization from '../ImageUploadWithOptimization';
 import dynamic from 'next/dynamic';
 import toast from 'react-hot-toast';
 import { colleges } from '../../lib/colleges';
-// Dynamically import the MapPicker to avoid SSR issues with Leaflet
-const MapPicker = dynamic(() => import('../MapPicker'), { 
+
+// Dynamically import the GoogleMapPicker to avoid SSR issues
+const GoogleMapPicker = dynamic(() => import('../GoogleMapPicker'), { 
     ssr: false,
-    loading: () => <div className="animate-pulse bg-gray-200 rounded-lg h-64 flex items-center justify-center">Loading map...</div>
+    loading: () => <div className="h-96 w-full bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">Loading map...</div>
 });
 // Placeholder data
 const roomTypes = ['Single Room', 'Double Room', '1 BHK', '2 BHK', '3 BHK', 'Shared Apartment'];
@@ -675,7 +676,7 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
                     </div>
                 )}
                 <div className="mb-6">
-                    <MapPicker onLocationChange={handleLocationChange} initialPosition={formData.location} />
+                    <GoogleMapPicker onLocationChange={handleLocationChange} initialPosition={formData.location} />
                 </div>
             </div>
             <div className="mt-8">

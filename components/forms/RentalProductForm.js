@@ -1,5 +1,4 @@
-'use client';
-
+'use client'
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
@@ -8,10 +7,10 @@ import dynamic from 'next/dynamic';
 import { colleges } from '../../lib/colleges';
 import toast from 'react-hot-toast';
 
-// Dynamically import the MapPicker to avoid SSR issues with Leaflet
-const MapPicker = dynamic(() => import('../MapPicker'), { 
+// Dynamically import the GoogleMapPicker to avoid SSR issues
+const GoogleMapPicker = dynamic(() => import('../GoogleMapPicker'), { 
     ssr: false,
-    loading: () => <div className="animate-pulse bg-gray-200 rounded-lg h-64 flex items-center justify-center">Loading map...</div>
+    loading: () => <div className="h-96 w-full bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">Loading map...</div>
 });
 
 // Rental-specific data
@@ -540,7 +539,7 @@ export default function RentalProductForm({ initialData = {}, onSubmit, category
                             Location (Optional)
                         </label>
                         <div className="h-64 border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
-                            <MapPicker onLocationChange={handleLocationChange} initialLocation={formData.location} />
+                            <GoogleMapPicker onLocationChange={handleLocationChange} initialLocation={formData.location} />
                         </div>
                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                             Pin your exact location to help renters find you easily
