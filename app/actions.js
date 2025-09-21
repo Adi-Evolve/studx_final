@@ -520,11 +520,12 @@ function parseLocationString(locationString) {
 // Action to fetch newest products from all tables (for homepage)
 export async function fetchNewestProducts(limit = 4) {
     const supabase = createSupabaseServerClient();
+    const PRIORITY_ARDUINO_ID = 'e8a8f0a5-4cac-4b43-810c-5704129ee974';
 
     try {
-        let productsRes, notesRes, roomsRes, rentalsRes, arduinoRes;
+        let productsRes, notesRes, roomsRes, rentalsRes, arduinoRes, priorityArduinoRes;
         try {
-            [productsRes, notesRes, roomsRes, rentalsRes, arduinoRes] = await Promise.all([
+            [productsRes, notesRes, roomsRes, rentalsRes, arduinoRes, priorityArduinoRes] = await Promise.all([
             supabase
                 .from('products')
                 .select(`
@@ -564,7 +565,7 @@ export async function fetchNewestProducts(limit = 4) {
                 .from('arduino')
                 .select('*')
                 .order('created_at', { ascending: false })
-                .limit(limit)
+                .limit(limit * 2)
         ]);
         } catch (err) {
             console.error('[fetchNewestProducts] DB fetch error:', err);
@@ -578,40 +579,63 @@ export async function fetchNewestProducts(limit = 4) {
         }
         const notes = (notesRes.data || []).map(item => serializeDataForClient({ ...item, type: 'note' }));
 
-        // Parse Arduino kits
-        const arduinoKits = (arduinoRes.data || [])
-            .map(row => {
-                try {
-                    if (!row.other_components) return null
-                    
-                    const productInfo = JSON.parse(row.other_components)
-                    
-                    return serializeDataForClient({
-                        id: row.id,
-                        title: productInfo.title || 'Arduino Kit',
-                        description: productInfo.description || 'Arduino development kit',
-                        price: productInfo.price || 0,
-                        category: productInfo.category || 'electronics',
-                        condition: productInfo.condition || 'Used',
-                        college: productInfo.college || '',
-                        location: productInfo.location || '',
-                        is_sold: productInfo.is_sold || false,
-                        seller_id: productInfo.seller_id,
-                        created_at: row.created_at,
-                        updated_at: row.updated_at,
-                        type: 'arduino_kit',
-                        table_type: 'arduino',
-                        component_count: productInfo.component_count || 0
-                    })
-                } catch (error) {
-                    console.error('Error parsing Arduino kit in fetchNewestProducts:', error)
-                    return null
+        // Parse Arduino kits and separate priority kit
+        let priorityArduinoFromTable = null;
+        const arduinoKits = [];
+        
+        (arduinoRes.data || []).forEach(row => {
+            try {
+                if (!row.other_components) return;
+                
+                const productInfo = JSON.parse(row.other_components);
+                
+                const arduinoItem = serializeDataForClient({
+                    id: row.id,
+                    title: productInfo.title || 'Arduino Kit',
+                    description: productInfo.description || 'Arduino development kit',
+                    price: productInfo.price || 0,
+                    category: productInfo.category || 'electronics',
+                    condition: productInfo.condition || 'Used',
+                    college: productInfo.college || '',
+                    location: productInfo.location || '',
+                    is_sold: productInfo.is_sold || false,
+                    seller_id: productInfo.seller_id,
+                    created_at: row.created_at,
+                    updated_at: row.updated_at,
+                    type: 'arduino_kit',
+                    table_type: 'arduino',
+                    component_count: productInfo.component_count || 0
+                });
+                
+                // Check if this is the priority Arduino kit
+                if (productInfo.seller_id === PRIORITY_ARDUINO_ID) {
+                    priorityArduinoFromTable = arduinoItem;
+                } else {
+                    arduinoKits.push(arduinoItem);
                 }
+            } catch (error) {
+                console.error('Error parsing Arduino kit in fetchNewestProducts:', error);
+            }
+        });
+
+        // Separate priority Arduino from regular products
+        let priorityArduino = null;
+        const regularProducts = (productsRes.data || [])
+            .map(item => {
+                const product = serializeDataForClient({ ...item, type: 'regular' });
+                
+                // Check if this is our priority Arduino kit
+                if (item.id === PRIORITY_ARDUINO_ID) {
+                    priorityArduino = product;
+                    return null; // Don't include in regular list
+                }
+                
+                return product;
             })
-            .filter(kit => kit !== null);
+            .filter(item => item !== null);
 
         const allNewest = [
-            ...(productsRes.data || []).map(item => serializeDataForClient({ ...item, type: 'regular' })),
+            ...regularProducts,
             ...notes,
             ...(roomsRes.data || []).map(item => serializeDataForClient({ ...item, type: 'room' })),
             ...(rentalsRes.data || []).map(item => serializeDataForClient({ 
@@ -623,6 +647,12 @@ export async function fetchNewestProducts(limit = 4) {
         ];
 
         allNewest.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+        // Insert priority Arduino at the front if present
+        if (priorityArduino) {
+            allNewest.unshift(priorityArduino);
+        }
+
         return allNewest.slice(0, limit * 4); // Increased from limit * 3 to limit * 4 for Arduino kits
 
     } catch (error) {
@@ -634,6 +664,7 @@ export async function fetchNewestProducts(limit = 4) {
 // Action to fetch newest products with location-based sorting
 export async function fetchNewestProductsWithLocation(userLat, userLng, limit = 4) {
     const supabase = createSupabaseServerClient();
+    const PRIORITY_ARDUINO_ID = 'e8a8f0a5-4cac-4b43-810c-5704129ee974';
 
     try {
         const [productsRes, notesRes, roomsRes, rentalsRes, arduinoRes] = await Promise.all([
@@ -682,14 +713,15 @@ export async function fetchNewestProductsWithLocation(userLat, userLng, limit = 
                 .limit(limit * 2)
         ]);
 
-        // Parse Arduino kits from JSON data
+        // Parse Arduino kits from JSON data and separate priority kit
+        let priorityArduinoFromTable = null;
         const arduinoKits = (arduinoRes.data || [])
             .map(row => {
                 try {
                     const productInfo = JSON.parse(row.other_components || '{}')
                     if (!productInfo.title) return null
                     
-                    return serializeDataForClient({
+                    const kit = serializeDataForClient({
                         id: row.id,
                         title: productInfo.title,
                         description: productInfo.description || '',
@@ -710,6 +742,14 @@ export async function fetchNewestProductsWithLocation(userLat, userLng, limit = 
                         table_type: 'arduino',
                         component_count: productInfo.component_count || 0
                     })
+                    
+                    // Check if this is our priority Arduino kit
+                    if (productInfo.seller_id === PRIORITY_ARDUINO_ID) {
+                        priorityArduinoFromTable = kit;
+                        return null; // Don't include in regular list
+                    }
+                    
+                    return kit;
                 } catch (error) {
                     console.error('Error parsing Arduino kit in fetchNewestProductsWithLocation:', error)
                     return null
@@ -717,9 +757,25 @@ export async function fetchNewestProductsWithLocation(userLat, userLng, limit = 
             })
             .filter(kit => kit !== null);
 
+        // Separate priority Arduino from regular products
+        let priorityArduino = null;
+        const regularProducts = (productsRes.data || [])
+            .map(item => {
+                const product = serializeDataForClient({ ...item, type: 'regular' });
+                
+                // Check if this is our priority Arduino kit
+                if (item.id === PRIORITY_ARDUINO_ID) {
+                    priorityArduino = product;
+                    return null; // Don't include in regular list
+                }
+                
+                return product;
+            })
+            .filter(item => item !== null);
+
         // Combine all and get the newest across all tables
         const allNewest = [
-            ...(productsRes.data || []).map(item => serializeDataForClient({ ...item, type: 'regular' })),
+            ...regularProducts,
             ...(notesRes.data || []).map(item => serializeDataForClient({ ...item, type: 'note' })),
             ...(roomsRes.data || []).map(item => serializeDataForClient({ ...item, type: 'room' })),
             ...(rentalsRes.data || []).map(item => serializeDataForClient({ 
@@ -766,6 +822,24 @@ export async function fetchNewestProductsWithLocation(userLat, userLng, limit = 
             
             return timeDiff;
         });
+        
+        // Insert priority Arduino at the front if present
+        if (priorityArduino) {
+            // Add distance to priority Arduino if location is available
+            let distance = null;
+            if (priorityArduino.location && userLat && userLng) {
+                try {
+                    const coords = parseLocationString(priorityArduino.location);
+                    if (coords) {
+                        distance = calculateDistance(userLat, userLng, coords.lat, coords.lng);
+                    }
+                } catch (e) {
+                    // If parsing fails, distance remains null
+                }
+            }
+            priorityArduino.distance = distance;
+            itemsWithDistance.unshift(priorityArduino);
+        }
         
         return itemsWithDistance.slice(0, limit * 4); // Increased from limit * 3 to limit * 4 for Arduino kits
 
