@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 
 // Enhanced error logging
 function logError(context, error, data = {}) {
-  // console.error(`[SELL API ${context}]:`, {
+  console.error(`[SELL API ${context}]:`, {
     message: error.message,
     stack: error.stack?.substring(0, 500),
     data,
@@ -20,14 +20,14 @@ const ENV_CHECK = {
   nodeEnv: process.env.NODE_ENV
 }
 
-// console.log('[SELL API] Environment check:', ENV_CHECK)
+console.log('[SELL API] Environment check:', ENV_CHECK)
 
 // Initialize Supabase with your exact variable name
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseKey = process.env.SUPABASE_SECRET_KEY
 
 if (!supabaseUrl || !supabaseKey) {
-  // console.error('[SELL API] Missing environment variables:', {
+  console.error('[SELL API] Missing environment variables:', {
     hasUrl: !!supabaseUrl,
     hasKey: !!supabaseKey,
     availableKeys: Object.keys(process.env).filter(k => k.includes('SUPABASE'))
@@ -44,7 +44,7 @@ async function uploadImageToImgBB(imageBase64) {
       throw new Error('ImgBB API key not found')
     }
 
-    // console.log('[SELL API] Uploading image to ImgBB...')
+    console.log('[SELL API] Uploading image to ImgBB...')
     
     const formData = new FormData()
     formData.append('key', imgbbApiKey)
@@ -65,7 +65,7 @@ async function uploadImageToImgBB(imageBase64) {
       throw new Error(`ImgBB API error: ${result.error?.message || 'Unknown error'}`)
     }
 
-    // console.log('[SELL API] Image uploaded successfully')
+    console.log('[SELL API] Image uploaded successfully')
     return result.data.url
   } catch (error) {
     logError('IMAGE_UPLOAD', error, { hasApiKey: !!process.env.IMGBB_API_KEY })
@@ -95,13 +95,13 @@ export async function GET() {
 // POST endpoint for selling items
 export async function POST(request) {
   try {
-    // console.log('[SELL API] POST request received')
+    console.log('[SELL API] POST request received')
 
     // Parse request body
     let body
     try {
       body = await request.json()
-      // console.log('[SELL API] Request body parsed:', { 
+      console.log('[SELL API] Request body parsed:', { 
         type: body.type, 
         hasImage: !!body.image,
         userEmail: body.userEmail 
@@ -124,7 +124,7 @@ export async function POST(request) {
       }, { status: 400 })
     }
 
-    // console.log('[SELL API] Validating user...')
+    console.log('[SELL API] Validating user...')
 
     // Check if user exists
     const { data: userData, error: userError } = await supabase
@@ -142,15 +142,15 @@ export async function POST(request) {
       }, { status: 401 })
     }
 
-    // console.log('[SELL API] User validated:', userData.id)
+    console.log('[SELL API] User validated:', userData.id)
 
     // Handle image upload if present
     let imageUrl = null
     if (body.image) {
       try {
-        // console.log('[SELL API] Processing image upload...')
+        console.log('[SELL API] Processing image upload...')
         imageUrl = await uploadImageToImgBB(body.image)
-        // console.log('[SELL API] Image uploaded:', imageUrl)
+        console.log('[SELL API] Image uploaded:', imageUrl)
       } catch (imageError) {
         logError('IMAGE_UPLOAD_FAIL', imageError)
         return NextResponse.json({ 
@@ -219,7 +219,7 @@ export async function POST(request) {
       }, { status: 400 })
     }
 
-    // console.log(`[SELL API] Inserting into ${tableName}...`)
+    console.log(`[SELL API] Inserting into ${tableName}...`)
 
     // Insert into database
     const { data, error: insertError } = await supabase
@@ -237,7 +237,7 @@ export async function POST(request) {
       }, { status: 500 })
     }
 
-    // console.log('[SELL API] Successfully created listing:', data.id)
+    console.log('[SELL API] Successfully created listing:', data.id)
 
     return NextResponse.json({
       success: true,

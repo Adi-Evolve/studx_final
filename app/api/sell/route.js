@@ -224,8 +224,114 @@ export async function POST(request) {
         }, { status: 500 });
       }
       
-    } else {
-      // For regular products, save to products table
+    }
+    
+    // Handle room listings (rooms/flats/hostels) and save to `rooms` table
+    if (body.type === 'room') {
+      try {
+        console.log('Processing room listing - saving to rooms table');
+
+        // Collect image URLs (upload files to ImgBB if File-like objects present)
+        const imageUrls = [];
+        
+        const imagesField = body.images || body.images?.length ? body.images : null;
+        if (imagesField && Array.isArray(imagesField)) {
+          // Handle File objects or URLs
+          for (const img of imagesField) {
+            if (typeof img === 'string') {
+              imageUrls.push(img);
+            }
+          }
+        }
+
+        // Parse amenities if it's a JSON string
+        let amenitiesArray = [];
+        if (body.amenities) {
+          if (typeof body.amenities === 'string') {
+            try {
+              amenitiesArray = JSON.parse(body.amenities);
+            } catch {
+              amenitiesArray = [body.amenities];
+            }
+          } else if (Array.isArray(body.amenities)) {
+            amenitiesArray = body.amenities;
+          }
+        }
+
+        // Prepare room data for insertion
+        const roomData = {
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          seller_id: userData.id,
+          title: body.title || 'Unnamed Room',
+          description: body.description || '',
+          images: imageUrls.length > 0 ? imageUrls : null,
+          price: body.price !== undefined ? Math.max(0, parseFloat(body.price) || 0) : (body.fees ? Math.max(0, parseFloat(body.fees) || 0) : null),
+          fees: body.fees ? parseFloat(body.fees) : null,
+          fees_period: body.duration || body.feesPeriod || 'monthly',
+          category: body.category || 'Rooms/Hostel',
+          college: body.college || '',
+          room_type: body.roomType || body.room_type || '',
+          occupancy: body.occupancy || '',
+          owner_name: body.ownerName || body.owner_name || '',
+          contact1: body.contact1 || '',
+          contact2: body.contact2 || null,
+          deposit: body.deposit ? parseFloat(body.deposit) : null,
+          distance: body.distance || null,
+          fees_include_mess: body.feesIncludeMess || false,
+          mess_fees: body.messType || body.mess_fees || null,
+          amenities: amenitiesArray.length > 0 ? amenitiesArray : null,
+          location: body.location || null,
+          is_sold: false
+        };
+
+        console.log('Room data prepared for insertion:', {
+          title: roomData.title,
+          category: roomData.category,
+          college: roomData.college,
+          seller_id: roomData.seller_id
+        });
+
+        const { data: insertedRoom, error: insertError } = await supabase
+          .from('rooms')
+          .insert(roomData)
+          .select()
+          .single();
+
+        if (insertError) {
+          console.error('Rooms insert error:', insertError);
+          return NextResponse.json({ 
+            success: false, 
+            error: 'Failed to create room listing',
+            details: insertError.message 
+          }, { status: 500 });
+        }
+
+        console.log('✅ Room listing created successfully:', insertedRoom.id);
+
+        return NextResponse.json({ 
+          success: true, 
+          message: 'Room listing created successfully',
+          id: insertedRoom.id,
+          data: {
+            id: insertedRoom.id,
+            title: insertedRoom.title,
+            table: 'rooms'
+          }
+        });
+
+      } catch (err) {
+        console.error('Room handling error:', err);
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Failed to process room listing',
+          details: err.message 
+        }, { status: 500 });
+      }
+    }
+    
+    // For regular products, save to products table
+    if (body.type === 'product' || !body.type) {
       const insertData = {
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),

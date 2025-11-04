@@ -125,6 +125,11 @@ export default function RentalProductForm({ initialData = {}, onSubmit, category
             }
         }
 
+        // Image validation - require at least 1 image
+        if (!formData.images || formData.images.length === 0) {
+            return 'Please upload at least 1 image of your rental item.';
+        }
+
         if (parseFloat(formData.rental_price) <= 0) {
             return 'Rental price must be greater than 0.';
         }

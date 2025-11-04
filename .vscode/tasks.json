@@ -4,10 +4,17 @@
 		{
 			"label": "Start Expo App",
 			"type": "shell",
-		"command": "cd studx-app; npx expo start",
+			"command": "cd studx-app; npx expo start",
 			"group": "build",
 			"isBackground": true,
 			"problemMatcher": []
+		},
+		{
+			"label": "Start StudX Next.js App",
+			"type": "shell",
+			"command": "npm run dev",
+			"isBackground": true,
+			"group": "build"
 		}
 	]
 }

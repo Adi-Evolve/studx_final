@@ -280,6 +280,12 @@ export default function RegularProductForm({ initialData = {}, onSubmit, categor
             return;
         }
 
+        // Image validation - require at least 1 image
+        if (!formData.images || formData.images.length === 0) {
+            toast.error('Please upload at least 1 image for your product');
+            return;
+        }
+
         if (isNaN(parseFloat(formData.price)) || parseFloat(formData.price) <= 0) {
             toast.error('Please enter a valid price');
             return;

@@ -89,7 +89,7 @@ export default function FunnyAdvertisingBanner() {
     const banner = funnyBanners[currentBanner];
 
     return (
-        <div className="relative overflow-hidden group">
+        <div className="relative overflow-hidden group w-full">
             {/* Mobile navigation indicator */}
             {isMobile && (
                 <div className="absolute top-4 right-4 z-20 bg-black/30 text-white text-xs px-2 py-1 rounded-full backdrop-blur-sm">
@@ -97,7 +97,7 @@ export default function FunnyAdvertisingBanner() {
                 </div>
             )}
 
-            <div className={`bg-gradient-to-r ${banner.bgGradient} py-8 md:py-12 px-4 sm:px-6 lg:px-8 transition-all duration-1000 ease-in-out relative`}>
+            <div className={`bg-gradient-to-r ${banner.bgGradient} py-8 md:py-12 px-4 sm:px-6 lg:px-8 transition-all duration-1000 ease-in-out relative w-full`}>
                 {/* Navigation Arrows - Always visible on mobile for manual control */}
                 <button
                     onClick={prevBanner}

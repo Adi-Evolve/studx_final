@@ -1010,3 +1010,29 @@ export async function submitReview({ roomId, rating, comment }) {
         return { error: 'Failed to submit review' };
     }
 }
+
+// Action to fetch mess listings
+export async function fetchMess() {
+    const supabaseAdmin = createSupabaseAdminClient();
+    
+    try {
+        const { data, error } = await supabaseAdmin
+            .from('mess')
+            .select(`
+                id, name, description, location, hostel_name, available_foods, 
+                current_menu, menu_meal_type, average_rating, total_ratings,
+                created_at, updated_at
+            `)
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            console.error('[fetchMess] Database error:', error.message);
+            return { data: [], error: error.message };
+        }
+
+        return { data: data || [], error: null };
+    } catch (error) {
+        console.error('[fetchMess] Unexpected error:', error.message);
+        return { data: [], error: 'Failed to fetch mess listings' };
+    }
+}

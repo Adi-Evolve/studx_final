@@ -14,6 +14,7 @@ const categories = [
     { value: 'regular', label: 'Hostel Equipment' },
     { value: 'notes', label: 'Notes' },
     { value: 'rooms', label: 'Rooms/Hostel' },
+    { value: 'rooms', label: 'Flat' },
     { value: 'regular', label: 'Others' },
     { value: 'regular', label: 'Electronics' }
 ];

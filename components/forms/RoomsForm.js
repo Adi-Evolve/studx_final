@@ -15,7 +15,7 @@ const GoogleMapPicker = dynamic(() => import('../GoogleMapPicker'), {
 // Placeholder data
 const roomTypes = ['Single Room', 'Double Room', '1 BHK', '2 BHK', '3 BHK', 'Shared Apartment'];
 const amenitiesList = ['AC', 'WiFi', 'Washing Machine', 'Furnished', 'Refrigerator', 'Parking', 'Hot Water'];
-const categories = ['Laptops', 'Project Equipment', 'Books', 'Cycle/Bike', 'Hostel Equipment', 'Notes', 'Rooms/Hostel', 'Furniture', 'Others'];
+const categories = ['Laptops', 'Project Equipment', 'Books', 'Cycle/Bike', 'Hostel Equipment', 'Notes', 'Rooms/Hostel', 'Flat', 'Furniture', 'Others'];
 export default function RoomsForm({ initialData = {}, onSubmit, category = 'Rooms/Hostel', isEditMode = false }) {
     const router = useRouter();
     const supabase = createSupabaseBrowserClient();
@@ -291,6 +291,13 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
             toast.error('Please fill in all required fields');
             return;
         }
+        
+        // Image validation - require at least 1 image
+        if (!formData.images || formData.images.length === 0) {
+            toast.error('Please upload at least 1 image of the room');
+            return;
+        }
+        
         if (isNaN(parseFloat(formData.fees)) || parseFloat(formData.fees) <= 0) {
             toast.error('Please enter a valid rent amount');
             return;
@@ -457,12 +464,18 @@ export default function RoomsForm({ initialData = {}, onSubmit, category = 'Room
     return (
         <form onSubmit={handleSubmit} className="space-y-8">
             <div>
-                <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200">List a Room/Hostel</h2>
-                <p className="text-gray-600 dark:text-gray-400">Provide details about the room or hostel you want to list.</p>
+                <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200">
+                    List a {category === 'Flat' ? 'Flat' : 'Room/Hostel'}
+                </h2>
+                <p className="text-gray-600 dark:text-gray-400">
+                    Provide details about the {category === 'Flat' ? 'flat' : 'room or hostel'} you want to list.
+                </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label htmlFor="hostel_name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Hostel/Building Name</label>
+                    <label htmlFor="hostel_name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {category === 'Flat' ? 'Property/Building Name' : 'Hostel/Building Name'}
+                    </label>
                     <input 
                         type="text" 
                         name="hostel_name" 

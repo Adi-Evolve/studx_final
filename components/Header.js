@@ -161,6 +161,7 @@ export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [isMessOwner, setIsMessOwner] = useState(false);
     const supabase = createSupabaseBrowserClient();
     const router = useRouter();
     const profileMenuRef = useRef(null);
@@ -173,6 +174,11 @@ export default function Header() {
             const { data: { session } } = await supabase.auth.getSession();
             setUser(session?.user ?? null);
             setLoading(false);
+            
+            // Check mess owner status if user exists
+            if (session?.user) {
+                checkMessOwnerStatus(session.user.id);
+            }
         };
 
         getInitialSession();
@@ -183,6 +189,11 @@ export default function Header() {
             setLoading(false);
             if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
                 router.refresh();
+                if (session?.user) {
+                    checkMessOwnerStatus(session.user.id);
+                }
+            } else if (event === 'SIGNED_OUT') {
+                setIsMessOwner(false);
             }
         });
 
@@ -190,6 +201,22 @@ export default function Header() {
             authListener.subscription.unsubscribe();
         };
     }, [supabase, router]);
+
+    // Check if user is a mess owner
+    const checkMessOwnerStatus = async (userId) => {
+        try {
+            const { data } = await supabase
+                .from('mess')
+                .select('id')
+                .eq('owner_id', userId)
+                .single();
+            
+            setIsMessOwner(!!data);
+        } catch (error) {
+            // Ignore error, user is not a mess owner
+            setIsMessOwner(false);
+        }
+    };
 
     const handleLogout = async () => {
         await supabase.auth.signOut();
@@ -214,7 +241,7 @@ export default function Header() {
 
     return (
         <>
-            <header className="bg-white dark:bg-gray-900 shadow-md dark:shadow-gray-800 sticky top-0 z-40 transition-colors duration-300">
+            <header className="bg-white dark:bg-gray-900 shadow-md dark:shadow-gray-800 sticky top-0 z-50 transition-colors duration-300">
                 <nav className="container mx-auto px-4 py-4 flex justify-between items-center">
                     {/* StudXchange Text Only - No Logo */}
                     <Link href={user ? "/" : "/"} className="flex items-center hover:scale-105 transition-transform duration-300 group">
@@ -285,6 +312,25 @@ export default function Header() {
                                                 <FontAwesomeIcon icon={faUser} className="w-4 h-4 mr-3" />
                                                 Profile
                                             </Link>
+                                            {isMessOwner ? (
+                                                <Link 
+                                                    href="/profile/mess" 
+                                                    className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                                                    onClick={() => setIsProfileMenuOpen(false)}
+                                                >
+                                                    <span className="w-4 h-4 mr-3 text-orange-500">🍽️</span>
+                                                    My Mess Portal
+                                                </Link>
+                                            ) : (
+                                                <Link 
+                                                    href="/profile/mess" 
+                                                    className="block px-4 py-2 text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors"
+                                                    onClick={() => setIsProfileMenuOpen(false)}
+                                                >
+                                                    <span className="w-4 h-4 mr-3">🍽️</span>
+                                                    Register Your Mess
+                                                </Link>
+                                            )}
                                             <button 
                                                 onClick={handleLogout}
                                                 className="w-full text-left px-4 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"

@@ -140,6 +140,13 @@ export default function NotesForm({ initialData = {}, onSubmit, category = 'Note
             toast.error('Please fill in all required fields');
             return;
         }
+        
+        // Image validation - require at least 1 image
+        if (!formData.images || formData.images.length === 0) {
+            toast.error('Please upload at least 1 image of your notes');
+            return;
+        }
+        
         if (isNaN(parseFloat(formData.price)) || parseFloat(formData.price) <= 0) {
             toast.error('Please enter a valid price');
             return;

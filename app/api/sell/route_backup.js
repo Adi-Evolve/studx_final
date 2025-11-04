@@ -1,454 +1,417 @@
 ﻿import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
-// Initialize Supabase
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseKey = process.env.SUPABASE_SECRET_KEY
-const supabase = createClient(supabaseUrl, supabaseKey)
-
-// Security: Rate limiting storage
-const rateLimitStore = new Map()
-
-function rateLimit(identifier, maxRequests = 50, windowMs = 15 * 60 * 1000) {
-  const now = Date.now()
-  const windowStart = now - windowMs
-  
-  if (!rateLimitStore.has(identifier)) {
-    rateLimitStore.set(identifier, [])
-  }
-  
-  const requests = rateLimitStore.get(identifier)
-  const validRequests = requests.filter(timestamp => timestamp > windowStart)
-  
-  if (validRequests.length >= maxRequests) {
-    return false
-  }
-  
-  validRequests.push(now)
-  rateLimitStore.set(identifier, validRequests)
-  return true
-}
-
-// Security: Input validation
-function validateAndSanitizeInput(input, maxLength = 1000) {
-  if (!input) return null
-  
-  let sanitized = input.toString().trim()
-  sanitized = sanitized.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-  sanitized = sanitized.replace(/javascript:/gi, '')
-  sanitized = sanitized.replace(/on\w+\s*=/gi, '')
-  
-  if (sanitized.length > maxLength) {
-    throw new Error(`Input too long. Maximum ${maxLength} characters allowed.`)
-  }
-  
-  return sanitized
-}
-
-// Secure image upload
-async function uploadImageToImgBB(imageBase64) {
-  const imgbbApiKey = process.env.IMGBB_API_KEY
-  if (!imgbbApiKey) {
-    throw new Error('ImgBB API key not configured')
-  }
-
-  // Validate image size (limit to 10MB)
-  const imageSizeKB = (imageBase64.length * 3) / 4 / 1024
-  if (imageSizeKB > 10240) {
-    throw new Error('Image too large. Maximum 10MB allowed.')
-  }
-
-  const formData = new FormData()
-  formData.append('image', imageBase64)
-
-  const response = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbApiKey}`, {
-    method: 'POST',
-    body: formData
-  })
-
-  if (!response.ok) {
-    throw new Error(`Image upload failed: ${response.status}`)
-  }
-
-  const result = await response.json()
-  
-  if (!result.success) {
-    throw new Error(`Image upload error: ${result.error?.message || 'Unknown error'}`)
-  }
-
-  return result.data.url
-}
-
-// Secure API response
-function secureAPIResponse(data, status = 200) {
-  return NextResponse.json({
-    success: status < 400,
-    data: status < 400 ? data : null,
-    error: status >= 400 ? data : null,
-    timestamp: new Date().toISOString()
-  }, {
-    status,
-    headers: {
-      'X-Content-Type-Options': 'nosniff',
-      'X-Frame-Options': 'DENY',
-      'Cache-Control': 'no-store, no-cache, must-revalidate',
+// Enhanced logging function
+function logError(context, error, additionalInfo = {}) {
+  console.error(`[SELL API ERROR - ${context}]:`, {
+    error: error.message,
+    stack: error.stack,
+    additionalInfo,
+    timestamp: new Date().toISOString(),
+    env: {
+      hasSupabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+      hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+      hasImgbbKey: !!process.env.IMGBB_API_KEY,
+      nodeEnv: process.env.NODE_ENV
     }
   })
 }
 
-// GET endpoint - Health check with security
-export async function GET(request) {
+// Initialize Supabase client with error handling
+let supabase
+try {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  // Try both possible environment variable names for the service key
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY
+
+  if (!supabaseUrl) {
+    throw new Error('NEXT_PUBLIC_SUPABASE_URL environment variable is missing')
+  }
+  if (!supabaseServiceKey) {
+    throw new Error('SUPABASE_SERVICE_ROLE_KEY or SUPABASE_SECRET_KEY environment variable is missing')
+  }
+
+  supabase = createClient(supabaseUrl, supabaseServiceKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  })
+
+  console.log('[SELL API] Supabase client initialized successfully')
+} catch (initError) {
+  console.error('[SELL API] Failed to initialize Supabase:', initError.message)
+}
+
+// ImgBB upload function with better error handling
+async function uploadImageToImgBB(file) {
+  const IMGBB_API_KEY = process.env.IMGBB_API_KEY
+  
+  if (!IMGBB_API_KEY) {
+    throw new Error('IMGBB_API_KEY environment variable is not set')
+  }
+
+  // Validate file
+  if (!file || !file.name || !file.type) {
+    throw new Error('Invalid file object')
+  }
+
+  // Check file size (ImgBB has a 32MB limit)
+  const maxImageSize = 32 * 1024 * 1024 // 32MB
+  if (file.size > maxImageSize) {
+    throw new Error(`Image file "${file.name}" is too large. Maximum size is 32MB.`)
+  }
+
+  // Check file type
+  if (!file.type.startsWith('image/')) {
+    throw new Error(`File "${file.name}" is not a valid image file`)
+  }
+
   try {
-    // Rate limiting
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown'
-    if (!rateLimit(ip, 100)) {
-      return secureAPIResponse('Rate limit exceeded', 429)
-    }
+    const formData = new FormData()
+    formData.append('image', file)
 
-    return secureAPIResponse({
-      message: '🔒 StudX Sell API - Secured',
-      status: 'active',
-      timestamp: new Date().toISOString(),
-      security: 'enabled'
+    const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+      method: 'POST',
+      body: formData,
     })
-  } catch (error) {
-    console.error('🚨 GET API Error:', error)
-    return secureAPIResponse('Internal server error', 500)
+
+    const result = await response.json()
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.error?.message || `ImgBB upload failed with status ${response.status}`)
+    }
+
+    return result.data.url
+  } catch (uploadError) {
+    console.error('[IMGBB] Upload error:', uploadError)
+    throw uploadError
   }
 }
 
-// POST endpoint with comprehensive security
-export async function POST(request) {
-  console.log('🚀 [API] POST /api/sell - Request received at', new Date().toISOString());
-  console.log('🚀 [API] Request URL:', request.url);
-  console.log('🚀 [API] Request method:', request.method);
-  
+// Authentication function
+async function authenticateUser(userEmail) {
+  if (!userEmail) {
+    throw new Error('User email is required')
+  }
+
   try {
-// POST endpoint with comprehensive security
-export async function POST(request) {
-  console.log('🚀 [API] POST /api/sell - Request received at', new Date().toISOString());
-  console.log('🚀 [API] Request URL:', request.url);
-  console.log('🚀 [API] Request method:', request.method);
-  
-  try {
-    console.log('🚀 [API] POST /api/sell - Request received');
-    
-    // Rate limiting
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown'
-    console.log('🌐 [API] IP address:', ip);
-    
-    if (!rateLimit(ip, 10)) {
-      console.log('❌ [API] Rate limit exceeded for IP:', ip);
-      return secureAPIResponse('Rate limit exceeded. Try again later.', 429)
-    }
-
-    const contentType = request.headers.get('content-type') || ''
-    console.log('📋 [API] Content-Type:', contentType);
-    
-    let body = {}
-    let isFormData = false
-
-    // Handle FormData or JSON
-    if (contentType.includes('multipart/form-data')) {
-      console.log('📦 [API] Processing FormData...');
-      isFormData = true
-      const formData = await request.formData()
-      
-      for (const [key, value] of formData.entries()) {
-        console.log(`📝 [API] FormData entry: ${key} = ${typeof value === 'string' ? value.substring(0, 100) : '[File]'}`);
-        
-        if (key === 'user') {
-          try {
-            body.user = JSON.parse(value)
-            console.log('👤 [API] User data parsed:', body.user?.email);
-          } catch (err) {
-            console.error('❌ [API] Failed to parse user data:', err);
-            body.user = null
-          }
-        } else if (key === 'location') {
-          try {
-            body.location = JSON.parse(value)
-          } catch {
-            body.location = value
-          }
-        } else if (key === 'amenities') {
-          if (!body.amenities) body.amenities = []
-          body.amenities.push(value)
-        } else if (key.startsWith('images') && value instanceof File) {
-          if (!body.imageFiles) body.imageFiles = []
-          body.imageFiles.push(value)
-        } else if (key === 'type') {
-          body.type = value === 'rooms' ? 'room' : 
-                     value === 'products' ? 'product' : 
-                     value === 'notes' ? 'note' : value
-        } else {
-          body[key] = validateAndSanitizeInput(value, 2000)
-        }
-      }
-      
-      body.userEmail = body.user?.email
-      console.log('📧 [API] User email extracted:', body.userEmail);
-    } else {
-      console.log('📄 [API] Processing JSON...');
-      body = await request.json()
-      
-      console.log('📄 [API] Raw body received:', JSON.stringify(body, null, 2));
-      
-      // Sanitize inputs
-      Object.keys(body).forEach(key => {
-        if (typeof body[key] === 'string') {
-          body[key] = validateAndSanitizeInput(body[key], 2000)
-        }
-      })
-      
-      body.userEmail = body.user?.email
-    }
-
-    console.log('📝 [API] Request body processed. Type:', body.type, 'User:', body.userEmail);
-
-    // Validate required fields
-    if (!body.type) {
-      console.error('❌ [API] Missing type field');
-      return secureAPIResponse('Missing required field: type', 400)
-    }
-
-    // Handle missing user email - try to extract from different sources
-    if (!body.userEmail) {
-      console.log('⚠️ [API] No userEmail found, checking alternatives...');
-      
-      // Try to get email from user object
-      if (body.user && body.user.email) {
-        body.userEmail = body.user.email;
-        console.log('✅ [API] Found email in user object:', body.userEmail);
-      } else {
-        console.error('❌ [API] No user email found anywhere');
-        return secureAPIResponse('Missing user authentication. Please sign in first.', 401)
-      }
-    }
-
-    console.log('🔍 [API] Looking up user:', body.userEmail);
-
-    // Validate user authentication
-    const { data: userData, error: userError } = await supabase
+    // Check if user exists in our users table
+    const { data: existingUser, error: userError } = await supabase
       .from('users')
-      .select('id, email')
-      .eq('email', body.userEmail)
+      .select('id, email, name, college, phone, avatar_url')
+      .eq('email', userEmail)
       .single()
 
-    if (userError || !userData) {
-      console.error('❌ [API] User authentication failed:', userError);
-      
-      // Try to create user if they don't exist (for development)
-      if (userError?.code === 'PGRST116') {
-        console.log('🔧 [API] User not found, trying to create...');
-        
-        const { data: newUser, error: createError } = await supabase
-          .from('users')
-          .insert({
-            email: body.userEmail,
-            name: body.user?.name || 'Unknown User',
-            college: body.college || 'Unknown College',
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          })
-          .select()
-          .single()
-        
-        if (createError) {
-          console.error('❌ [API] Failed to create user:', createError);
-          return secureAPIResponse('User registration failed. Please try again.', 500)
-        } else {
-          console.log('✅ [API] User created successfully:', newUser.id);
-          userData = newUser;
-        }
+    if (userError) {
+      if (userError.code === 'PGRST116') { // No rows returned
+        throw new Error(`User with email ${userEmail} not found. Please register first.`)
+      }
+      throw new Error(`User authentication failed: ${userError.message}`)
+    }
+
+    return existingUser
+  } catch (authError) {
+    console.error('[AUTH] Authentication error:', authError)
+    throw authError
+  }
+}
+export async function POST(request) {
+  console.log('[SELL API] POST request received')
+  
+  try {
+    // Check if Supabase is initialized
+    if (!supabase) {
+      return NextResponse.json({
+        success: false,
+        error: 'Database connection not initialized. Please check environment variables.',
+        code: 'DB_INIT_ERROR'
+      }, { status: 500 })
+    }
+
+    // Parse request data
+    let parsedData
+    let isJson = false
+    const contentType = request.headers.get('content-type') || ''
+
+    console.log('[SELL API] Content type:', contentType)
+
+    try {
+      if (contentType.includes('application/json')) {
+        parsedData = await request.json()
+        isJson = true
       } else {
-        return secureAPIResponse('User not authenticated or not found. Please sign in.', 401)
+        const formData = await request.formData()
+        parsedData = {}
+        for (const key of formData.keys()) {
+          const value = formData.get(key)
+          parsedData[key] = value
+        }
       }
+    } catch (parseError) {
+      logError('REQUEST_PARSING', parseError)
+      return NextResponse.json({
+        success: false,
+        error: 'Failed to parse request data',
+        code: 'PARSE_ERROR',
+        details: parseError.message
+      }, { status: 400 })
     }
 
-    console.log('✅ [API] User authenticated:', userData.id);
+    console.log('[SELL API] Parsed data keys:', Object.keys(parsedData))
 
-    // Handle image uploads with security validation
+    // Extract and validate required fields
+    const type = parsedData.type
+    const userEmail = parsedData.userEmail || parsedData.user?.email
+
+    if (!type) {
+      return NextResponse.json({
+        success: false,
+        error: 'Type is required (rooms, products, or notes)',
+        code: 'MISSING_TYPE'
+      }, { status: 400 })
+    }
+
+    if (!['rooms', 'products', 'notes'].includes(type)) {
+      return NextResponse.json({
+        success: false,
+        error: 'Invalid type. Must be rooms, products, or notes',
+        code: 'INVALID_TYPE'
+      }, { status: 400 })
+    }
+
+    if (!userEmail) {
+      return NextResponse.json({
+        success: false,
+        error: 'User email is required for authentication',
+        code: 'MISSING_USER_EMAIL'
+      }, { status: 401 })
+    }
+
+    // Authenticate user
+    let authenticatedUser
+    try {
+      authenticatedUser = await authenticateUser(userEmail)
+      console.log('[SELL API] User authenticated:', authenticatedUser.email)
+    } catch (authError) {
+      logError('AUTHENTICATION', authError, { userEmail })
+      return NextResponse.json({
+        success: false,
+        error: authError.message,
+        code: 'AUTH_ERROR'
+      }, { status: 401 })
+    }
+
+    // Validate required fields based on type
+    const requiredFields = {
+      rooms: ['title', 'description', 'price', 'college', 'roomType', 'ownerName', 'contact1'],
+      products: ['title', 'description', 'price', 'category', 'condition', 'college'],
+      notes: ['title', 'description', 'price', 'college', 'course', 'subject', 'academicYear']
+    }
+
+    const missingFields = requiredFields[type].filter(field => !parsedData[field])
+    if (missingFields.length > 0) {
+      return NextResponse.json({
+        success: false,
+        error: `Missing required fields: ${missingFields.join(', ')}`,
+        code: 'MISSING_FIELDS',
+        missingFields
+      }, { status: 400 })
+    }
+
+    // Process images if any
     let imageUrls = []
+    const images = parsedData.images || []
     
-    if (isFormData && body.imageFiles?.length > 0) {
-      for (const file of body.imageFiles) {
-        // Validate file type
-        if (!file.type.startsWith('image/')) {
-          return secureAPIResponse('Only image files are allowed', 400)
-        }
-        
-        // Convert File to base64
-        const buffer = await file.arrayBuffer()
-        const base64 = Buffer.from(buffer).toString('base64')
-        
-        try {
-          const imageUrl = await uploadImageToImgBB(base64)
-          imageUrls.push(imageUrl)
-        } catch (error) {
-          return secureAPIResponse(`Image upload failed: ${error.message}`, 500)
-        }
-      }
-    } else if (body.image) {
+    if (images && images.length > 0) {
+      console.log('[SELL API] Processing images:', images.length)
+      
       try {
-        const imageUrl = await uploadImageToImgBB(body.image)
-        imageUrls.push(imageUrl)
-      } catch (error) {
-        return secureAPIResponse(`Image upload failed: ${error.message}`, 500)
+        for (let i = 0; i < images.length; i++) {
+          const image = images[i]
+          
+          if (typeof image === 'string' && image.trim() !== '') {
+            // Already a URL
+            imageUrls.push(image)
+          } else if (image && typeof image === 'object' && image.name) {
+            // File object - upload to ImgBB
+            const uploadedUrl = await uploadImageToImgBB(image)
+            imageUrls.push(uploadedUrl)
+          }
+        }
+        console.log('[SELL API] Images processed:', imageUrls.length)
+      } catch (imageError) {
+        logError('IMAGE_PROCESSING', imageError)
+        return NextResponse.json({
+          success: false,
+          error: `Failed to process images: ${imageError.message}`,
+          code: 'IMAGE_ERROR'
+        }, { status: 400 })
       }
     }
 
-    // Prepare secure data insertion
-    const now = new Date().toISOString()
-    
-    let insertData = {
-      created_at: now,
-      updated_at: now,
-      seller_id: userData.id
+    // Prepare data for database insertion
+    const baseData = {
+      seller_id: authenticatedUser.id,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     }
 
-    if (imageUrls.length > 0) {
-      insertData.images = imageUrls
-    }
-
+    let insertData
     let tableName
 
-    // Data preparation based on type
-    if (body.type === 'room') {
-      tableName = 'rooms'
-      insertData = {
-        ...insertData,
-        title: body.title || body.hostel_name || 'Unnamed Room',
-        description: body.description || '',
-        price: Math.max(0, parseFloat(body.price || body.fees) || 0),
-        location: body.location || '',
-        room_type: body.room_type || 'single',
-        category: 'rooms',
-        college: body.college || '',
-        occupancy: body.occupancy || '1',
-        owner_name: body.owner_name || '',
-        contact1: body.contact_primary || '',
-        contact2: body.contact_secondary || null,
-        deposit: Math.max(0, parseFloat(body.deposit) || 0),
-        fees_include_mess: Boolean(body.mess_included),
-        mess_fees: parseFloat(body.mess_fees) || null,
-        amenities: body.amenities || [],
-        distance: body.distance || '0',
-        duration: body.duration || 'monthly'
+    try {
+      switch (type) {
+        case 'rooms':
+          tableName = 'rooms'
+          insertData = {
+            ...baseData,
+            title: parsedData.title,
+            description: parsedData.description,
+            price: parseFloat(parsedData.price),
+            college: parsedData.college,
+            location: parsedData.location ? (typeof parsedData.location === 'string' ? parsedData.location : JSON.stringify(parsedData.location)) : null,
+            images: imageUrls,
+            room_type: parsedData.roomType,
+            occupancy: parsedData.occupancy || 'Single',
+            owner_name: parsedData.ownerName,
+            contact1: parsedData.contact1,
+            contact2: parsedData.contact2 || null,
+            distance: parsedData.distance || null,
+            deposit: parsedData.deposit ? parseFloat(parsedData.deposit) : null,
+            fees_include_mess: parsedData.feesIncludeMess === 'true' || parsedData.feesIncludeMess === true,
+            mess_fees: parsedData.messType && parsedData.messType !== 'no-mess' ? parseFloat(parsedData.messType) || 0 : null,
+            amenities: Array.isArray(parsedData.amenities) ? parsedData.amenities : (parsedData.amenities ? [parsedData.amenities] : []),
+            fees_period: parsedData.feesPeriod || parsedData.fees_period || 'Monthly',
+            category: 'rooms',
+          }
+          break
+
+        case 'products':
+          tableName = 'products'
+          insertData = {
+            ...baseData,
+            title: parsedData.title,
+            description: parsedData.description,
+            price: parseFloat(parsedData.price),
+            category: parsedData.category,
+            condition: parsedData.condition,
+            college: parsedData.college,
+            location: parsedData.location ? (typeof parsedData.location === 'string' ? parsedData.location : JSON.stringify(parsedData.location)) : null,
+            images: imageUrls,
+          }
+          break
+
+        case 'notes':
+          tableName = 'notes'
+          insertData = {
+            ...baseData,
+            title: parsedData.title,
+            description: parsedData.description,
+            price: parseFloat(parsedData.price),
+            college: parsedData.college,
+            course: parsedData.course,
+            subject: parsedData.subject,
+            academic_year: parsedData.academicYear,
+            course_subject: `${parsedData.course} - ${parsedData.subject}`,
+            images: imageUrls,
+            pdf_urls: [],
+            category: 'notes',
+          }
+          break
       }
-    } else if (body.type === 'product') {
-      tableName = 'products'
-      insertData = {
-        ...insertData,
-        title: body.title || 'Unnamed Product',
-        description: body.description || '',
-        price: Math.max(0, parseFloat(body.price) || 0),
-        category: body.category || 'other',
-        condition: body.condition || 'Used',
-        college: body.college || '',
-        location: body.location || '',
-        is_sold: false
-      }
-    } else if (body.type === 'note') {
-      tableName = 'notes'
-      insertData = {
-        ...insertData,
-        title: body.title || 'Untitled Note',
-        subject: body.subject || '',
-        price: Math.max(0, parseFloat(body.price) || 0),
-        description: body.description || '',
-        category: 'notes'
-      }
-    } else {
-      return secureAPIResponse('Invalid item type', 400)
+    } catch (dataError) {
+      logError('DATA_PREPARATION', dataError, { type, parsedData })
+      return NextResponse.json({
+        success: false,
+        error: `Failed to prepare ${type} data: ${dataError.message}`,
+        code: 'DATA_PREP_ERROR'
+      }, { status: 400 })
     }
 
-    // Insert into database with security validation
-    console.log('💾 [API] Inserting into table:', tableName);
-    console.log('💾 [API] Insert data:', JSON.stringify(insertData, null, 2));
+    // Insert data into database
+    console.log('[SELL API] Inserting into table:', tableName)
     
-    const { data, error: insertError } = await supabase
-      .from(tableName)
-      .insert(insertData)
-      .select()
-      .single()
+    try {
+      const { data: insertedData, error: insertError } = await supabase
+        .from(tableName)
+        .insert(insertData)
+        .select()
+        .single()
 
-    if (insertError) {
-      console.error('❌ [API] Database insert error:', insertError)
-      
-      // Provide more specific error messages
-      if (insertError.code === '23503') {
-        return secureAPIResponse('Database constraint error. Please check your data.', 400)
-      } else if (insertError.code === '42P01') {
-        return secureAPIResponse('Database table not found. Please contact support.', 500)
-      } else {
-        return secureAPIResponse('Failed to create listing. Please try again.', 500)
-      }
-    }
-
-    console.log('✅ [API] Database insert successful:', data.id);
-
-    // Handle Arduino kit components if this is an Arduino kit
-    if (body.type === 'product' && body.isArduinoKit === 'true' && data.id) {
-      try {
-        console.log('🤖 [API] Processing Arduino kit components...');
-        console.log('🤖 [API] Arduino components raw:', body.arduinoComponents);
-        console.log('🤖 [API] Other components:', body.otherArduinoComponents);
+      if (insertError) {
+        logError('DATABASE_INSERT', insertError, { tableName, insertData })
         
-        // Parse Arduino components data
-        const arduinoComponents = body.arduinoComponents ? JSON.parse(body.arduinoComponents) : {}
-        const otherComponents = body.otherArduinoComponents || ''
-
-        console.log('🤖 [API] Arduino components parsed:', arduinoComponents);
-
-        // Prepare Arduino components data for insertion
-        const arduinoData = {
-          product_id: data.id,
-          other_components: otherComponents || null,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          // Add all the component boolean values
-          ...arduinoComponents
+        // Handle specific database errors
+        if (insertError.code === '23505') {
+          return NextResponse.json({
+            success: false,
+            error: 'Duplicate entry detected',
+            code: 'DUPLICATE_ENTRY'
+          }, { status: 409 })
+        }
+        
+        if (insertError.code === '42501') {
+          return NextResponse.json({
+            success: false,
+            error: 'Insufficient permissions. Please check your authentication.',
+            code: 'PERMISSION_ERROR'
+          }, { status: 403 })
         }
 
-        console.log('🤖 [API] Arduino data for insertion:', arduinoData);
-
-        // Insert Arduino components data
-        const { error: arduinoError } = await supabase
-          .from('arduino')
-          .insert(arduinoData)
-
-        if (arduinoError) {
-          console.error('❌ [API] Arduino components insert error:', arduinoError)
-          // Don't fail the whole request if Arduino components fail
-          // Just log the error and continue
-        } else {
-          console.log('✅ [API] Arduino components saved successfully');
-        }
-      } catch (arduinoParseError) {
-        console.error('❌ [API] Arduino components parse error:', arduinoParseError)
-        // Continue without failing the request
+        return NextResponse.json({
+          success: false,
+          error: `Database error: ${insertError.message}`,
+          code: 'DB_INSERT_ERROR',
+          details: insertError
+        }, { status: 500 })
       }
+
+      console.log('[SELL API] Successfully inserted:', insertedData.id)
+
+      return NextResponse.json({
+        success: true,
+        message: `${type.charAt(0).toUpperCase() + type.slice(1)} listed successfully!`,
+        data: {
+          id: insertedData.id,
+          type: type,
+          title: insertedData.title,
+          created_at: insertedData.created_at
+        }
+      }, { status: 201 })
+
+    } catch (insertException) {
+      logError('DATABASE_EXCEPTION', insertException, { tableName })
+      return NextResponse.json({
+        success: false,
+        error: 'Database connection error. Please try again.',
+        code: 'DB_CONNECTION_ERROR',
+        details: insertException.message
+      }, { status: 500 })
     }
-
-    return secureAPIResponse({
-      success: true,
-      message: `${body.type} listing created successfully`,
-      id: data.id,
-      data: {
-        id: data.id,
-        title: data.title,
-        type: body.type
-      }
-    })
 
   } catch (error) {
-    console.error('🚨 [API] Sell API error:', error);
-    console.error('🚨 [API] Error stack:', error.stack);
-    return secureAPIResponse({
-      message: 'Internal server error', 
-      error: error.message,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-    }, 500)
+    logError('GENERAL_ERROR', error)
+    return NextResponse.json({
+      success: false,
+      error: 'Internal server error. Please try again later.',
+      code: 'INTERNAL_ERROR',
+      details: process.env.NODE_ENV === 'development' ? error.message : 'An unexpected error occurred'
+    }, { status: 500 })
   }
 }
+export async function GET(request) {
+  return NextResponse.json({
+    message: 'StudX Sell API - Fixed Version',
+    status: 'active',
+    timestamp: new Date().toISOString(),
+    environment: {
+      hasSupabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+      hasServiceKey: !!(process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY),
+      hasImgbbKey: !!process.env.IMGBB_API_KEY,
+      nodeEnv: process.env.NODE_ENV,
+      supabaseInitialized: !!supabase
+    }
+  })
+}
+

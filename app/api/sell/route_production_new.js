@@ -13,7 +13,7 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
 // Enhanced error logging function
 function logError(context, error, additionalInfo = {}) {
-  // console.error(`[SELL API ERROR - ${context}]:`, {
+  console.error(`[SELL API ERROR - ${context}]:`, {
     error: error.message,
     stack: error.stack,
     additionalInfo,
