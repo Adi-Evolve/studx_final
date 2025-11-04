@@ -1,7 +1,54 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, createContext, useContext } from 'react';
+
+// Create context for sidebar state
+const SidebarContext = createContext();
+
+export function useSidebar() {
+  return useContext(SidebarContext);
+}
+
+export function SidebarProvider({ children }) {
+  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
+      if (!mobile) {
+        setIsCollapsed(true);
+      }
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Lock body scroll when mobile sidebar is open
+  useEffect(() => {
+    if (isMobile && !isCollapsed) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isMobile, isCollapsed]);
+
+  const toggleSidebar = () => setIsCollapsed(!isCollapsed);
+
+  return (
+    <SidebarContext.Provider value={{ isCollapsed, setIsCollapsed, isMobile, toggleSidebar }}>
+      {children}
+    </SidebarContext.Provider>
+  );
+}
 
 const categories = [
   { href: "/category/Laptop", icon: "💻", title: "Laptops" },
@@ -18,24 +65,8 @@ const categories = [
 ];
 
 export default function CategorySidebar() {
-  const [isCollapsed, setIsCollapsed] = useState(true);
-  const [isMobile, setIsMobile] = useState(false);
+  const { isCollapsed, setIsCollapsed, isMobile } = useSidebar();
   const [isHovered, setIsHovered] = useState(false);
-
-  useEffect(() => {
-    const checkMobile = () => {
-      const mobile = window.innerWidth < 1024;
-      setIsMobile(mobile);
-      // On desktop, keep collapsed by default but allow hover expand
-      if (!mobile) {
-        setIsCollapsed(true);
-      }
-    };
-
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
 
   // Improve expansion logic - on desktop expand on hover, on mobile via toggle
   const shouldShowExpanded = isMobile ? !isCollapsed : (isHovered);
@@ -53,15 +84,15 @@ export default function CategorySidebar() {
       {/* Sidebar */}
       <div 
         className={`
-          fixed left-0 z-[35] bg-white dark:bg-gray-800 shadow-lg border-r border-gray-200 dark:border-gray-700
-          transition-all duration-300 overflow-y-auto
+          fixed left-0 z-[46] bg-white dark:bg-gray-800 shadow-lg border-r border-gray-200 dark:border-gray-700
+          transition-all duration-300 
           ${
             shouldShowExpanded ? 'w-64' : 'w-16'
           }
           ${
             isMobile 
-              ? `top-[72px] h-[calc(100vh-72px)] ${isCollapsed ? '-translate-x-full' : 'translate-x-0'}` 
-              : 'top-[72px] h-[calc(100vh-72px)]'
+              ? `top-0 h-full overflow-y-auto ${isCollapsed ? '-translate-x-full' : 'translate-x-0'}` 
+              : 'top-[72px] h-[calc(100vh-72px)] overflow-y-auto'
           }
         `}
         onMouseEnter={() => !isMobile && setIsHovered(true)}
@@ -69,15 +100,29 @@ export default function CategorySidebar() {
       >
         
         {/* Sidebar Header */}
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-800">
-          <div className="flex items-center justify-center">
-            {shouldShowExpanded ? (
-              <h2 className="text-lg font-bold text-gray-800 dark:text-gray-200 flex items-center">
-                <span className="mr-2">📂</span>
-                Categories
-              </h2>
-            ) : (
-              <span className="text-2xl">📂</span>
+        <div className={`p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-800 ${isMobile ? 'sticky top-0 z-10' : ''}`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center flex-1 justify-center">
+              {shouldShowExpanded ? (
+                <h2 className="text-lg font-bold text-gray-800 dark:text-gray-200 flex items-center">
+                  <span className="mr-2">📂</span>
+                  Categories
+                </h2>
+              ) : (
+                <span className="text-2xl">📂</span>
+              )}
+            </div>
+            {/* Close button for mobile */}
+            {isMobile && shouldShowExpanded && (
+              <button
+                onClick={() => setIsCollapsed(true)}
+                className="ml-2 p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                aria-label="Close categories"
+              >
+                <svg className="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             )}
           </div>
         </div>
@@ -106,34 +151,6 @@ export default function CategorySidebar() {
           </div>
         </nav>
       </div>
-
-      {/* Enhanced Mobile Menu Button */}
-      {isMobile && (
-        <button
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className={`fixed top-[84px] left-4 z-[40] p-3 rounded-full shadow-lg transition-all duration-300 lg:hidden transform hover:scale-110 ${
-            isCollapsed 
-              ? 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white' 
-              : 'bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white'
-          }`}
-          aria-label="Toggle categories menu"
-        >
-          <svg 
-            className={`w-5 h-5 transition-transform duration-300 ${
-              isCollapsed ? '' : 'rotate-45'
-            }`}
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24"
-          >
-            {isCollapsed ? (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            ) : (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            )}
-          </svg>
-        </button>
-      )}
     </>
   );
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import CategorySidebar from './CategorySidebar';
+import CategorySidebar, { SidebarProvider } from './CategorySidebar';
 
 export default function LayoutWithSidebar({ children }) {
   const [isMobile, setIsMobile] = useState(false);
@@ -17,22 +17,24 @@ export default function LayoutWithSidebar({ children }) {
   }, []);
 
   return (
-    <div className="relative min-h-screen bg-gray-50 dark:bg-gray-900">
-      <CategorySidebar />
-      
-      {/* Main content area - no top padding to eliminate gaps */}
-      <div className={`
-        transition-all duration-300
-        ${
-          isMobile 
-            ? 'ml-0' 
-            : 'ml-16'
-        }
-      `}>
-        <div className="min-h-screen">
-          {children}
+    <SidebarProvider>
+      <div className="relative min-h-screen bg-gray-50 dark:bg-gray-900">
+        <CategorySidebar />
+        
+        {/* Main content area - no top padding to eliminate gaps */}
+        <div className={`
+          transition-all duration-300
+          ${
+            isMobile 
+              ? 'ml-0' 
+              : 'ml-16'
+          }
+        `}>
+          <div className="min-h-screen">
+            {children}
+          </div>
         </div>
       </div>
-    </div>
+    </SidebarProvider>
   );
 }
