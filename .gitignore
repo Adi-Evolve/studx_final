@@ -69,6 +69,8 @@ enhanced-*.js
 fix_*.js
 *diagnostic*.js
 *admin*.js
+# Exception: lib/supabase/admin.js is required for the app
+!lib/supabase/admin.js
 
 # Security and analysis files
 test-security*.js
