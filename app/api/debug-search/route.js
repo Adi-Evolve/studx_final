@@ -3,16 +3,22 @@ import { createClient } from '@supabase/supabase-js'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseKey = process.env.SUPABASE_SECRET_KEY
-const supabase = createClient(supabaseUrl, supabaseKey)
+let _supabase = null;
+function getSupabase() {
+  if (!_supabase) {
+    _supabase = createClient(supabaseUrl, supabaseKey);
+  }
+  return _supabase;
+}
 
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url)
     const query = searchParams.get('q')
     const type = searchParams.get('type') || 'all'
-    
+
     // console.log(`🔍 [SEARCH DEBUG] Query: "${query}", Type: "${type}"`)
-    
+
     if (!query) {
       return NextResponse.json({ error: 'Search query is required' }, { status: 400 })
     }
@@ -22,7 +28,7 @@ export async function GET(request) {
 
     // Test direct products search
     // console.log('📦 [SEARCH DEBUG] Testing products search...')
-    const { data: productsData, error: productsError } = await supabase
+    const { data: productsData, error: productsError } = await getSupabase()
       .from('products')
       .select('id, title, category, price, description, is_sold')
       .or(`title.ilike.${searchTerm},description.ilike.${searchTerm},category.ilike.${searchTerm}`)
@@ -37,17 +43,17 @@ export async function GET(request) {
 
     // Test rooms search
     // console.log('🏠 [SEARCH DEBUG] Testing rooms search...')
-    const { data: roomsData, error: roomsError } = await supabase
+    const { data: roomsData, error: roomsError } = await getSupabase()
       .from('rooms')
       .select('id, title, room_type, price')
       .or(`title.ilike.${searchTerm},description.ilike.${searchTerm},room_type.ilike.${searchTerm}`)
       .limit(5)
 
-        // console.log(`🏠 [SEARCH DEBUG] Rooms result:`, {
-        //   error: roomsError?.message,
-        //   dataLength: roomsData?.length,
-        //   data: roomsData?.map(r => ({ id: r.id, title: r.title, room_type: r.room_type }))
-        // })    // Combine results
+    // console.log(`🏠 [SEARCH DEBUG] Rooms result:`, {
+    //   error: roomsError?.message,
+    //   dataLength: roomsData?.length,
+    //   data: roomsData?.map(r => ({ id: r.id, title: r.title, room_type: r.room_type }))
+    // })    // Combine results
     const results = [
       ...(productsData || []).map(item => ({ ...item, type: 'product', is_sponsored: false })),
       ...(roomsData || []).map(item => ({ ...item, type: 'room', is_sponsored: false }))

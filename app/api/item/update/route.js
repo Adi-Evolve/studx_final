@@ -3,12 +3,12 @@ import { NextResponse } from 'next/server'
 
 // Enhanced error logging
 function logError(context, error, data = {}) {
-  console.error(`[UPDATE API ${context}]:`, {
-    message: error.message,
-    stack: error.stack?.substring(0, 500),
-    data,
-    timestamp: new Date().toISOString()
-  })
+    console.error(`[UPDATE API ${context}]:`, {
+        message: error.message,
+        stack: error.stack?.substring(0, 500),
+        data,
+        timestamp: new Date().toISOString()
+    })
 }
 
 // Initialize Supabase with service key (same as sell API)
@@ -16,14 +16,20 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseKey = process.env.SUPABASE_SECRET_KEY
 
 if (!supabaseUrl || !supabaseKey) {
-  console.error('[UPDATE API] Missing environment variables:', {
-    hasUrl: !!supabaseUrl,
-    hasKey: !!supabaseKey,
-    availableKeys: Object.keys(process.env).filter(k => k.includes('SUPABASE'))
-  })
+    console.error('[UPDATE API] Missing environment variables:', {
+        hasUrl: !!supabaseUrl,
+        hasKey: !!supabaseKey,
+        availableKeys: Object.keys(process.env).filter(k => k.includes('SUPABASE'))
+    })
 }
 
-const supabase = createClient(supabaseUrl, supabaseKey)
+let _supabase = null
+function getSupabase() {
+    if (!_supabase) {
+        _supabase = createClient(supabaseUrl, supabaseKey)
+    }
+    return _supabase
+}
 
 export async function POST(request) {
     console.log('[UPDATE API] POST request received')
@@ -63,23 +69,23 @@ export async function POST(request) {
 
         // Check if user exists in our users table
         console.log('[UPDATE API] Validating user...')
-        const { data: userData, error: userError } = await supabase
+        const { data: userData, error: userError } = await getSupabase()
             .from('users')
             .select('id, email')
             .eq('email', userEmail)
 
         if (userError) {
             logError('USER_VALIDATION', userError)
-            return NextResponse.json({ 
+            return NextResponse.json({
                 error: 'Database error during user validation',
                 userEmail,
-                details: userError.message 
+                details: userError.message
             }, { status: 500 })
         }
 
         if (!userData || userData.length === 0) {
             console.log('[UPDATE API] No user found with email:', userEmail)
-            return NextResponse.json({ 
+            return NextResponse.json({
                 error: 'User not found',
                 userEmail,
                 suggestion: 'Please make sure you are logged in with the correct email'
@@ -91,7 +97,7 @@ export async function POST(request) {
 
         // Verify ownership
         console.log('[UPDATE API] Checking item ownership...')
-        const { data: item, error: fetchError } = await supabase
+        const { data: item, error: fetchError } = await getSupabase()
             .from(tableName)
             .select('seller_id, title')
             .eq('id', id)
@@ -123,22 +129,22 @@ export async function POST(request) {
         console.log('[UPDATE API] Updating item with data:', Object.keys(updateData))
 
         // Update the item
-        const { error: updateError } = await supabase
+        const { error: updateError } = await getSupabase()
             .from(tableName)
             .update(updateData)
             .eq('id', id)
 
         if (updateError) {
             logError('DATABASE_UPDATE', updateError)
-            return NextResponse.json({ 
+            return NextResponse.json({
                 error: 'Failed to update item',
-                details: updateError.message 
+                details: updateError.message
             }, { status: 500 })
         }
 
         console.log('[UPDATE API] Item updated successfully:', { id, type, title: item.title })
 
-        return NextResponse.json({ 
+        return NextResponse.json({
             success: true,
             message: 'Item updated successfully',
             item: {
@@ -151,7 +157,7 @@ export async function POST(request) {
     } catch (error) {
         console.error('[UPDATE API] Unexpected error:', error)
         logError('POST_REQUEST', error)
-        return NextResponse.json({ 
+        return NextResponse.json({
             error: 'Internal server error',
             details: error.message,
             timestamp: new Date().toISOString()

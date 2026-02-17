@@ -4,10 +4,16 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
-const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.SUPABASE_SECRET_KEY
-);
+let _supabase = null;
+function getSupabase() {
+    if (!_supabase) {
+        _supabase = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL,
+            process.env.SUPABASE_SECRET_KEY
+        );
+    }
+    return _supabase;
+}
 
 export async function POST(request) {
     try {
@@ -28,7 +34,7 @@ export async function POST(request) {
         }
 
         // Start database transaction
-        const { data: thaliRecord, error: thaliError } = await supabase
+        const { data: thaliRecord, error: thaliError } = await getSupabase()
             .from('thali_uploads')
             .insert({
                 mess_id: mess_id,
@@ -70,7 +76,7 @@ export async function POST(request) {
             manually_added: item.manually_added || false
         }));
 
-        const { data: savedItems, error: itemsError } = await supabase
+        const { data: savedItems, error: itemsError } = await getSupabase()
             .from('thali_items')
             .insert(itemRecords)
             .select();
@@ -78,7 +84,7 @@ export async function POST(request) {
         if (itemsError) {
             console.error('Error saving items:', itemsError);
             // Rollback thali record
-            await supabase.from('thali_uploads').delete().eq('id', thali_id);
+            await getSupabase().from('thali_uploads').delete().eq('id', thali_id);
             throw new Error('Failed to save thali items');
         }
 
@@ -101,7 +107,7 @@ export async function POST(request) {
 
     } catch (error) {
         console.error('Database save error:', error);
-        
+
         return NextResponse.json({
             success: false,
             error: 'Failed to save thali to database',
@@ -115,7 +121,7 @@ async function updateMessMenu(mess_id, items) {
     try {
         for (const item of items) {
             // Check if item already exists in mess menu
-            const { data: existingItem } = await supabase
+            const { data: existingItem } = await getSupabase()
                 .from('mess_menu_items')
                 .select('id')
                 .eq('mess_id', mess_id)
@@ -137,13 +143,13 @@ async function updateMessMenu(mess_id, items) {
                     last_detected: new Date().toISOString()
                 };
 
-                await supabase.from('mess_menu_items').insert(menuItem);
+                await getSupabase().from('mess_menu_items').insert(menuItem);
             } else {
                 // Update detection count
-                await supabase
+                await getSupabase()
                     .from('mess_menu_items')
                     .update({
-                        detection_count: supabase.raw('detection_count + 1'),
+                        detection_count: getSupabase().raw('detection_count + 1'),
                         last_detected: new Date().toISOString()
                     })
                     .eq('id', existingItem.id);
@@ -170,7 +176,7 @@ async function generateThaliAnalytics(thali_id, items, thali_analysis) {
             detection_quality: calculateDetectionQuality(items)
         };
 
-        await supabase.from('thali_analytics').insert(analytics);
+        await getSupabase().from('thali_analytics').insert(analytics);
     } catch (error) {
         console.error('Error generating analytics:', error);
         // Don't throw error - analytics is not critical
@@ -197,7 +203,7 @@ function getDietaryBreakdown(items) {
 function calculateDetectionQuality(items) {
     const totalConfidence = items.reduce((sum, item) => sum + item.confidence, 0);
     const avgConfidence = totalConfidence / items.length;
-    
+
     return {
         average_confidence: avgConfidence,
         high_confidence_items: items.filter(item => item.confidence >= 80).length,

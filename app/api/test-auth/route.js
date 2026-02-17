@@ -2,28 +2,34 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
-// Create a service role client for testing
-const supabaseServiceRole = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.SUPABASE_SECRET_KEY
-);
+// Create a service role client for testing (lazy to avoid build-time crash)
+let _supabaseServiceRole = null;
+function getSupabaseServiceRole() {
+    if (!_supabaseServiceRole) {
+        _supabaseServiceRole = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL,
+            process.env.SUPABASE_SECRET_KEY
+        );
+    }
+    return _supabaseServiceRole;
+}
 
 export async function POST(request) {
     // console.log('=== Test API route ===');
-    
+
     try {
         // Get the authorization header
         const authHeader = request.headers.get('authorization');
         // console.log('Auth header:', authHeader ? 'Present' : 'Missing');
-        
+
         // Get cookies
         const cookieHeader = request.headers.get('cookie');
         // console.log('Cookie header:', cookieHeader ? 'Present' : 'Missing');
-        
+
         // Parse body
         const body = await request.json();
         // console.log('Request body:', body);
-        
+
         return NextResponse.json({
             success: true,
             message: 'Test API route working',
@@ -32,7 +38,7 @@ export async function POST(request) {
                 hasCookies: !!cookieHeader
             }
         });
-        
+
     } catch (error) {
         // console.error('Test API error:', error);
         return NextResponse.json({

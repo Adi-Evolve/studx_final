@@ -23,14 +23,20 @@ if (!supabaseUrl || !supabaseKey) {
   })
 }
 
-const supabase = createClient(supabaseUrl, supabaseKey)
+let _supabase = null;
+function getSupabase() {
+  if (!_supabase) {
+    _supabase = createClient(supabaseUrl, supabaseKey);
+  }
+  return _supabase;
+}
 
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url)
     const query = searchParams.get('q')
     const type = searchParams.get('type') || 'all' // 'all', 'products', 'rooms', 'notes', 'rentals'
-    
+
     if (!query) {
       return NextResponse.json({ error: 'Search query is required' }, { status: 400 })
     }
@@ -38,32 +44,32 @@ export async function GET(request) {
     console.log(`[SEARCH API] Search request: "${query}", type: "${type}"`)
 
     let searchTerm = `%${query.trim()}%`
-    
+
     // Handle accommodation-related searches - treat hostel, rooms, pg as equivalent
     const accommodationKeywords = ['room', 'rooms', 'hostel', 'hostels', 'pg', 'accommodation'];
     const lowerQuery = query.toLowerCase().trim();
-    
-    let isAccommodationSearch = accommodationKeywords.some(keyword => 
-        lowerQuery.includes(keyword)
+
+    let isAccommodationSearch = accommodationKeywords.some(keyword =>
+      lowerQuery.includes(keyword)
     );
-    
+
     // If it's an accommodation search, expand the search terms
     if (isAccommodationSearch) {
-        const accommodationTerms = accommodationKeywords.map(term => `%${term}%`).join(',');
-        console.log(`[SEARCH API] Detected accommodation search - expanding terms for: ${accommodationKeywords.join(', ')}`);
+      const accommodationTerms = accommodationKeywords.map(term => `%${term}%`).join(',');
+      console.log(`[SEARCH API] Detected accommodation search - expanding terms for: ${accommodationKeywords.join(', ')}`);
     }
-    
+
     console.log(`[SEARCH API] Searching for keyword: "${query}" (SQL term: "${searchTerm}")`)
 
     let allMatchingItems = []
-    
+
     // Step 1: Search ALL tables (products, rooms, notes) for items matching the keyword
     console.log('[SEARCH API] Step 1: Searching all tables for matching items...')
-    
+
     // Search products table
     if (type === 'all' || type === 'products') {
       console.log('[SEARCH API] Searching products...')
-      const { data: productsData, error: productsError } = await supabase
+      const { data: productsData, error: productsError } = await getSupabase()
         .from('products')
         .select('*')
         .or(`title.ilike.${searchTerm},description.ilike.${searchTerm},category.ilike.${searchTerm}`)
@@ -84,7 +90,7 @@ export async function GET(request) {
 
       // Search Arduino table for Arduino kits
       console.log('[SEARCH API] Searching Arduino kits...')
-      const { data: arduinoData, error: arduinoError } = await supabase
+      const { data: arduinoData, error: arduinoError } = await getSupabase()
         .from('arduino')
         .select('*')
         .order('created_at', { ascending: false })
@@ -97,18 +103,18 @@ export async function GET(request) {
           .map(row => {
             try {
               if (!row.other_components) return null
-              
+
               const productInfo = JSON.parse(row.other_components)
-              
+
               // Apply search filter
-              const searchMatch = 
+              const searchMatch =
                 productInfo.title?.toLowerCase().includes(query.toLowerCase()) ||
                 productInfo.description?.toLowerCase().includes(query.toLowerCase()) ||
                 productInfo.category?.toLowerCase().includes(query.toLowerCase()) ||
                 productInfo.other_components_text?.toLowerCase().includes(query.toLowerCase())
-              
+
               if (!searchMatch) return null
-              
+
               // Format as standard product
               return {
                 id: row.id,
@@ -134,7 +140,7 @@ export async function GET(request) {
             }
           })
           .filter(kit => kit !== null)
-        
+
         allMatchingItems.push(...arduinoKits)
         console.log(`[SEARCH API] Found ${arduinoKits.length} matching Arduino kits`)
       }
@@ -143,20 +149,20 @@ export async function GET(request) {
     // Search rooms table  
     if (type === 'all' || type === 'rooms') {
       console.log('[SEARCH API] Searching rooms...')
-      
+
       let roomsQuery;
-      
+
       if (isAccommodationSearch) {
         // For accommodation searches, return ALL rooms since they're all accommodations
-        roomsQuery = supabase
+        roomsQuery = getSupabase()
           .from('rooms')
           .select('*')
           .order('created_at', { ascending: false });
-        
+
         console.log('[SEARCH API] Using accommodation search - returning all rooms');
       } else {
         // For non-accommodation searches, use the specific search term
-        roomsQuery = supabase
+        roomsQuery = getSupabase()
           .from('rooms')
           .select('*')
           .or(`title.ilike.${searchTerm},description.ilike.${searchTerm},category.ilike.${searchTerm},room_type.ilike.${searchTerm}`)
@@ -181,7 +187,7 @@ export async function GET(request) {
     // Search notes table
     if (type === 'all' || type === 'notes') {
       console.log('[SEARCH API] Searching notes...')
-      const { data: notesData, error: notesError } = await supabase
+      const { data: notesData, error: notesError } = await getSupabase()
         .from('notes')
         .select('*')
         .or(`title.ilike.${searchTerm},description.ilike.${searchTerm},category.ilike.${searchTerm},subject.ilike.${searchTerm},course_subject.ilike.${searchTerm},academic_year.ilike.${searchTerm}`)
@@ -203,7 +209,7 @@ export async function GET(request) {
     // Search rentals table
     if (type === 'all' || type === 'rentals') {
       console.log('[SEARCH API] Searching rentals...')
-      const { data: rentalsData, error: rentalsError } = await supabase
+      const { data: rentalsData, error: rentalsError } = await getSupabase()
         .from('rentals')
         .select('*')
         .or(`title.ilike.${searchTerm},description.ilike.${searchTerm},category.ilike.${searchTerm},condition.ilike.${searchTerm},rental_terms.ilike.${searchTerm}`)
@@ -227,8 +233,8 @@ export async function GET(request) {
 
     // Step 2: Check which of these matching items are in sponsorship_sequences
     console.log('[SEARCH API] Step 2: Checking which items are sponsored...')
-    
-    const { data: sponsoredSequences, error: sponsoredError } = await supabase
+
+    const { data: sponsoredSequences, error: sponsoredError } = await getSupabase()
       .from('sponsorship_sequences')
       .select('item_id, item_type, slot, created_at')
 
@@ -268,7 +274,7 @@ export async function GET(request) {
     // Step 4: Combine results with sponsored items first, sorted by sponsored slot
     const sponsoredSorted = sponsoredItems.sort((a, b) => a.sponsored_slot - b.sponsored_slot)
     const regularSorted = regularItems.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-    
+
     const combinedResults = [
       ...sponsoredSorted,
       ...regularSorted

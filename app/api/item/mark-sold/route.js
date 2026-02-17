@@ -3,12 +3,12 @@ import { NextResponse } from 'next/server'
 
 // Enhanced error logging
 function logError(context, error, data = {}) {
-  console.error(`[MARK-SOLD API ${context}]:`, {
-    message: error.message,
-    stack: error.stack?.substring(0, 500),
-    data,
-    timestamp: new Date().toISOString()
-  })
+    console.error(`[MARK-SOLD API ${context}]:`, {
+        message: error.message,
+        stack: error.stack?.substring(0, 500),
+        data,
+        timestamp: new Date().toISOString()
+    })
 }
 
 // Initialize Supabase with service key (same as sell API)
@@ -16,14 +16,20 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseKey = process.env.SUPABASE_SECRET_KEY
 
 if (!supabaseUrl || !supabaseKey) {
-  console.error('[MARK-SOLD API] Missing environment variables:', {
-    hasUrl: !!supabaseUrl,
-    hasKey: !!supabaseKey,
-    availableKeys: Object.keys(process.env).filter(k => k.includes('SUPABASE'))
-  })
+    console.error('[MARK-SOLD API] Missing environment variables:', {
+        hasUrl: !!supabaseUrl,
+        hasKey: !!supabaseKey,
+        availableKeys: Object.keys(process.env).filter(k => k.includes('SUPABASE'))
+    })
 }
 
-const supabase = createClient(supabaseUrl, supabaseKey)
+let _supabase = null;
+function getSupabase() {
+    if (!_supabase) {
+        _supabase = createClient(supabaseUrl, supabaseKey);
+    }
+    return _supabase;
+}
 
 export async function POST(request) {
     console.log('[MARK-SOLD API] POST request received')
@@ -44,23 +50,23 @@ export async function POST(request) {
 
         // Check if user exists in our users table
         console.log('[MARK-SOLD API] Validating user...')
-        const { data: userData, error: userError } = await supabase
+        const { data: userData, error: userError } = await getSupabase()
             .from('users')
             .select('id, email')
             .eq('email', userEmail)
 
         if (userError) {
             logError('USER_VALIDATION', userError)
-            return NextResponse.json({ 
+            return NextResponse.json({
                 error: 'Database error during user validation',
                 userEmail,
-                details: userError.message 
+                details: userError.message
             }, { status: 500 })
         }
 
         if (!userData || userData.length === 0) {
             console.log('[MARK-SOLD API] No user found with email:', userEmail)
-            return NextResponse.json({ 
+            return NextResponse.json({
                 error: 'User not found',
                 userEmail,
                 suggestion: 'Please make sure you are logged in with the correct email'
@@ -72,7 +78,7 @@ export async function POST(request) {
 
         // First, verify the user owns the product
         console.log('[MARK-SOLD API] Checking product ownership...')
-        const { data: product, error: fetchError } = await supabase
+        const { data: product, error: fetchError } = await getSupabase()
             .from('products')
             .select('seller_id, title, is_sold')
             .eq('id', id)
@@ -93,7 +99,7 @@ export async function POST(request) {
 
         if (product.is_sold) {
             console.log('[MARK-SOLD API] Product already marked as sold')
-            return NextResponse.json({ 
+            return NextResponse.json({
                 error: 'Product is already marked as sold',
                 product: { id, title: product.title }
             }, { status: 400 })
@@ -101,9 +107,9 @@ export async function POST(request) {
 
         // Update the is_sold status
         console.log('[MARK-SOLD API] Marking product as sold...')
-        const { error: updateError } = await supabase
+        const { error: updateError } = await getSupabase()
             .from('products')
-            .update({ 
+            .update({
                 is_sold: true,
                 updated_at: new Date().toISOString()
             })
@@ -111,15 +117,15 @@ export async function POST(request) {
 
         if (updateError) {
             logError('DATABASE_UPDATE', updateError)
-            return NextResponse.json({ 
+            return NextResponse.json({
                 error: 'Failed to mark product as sold',
-                details: updateError.message 
+                details: updateError.message
             }, { status: 500 })
         }
 
         console.log('[MARK-SOLD API] Item marked as sold successfully:', id)
 
-        return NextResponse.json({ 
+        return NextResponse.json({
             success: true,
             message: 'Item marked as sold successfully',
             item: {
@@ -133,7 +139,7 @@ export async function POST(request) {
     } catch (error) {
         console.error('[MARK-SOLD API] Unexpected error:', error)
         logError('POST_REQUEST', error)
-        return NextResponse.json({ 
+        return NextResponse.json({
             error: 'Internal server error',
             details: error.message,
             timestamp: new Date().toISOString()

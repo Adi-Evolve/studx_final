@@ -3,7 +3,13 @@ import { NextResponse } from 'next/server';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SECRET_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
+let _supabase = null;
+function getSupabase() {
+  if (!_supabase) {
+    _supabase = createClient(supabaseUrl, supabaseKey);
+  }
+  return _supabase;
+}
 
 // Arduino component mapping with serial numbers
 const ARDUINO_COMPONENT_MAP = {
@@ -120,7 +126,7 @@ export async function POST(request) {
       }, { status: 400 });
     }
 
-    const { data: userData, error: userError } = await supabase
+    const { data: userData, error: userError } = await getSupabase()
       .from('users')
       .select('id, email')
       .eq('email', body.user.email)
@@ -184,7 +190,7 @@ export async function POST(request) {
 
         console.log('Inserting Arduino kit to Arduino table only:', productInfo.title);
 
-        const { data: arduinoResult, error: arduinoError } = await supabase
+        const { data: arduinoResult, error: arduinoError } = await getSupabase()
           .from('arduino')
           .insert(arduinoData)
           .select()
@@ -299,7 +305,7 @@ export async function POST(request) {
           seller_id: roomData.seller_id
         });
 
-        const { data: insertedRoom, error: insertError } = await supabase
+        const { data: insertedRoom, error: insertError } = await getSupabase()
           .from('rooms')
           .insert(roomData)
           .select()
@@ -353,7 +359,7 @@ export async function POST(request) {
         is_sold: false
       };
 
-      const { data: productData, error: insertError } = await supabase
+      const { data: productData, error: insertError } = await getSupabase()
         .from('products')
         .insert(insertData)
         .select()

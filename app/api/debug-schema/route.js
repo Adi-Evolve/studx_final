@@ -8,14 +8,20 @@ if (!supabaseUrl || !supabaseKey) {
   // console.error('Missing Supabase environment variables')
 }
 
-const supabase = createClient(supabaseUrl, supabaseKey)
+let _supabase = null;
+function getSupabase() {
+  if (!_supabase) {
+    _supabase = createClient(supabaseUrl, supabaseKey);
+  }
+  return _supabase;
+}
 
 export async function GET() {
   try {
     // console.log('[DEBUG API] Checking database schema...')
 
     // Check if rooms table exists and get its columns
-    const { data: tables, error: tablesError } = await supabase
+    const { data: tables, error: tablesError } = await getSupabase()
       .rpc('sql', {
         query: `
           SELECT table_name 
@@ -33,7 +39,7 @@ export async function GET() {
     }
 
     // Check rooms table columns
-    const { data: roomsColumns, error: columnsError } = await supabase
+    const { data: roomsColumns, error: columnsError } = await getSupabase()
       .rpc('sql', {
         query: `
           SELECT column_name, data_type, is_nullable, column_default
@@ -76,7 +82,7 @@ export async function GET() {
     }
 
     // Check sample data count
-    const { data: sampleRooms, error: sampleError } = await supabase
+    const { data: sampleRooms, error: sampleError } = await getSupabase()
       .from('rooms')
       .select('id, title, fees_period, created_at')
       .limit(5)

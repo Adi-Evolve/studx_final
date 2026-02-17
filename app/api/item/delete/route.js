@@ -3,12 +3,12 @@ import { NextResponse } from 'next/server'
 
 // Enhanced error logging
 function logError(context, error, data = {}) {
-  console.error(`[DELETE API ${context}]:`, {
-    message: error.message,
-    stack: error.stack?.substring(0, 500),
-    data,
-    timestamp: new Date().toISOString()
-  })
+    console.error(`[DELETE API ${context}]:`, {
+        message: error.message,
+        stack: error.stack?.substring(0, 500),
+        data,
+        timestamp: new Date().toISOString()
+    })
 }
 
 // Initialize Supabase with service key (same as sell API)
@@ -16,14 +16,20 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseKey = process.env.SUPABASE_SECRET_KEY
 
 if (!supabaseUrl || !supabaseKey) {
-  console.error('[DELETE API] Missing environment variables:', {
-    hasUrl: !!supabaseUrl,
-    hasKey: !!supabaseKey,
-    availableKeys: Object.keys(process.env).filter(k => k.includes('SUPABASE'))
-  })
+    console.error('[DELETE API] Missing environment variables:', {
+        hasUrl: !!supabaseUrl,
+        hasKey: !!supabaseKey,
+        availableKeys: Object.keys(process.env).filter(k => k.includes('SUPABASE'))
+    })
 }
 
-const supabase = createClient(supabaseUrl, supabaseKey)
+let _supabase = null;
+function getSupabase() {
+    if (!_supabase) {
+        _supabase = createClient(supabaseUrl, supabaseKey);
+    }
+    return _supabase;
+}
 
 export async function POST(request) {
     console.log('[DELETE API] POST request received')
@@ -60,23 +66,23 @@ export async function POST(request) {
 
         // Check if user exists in our users table
         console.log('[DELETE API] Validating user...')
-        const { data: userData, error: userError } = await supabase
+        const { data: userData, error: userError } = await getSupabase()
             .from('users')
             .select('id, email')
             .eq('email', userEmail)
 
         if (userError) {
             logError('USER_VALIDATION', userError)
-            return NextResponse.json({ 
+            return NextResponse.json({
                 error: 'Database error during user validation',
                 userEmail,
-                details: userError.message 
+                details: userError.message
             }, { status: 500 })
         }
 
         if (!userData || userData.length === 0) {
             console.log('[DELETE API] No user found with email:', userEmail)
-            return NextResponse.json({ 
+            return NextResponse.json({
                 error: 'User not found',
                 userEmail,
                 suggestion: 'Please make sure you are logged in with the correct email'
@@ -88,7 +94,7 @@ export async function POST(request) {
 
         // First, verify the user owns the item
         console.log('[DELETE API] Checking item ownership...')
-        const { data: item, error: fetchError } = await supabase
+        const { data: item, error: fetchError } = await getSupabase()
             .from(tableName)
             .select('seller_id, title, pdf_url, pdf_urls') // Get both pdf_url and pdf_urls for notes
             .eq('id', id)
@@ -110,12 +116,12 @@ export async function POST(request) {
         // If it's a note with PDFs, delete the PDFs from storage
         if (type === 'note') {
             console.log('[DELETE API] Cleaning up note PDFs...')
-            
+
             // Handle single pdf_url (legacy)
             if (item.pdf_url) {
                 try {
                     const fileName = item.pdf_url.split('/').pop()
-                    await supabase.storage.from('notes_pdfs').remove([fileName])
+                    await getSupabase().storage.from('notes_pdfs').remove([fileName])
                     console.log('[DELETE API] Removed PDF file:', fileName)
                 } catch (pdfError) {
                     console.log('[DELETE API] Could not remove PDF file:', pdfError.message)
@@ -128,7 +134,7 @@ export async function POST(request) {
                     try {
                         const pdfObj = typeof pdfData === 'string' ? JSON.parse(pdfData) : pdfData
                         if (pdfObj.fileId) {
-                            await supabase.storage.from('notes_pdfs').remove([pdfObj.fileId])
+                            await getSupabase().storage.from('notes_pdfs').remove([pdfObj.fileId])
                             console.log('[DELETE API] Removed PDF file:', pdfObj.fileId)
                         }
                     } catch (pdfError) {
@@ -140,22 +146,22 @@ export async function POST(request) {
 
         // Delete the item from the database
         console.log('[DELETE API] Deleting item from database...')
-        const { error: deleteError } = await supabase
+        const { error: deleteError } = await getSupabase()
             .from(tableName)
             .delete()
             .eq('id', id)
 
         if (deleteError) {
             logError('DATABASE_DELETE', deleteError)
-            return NextResponse.json({ 
+            return NextResponse.json({
                 error: 'Failed to delete item',
-                details: deleteError.message 
+                details: deleteError.message
             }, { status: 500 })
         }
 
         console.log('[DELETE API] Item deleted successfully:', { id, type, title: item.title })
 
-        return NextResponse.json({ 
+        return NextResponse.json({
             success: true,
             message: 'Item deleted successfully',
             item: {
@@ -168,7 +174,7 @@ export async function POST(request) {
     } catch (error) {
         console.error('[DELETE API] Unexpected error:', error)
         logError('POST_REQUEST', error)
-        return NextResponse.json({ 
+        return NextResponse.json({
             error: 'Internal server error',
             details: error.message,
             timestamp: new Date().toISOString()
