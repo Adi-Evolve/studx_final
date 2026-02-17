@@ -1,0 +1,39 @@
+<svg width="384" height="384" viewBox="0 0 384 384" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="384" height="384" rx="60" fill="url(#gradient1)"/>
+  
+  <defs>
+    <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1E40AF;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FBBF24;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F59E0B;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Main "S" -->
+  <path d="M105 135 C90 135 75 150 75 165 C75 180 90 195 105 195 L150 195 C165 195 180 210 180 225 C180 240 165 255 150 255 L105 255 C75 255 52.5 232.5 52.5 202.5 L52.5 187.5" 
+        stroke="white" stroke-width="15" fill="none" stroke-linecap="round"/>
+  
+  <!-- Book stack -->
+  <rect x="210" y="120" width="120" height="15" rx="4" fill="white" opacity="0.9"/>
+  <rect x="214" y="105" width="112" height="15" rx="4" fill="white" opacity="0.8"/>
+  <rect x="218" y="90" width="104" height="15" rx="4" fill="white" opacity="0.7"/>
+  
+  <!-- Exchange arrows -->
+  <path d="M150 285 L210 285 M192 267 L210 285 L192 303" 
+        stroke="url(#gradient2)" stroke-width="9" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M240 315 L180 315 M198 297 L180 315 L198 333" 
+        stroke="url(#gradient2)" stroke-width="9" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- "X" for exchange -->
+  <path d="M270 285 L300 315 M300 285 L270 315" 
+        stroke="white" stroke-width="6" stroke-linecap="round"/>
+  
+  <!-- Decorative elements -->
+  <circle cx="90" cy="90" r="6" fill="white" opacity="0.6"/>
+  <circle cx="300" cy="75" r="4" fill="white" opacity="0.5"/>
+  <circle cx="337.5" y="120" r="3" fill="white" opacity="0.4"/>
+</svg>

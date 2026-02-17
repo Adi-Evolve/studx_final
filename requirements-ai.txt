@@ -1,0 +1,27 @@
+# StudXchange AI Food Recognition - Python Dependencies
+# These packages are only required for AI model training and development
+# The main application uses Gemini API and doesn't require these packages
+
+# Core ML Training Dependencies (Optional)
+torch>=2.0.0
+torchvision>=0.15.0
+ultralytics>=8.0.0
+roboflow>=1.0.0
+wandb>=0.15.0
+
+# Data Processing (Optional for training)
+pandas>=1.5.0
+numpy>=1.24.0
+opencv-python>=4.8.0
+Pillow>=10.0.0
+
+# Hugging Face Deployment (Optional)
+gradio>=3.40.0
+
+# Installation Instructions:
+# For full AI training environment:
+# pip install -r requirements-ai.txt
+
+# For basic application:
+# The main app only requires Next.js dependencies (package.json)
+# AI features use Gemini API (no local ML packages needed)

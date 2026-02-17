@@ -1,0 +1,257 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { createSupabaseBrowserClient } from '../../../lib/supabase/client';
+import RegularProductForm from '../../../components/forms/RegularProductForm';
+import NotesForm from '../../../components/forms/NotesForm';
+import RoomsForm from '../../../components/forms/RoomsForm';
+import RentalProductForm from '../../../components/forms/RentalProductForm';
+
+export default function EditForm({ item, type }) {
+    const router = useRouter();
+    const [user, setUser] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [authError, setAuthError] = useState(null);
+    const supabase = createSupabaseBrowserClient();
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                console.log('[EditForm] Starting authentication check...');
+                
+                // Get current session from Supabase Auth
+                const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+                
+                console.log('[EditForm] Session check:', { 
+                    hasSession: !!session, 
+                    hasUser: !!session?.user, 
+                    userEmail: session?.user?.email,
+                    sessionError 
+                });
+
+                if (sessionError) {
+                    console.error('[EditForm] Session error:', sessionError);
+                    setAuthError('Authentication error. Please log in again.');
+                    setIsLoading(false);
+                    return;
+                }
+
+                if (!session?.user?.email) {
+                    console.log('[EditForm] No authenticated user found');
+                    setAuthError('Please log in to edit items');
+                    setIsLoading(false);
+                    return;
+                }
+
+                const userEmail = session.user.email;
+                console.log('[EditForm] Found authenticated user:', userEmail);
+
+                // Get user data from users table using the session email
+                const { data: userData, error } = await supabase
+                    .from('users')
+                    .select('id, email, name')
+                    .eq('email', userEmail)
+                    .single();
+
+                console.log('[EditForm] User data query:', { userData, error });
+
+                if (error || !userData) {
+                    console.error('[EditForm] User not found in database:', error);
+                    setAuthError('User not found in database. Please contact support.');
+                    setIsLoading(false);
+                    return;
+                }
+
+                // Check if user owns this item
+                console.log('[EditForm] Ownership check:', { 
+                    itemSellerId: item.seller_id, 
+                    userDatabaseId: userData.id, 
+                    matches: item.seller_id === userData.id 
+                });
+
+                if (item.seller_id !== userData.id) {
+                    setAuthError('You do not have permission to edit this item.');
+                    setIsLoading(false);
+                    return;
+                }
+
+                console.log('[EditForm] Authentication successful');
+                setUser(userData);
+            } catch (error) {
+                console.error('[EditForm] Unexpected error:', error);
+                setAuthError('Authentication error. Please try again.');
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchUser();
+    }, [item.seller_id, supabase]);
+
+    const handleSubmit = async (formData) => {
+        if (!user) {
+            alert('Authentication error. Please refresh and try again.');
+            return;
+        }
+
+        console.log('[EditForm] Starting form submission with data:', formData);
+
+        try {
+            // Handle FormData from forms or direct data object
+            let updateData = {};
+            
+            if (formData instanceof FormData) {
+                console.log('[EditForm] Processing FormData submission');
+                
+                // Extract all form fields from FormData
+                for (let [key, value] of formData.entries()) {
+                    if (!(value instanceof File)) {
+                        // Handle arrays (like amenities)
+                        if (key === 'amenities') {
+                            if (!updateData.amenities) updateData.amenities = [];
+                            updateData.amenities.push(value);
+                        } else if (key === 'location') {
+                            // Handle location object - parse JSON string back to object
+                            try {
+                                console.log('[EditForm] Processing location data:', value);
+                                updateData.location = JSON.parse(value);
+                                console.log('[EditForm] Parsed location:', updateData.location);
+                            } catch (err) {
+                                console.error('[EditForm] Error parsing location:', err);
+                                // Keep as string if parsing fails
+                                updateData[key] = value;
+                            }
+                        } else {
+                            updateData[key] = value;
+                        }
+                    }
+                }
+                
+                // Map form field names to database column names for rooms
+                if (type === 'room') {
+                    const fieldMapping = {
+                        'hostel_name': 'title',
+                        'fees': 'price',
+                        'room_type': 'room_type',
+                        'owner_name': 'owner_name',
+                        'contact_primary': 'contact1',
+                        'contact_secondary': 'contact2',
+                        'mess_included': 'fees_include_mess',
+                        'mess_fees': 'mess_fees'
+                    };
+                    
+                    // Apply field mapping
+                    Object.keys(fieldMapping).forEach(formField => {
+                        if (updateData[formField] !== undefined) {
+                            updateData[fieldMapping[formField]] = updateData[formField];
+                            delete updateData[formField];
+                        }
+                    });
+                    
+                    // Convert boolean values
+                    if (updateData.fees_include_mess !== undefined) {
+                        updateData.fees_include_mess = updateData.fees_include_mess === 'true' || updateData.fees_include_mess === true;
+                    }
+                    
+                    // Convert numeric values
+                    if (updateData.price) updateData.price = parseFloat(updateData.price);
+                    if (updateData.deposit) updateData.deposit = parseFloat(updateData.deposit);
+                    if (updateData.mess_fees) updateData.mess_fees = parseFloat(updateData.mess_fees);
+                }
+            } else {
+                // Direct data object
+                updateData = { ...formData };
+            }
+            
+            // Clean up fields that shouldn't be updated
+            const fieldsToRemove = ['images', 'pdf', 'type', 'id', 'seller_id', 'created_at', 'user'];
+            fieldsToRemove.forEach(field => delete updateData[field]);
+            
+            console.log('[EditForm] Final update data:', updateData);
+
+            const response = await fetch('/api/item/update', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    id: item.id, 
+                    type, 
+                    data: updateData,
+                    userEmail: user.email 
+                }),
+            });
+
+            const result = await response.json();
+            console.log('[EditForm] Update response:', result);
+
+            if (response.ok) {
+                alert(`Item "${result.item?.title || item.title}" updated successfully!`);
+                router.push('/profile');
+                router.refresh();
+            } else {
+                console.error('[EditForm] Update failed:', result);
+                alert(`Failed to update item: ${result.error || 'Unknown error'}`);
+            }
+        } catch (error) {
+            console.error('[EditForm] Error updating item:', error);
+            alert('Failed to update item due to network error.');
+        }
+    };
+
+    if (isLoading) {
+        return (
+            <div className="flex justify-center items-center py-12">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
+                    <p className="text-slate-600 dark:text-gray-300">Loading...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (authError) {
+        return (
+            <div className="text-center py-12">
+                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 max-w-md mx-auto">
+                    <h2 className="text-xl font-bold text-red-800 dark:text-red-200 mb-2">Access Denied</h2>
+                    <p className="text-red-600 dark:text-red-300 mb-4">{authError}</p>
+                    <button 
+                        onClick={() => router.push('/profile')}
+                        className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+                    >
+                        Go Back to Profile
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    const renderForm = () => {
+        switch (type) {
+            case 'product':
+                return <RegularProductForm initialData={item} onSubmit={handleSubmit} category={item.category} isEditMode={true} />;
+            case 'note':
+                return <NotesForm initialData={item} onSubmit={handleSubmit} category={item.category} isEditMode={true} />;
+            case 'room':
+                return <RoomsForm initialData={item} onSubmit={handleSubmit} category={item.category} isEditMode={true} />;
+            case 'rental':
+                return <RentalProductForm initialData={item} onSubmit={handleSubmit} category={item.category} isEditMode={true} />;
+            default:
+                return <p className="text-red-600">Invalid item type.</p>;
+        }
+    };
+
+    return (
+        <div>
+            <div className="mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                <p className="text-blue-800 dark:text-blue-200">
+                    <strong>Editing:</strong> {item.title} (ID: {item.id})
+                </p>
+                <p className="text-blue-600 dark:text-blue-300 text-sm mt-1">
+                    Make your changes and click save to update your listing.
+                </p>
+            </div>
+            {renderForm()}
+        </div>
+    );
+}

@@ -1,0 +1,160 @@
+name: 🔒 Repository Security Enforcement
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+  issues:
+    types: [opened, edited]
+  
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+jobs:
+  security-check:
+    name: 🛡️ Security Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 🔍 Checkout Code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: 🚨 Verify Repository Owner
+      run: |
+        echo "🔍 Verifying repository access..."
+        if [ "${{ github.actor }}" != "Adi-Evolve" ]; then
+          if [ "${{ github.event_name }}" == "push" ] && [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "🚫 ERROR: Direct push to main branch not allowed for user: ${{ github.actor }}"
+            echo "ℹ️  Only Adi-Evolve can push directly to main branch"
+            exit 1
+          fi
+        fi
+        echo "✅ Repository access verified"
+
+    - name: 🔐 Secret Scanning
+      run: |
+        echo "🔍 Scanning for exposed secrets..."
+        
+        # Define secret patterns to avoid self-detection
+        STRIPE_LIVE="sk_live_"
+        STRIPE_PUB="pk_live_" 
+        JWT_PATTERN="eyJ[A-Za-z0-9]"
+        RAZORPAY_LIVE="rzp_live_"
+        
+        # Check for common secret patterns (excluding this workflow file)
+        if grep -r "$STRIPE_LIVE" . --exclude-dir=.git --exclude="*.yml" || \
+           grep -r "$STRIPE_PUB" . --exclude-dir=.git --exclude="*.yml" || \
+           grep -r "$JWT_PATTERN" . --exclude-dir=.git --exclude="*.yml" | grep -v "\.md" || \
+           grep -r "$RAZORPAY_LIVE" . --exclude-dir=.git --exclude="*.yml" || \
+           grep -r "SUPABASE.*eyJ" . --exclude-dir=.git --exclude="*.yml"; then
+          echo "🚨 CRITICAL: Potential secrets found in repository!"
+          echo "🔒 Please remove all hardcoded secrets and use environment variables"
+          exit 1
+        fi
+        echo "✅ No secrets detected"
+
+    - name: 🛡️ File Security Check
+      run: |
+        echo "🔍 Checking for prohibited files..."
+        
+        # Check for admin/sensitive files
+        prohibited_files=(
+          "adi.html"
+          "admin-panel*.html"
+          "test-api.html" 
+          "test-analytics.html"
+          "*credential*"
+          "*secret*"
+          "enhanced-admin*.js"
+          "diagnose_*.js"
+        )
+        
+        found_prohibited=false
+        for pattern in "${prohibited_files[@]}"; do
+          if find . -name "$pattern" -not -path "./.git/*" | grep -q .; then
+            echo "🚫 BLOCKED: Prohibited file pattern found: $pattern"
+            find . -name "$pattern" -not -path "./.git/*"
+            found_prohibited=true
+          fi
+        done
+        
+        if [ "$found_prohibited" = true ]; then
+          echo "🚨 Security violation: Prohibited files detected"
+          exit 1
+        fi
+        echo "✅ No prohibited files found"
+
+    - name: 📊 Security Score Validation
+      run: |
+        echo "🔍 Running security validation..."
+        if [ -f "validate-security.js" ]; then
+          node validate-security.js
+          if [ $? -ne 0 ]; then
+            echo "🚨 Security validation failed"
+            exit 1
+          fi
+        fi
+        echo "✅ Security validation passed"
+
+    - name: 🔒 Branch Protection Reminder
+      if: github.event_name == 'pull_request'
+      run: |
+        echo "ℹ️  SECURITY REMINDER:"
+        echo "📋 This PR requires approval from repository owner (Adi-Evolve)"
+        echo "🔒 Main branch is protected - no direct pushes allowed"
+        echo "🛡️ All security checks must pass before merge"
+
+  dependency-security:
+    name: 🔍 Dependency Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 🔍 Checkout Code
+      uses: actions/checkout@v4
+      
+    - name: 📦 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: 🔍 Audit Dependencies
+      run: |
+        echo "🔍 Auditing npm dependencies for vulnerabilities..."
+        npm audit --audit-level=moderate
+        if [ $? -ne 0 ]; then
+          echo "🚨 Security vulnerabilities found in dependencies"
+          echo "🔧 Please run 'npm audit fix' to resolve issues"
+          exit 1
+        fi
+        echo "✅ No security vulnerabilities found"
+
+  access-control:
+    name: 🚫 Access Control Enforcement  
+    runs-on: ubuntu-latest
+    if: github.actor != 'Adi-Evolve'
+    
+    steps:
+    - name: 🔒 Enforce Access Restrictions
+      run: |
+        echo "🔍 User: ${{ github.actor }}"
+        echo "📋 Event: ${{ github.event_name }}"
+        echo "🌿 Branch: ${{ github.ref }}"
+        
+        # Log access attempt
+        echo "📊 Access attempt logged: ${{ github.actor }} attempted ${{ github.event_name }} on $(date)"
+        
+        # Allow only specific actions for non-owners
+        allowed_events=("pull_request" "issues" "issue_comment")
+        
+        if [[ ! " ${allowed_events[@]} " =~ " ${{ github.event_name }} " ]]; then
+          echo "🚫 ACCESS DENIED: Action '${{ github.event_name }}' not permitted"
+          echo "ℹ️  Allowed actions: pull_request, issues, issue_comment"
+          echo "👤 Only repository owner (Adi-Evolve) has full access"
+          exit 1
+        fi
+        
+        echo "✅ Access granted for permitted action"

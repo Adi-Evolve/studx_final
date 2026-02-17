@@ -1,0 +1,148 @@
+# See https://help.github.com/articles/ignoring-files
+
+# Dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# Testing
+/coverage
+
+# Next.js
+/.next/
+/out/
+
+# Production
+/build
+
+# Misc
+.DS_Store
+*.pem
+
+# Vercel
+.vercel
+
+# ==========================================
+# 🔒 SECURITY: CRITICAL FILES TO NEVER COMMIT
+# ==========================================
+
+# Environment Variables - NEVER COMMIT THESE!
+.env
+.env*.local
+.env.production
+.env.development
+.env.staging
+*.env
+
+# Credentials and sensitive files
+*.key
+*.pem
+*.p12
+*.pfx
+credentials.json
+secrets.json
+config.json
+auth.json
+
+# Database dumps and backups (not migration scripts)
+# *.sql — commented out to allow migration scripts like add_flat_support_to_rooms.sql
+*.dump
+*.backup
+database_backup*
+db_dump*
+
+# 🚨 ADMIN & DIAGNOSTIC FILES - HIGH SECURITY RISK
+admin*.html
+test*.html
+*admin*.html
+*test*.html
+adi.html
+
+# Development and diagnostic scripts
+test_*.js
+debug_*.js
+*_test.js
+*_debug.js
+diagnose_*.js
+admin-panel*.js
+enhanced-*.js
+fix_*.js
+*diagnostic*.js
+*admin*.js
+
+# Security and analysis files
+test-security*.js
+security-fix*.md
+*security*.md
+vulnerability*.md
+audit*.md
+
+# Log files with potential sensitive info
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+logs/
+*.log.*
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# IDE and editor files
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+.temp/
+temp/
+
+# Backup files
+*.bak
+*.backup
+*.orig
+*~
+
+# ==========================================
+# 🔒 NEVER COMMIT: Files with API keys/secrets
+# ==========================================
+*api_key*
+*secret*
+*password*
+*token*
+*credential*
+
+# Specific files that might contain secrets
+analytics*.html
+sponsored*.html
+*-example.html
+*config*.js
+*keys*.js
+
+# Build artifacts that might contain secrets
+dist/
+build/
+out/
+
+# Large test files
+test/sample.pdf
+
+# Large/unnecessary files
+bfg-1.15.0.jar
+adi_backup.html
+adi_new.html
+test-thali-image.jpg.jpeg
+*_backup.js
+*_broken.js

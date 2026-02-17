@@ -1,0 +1,35 @@
+<svg width="144" height="144" viewBox="0 0 144 144" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background with gradient -->
+  <rect width="144" height="144" rx="24" fill="url(#gradient1)"/>
+  
+  <!-- Define gradients -->
+  <defs>
+    <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1E40AF;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FBBF24;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F59E0B;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Main "S" -->
+  <path d="M38 48 C32 48 26 54 26 60 C26 66 32 72 38 72 L56 72 C62 72 68 78 68 84 C68 90 62 96 56 96 L38 96 C26 96 16 86 16 74 L16 68" 
+        stroke="white" stroke-width="6" fill="none" stroke-linecap="round"/>
+  
+  <!-- Book stack -->
+  <rect x="82" y="45" width="45" height="6" rx="2" fill="white" opacity="0.9"/>
+  <rect x="84" y="37" width="41" height="6" rx="2" fill="white" opacity="0.8"/>
+  <rect x="86" y="29" width="37" height="6" rx="2" fill="white" opacity="0.7"/>
+  
+  <!-- Exchange arrows -->
+  <path d="M56 110 L80 110 M72 102 L80 110 L72 118" 
+        stroke="url(#gradient2)" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M90 125 L66 125 M74 117 L66 125 L74 133" 
+        stroke="url(#gradient2)" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- "X" for exchange -->
+  <path d="M100 110 L116 126 M116 110 L100 126" 
+        stroke="white" stroke-width="3" stroke-linecap="round"/>
+</svg>
