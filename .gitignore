@@ -131,6 +131,10 @@ analytics*.html
 sponsored*.html
 *-example.html
 *config*.js
+# Exceptions: essential project config files
+!next.config.js
+!postcss.config.js
+!tailwind.config.js
 *keys*.js
 
 # Build artifacts that might contain secrets
