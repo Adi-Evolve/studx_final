@@ -136,7 +136,7 @@ export default function ListingCard({ item, onClick, isSelectMode = false, isSpo
                         item.type === 'rental' ? 'bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 border-2 border-purple-300 dark:border-purple-600 font-bold animate-pulse' :
                         'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600'
                     }`}>
-                        {item.type === 'room' ? '🏠 Room' : 
+                        {item.type === 'room' ? (item.category === 'Flat' ? '🏢 Flat' : '🏠 Hostel') : 
                          item.type === 'note' ? '📚 Notes' : 
                          item.type === 'rental' ? '🔄 Rental' :
                          '📦 Product'}

@@ -3,98 +3,80 @@
 import { useState, useEffect, useCallback } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useSwipeGesture } from '@/hooks/useSwipeGesture';
 
 function RoomCard({ room }) {
-    const firstImage = room.images && room.images.length > 0 ? room.images[0] : null;
+    const imageUrl = (Array.isArray(room.images) && room.images.length > 0 && room.images[0])
+        || `https://i.pravatar.cc/300?u=${room.id}`;
     const isFlat = room.category === 'Flat';
     const displayPrice = room.price || room.fees || 0;
     const displayDuration = room.duration || 'monthly';
+    const title = room.title || room.hostel_name || 'Untitled Property';
 
     return (
-        <Link href={`/products/rooms/${room.id}`} className="group block h-full">
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-900/40 overflow-hidden hover:shadow-xl dark:hover:shadow-blue-500/10 transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 dark:border-gray-700 h-full flex flex-col">
-                {/* Image */}
-                <div className="relative h-36 sm:h-40 bg-gradient-to-br from-blue-400 to-indigo-400 dark:from-blue-600 dark:to-indigo-600 overflow-hidden flex-shrink-0">
-                    {firstImage ? (
-                        <>
-                            <img
-                                src={firstImage}
-                                alt={room.title || room.hostel_name || 'Property'}
-                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                loading="lazy"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                        </>
-                    ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                            <span className="text-5xl opacity-60">{isFlat ? '🏢' : '🏠'}</span>
-                        </div>
-                    )}
-
-                    {/* Category Badge */}
-                    <div className="absolute top-2 left-2">
-                        <span className={`px-2 py-1 rounded-full text-[10px] font-bold shadow-lg backdrop-blur-sm ${isFlat
-                            ? 'bg-purple-500/90 text-white'
-                            : 'bg-blue-500/90 text-white'
-                            }`}>
-                            {isFlat ? '🏢 Flat' : '🏠 Room'}
-                        </span>
+        <Link href={`/products/rooms/${room.id}`} legacyBehavior>
+            <a className="block h-full hover-lift" style={{ textDecoration: 'none' }}>
+                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-900 overflow-hidden hover:shadow-xl dark:hover:shadow-gray-700 transition-all duration-300 transform hover:scale-105 h-full flex flex-col group relative border-2 dark:border-gray-700 border-transparent hover:border-emerald-200 dark:hover:border-emerald-600">
+                    {/* Image */}
+                    <div className="relative h-32 sm:h-48 overflow-hidden bg-gradient-to-br from-slate-100 to-emerald-50">
+                        <Image
+                            draggable="false"
+                            src={imageUrl}
+                            alt={title}
+                            fill
+                            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                            style={{ objectFit: 'cover' }}
+                            className="transition-transform duration-300 group-hover:scale-110"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     </div>
 
-                    {/* Price Badge */}
-                    <div className="absolute bottom-2 left-2">
-                        <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm px-2.5 py-1 rounded-full shadow-lg">
-                            <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
-                                ₹{displayPrice.toLocaleString()}
+                    {/* Content */}
+                    <div className="p-2 sm:p-4 flex-grow flex flex-col">
+                        {/* Type Badge */}
+                        <div className="mb-1.5 sm:mb-2">
+                            <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs font-semibold rounded-full bg-emerald-50 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700">
+                                {isFlat ? '🏢 Flat' : '🏠 Hostel'}
                             </span>
-                            <span className="text-[10px] text-gray-500 dark:text-gray-400">/{displayDuration}</span>
+                        </div>
+
+                        {/* Title */}
+                        <h3 className="font-semibold text-slate-900 dark:text-gray-100 mb-1.5 sm:mb-2 line-clamp-2 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-200 text-xs sm:text-sm leading-tight">
+                            {title}
+                        </h3>
+
+                        {/* Price + Details */}
+                        <div className="mt-auto space-y-1.5 sm:space-y-2">
+                            <div className="flex items-center justify-between">
+                                <div className="flex flex-col">
+                                    <span className="text-sm sm:text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-slate-800 to-emerald-600 dark:from-slate-200 dark:to-emerald-400">
+                                        ₹{displayPrice.toLocaleString()}
+                                    </span>
+                                    <span className="text-[9px] sm:text-xs text-slate-500 dark:text-slate-400">
+                                        /{displayDuration.toLowerCase()}
+                                    </span>
+                                </div>
+
+                                {/* Occupancy */}
+                                {room.occupancy && (
+                                    <div className="text-slate-500 dark:text-slate-400 flex items-center">
+                                        <span className="text-[9px] sm:text-xs">👤 {room.occupancy}</span>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* College */}
+                            {room.college && (
+                                <div className="flex items-center text-[9px] sm:text-xs text-slate-500 dark:text-slate-400 truncate">
+                                    <span className="mr-0.5 sm:mr-1 text-[8px] sm:text-[10px]">📍</span>
+                                    <span className="truncate">{room.college}</span>
+                                </div>
+                            )}
                         </div>
                     </div>
-
-                    {/* Room Type */}
-                    {room.room_type && (
-                        <div className="absolute top-2 right-2">
-                            <span className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm text-gray-700 dark:text-gray-300 px-2 py-1 rounded-full text-[10px] font-semibold shadow">
-                                {room.room_type}
-                            </span>
-                        </div>
-                    )}
                 </div>
-
-                {/* Content */}
-                <div className="p-3 sm:p-4 flex flex-col flex-1">
-                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm line-clamp-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors mb-1.5">
-                        {room.title || room.hostel_name || 'Untitled Property'}
-                    </h3>
-
-                    {/* Key Details */}
-                    <div className="flex flex-wrap gap-1.5 mb-2">
-                        {room.occupancy && (
-                            <span className="text-[10px] bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded-full">
-                                👤 {room.occupancy}
-                            </span>
-                        )}
-                        {isFlat && room.furnished_status && room.furnished_status !== 'Unfurnished' && (
-                            <span className="text-[10px] bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-1.5 py-0.5 rounded-full">
-                                🪑 {room.furnished_status}
-                            </span>
-                        )}
-                        {room.distance && (
-                            <span className="text-[10px] bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 px-1.5 py-0.5 rounded-full">
-                                📍 {room.distance}
-                            </span>
-                        )}
-                    </div>
-
-                    {/* College */}
-                    {room.college && (
-                        <p className="text-[11px] text-gray-500 dark:text-gray-400 line-clamp-1 mt-auto">
-                            🎓 {room.college}
-                        </p>
-                    )}
-                </div>
-            </div>
+            </a>
         </Link>
     );
 }
