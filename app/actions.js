@@ -1040,3 +1040,59 @@ export async function fetchFlatsAndHostels(limit = 12) {
         return { data: [], error: 'Failed to fetch flats and hostels' };
     }
 }
+
+/**
+ * Fetch nearby rooms/flats/hostels sorted by distance from a given location.
+ * Uses Haversine formula to compute distance and returns nearest first.
+ */
+export async function fetchNearbyRooms({ currentRoomId, lat, lng, limit = 10 }) {
+    'use server';
+    try {
+        const supabase = createSupabaseServerClient();
+
+        const { data, error } = await supabase
+            .from('rooms')
+            .select(`
+                id, title, description, price, category, college, location,
+                images, room_type, occupancy, distance, deposit, fees_include_mess,
+                mess_fees, owner_name, contact1, contact2, amenities, duration, seller_id, created_at
+            `)
+            .neq('id', currentRoomId)
+            .eq('is_sold', false);
+
+        if (error) {
+            console.error('[fetchNearbyRooms] Database error:', error.message);
+            return [];
+        }
+
+        if (!data || data.length === 0) return [];
+
+        // Parse location and calculate distance for each room
+        const roomsWithDistance = data
+            .map(room => {
+                let roomLat, roomLng;
+                try {
+                    if (room.location) {
+                        const loc = typeof room.location === 'string' ? JSON.parse(room.location) : room.location;
+                        roomLat = parseFloat(loc.lat || loc.latitude);
+                        roomLng = parseFloat(loc.lng || loc.longitude || loc.lon);
+                    }
+                } catch (e) {
+                    // skip rooms with invalid location
+                }
+
+                if (!roomLat || !roomLng || isNaN(roomLat) || isNaN(roomLng)) return null;
+
+                const dist = calculateDistance(lat, lng, roomLat, roomLng);
+                return { ...room, _distance: dist, type: 'room' };
+            })
+            .filter(Boolean)
+            .sort((a, b) => a._distance - b._distance)
+            .slice(0, limit);
+
+        return roomsWithDistance;
+    } catch (error) {
+        console.error('[fetchNearbyRooms] Unexpected error:', error.message);
+        return [];
+    }
+}

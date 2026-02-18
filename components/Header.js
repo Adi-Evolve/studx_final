@@ -13,12 +13,10 @@ import {
     faBars, 
     faTimes, 
     faSearch,
-    faCalendarAlt,
-    faThLarge
+    faCalendarAlt
 } from '@fortawesome/free-solid-svg-icons';
 import NotificationSystem from './NotificationSystem';
 import ThemeToggle from './ThemeToggle';
-import { useSidebar } from './CategorySidebar';
 
 // Custom hook to handle clicks outside a specified element
 function useOnClickOutside(ref, handler) {
@@ -169,24 +167,6 @@ export default function Header() {
     const router = useRouter();
     const pathname = usePathname();
     const profileMenuRef = useRef(null);
-    
-    // Get sidebar toggle function from context (only available on pages with sidebar)
-    let sidebarContext;
-    try {
-        sidebarContext = useSidebar();
-    } catch (error) {
-        // Not in a sidebar context, that's fine
-        sidebarContext = null;
-    }
-    
-    const { toggleSidebar, isMobile } = sidebarContext || { toggleSidebar: null, isMobile: false };
-    
-    // Check if current page should show the categories button
-    const showCategoriesButton = pathname === '/' || 
-                                 pathname?.startsWith('/category/');
-                                 // HIDDEN: Removed mess paths
-                                 // pathname?.startsWith('/mess') ||
-                                 // pathname?.startsWith('/profile/mess');
 
     useOnClickOutside(profileMenuRef, () => setIsProfileMenuOpen(false));
 
@@ -382,16 +362,6 @@ export default function Header() {
 
                     {/* Mobile Menu Button and Search */}
                     <div className="md:hidden flex items-center space-x-2">
-                        {/* Categories Button - Only show on pages with sidebar */}
-                        {showCategoriesButton && toggleSidebar && isMobile && (
-                            <button
-                                onClick={toggleSidebar}
-                                className="p-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white transition-all border border-blue-400 shadow-md hover:shadow-lg"
-                                aria-label="Categories"
-                            >
-                                <FontAwesomeIcon icon={faThLarge} className="w-5 h-5" />
-                            </button>
-                        )}
                         <button
                             onClick={() => setIsSearchOpen(true)}
                             className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors border border-gray-200 dark:border-gray-600"

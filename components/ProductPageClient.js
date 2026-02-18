@@ -12,6 +12,7 @@ import SellerInfoModal from '@/components/SellerInfoModal';
 import CompareModal from '@/components/CompareModal';
 import CompareSelectionModal from '@/components/CompareSelectionModal';
 import SimilarItemsFeed from '@/components/SimilarItemsFeed';
+import NearbyFlatsSection from '@/components/NearbyFlatsSection';
 import PaymentModal from '@/components/PaymentModal';
 import DriveUploadButton from './DriveUploadButton';
 import { fetchSellerListings } from '@/app/actions';
@@ -438,7 +439,11 @@ export default function ProductPageClient({ product, seller, type }) {
                 </div>
 
                 <div className="mt-12">
-                    <SimilarItemsFeed type={type} category={product.category} college={product.college} currentItemId={product.id} />
+                    {type === 'room' ? (
+                        <NearbyFlatsSection currentRoomId={product.id} location={product.location} />
+                    ) : (
+                        <SimilarItemsFeed type={type} category={product.category} college={product.college} currentItemId={product.id} />
+                    )}
                 </div>
 
                 {/* Disclaimer */}

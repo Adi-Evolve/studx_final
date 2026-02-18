@@ -1,9 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect, createContext, useContext } from 'react';
+import { useRef, useState, useEffect, createContext, useContext } from 'react';
 
-// Create context for sidebar state
+// Keep context for backward compatibility (Header uses it)
 const SidebarContext = createContext();
 
 export function useSidebar() {
@@ -15,31 +15,11 @@ export function SidebarProvider({ children }) {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const checkMobile = () => {
-      const mobile = window.innerWidth < 1024;
-      setIsMobile(mobile);
-      if (!mobile) {
-        setIsCollapsed(true);
-      }
-    };
-
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
-
-  // Lock body scroll when mobile sidebar is open
-  useEffect(() => {
-    if (isMobile && !isCollapsed) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isMobile, isCollapsed]);
 
   const toggleSidebar = () => setIsCollapsed(!isCollapsed);
 
@@ -57,101 +37,90 @@ const categories = [
   { href: "/category/Electronics", icon: "🔌", title: "Electronics" },
   { href: "/category/Bike", icon: "🚲", title: "Bikes" },
   { href: "/category/Notes", icon: "📝", title: "Notes" },
-  { href: "/category/Rooms", icon: "🏠", title: "Rooms" },
-  // HIDDEN: Mess category - commented out but not deleted
-  // { href: "/mess", icon: "🍽️", title: "Mess" },
+  { href: "/category/Rooms", icon: "🏠", title: "Hostels" },
   { href: "/category/Furniture", icon: "🪑", title: "Furniture" },
   { href: "/category/Dorm Equipment", icon: "🛏️", title: "Dorm Equipment" },
   { href: "/category/Books", icon: "📖", title: "Books" }
 ];
 
 export default function CategorySidebar() {
-  const { isCollapsed, setIsCollapsed, isMobile } = useSidebar();
-  const [isHovered, setIsHovered] = useState(false);
+  const scrollRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
 
-  // Improve expansion logic - on desktop expand on hover, on mobile via toggle
-  const shouldShowExpanded = isMobile ? !isCollapsed : (isHovered);
+  const checkScroll = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 4);
+    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 4);
+  };
+
+  useEffect(() => {
+    checkScroll();
+    const el = scrollRef.current;
+    if (el) {
+      el.addEventListener('scroll', checkScroll, { passive: true });
+      window.addEventListener('resize', checkScroll);
+    }
+    return () => {
+      if (el) el.removeEventListener('scroll', checkScroll);
+      window.removeEventListener('resize', checkScroll);
+    };
+  }, []);
+
+  const scroll = (direction) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollBy({ left: direction * 200, behavior: 'smooth' });
+  };
 
   return (
-    <>
-      {/* Mobile Overlay */}
-      {isMobile && !isCollapsed && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-[45] lg:hidden"
-          onClick={() => setIsCollapsed(true)}
-        />
-      )}
+    <div className="relative w-full bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 relative">
+        {/* Left fade + arrow */}
+        {canScrollLeft && (
+          <button
+            onClick={() => scroll(-1)}
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 flex items-center justify-center bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full shadow-md border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            aria-label="Scroll left"
+          >
+            <svg className="w-4 h-4 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+        )}
 
-      {/* Sidebar */}
-      <div 
-        className={`
-          fixed left-0 z-[46] bg-white dark:bg-gray-800 shadow-lg border-r border-gray-200 dark:border-gray-700
-          transition-all duration-300 
-          ${
-            shouldShowExpanded ? 'w-64' : 'w-16'
-          }
-          ${
-            isMobile 
-              ? `top-0 h-full overflow-y-auto ${isCollapsed ? '-translate-x-full' : 'translate-x-0'}` 
-              : 'top-[72px] h-[calc(100vh-72px)] overflow-y-auto'
-          }
-        `}
-        onMouseEnter={() => !isMobile && setIsHovered(true)}
-        onMouseLeave={() => !isMobile && setIsHovered(false)}
-      >
-        
-        {/* Sidebar Header */}
-        <div className={`p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-800 ${isMobile ? 'sticky top-0 z-10' : ''}`}>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center flex-1 justify-center">
-              {shouldShowExpanded ? (
-                <h2 className="text-lg font-bold text-gray-800 dark:text-gray-200 flex items-center">
-                  <span className="mr-2">📂</span>
-                  Categories
-                </h2>
-              ) : (
-                <span className="text-2xl">📂</span>
-              )}
-            </div>
-            {/* Close button for mobile */}
-            {isMobile && shouldShowExpanded && (
-              <button
-                onClick={() => setIsCollapsed(true)}
-                className="ml-2 p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                aria-label="Close categories"
-              >
-                <svg className="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            )}
-          </div>
+        {/* Scrollable category pills */}
+        <div
+          ref={scrollRef}
+          className="flex items-center gap-2 sm:gap-3 py-3 overflow-x-auto scrollbar-hide scroll-smooth"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
+          {categories.map((cat, i) => (
+            <Link
+              key={i}
+              href={cat.href}
+              className="flex-shrink-0 flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gradient-to-r hover:from-blue-500 hover:to-indigo-500 hover:text-white text-gray-700 dark:text-gray-300 text-xs sm:text-sm font-medium transition-all duration-200 border border-gray-200 dark:border-gray-600 hover:border-transparent hover:shadow-md whitespace-nowrap"
+            >
+              <span className="text-base sm:text-lg">{cat.icon}</span>
+              <span>{cat.title}</span>
+            </Link>
+          ))}
         </div>
 
-        {/* Categories List */}
-        <nav className="p-2">
-          <div className="space-y-1">
-            {categories.map((category, index) => (
-              <Link
-                key={index}
-                href={category.href}
-                className={`flex items-center p-3 rounded-xl hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 dark:hover:from-gray-700 dark:hover:to-gray-600 transition-all duration-300 group transform hover:scale-105 ${
-                  shouldShowExpanded ? 'justify-start' : 'justify-center'
-                } border border-transparent hover:border-blue-200 dark:hover:border-gray-600 hover:shadow-md`}
-                title={!shouldShowExpanded ? category.title : ''}
-                onClick={() => isMobile && setIsCollapsed(true)}
-              >
-                <span className="text-2xl flex-shrink-0 transition-transform duration-300 group-hover:scale-110">{category.icon}</span>
-                {shouldShowExpanded && (
-                  <span className="ml-3 text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors whitespace-nowrap">
-                    {category.title}
-                  </span>
-                )}
-              </Link>
-            ))}
-          </div>
-        </nav>
+        {/* Right fade + arrow */}
+        {canScrollRight && (
+          <button
+            onClick={() => scroll(1)}
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 flex items-center justify-center bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full shadow-md border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            aria-label="Scroll right"
+          >
+            <svg className="w-4 h-4 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        )}
       </div>
-    </>
+    </div>
   );
 }
