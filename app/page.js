@@ -4,6 +4,7 @@ import FunnyAdvertisingBanner from '@/components/FunnyAdvertisingBanner';
 import FeaturedSlider from '@/components/FeaturedSlider';
 import NewestProductsSlider from '@/components/NewestProductsSlider';
 import NewestProductsSection from '@/components/NewestProductsSection';
+import FlatsRoomsSlider from '@/components/FlatsRoomsSlider';
 import HowItWorks from '@/components/HowItWorks';
 import LayoutWithSidebar from '@/components/LayoutWithSidebar';
 // import LocationPermissionBanner from '@/components/LocationPermissionBanner'; // TODO: Re-enable location features later
@@ -88,14 +89,16 @@ async function FlatsHostelsSection() {
 
     if (!roomItems || roomItems.length === 0) {
       return (
-        <section className="mb-16">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-4">
-              🏠 Flats, Hostels & Rooms
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-              Find your perfect accommodation near campus.
-            </p>
+        <section className="mb-16 px-4">
+          <div className="flex justify-between items-center mb-6 sm:mb-8">
+            <div>
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 dark:text-white flex items-center">
+                🏠 Flats, Hostels & Rooms
+              </h2>
+              <p className="text-xs sm:text-sm lg:text-base text-gray-600 dark:text-gray-300 mt-1 sm:mt-2">
+                Find your perfect accommodation near campus
+              </p>
+            </div>
           </div>
           <div className="text-center py-12 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
             <div className="text-6xl mb-4">🏠</div>
@@ -113,171 +116,28 @@ async function FlatsHostelsSection() {
     }
 
     return (
-      <section className="mb-16">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-4">
-            🏠 Flats, Hostels & Rooms
-          </h2>
-          <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Find your perfect accommodation near campus — flats, hostels, and rooms available now.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {roomItems.map((room) => {
-            const firstImage = room.images && room.images.length > 0 ? room.images[0] : null;
-            const isFlat = room.category === 'Flat';
-            const displayPrice = room.price || room.fees || 0;
-            const displayDuration = room.duration || 'monthly';
-
-            return (
-              <Link
-                key={room.id}
-                href={`/products/rooms/${room.id}`}
-                className="group"
-              >
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-2xl overflow-hidden hover:shadow-2xl dark:hover:shadow-blue-500/20 transition-all duration-500 transform hover:-translate-y-2 border border-gray-100 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600">
-
-                  {/* Image */}
-                  <div className="relative h-48 bg-gradient-to-br from-blue-400 via-indigo-400 to-purple-400 dark:from-blue-600 dark:via-indigo-600 dark:to-purple-600 overflow-hidden">
-                    {firstImage ? (
-                      <>
-                        <img
-                          src={firstImage}
-                          alt={room.title || room.hostel_name || 'Property'}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
-                      </>
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <div className="text-7xl opacity-50 transform group-hover:scale-110 transition-transform duration-500">
-                          {isFlat ? '🏢' : '🏠'}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Category Badge */}
-                    <div className="absolute top-3 left-3">
-                      <span className={`px-3 py-1.5 rounded-full text-xs font-bold shadow-xl backdrop-blur-sm ${isFlat
-                          ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
-                          : 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white'
-                        }`}>
-                        {isFlat ? '🏢 Flat' : '🏠 Hostel/Room'}
-                      </span>
-                    </div>
-
-                    {/* Room Type Badge */}
-                    {room.room_type && (
-                      <div className="absolute top-3 right-3">
-                        <span className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm text-gray-700 dark:text-gray-300 px-3 py-1.5 rounded-full text-xs font-bold shadow-lg">
-                          {room.room_type}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Price Badge */}
-                    <div className="absolute bottom-3 left-3">
-                      <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md px-3 py-1.5 rounded-full shadow-xl">
-                        <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
-                          ₹{displayPrice.toLocaleString()}
-                        </span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">/{displayDuration}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Card Content */}
-                  <div className="p-5">
-                    <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-2 text-base line-clamp-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                      {room.title || room.hostel_name || 'Untitled Property'}
-                    </h3>
-
-                    <p className="text-xs text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
-                      {room.description || 'No description provided'}
-                    </p>
-
-                    {/* Details Row */}
-                    <div className="flex flex-wrap gap-2 mb-3">
-                      {room.occupancy && (
-                        <span className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-full">
-                          👤 {room.occupancy}
-                        </span>
-                      )}
-                      {isFlat && room.furnished_status && room.furnished_status !== 'Unfurnished' && (
-                        <span className="text-xs bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-2 py-1 rounded-full">
-                          🪑 {room.furnished_status}
-                        </span>
-                      )}
-                      {isFlat && room.area_sqft && (
-                        <span className="text-xs bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 px-2 py-1 rounded-full">
-                          📐 {room.area_sqft}
-                        </span>
-                      )}
-                      {isFlat && room.floor_number && (
-                        <span className="text-xs bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 px-2 py-1 rounded-full">
-                          🏢 Floor {room.floor_number}{room.total_floors ? `/${room.total_floors}` : ''}
-                        </span>
-                      )}
-                      {room.distance && (
-                        <span className="text-xs bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 px-2 py-1 rounded-full">
-                          📍 {room.distance}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Amenities */}
-                    {room.amenities && room.amenities.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 mb-3">
-                        {room.amenities.slice(0, 3).map((amenity, index) => (
-                          <span
-                            key={index}
-                            className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded-full"
-                          >
-                            {amenity}
-                          </span>
-                        ))}
-                        {room.amenities.length > 3 && (
-                          <span className="text-xs text-gray-400 px-1">
-                            +{room.amenities.length - 3} more
-                          </span>
-                        )}
-                      </div>
-                    )}
-
-                    {/* College */}
-                    {room.college && (
-                      <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 mb-3">
-                        <span className="mr-1">🎓</span>
-                        <span className="line-clamp-1">{room.college}</span>
-                      </div>
-                    )}
-
-                    {/* View Details */}
-                    <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                      <div className="flex items-center justify-between text-xs font-semibold text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300">
-                        <span>View Details</span>
-                        <svg className="w-4 h-4 transform group-hover:translate-x-2 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-
-        <div className="text-center mt-8">
+      <section className="mb-16 px-4">
+        <div className="flex justify-between items-center mb-6 sm:mb-8">
+          <div>
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 dark:text-white flex items-center">
+              🏠 Flats, Hostels & Rooms
+            </h2>
+            <p className="text-xs sm:text-sm lg:text-base text-gray-600 dark:text-gray-300 mt-1 sm:mt-2">
+              Find your perfect accommodation near campus
+            </p>
+          </div>
           <Link
             href="/search?type=room"
-            className="inline-flex items-center px-8 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-bold rounded-lg hover:from-blue-600 hover:to-indigo-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+            className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors flex items-center gap-1"
           >
-            View All Properties
-            <span className="ml-2">→</span>
+            View All
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
           </Link>
         </div>
+
+        <FlatsRoomsSlider items={roomItems} />
       </section>
     );
   } catch (error) {
