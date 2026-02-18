@@ -6,47 +6,47 @@ import Link from 'next/link';
 const funnyBanners = [
     {
         id: 1,
-        title: "🔥 Premium Arduino Kits Available!",
-        subtitle: "Complete starter kits with sensors, wires & components from verified seller. Perfect for electronics projects!",
-        buttonText: "Shop Arduino Kits",
-        buttonLink: "/search?q=arduino&category=Project+Equipment",
-        bgGradient: "from-gray-800 to-gray-600",
+        title: "🏠 Find Hostels & Flats Near Your Campus",
+        subtitle: "Verified hostels and affordable flats sorted by distance — Wi-Fi, mess & all amenities. No brokerage.",
+        buttonText: "Explore Stays",
+        buttonLink: "/category/Rooms/Hostel",
+        bgGradient: "from-emerald-800 to-teal-600",
         textColor: "text-white"
     },
     {
         id: 2,
-        title: "Buy and Sell Student Essentials",
-        subtitle: "Connect with fellow students to find textbooks, electronics, and more at affordable prices.",
-        buttonText: "Start Shopping",
-        buttonLink: "/",
-        bgGradient: "from-slate-800 to-slate-600",
+        title: "💰 Sell Your Unused Stuff, Earn Cash",
+        subtitle: "Old textbooks, laptops, bikes, electronics — list them in seconds and reach thousands of student buyers.",
+        buttonText: "Start Selling",
+        buttonLink: "/sell",
+        bgGradient: "from-amber-700 to-orange-500",
         textColor: "text-white"
     },
     {
         id: 3,
-        title: "Sell Your Unused Items",
-        subtitle: "Turn your unused books, electronics, and equipment into cash. List items quickly and reach student buyers.",
-        buttonText: "Start Selling",
-        buttonLink: "/sell",
-        bgGradient: "from-gray-700 to-gray-500",
+        title: "📚 Grab Deals on Student Essentials",
+        subtitle: "Pre-owned textbooks, project kits, lab equipment & more at prices that won't break the bank.",
+        buttonText: "Start Shopping",
+        buttonLink: "/",
+        bgGradient: "from-slate-800 to-gray-600",
         textColor: "text-white"
     },
     {
         id: 4,
-        title: "Find Academic Resources",
-        subtitle: "Access notes, study materials, and textbooks shared by students from your institution.",
-        buttonText: "Browse Notes",
-        buttonLink: "/category/Notes",
-        bgGradient: "from-zinc-800 to-zinc-600",
+        title: "🏢 Affordable Flats for Students",
+        subtitle: "Shared flats, single rooms & furnished apartments listed by real owners. Compare prices & move in fast.",
+        buttonText: "Browse Flats",
+        buttonLink: "/category/Rooms/Flat",
+        bgGradient: "from-indigo-800 to-violet-600",
         textColor: "text-white"
     },
     {
         id: 5,
-        title: "Discover Student Accommodation",
-        subtitle: "Find rooms, hostels, and shared accommodations near your campus with verified listings.",
-        buttonText: "Find Rooms",
-        buttonLink: "/category/Rooms/Hostel",
-        bgGradient: "from-stone-800 to-stone-600",
+        title: "📝 Share & Download Study Notes",
+        subtitle: "Access handwritten notes, PDFs & study materials shared by toppers from your college.",
+        buttonText: "Browse Notes",
+        buttonLink: "/category/Notes",
+        bgGradient: "from-sky-800 to-cyan-600",
         textColor: "text-white"
     }
 ];
