@@ -438,12 +438,12 @@ export default function ProductPageClient({ product, seller, type }) {
                     )}
                 </div>
 
+                {type === 'room' && (
+                    <NearbyFlatsSection currentRoomId={product.id} location={product.location} />
+                )}
+
                 <div className="mt-12">
-                    {type === 'room' ? (
-                        <NearbyFlatsSection currentRoomId={product.id} location={product.location} />
-                    ) : (
-                        <SimilarItemsFeed type={type} category={product.category} college={product.college} currentItemId={product.id} />
-                    )}
+                    <SimilarItemsFeed type={type} category={product.category} college={product.college} currentItemId={product.id} />
                 </div>
 
                 {/* Disclaimer */}
